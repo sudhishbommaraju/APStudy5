@@ -1,27 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tantml:react-query';
 import { Button } from '@/components/ui/button';
 import { Loader2, ArrowRight, RotateCcw, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import SkillSelector from '@/components/ui/SkillSelector';
 import QuestionCard from '@/components/ui/QuestionCard';
+import ExamSelector from '@/components/ui/ExamSelector';
 import { cn } from '@/lib/utils';
-
-const EXAM_NAMES = {
-  ap_calculus: 'AP Calculus',
-  sat_math: 'SAT Math',
-  act_math: 'ACT Math',
-  psat_math: 'PSAT Math',
-};
 
 export default function Practice() {
   const urlParams = new URLSearchParams(window.location.search);
   const examFromUrl = urlParams.get('exam');
   
   const [user, setUser] = useState(null);
-  const [selectedExam, setSelectedExam] = useState(examFromUrl || 'sat_math');
+  const [selectedExam, setSelectedExam] = useState(examFromUrl || '');
   const [selectedSkill, setSelectedSkill] = useState(null);
   const [selectedDifficulty, setSelectedDifficulty] = useState('medium');
   const [currentQuestion, setCurrentQuestion] = useState(null);
@@ -88,7 +82,7 @@ export default function Practice() {
       }
 
       // Generate new question with AI
-      const prompt = `Generate an exam-style multiple choice question for ${EXAM_NAMES[selectedExam]}.
+      const prompt = `Generate an exam-style multiple choice question for ${selectedExam.replace(/_/g, ' ').toUpperCase()}.
 
 Topic/Skill: ${selectedSkill.skill_name}
 Subject Area: ${selectedSkill.subject}
@@ -212,28 +206,17 @@ Return a JSON object with:
             {/* Exam Selector */}
             <div className="bg-white rounded-xl border border-slate-200 p-4">
               <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 block">
-                Exam
+                Select Exam
               </label>
-              <div className="grid grid-cols-2 gap-2">
-                {Object.entries(EXAM_NAMES).map(([id, name]) => (
-                  <button
-                    key={id}
-                    onClick={() => {
-                      setSelectedExam(id);
-                      setSelectedSkill(null);
-                      setCurrentQuestion(null);
-                    }}
-                    className={cn(
-                      "px-3 py-2 rounded-lg text-sm font-medium transition-all",
-                      selectedExam === id
-                        ? "bg-slate-900 text-white"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                    )}
-                  >
-                    {name.replace(' Math', '')}
-                  </button>
-                ))}
-              </div>
+              <ExamSelector
+                selected={selectedExam}
+                onSelect={(examId) => {
+                  setSelectedExam(examId);
+                  setSelectedSkill(null);
+                  setCurrentQuestion(null);
+                }}
+                multiple={false}
+              />
             </div>
 
             {/* Difficulty */}
@@ -304,7 +287,17 @@ Return a JSON object with:
 
           {/* Main Content */}
           <div className="lg:col-span-2">
-            {!selectedSkill ? (
+            {!selectedExam ? (
+              <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                  <ArrowRight className="w-6 h-6 text-slate-400" />
+                </div>
+                <h3 className="font-semibold text-slate-900 mb-2">Select an Exam</h3>
+                <p className="text-slate-500 text-sm">
+                  Choose which exam you want to practice for
+                </p>
+              </div>
+            ) : !selectedSkill ? (
               <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
                 <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
                   <ArrowRight className="w-6 h-6 text-slate-400" />

@@ -8,21 +8,15 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import SkillSelector from '@/components/ui/SkillSelector';
 import QuestionCard from '@/components/ui/QuestionCard';
+import ExamSelector from '@/components/ui/ExamSelector';
 import { cn } from '@/lib/utils';
-
-const EXAM_NAMES = {
-  ap_calculus: 'AP Calculus',
-  sat_math: 'SAT Math',
-  act_math: 'ACT Math',
-  psat_math: 'PSAT Math',
-};
 
 export default function Generate() {
   const urlParams = new URLSearchParams(window.location.search);
   const examFromUrl = urlParams.get('exam');
   
   const [user, setUser] = useState(null);
-  const [selectedExam, setSelectedExam] = useState(examFromUrl || 'sat_math');
+  const [selectedExam, setSelectedExam] = useState(examFromUrl || '');
   const [generationMode, setGenerationMode] = useState('skill'); // 'skill' or 'notes'
   const [selectedSkill, setSelectedSkill] = useState(null);
   const [notes, setNotes] = useState('');
@@ -58,7 +52,7 @@ export default function Generate() {
         ? `Skill: ${selectedSkill.skill_name}\nSubject: ${selectedSkill.subject}`
         : `Student's Notes:\n${notes}`;
 
-      const prompt = `Generate ${questionCount} exam-style multiple choice questions for ${EXAM_NAMES[selectedExam]}.
+      const prompt = `Generate ${questionCount} exam-style multiple choice questions for ${selectedExam.replace(/_/g, ' ').toUpperCase()}.
 
 ${topicContext}
 
@@ -157,7 +151,7 @@ Return a JSON object with a "questions" array, where each question has:
     });
   };
 
-  const canGenerate = generationMode === 'skill' ? !!selectedSkill : notes.trim().length > 20;
+  const canGenerate = selectedExam && (generationMode === 'skill' ? !!selectedSkill : notes.trim().length > 20);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -215,27 +209,16 @@ Return a JSON object with a "questions" array, where each question has:
               {/* Exam Selector */}
               <div className="bg-white rounded-xl border border-slate-200 p-4">
                 <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 block">
-                  Exam
+                  Select Exam
                 </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {Object.entries(EXAM_NAMES).map(([id, name]) => (
-                    <button
-                      key={id}
-                      onClick={() => {
-                        setSelectedExam(id);
-                        setSelectedSkill(null);
-                      }}
-                      className={cn(
-                        "px-3 py-2 rounded-lg text-sm font-medium transition-all",
-                        selectedExam === id
-                          ? "bg-slate-900 text-white"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                      )}
-                    >
-                      {name.replace(' Math', '')}
-                    </button>
-                  ))}
-                </div>
+                <ExamSelector
+                  selected={selectedExam}
+                  onSelect={(examId) => {
+                    setSelectedExam(examId);
+                    setSelectedSkill(null);
+                  }}
+                  multiple={false}
+                />
               </div>
 
               {/* Difficulty */}

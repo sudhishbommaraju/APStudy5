@@ -22,7 +22,7 @@ export default function Exam() {
   const queryClient = useQueryClient();
   
   const [user, setUser] = useState(null);
-  const [selectedExam, setSelectedExam] = useState(examFromUrl || 'sat_math');
+  const [selectedExam, setSelectedExam] = useState(examFromUrl || '');
   const [questionCount, setQuestionCount] = useState(10);
   const [selectedDifficulty, setSelectedDifficulty] = useState('mixed');
   const [timeLimit, setTimeLimit] = useState(15); // minutes
@@ -94,7 +94,7 @@ export default function Exam() {
         for (let i = 0; i < questionsPerDifficulty && generatedQuestions.length < questionCount; i++) {
           const skill = skillsForExam[i % skillsForExam.length];
           
-          const prompt = `Generate an exam-style multiple choice question for ${EXAM_NAMES[selectedExam]}.
+          const prompt = `Generate an exam-style multiple choice question for ${selectedExam.replace(/_/g, ' ').toUpperCase()}.
 
 Topic/Skill: ${skill.skill_name}
 Subject Area: ${skill.subject}
@@ -266,23 +266,12 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
           <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-6">
             {/* Exam Type */}
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-3 block">Exam Type</label>
-              <div className="grid grid-cols-2 gap-2">
-                {Object.entries(EXAM_NAMES).map(([id, name]) => (
-                  <button
-                    key={id}
-                    onClick={() => setSelectedExam(id)}
-                    className={cn(
-                      "px-4 py-3 rounded-lg text-sm font-medium transition-all",
-                      selectedExam === id
-                        ? "bg-slate-900 text-white"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                    )}
-                  >
-                    {name}
-                  </button>
-                ))}
-              </div>
+              <label className="text-sm font-medium text-slate-700 mb-3 block">Select Exam</label>
+              <ExamSelector
+                selected={selectedExam}
+                onSelect={setSelectedExam}
+                multiple={false}
+              />
             </div>
 
             {/* Question Count */}
@@ -364,7 +353,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
 
             <Button
               onClick={startExam}
-              disabled={loading || skills.length === 0}
+              disabled={loading || skills.length === 0 || !selectedExam}
               className="w-full h-12"
             >
               {loading ? (
