@@ -4,6 +4,8 @@ import Dashboard from './pages/Dashboard';
 import Practice from './pages/Practice';
 import Generate from './pages/Generate';
 import Exam from './pages/Exam';
+import Progress from './pages/Progress';
+import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
@@ -13,9 +15,11 @@ export const PAGES = {
     "Practice": Practice,
     "Generate": Generate,
     "Exam": Exam,
+    "Progress": Progress,
 }
 
 export const pagesConfig = {
     mainPage: "Onboarding",
     Pages: PAGES,
+    Layout: __Layout,
 };

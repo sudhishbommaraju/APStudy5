@@ -1,0 +1,302 @@
+import React, { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
+import { 
+  ChevronLeft, 
+  TrendingUp, 
+  Target, 
+  Calendar,
+  ArrowRight
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import SkillAccuracyChart from '@/components/dashboard/SkillAccuracyChart';
+import AccuracyOverTimeChart from '@/components/dashboard/AccuracyOverTimeChart';
+import { format, subDays, parseISO } from 'date-fns';
+import { cn } from '@/lib/utils';
+
+const EXAM_NAMES = {
+  ap_calculus: 'AP Calculus',
+  sat_math: 'SAT Math',
+  act_math: 'ACT Math',
+  psat_math: 'PSAT Math',
+};
+
+export default function Progress() {
+  const [user, setUser] = useState(null);
+  const [selectedExam, setSelectedExam] = useState('');
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const currentUser = await base44.auth.me();
+      setUser(currentUser);
+      setSelectedExam(currentUser.primary_exam || 'sat_math');
+    };
+    loadUser();
+  }, []);
+
+  const { data: attempts = [] } = useQuery({
+    queryKey: ['attempts'],
+    queryFn: () => base44.entities.Attempt.list('-created_date', 1000),
+    enabled: !!user,
+  });
+
+  const userAttempts = attempts.filter(a => a.created_by === user?.email);
+  const examAttempts = userAttempts.filter(a => a.exam_type === selectedExam);
+
+  // Calculate skill stats
+  const skillStats = {};
+  examAttempts.forEach(attempt => {
+    if (!skillStats[attempt.skill_name]) {
+      skillStats[attempt.skill_name] = { correct: 0, total: 0, subject: attempt.subject };
+    }
+    skillStats[attempt.skill_name].total++;
+    if (attempt.is_correct) skillStats[attempt.skill_name].correct++;
+  });
+
+  const skillAccuracyData = Object.entries(skillStats)
+    .map(([name, stats]) => ({
+      name: name.length > 25 ? name.substring(0, 25) + '...' : name,
+      fullName: name,
+      accuracy: (stats.correct / stats.total) * 100,
+      correct: stats.correct,
+      total: stats.total,
+      subject: stats.subject,
+    }))
+    .sort((a, b) => a.accuracy - b.accuracy);
+
+  // Group by subject
+  const subjectStats = {};
+  examAttempts.forEach(attempt => {
+    if (!subjectStats[attempt.subject]) {
+      subjectStats[attempt.subject] = { correct: 0, total: 0 };
+    }
+    subjectStats[attempt.subject].total++;
+    if (attempt.is_correct) subjectStats[attempt.subject].correct++;
+  });
+
+  // Accuracy over time
+  const accuracyByDate = {};
+  for (let i = 29; i >= 0; i--) {
+    const date = format(subDays(new Date(), i), 'MMM d');
+    accuracyByDate[date] = { correct: 0, total: 0 };
+  }
+
+  userAttempts.forEach(attempt => {
+    const date = format(parseISO(attempt.created_date), 'MMM d');
+    if (accuracyByDate[date]) {
+      accuracyByDate[date].total++;
+      if (attempt.is_correct) accuracyByDate[date].correct++;
+    }
+  });
+
+  const accuracyOverTimeData = Object.entries(accuracyByDate)
+    .filter(([_, stats]) => stats.total > 0)
+    .map(([date, stats]) => ({
+      date,
+      accuracy: (stats.correct / stats.total) * 100,
+      total: stats.total,
+    }));
+
+  // Difficulty breakdown
+  const difficultyStats = { easy: { correct: 0, total: 0 }, medium: { correct: 0, total: 0 }, hard: { correct: 0, total: 0 }};
+  examAttempts.forEach(attempt => {
+    if (difficultyStats[attempt.difficulty]) {
+      difficultyStats[attempt.difficulty].total++;
+      if (attempt.is_correct) difficultyStats[attempt.difficulty].correct++;
+    }
+  });
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-6">
+          <Link to={createPageUrl('Dashboard')}>
+            <Button variant="ghost" size="icon">
+              <ChevronLeft className="w-5 h-5" />
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">Progress Report</h1>
+            <p className="text-slate-500">Detailed breakdown of your performance</p>
+          </div>
+        </div>
+
+        {/* Exam Filter */}
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+          {Object.entries(EXAM_NAMES).map(([id, name]) => (
+            <button
+              key={id}
+              onClick={() => setSelectedExam(id)}
+              className={cn(
+                "px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all",
+                selectedExam === id
+                  ? "bg-slate-900 text-white"
+                  : "bg-white border border-slate-200 text-slate-600 hover:border-slate-300"
+              )}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+
+        {examAttempts.length === 0 ? (
+          <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+            <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+              <Target className="w-6 h-6 text-slate-400" />
+            </div>
+            <h3 className="font-semibold text-slate-900 mb-2">No data yet</h3>
+            <p className="text-slate-500 text-sm mb-6">
+              Complete some practice questions to see your progress
+            </p>
+            <Link to={createPageUrl('Practice') + `?exam=${selectedExam}`}>
+              <Button>
+                Start Practicing
+                <ArrowRight className="w-4 h-4 ml-1" />
+              </Button>
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Summary Cards */}
+            <div className="grid sm:grid-cols-3 gap-4">
+              <div className="bg-white rounded-xl border border-slate-200 p-5">
+                <p className="text-sm font-medium text-slate-500">Total Questions</p>
+                <p className="text-3xl font-bold text-slate-900 mt-1">{examAttempts.length}</p>
+              </div>
+              <div className="bg-white rounded-xl border border-slate-200 p-5">
+                <p className="text-sm font-medium text-slate-500">Overall Accuracy</p>
+                <p className="text-3xl font-bold text-slate-900 mt-1">
+                  {((examAttempts.filter(a => a.is_correct).length / examAttempts.length) * 100).toFixed(0)}%
+                </p>
+              </div>
+              <div className="bg-white rounded-xl border border-slate-200 p-5">
+                <p className="text-sm font-medium text-slate-500">Skills Practiced</p>
+                <p className="text-3xl font-bold text-slate-900 mt-1">{Object.keys(skillStats).length}</p>
+              </div>
+            </div>
+
+            {/* Difficulty Breakdown */}
+            <div className="bg-white rounded-xl border border-slate-200 p-6">
+              <h3 className="font-semibold text-slate-900 mb-4">Performance by Difficulty</h3>
+              <div className="grid sm:grid-cols-3 gap-4">
+                {Object.entries(difficultyStats).map(([difficulty, stats]) => {
+                  const accuracy = stats.total > 0 ? (stats.correct / stats.total) * 100 : 0;
+                  return (
+                    <div key={difficulty} className="p-4 bg-slate-50 rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className={cn(
+                          "px-2 py-1 rounded text-xs font-medium capitalize",
+                          difficulty === 'easy' && "bg-emerald-100 text-emerald-700",
+                          difficulty === 'medium' && "bg-amber-100 text-amber-700",
+                          difficulty === 'hard' && "bg-rose-100 text-rose-700"
+                        )}>
+                          {difficulty}
+                        </span>
+                        <span className="text-sm text-slate-500">{stats.total} questions</span>
+                      </div>
+                      <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div 
+                          className={cn(
+                            "h-full transition-all",
+                            accuracy >= 70 ? "bg-emerald-500" :
+                            accuracy >= 50 ? "bg-amber-500" :
+                            "bg-rose-500"
+                          )}
+                          style={{ width: `${accuracy}%` }}
+                        />
+                      </div>
+                      <p className="text-lg font-semibold text-slate-900 mt-2">
+                        {accuracy.toFixed(0)}%
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Progress Over Time */}
+            <div className="bg-white rounded-xl border border-slate-200 p-6">
+              <h3 className="font-semibold text-slate-900 mb-4">Accuracy Over Time</h3>
+              <AccuracyOverTimeChart data={accuracyOverTimeData} />
+            </div>
+
+            {/* Skill Breakdown */}
+            <div className="bg-white rounded-xl border border-slate-200 p-6">
+              <h3 className="font-semibold text-slate-900 mb-4">Accuracy by Skill</h3>
+              <SkillAccuracyChart data={skillAccuracyData} />
+            </div>
+
+            {/* Subject Breakdown */}
+            {Object.keys(subjectStats).length > 0 && (
+              <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-100">
+                  <h3 className="font-semibold text-slate-900">Performance by Subject</h3>
+                </div>
+                <div className="divide-y divide-slate-100">
+                  {Object.entries(subjectStats)
+                    .sort((a, b) => (a[1].correct / a[1].total) - (b[1].correct / b[1].total))
+                    .map(([subject, stats]) => {
+                      const accuracy = (stats.correct / stats.total) * 100;
+                      return (
+                        <div key={subject} className="px-6 py-4 flex items-center justify-between">
+                          <div>
+                            <p className="font-medium text-slate-900">{subject}</p>
+                            <p className="text-sm text-slate-500">{stats.total} questions</p>
+                          </div>
+                          <div className="text-right">
+                            <p className={cn(
+                              "text-lg font-semibold",
+                              accuracy >= 70 ? "text-emerald-600" :
+                              accuracy >= 50 ? "text-amber-600" :
+                              "text-rose-600"
+                            )}>
+                              {accuracy.toFixed(0)}%
+                            </p>
+                            <p className="text-sm text-slate-500">
+                              {stats.correct}/{stats.total} correct
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+
+            {/* Weak Skills */}
+            {skillAccuracyData.filter(s => s.accuracy < 70).length > 0 && (
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-6">
+                <div className="flex items-center gap-2 mb-4">
+                  <TrendingUp className="w-5 h-5 text-amber-600" />
+                  <h3 className="font-semibold text-amber-900">Focus Areas</h3>
+                </div>
+                <div className="space-y-3">
+                  {skillAccuracyData
+                    .filter(s => s.accuracy < 70)
+                    .slice(0, 5)
+                    .map((skill) => (
+                      <div key={skill.fullName} className="flex items-center justify-between">
+                        <span className="text-sm text-amber-900">{skill.fullName}</span>
+                        <span className="text-sm font-medium text-amber-700">
+                          {skill.accuracy.toFixed(0)}% ({skill.correct}/{skill.total})
+                        </span>
+                      </div>
+                    ))}
+                </div>
+                <Link to={createPageUrl('Practice') + `?exam=${selectedExam}`}>
+                  <Button className="mt-4 bg-amber-600 hover:bg-amber-700">
+                    Practice These Skills
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
