@@ -64,14 +64,21 @@ export default function Practice() {
     
     try {
       // Check if we have unused questions first
+      const existingQuestionsForSkill = await base44.entities.Question.filter({
+        exam_type: selectedExam,
+        skill_name: selectedSkill.skill_name,
+        difficulty: selectedDifficulty,
+      });
+      
       const usedQuestionIds = new Set();
       const attempts = await base44.entities.Attempt.filter({
         skill_name: selectedSkill.skill_name,
         difficulty: selectedDifficulty,
+        created_by: user?.email,
       });
       attempts.forEach(a => usedQuestionIds.add(a.question_id));
       
-      const unusedQuestions = existingQuestions.filter(q => !usedQuestionIds.has(q.id));
+      const unusedQuestions = existingQuestionsForSkill.filter(q => !usedQuestionIds.has(q.id));
       
       if (unusedQuestions.length > 0) {
         const randomQ = unusedQuestions[Math.floor(Math.random() * unusedQuestions.length)];
