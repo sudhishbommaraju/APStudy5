@@ -316,6 +316,7 @@ The derivative of a function represents the rate of change. The power rule state
                   </p>
                 </div>
               )}
+            </div>
           </div>
         ) : (
           /* Question Review */
