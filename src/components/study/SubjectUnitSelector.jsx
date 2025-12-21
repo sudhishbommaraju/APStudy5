@@ -20,7 +20,7 @@ export default function SubjectUnitSelector({
   onSkillChange,
   className 
 }) {
-  const { data: subjects = [] } = useQuery({
+  const { data: subjects = [], isLoading: subjectsLoading } = useQuery({
     queryKey: ['subjects'],
     queryFn: () => base44.entities.Subject.list('subject_id'),
   });
@@ -37,12 +37,17 @@ export default function SubjectUnitSelector({
     enabled: !!selectedUnit,
   });
 
+  // Debug: Log subjects
+  console.log('Subjects loaded:', subjects.length, subjects);
+
   // Group subjects by category
   const subjectsByCategory = subjects.reduce((acc, subject) => {
     if (!acc[subject.category]) acc[subject.category] = [];
     acc[subject.category].push(subject);
     return acc;
   }, {});
+
+  console.log('Subjects by category:', subjectsByCategory);
 
   return (
     <div className={cn("space-y-4", className)}>
@@ -56,26 +61,33 @@ export default function SubjectUnitSelector({
             <SelectValue placeholder="Choose a subject" />
           </SelectTrigger>
           <SelectContent className="max-h-96">
-            {subjects.length === 0 ? (
+            {subjectsLoading ? (
               <div className="px-2 py-4 text-sm text-slate-500 text-center">
-                No subjects available
+                Loading subjects...
+              </div>
+            ) : subjects.length === 0 ? (
+              <div className="px-2 py-4 text-sm text-slate-500 text-center">
+                No subjects available. Please seed data first.
               </div>
             ) : (
-              Object.entries(subjectsByCategory).map(([category, categorySubjects]) => (
-                <div key={category}>
-                  <div className="px-2 py-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    {category}
+              Object.keys(subjectsByCategory).sort().map((category) => {
+                const categorySubjects = subjectsByCategory[category];
+                return (
+                  <div key={category}>
+                    <div className="px-2 py-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                      {category}
+                    </div>
+                    {categorySubjects.map((subject) => (
+                      <SelectItem key={subject.subject_id} value={subject.subject_id}>
+                        <div className="flex items-center gap-2">
+                          {subject.icon && <span>{subject.icon}</span>}
+                          <span>{subject.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
                   </div>
-                  {categorySubjects.map((subject) => (
-                    <SelectItem key={subject.subject_id} value={subject.subject_id}>
-                      <div className="flex items-center gap-2">
-                        {subject.icon && <span>{subject.icon}</span>}
-                        <span>{subject.name}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </div>
-              ))
+                );
+              })
             )}
           </SelectContent>
         </Select>
