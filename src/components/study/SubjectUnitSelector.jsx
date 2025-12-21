@@ -13,9 +13,11 @@ import {
 
 export default function SubjectUnitSelector({ 
   selectedSubject, 
-  selectedUnit, 
+  selectedUnit,
+  selectedSkill,
   onSubjectChange, 
   onUnitChange,
+  onSkillChange,
   className 
 }) {
   const { data: subjects = [] } = useQuery({
@@ -27,6 +29,12 @@ export default function SubjectUnitSelector({
     queryKey: ['units', selectedSubject],
     queryFn: () => base44.entities.Unit.filter({ subject_id: selectedSubject }),
     enabled: !!selectedSubject,
+  });
+
+  const { data: skills = [] } = useQuery({
+    queryKey: ['skills', selectedUnit],
+    queryFn: () => base44.entities.Skill.filter({ unit_id: selectedUnit }),
+    enabled: !!selectedUnit,
   });
 
   // Group subjects by category
@@ -84,6 +92,33 @@ export default function SubjectUnitSelector({
             {units.sort((a, b) => a.unit_number - b.unit_number).map((unit) => (
               <SelectItem key={unit.id} value={unit.id}>
                 Unit {unit.unit_number}: {unit.unit_name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Skill Selector */}
+      <div>
+        <label className="text-sm font-medium text-slate-700 mb-2 block">
+          Select Skill
+        </label>
+        <Select 
+          value={selectedSkill} 
+          onValueChange={onSkillChange}
+          disabled={!selectedUnit || skills.length === 0}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder={
+              !selectedUnit ? "Select unit first" : 
+              skills.length === 0 ? "Skills coming soon" : 
+              "Choose a skill"
+            } />
+          </SelectTrigger>
+          <SelectContent className="max-h-96">
+            {skills.map((skill) => (
+              <SelectItem key={skill.id} value={skill.id}>
+                {skill.skill_name}
               </SelectItem>
             ))}
           </SelectContent>
