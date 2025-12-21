@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, X, ChevronRight } from 'lucide-react';
+import { Check, X, ChevronRight, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
@@ -13,11 +13,13 @@ export default function QuestionCard({
 }) {
   const [localSelected, setLocalSelected] = useState(selectedAnswer);
   const [submitted, setSubmitted] = useState(showFeedback);
+  const [showHint, setShowHint] = useState(false);
 
   // Reset state when question changes
   React.useEffect(() => {
     setLocalSelected(selectedAnswer);
     setSubmitted(showFeedback);
+    setShowHint(false);
   }, [question?.id, selectedAnswer, showFeedback]);
 
   const choices = [
@@ -119,6 +121,30 @@ export default function QuestionCard({
         })}
       </div>
 
+      {/* Hint Section */}
+      {mode === 'practice' && !submitted && question.hint && (
+        <div className="px-6 pb-4">
+          {!showHint ? (
+            <Button 
+              onClick={() => setShowHint(true)}
+              variant="outline"
+              className="w-full"
+            >
+              <Lightbulb className="w-4 h-4 mr-2" />
+              Show Hint
+            </Button>
+          ) : (
+            <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <Lightbulb className="w-4 h-4 text-amber-600" />
+                <span className="font-semibold text-amber-800 text-sm">Hint</span>
+              </div>
+              <p className="text-sm text-amber-900">{question.hint}</p>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Submit Button (Practice Mode) */}
       {mode === 'practice' && !submitted && (
         <div className="px-6 pb-5">
@@ -133,33 +159,23 @@ export default function QuestionCard({
         </div>
       )}
 
-      {/* Feedback (Practice Mode) */}
-      {showResult && (
-        <div className={cn(
-          "px-6 py-5 border-t",
-          isCorrect ? "bg-emerald-50 border-emerald-100" : "bg-rose-50 border-rose-100"
-        )}>
+      {/* Feedback (Practice Mode) - Only show for incorrect answers */}
+      {showResult && !isCorrect && (
+        <div className="px-6 py-5 border-t bg-rose-50 border-rose-100">
           <div className="flex items-center gap-2 mb-3">
-            {isCorrect ? (
-              <>
-                <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
-                  <Check className="w-4 h-4 text-white" />
-                </div>
-                <span className="font-semibold text-emerald-800">Correct!</span>
-              </>
-            ) : (
-              <>
-                <div className="w-6 h-6 rounded-full bg-rose-500 flex items-center justify-center">
-                  <X className="w-4 h-4 text-white" />
-                </div>
-                <span className="font-semibold text-rose-800">Incorrect</span>
-              </>
-            )}
+            <div className="w-6 h-6 rounded-full bg-rose-500 flex items-center justify-center">
+              <X className="w-4 h-4 text-white" />
+            </div>
+            <span className="font-semibold text-rose-800">Incorrect</span>
+          </div>
+          <div className="mb-3">
+            <p className="text-sm font-medium text-slate-700 mb-1">Correct Answer: {question.correct_answer}</p>
           </div>
           <div className="prose prose-sm max-w-none text-slate-700">
+            <p className="font-medium text-slate-900 mb-2">Explanation:</p>
             <ReactMarkdown>{question.explanation}</ReactMarkdown>
           </div>
-          {!isCorrect && question.wrong_answer_explanations?.[localSelected] && (
+          {question.wrong_answer_explanations?.[localSelected] && (
             <div className="mt-3 pt-3 border-t border-rose-200">
               <p className="text-sm text-rose-700">
                 <strong>Why {localSelected} is wrong:</strong> {question.wrong_answer_explanations[localSelected]}
