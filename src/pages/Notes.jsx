@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import StudyTimer from '@/components/study/StudyTimer';
 
 export default function Notes() {
@@ -166,7 +168,9 @@ Format in markdown with clear sections and bullet points.`;
                   </div>
                 </div>
                 <div className="prose prose-sm max-w-none">
-                  <ReactMarkdown>{generatedNote.content}</ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                    {generatedNote.content}
+                  </ReactMarkdown>
                 </div>
               </div>
             )}
@@ -181,7 +185,9 @@ Format in markdown with clear sections and bullet points.`;
                   </div>
                 </div>
                 <div className="prose prose-sm max-w-none">
-                  <ReactMarkdown>{note.content}</ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                    {note.content}
+                  </ReactMarkdown>
                 </div>
               </div>
             ))}

@@ -2,6 +2,8 @@ import React from 'react';
 import { Check, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 
 export default function QuestionReview({ 
   question, 
@@ -124,7 +126,9 @@ export default function QuestionReview({
             )}
           </div>
           <div className="prose prose-sm max-w-none text-slate-700">
-            <ReactMarkdown>{question.explanation}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+              {question.explanation}
+            </ReactMarkdown>
           </div>
           {!isCorrect && question.wrong_answer_explanations?.[selectedAnswer] && (
             <div className="mt-3 pt-3 border-t border-rose-200">

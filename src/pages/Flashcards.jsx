@@ -7,6 +7,9 @@ import { ChevronLeft, Loader2, Brain, Sparkles, RotateCcw, Check, X } from 'luci
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import { cn } from '@/lib/utils';
 import StudyTimer from '@/components/study/StudyTimer';
 
@@ -180,14 +183,22 @@ Return an array of flashcard objects.`;
                   <p className="text-xs uppercase tracking-wider text-slate-500 mb-4">
                     Question
                   </p>
-                  <p className="text-xl font-medium text-slate-900">{currentCard.front}</p>
+                  <div className="text-xl font-medium text-slate-900 prose prose-slate max-w-none">
+                    <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                      {currentCard.front}
+                    </ReactMarkdown>
+                  </div>
                 </>
               ) : (
                 <>
                   <p className="text-xs uppercase tracking-wider text-slate-500 mb-4">
                     Answer
                   </p>
-                  <p className="text-lg text-slate-700 leading-relaxed">{currentCard.back}</p>
+                  <div className="text-lg text-slate-700 leading-relaxed prose prose-slate max-w-none">
+                    <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                      {currentCard.back}
+                    </ReactMarkdown>
+                  </div>
                 </>
               )}
             </div>
