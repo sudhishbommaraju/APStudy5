@@ -299,42 +299,49 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
               </label>
               <Select value={selectedSubject} onValueChange={handleSubjectChange}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Choose a subject">
-                    {currentSubject && (
-                      <div className="flex items-center gap-2">
-                        {currentSubject.icon && <span>{currentSubject.icon}</span>}
-                        <span>{currentSubject.name}</span>
-                      </div>
-                    )}
-                  </SelectValue>
+                  <SelectValue placeholder="Choose a subject" />
                 </SelectTrigger>
                 <SelectContent className="max-h-96">
-                  {subjects.reduce((acc, subject) => {
-                    const category = subject.category;
-                    if (!acc.find(item => item.category === category)) {
-                      acc.push({ 
-                        category, 
-                        subjects: subjects.filter(s => s.category === category) 
-                      });
-                    }
-                    return acc;
-                  }, []).map(({ category, subjects: categorySubjects }) => (
-                    <div key={category}>
-                      <div className="px-2 py-1.5 text-xs font-semibold text-slate-500 uppercase">
-                        {category}
-                      </div>
-                      {categorySubjects.map((subject) => (
-                        <SelectItem key={subject.subject_id} value={subject.subject_id}>
-                          <div className="flex items-center gap-2">
-                            {subject.icon && <span>{subject.icon}</span>}
-                            <span>{subject.name}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
+                  {subjects.length === 0 ? (
+                    <div className="px-2 py-4 text-sm text-slate-500 text-center">
+                      No subjects available
                     </div>
-                  ))}
+                  ) : (
+                    (() => {
+                      const grouped = subjects.reduce((acc, subject) => {
+                        const category = subject.category;
+                        if (!acc[category]) {
+                          acc[category] = [];
+                        }
+                        acc[category].push(subject);
+                        return acc;
+                      }, {});
+                      
+                      return Object.entries(grouped).map(([category, categorySubjects]) => (
+                        <div key={category}>
+                          <div className="px-2 py-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                            {category}
+                          </div>
+                          {categorySubjects.map((subject) => (
+                            <SelectItem key={subject.subject_id} value={subject.subject_id}>
+                              <div className="flex items-center gap-2">
+                                {subject.icon && <span>{subject.icon}</span>}
+                                <span>{subject.name}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </div>
+                      ));
+                    })()
+                  )}
                 </SelectContent>
               </Select>
+              {selectedSubject && currentSubject && (
+                <div className="mt-2 flex items-center gap-2 text-sm text-slate-600">
+                  {currentSubject.icon && <span>{currentSubject.icon}</span>}
+                  <span>Selected: {currentSubject.name}</span>
+                </div>
+              )}
             </div>
 
             {/* Unit Selection */}
