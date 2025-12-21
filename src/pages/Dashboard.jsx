@@ -124,6 +124,14 @@ export default function Dashboard() {
     studyDays.add(format(parseISO(a.created_date), 'yyyy-MM-dd'));
   });
 
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-2 border-slate-300 border-t-slate-600 rounded-full" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
