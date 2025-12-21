@@ -34,6 +34,10 @@ export default function Dashboard() {
     const loadUser = async () => {
       const currentUser = await base44.auth.me();
       setUser(currentUser);
+      // Redirect to onboarding if not completed
+      if (!currentUser.onboarding_complete) {
+        window.location.href = createPageUrl('Onboarding');
+      }
     };
     loadUser();
   }, []);
