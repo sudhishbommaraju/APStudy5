@@ -235,6 +235,17 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
     setLoading(false);
   };
 
+  // Loading state
+  if (loading && examState === 'setup') {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-slate-600 mb-4" />
+        <p className="text-slate-600 font-medium">Generating your exam questions...</p>
+        <p className="text-slate-400 text-sm mt-1">This may take a moment</p>
+      </div>
+    );
+  }
+
   // Setup Screen
   if (examState === 'setup') {
     return (
