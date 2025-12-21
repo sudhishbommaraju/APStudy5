@@ -6,7 +6,8 @@ import { Loader2, ArrowRight, ChevronLeft, Clock, AlertTriangle, CheckCircle2, X
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import QuestionCard from '@/components/ui/QuestionCard';
-import ExamSelector from '@/components/ui/ExamSelector';
+import SubjectUnitSelector from '@/components/study/SubjectUnitSelector';
+import SubjectChangeDialog from '@/components/study/SubjectChangeDialog';
 import { cn } from '@/lib/utils';
 
 export default function Exam() {
@@ -16,7 +17,10 @@ export default function Exam() {
   const queryClient = useQueryClient();
   
   const [user, setUser] = useState(null);
-  const [selectedExam, setSelectedExam] = useState(examFromUrl || '');
+  const [selectedSubject, setSelectedSubject] = useState('');
+  const [selectedUnit, setSelectedUnit] = useState('');
+  const [selectedSkill, setSelectedSkill] = useState('');
+  const [showSubjectDialog, setShowSubjectDialog] = useState(false);
   const [questionCount, setQuestionCount] = useState(10);
   const [selectedDifficulty, setSelectedDifficulty] = useState('mixed');
   const [timeLimit, setTimeLimit] = useState(15); // minutes
@@ -35,17 +39,22 @@ export default function Exam() {
     const loadUser = async () => {
       const currentUser = await base44.auth.me();
       setUser(currentUser);
-      if (!examFromUrl && currentUser.primary_exam) {
-        setSelectedExam(currentUser.primary_exam);
-      }
     };
     loadUser();
-  }, [examFromUrl]);
+  }, []);
 
-  const { data: skills = [] } = useQuery({
-    queryKey: ['skills', selectedExam],
-    queryFn: () => base44.entities.Skill.filter({ exam_type: selectedExam }),
+  const { data: currentSubjectData } = useQuery({
+    queryKey: ['subject', selectedSubject],
+    queryFn: () => base44.entities.Subject.list(),
+    enabled: !!selectedSubject,
+    select: (subjects) => subjects.find(s => s.subject_id === selectedSubject),
   });
+
+  const handleSubjectChange = (subjectId) => {
+    setSelectedSubject(subjectId);
+    setSelectedUnit('');
+    setSelectedSkill('');
+  };
 
   // Timer
   useEffect(() => {
@@ -71,9 +80,21 @@ export default function Exam() {
   };
 
   const startExam = async () => {
+    if (!selectedSubject || !selectedUnit || !selectedSkill) return;
+    
     setLoading(true);
     
     try {
+      // Fetch the skill data
+      const skillData = await base44.entities.Skill.list();
+      const currentSkill = skillData.find(s => s.id === selectedSkill);
+      
+      if (!currentSkill) {
+        console.error('Skill not found');
+        setLoading(false);
+        return;
+      }
+
       // Generate questions
       const generatedQuestions = [];
       const difficulties = selectedDifficulty === 'mixed' 
@@ -83,15 +104,10 @@ export default function Exam() {
       const questionsPerDifficulty = Math.ceil(questionCount / difficulties.length);
       
       for (const difficulty of difficulties) {
-        const skillsForExam = skills.slice(0, 5); // Use first 5 skills
-        
         for (let i = 0; i < questionsPerDifficulty && generatedQuestions.length < questionCount; i++) {
-          const skill = skillsForExam[i % skillsForExam.length];
-          
-          const prompt = `Generate an exam-style multiple choice question for ${selectedExam.replace(/_/g, ' ').toUpperCase()}.
+          const prompt = `Generate an exam-style multiple choice question for ${currentSubjectData?.name || selectedSubject}.
 
-Topic/Skill: ${skill.skill_name}
-Subject Area: ${skill.subject}
+Topic/Skill: ${currentSkill.skill_name}
 Difficulty: ${difficulty}
 
 Requirements:
@@ -121,10 +137,11 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
           });
 
           const saved = await base44.entities.Question.create({
-            exam_type: selectedExam,
-            skill_id: skill.id,
-            skill_name: skill.skill_name,
-            subject: skill.subject,
+            subject_id: selectedSubject,
+            unit_id: selectedUnit,
+            skill_id: selectedSkill,
+            unit_name: currentSkill.unit_name || '',
+            skill_name: currentSkill.skill_name,
             difficulty,
             question_text: response.question_text,
             choice_a: response.choice_a,
@@ -142,7 +159,8 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
 
       // Create session
       const newSession = await base44.entities.Session.create({
-        exam_type: selectedExam,
+        subject_id: selectedSubject,
+        unit_id: selectedUnit,
         mode: 'exam',
         status: 'in_progress',
         total_questions: generatedQuestions.length,
@@ -150,7 +168,6 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
         time_limit_minutes: timeLimit,
         started_at: new Date().toISOString(),
         difficulty: selectedDifficulty,
-        skills_tested: [...new Set(generatedQuestions.map(q => q.skill_name))],
       });
 
       setSession(newSession);
@@ -196,10 +213,11 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
       await base44.entities.Attempt.create({
         question_id: question.id,
         session_id: session.id,
-        exam_type: selectedExam,
+        subject_id: selectedSubject,
+        unit_id: selectedUnit,
         skill_id: question.skill_id,
+        unit_name: question.unit_name,
         skill_name: question.skill_name,
-        subject: question.subject,
         difficulty: question.difficulty,
         selected_answer: selectedAnswer || '',
         correct_answer: question.correct_answer,
@@ -258,15 +276,67 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
           </div>
 
           <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-6">
-            {/* Exam Type */}
+            {/* Subject Selection */}
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-3 block">Select Exam</label>
-              <ExamSelector
-                selected={selectedExam}
-                onSelect={setSelectedExam}
-                multiple={false}
-              />
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm font-medium text-slate-700">Your Subject</label>
+                {selectedSubject && (
+                  <button
+                    onClick={() => setShowSubjectDialog(true)}
+                    className="text-xs font-medium text-slate-600 hover:text-slate-900 transition-colors"
+                  >
+                    Change
+                  </button>
+                )}
+              </div>
+              
+              {selectedSubject && currentSubjectData ? (
+                <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                  {currentSubjectData.icon && (
+                    <span className="text-2xl">{currentSubjectData.icon}</span>
+                  )}
+                  <div className="flex-1">
+                    <p className="font-medium text-slate-900">{currentSubjectData.name}</p>
+                    <p className="text-xs text-slate-500">{currentSubjectData.category}</p>
+                  </div>
+                  <Check className="w-5 h-5 text-emerald-600" />
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowSubjectDialog(true)}
+                  className="w-full p-4 border-2 border-dashed border-slate-300 rounded-lg text-slate-500 hover:border-slate-400 hover:text-slate-600 transition-colors"
+                >
+                  Select a subject to begin
+                </button>
+              )}
+
+              {selectedSubject && (
+                <Button
+                  onClick={() => setShowSubjectDialog(true)}
+                  variant="outline"
+                  className="w-full mt-3"
+                >
+                  Change Subject
+                </Button>
+              )}
             </div>
+
+            {/* Unit & Skill Selection */}
+            {selectedSubject && (
+              <div>
+                <SubjectUnitSelector
+                  selectedSubject={selectedSubject}
+                  selectedUnit={selectedUnit}
+                  selectedSkill={selectedSkill}
+                  onSubjectChange={handleSubjectChange}
+                  onUnitChange={(unitId) => {
+                    setSelectedUnit(unitId);
+                    setSelectedSkill('');
+                  }}
+                  onSkillChange={setSelectedSkill}
+                />
+              </div>
+            )}
 
             {/* Question Count */}
             <div>
@@ -347,7 +417,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
 
             <Button
               onClick={startExam}
-              disabled={loading || skills.length === 0 || !selectedExam}
+              disabled={loading || !selectedSubject || !selectedUnit || !selectedSkill}
               className="w-full h-12"
             >
               {loading ? (
@@ -357,7 +427,20 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
               )}
               Start Exam
             </Button>
+
+            {(!selectedSubject || !selectedUnit || !selectedSkill) && (
+              <p className="text-xs text-center text-slate-500">
+                Please select a subject, unit, and skill to continue
+              </p>
+            )}
           </div>
+
+          <SubjectChangeDialog
+            open={showSubjectDialog}
+            onOpenChange={setShowSubjectDialog}
+            currentSubject={selectedSubject}
+            onSubjectChange={handleSubjectChange}
+          />
         </div>
       </div>
     );
@@ -598,11 +681,13 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                 Back to Dashboard
               </Button>
             </Link>
-            <Link to={createPageUrl('Practice') + `?exam=${selectedExam}`} className="flex-1">
-              <Button className="w-full">
-                Practice Weak Areas
-              </Button>
-            </Link>
+            <Button onClick={() => {
+              setExamState('setup');
+              setAnswers({});
+              setCurrentIndex(0);
+            }} className="flex-1">
+              Take Another Exam
+            </Button>
           </div>
         </div>
       </div>
