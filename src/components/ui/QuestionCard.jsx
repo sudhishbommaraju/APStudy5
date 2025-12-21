@@ -14,6 +14,12 @@ export default function QuestionCard({
   const [localSelected, setLocalSelected] = useState(selectedAnswer);
   const [submitted, setSubmitted] = useState(showFeedback);
 
+  // Reset state when question changes
+  React.useEffect(() => {
+    setLocalSelected(selectedAnswer);
+    setSubmitted(showFeedback);
+  }, [question?.id, selectedAnswer, showFeedback]);
+
   const choices = [
     { key: 'A', text: question.choice_a },
     { key: 'B', text: question.choice_b },
