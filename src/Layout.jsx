@@ -11,7 +11,8 @@ import {
   Menu, 
   X,
   ChevronDown,
-  User
+  User,
+  TrendingUp
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,7 @@ const NAV_ITEMS = [
   { name: 'Practice', icon: BookOpen, page: 'Practice' },
   { name: 'Exam', icon: Clock, page: 'Exam' },
   { name: 'Generate', icon: Sparkles, page: 'Generate' },
+  { name: 'Progress', icon: TrendingUp, page: 'Progress' },
 ];
 
 const EXAM_NAMES = {
