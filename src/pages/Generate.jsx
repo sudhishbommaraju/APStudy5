@@ -6,19 +6,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Loader2, ArrowRight, ChevronLeft, Sparkles, BookOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import SkillSelector from '@/components/ui/SkillSelector';
 import QuestionCard from '@/components/ui/QuestionCard';
-import ExamSelector from '@/components/ui/ExamSelector';
+import SubjectUnitSelector from '@/components/study/SubjectUnitSelector';
 import { cn } from '@/lib/utils';
 
 export default function Generate() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const examFromUrl = urlParams.get('exam');
-  
   const [user, setUser] = useState(null);
-  const [selectedExam, setSelectedExam] = useState(examFromUrl || '');
+  const [selectedSubject, setSelectedSubject] = useState('');
+  const [selectedUnit, setSelectedUnit] = useState('');
+  const [selectedSkill, setSelectedSkill] = useState('');
   const [generationMode, setGenerationMode] = useState('skill'); // 'skill' or 'notes'
-  const [selectedSkill, setSelectedSkill] = useState(null);
   const [notes, setNotes] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState('medium');
   const [questionCount, setQuestionCount] = useState(5);
@@ -30,29 +27,37 @@ export default function Generate() {
     const loadUser = async () => {
       const currentUser = await base44.auth.me();
       setUser(currentUser);
-      if (!examFromUrl && currentUser.primary_exam) {
-        setSelectedExam(currentUser.primary_exam);
-      }
     };
     loadUser();
-  }, [examFromUrl]);
+  }, []);
 
-  const { data: skills = [] } = useQuery({
-    queryKey: ['skills'],
+  const { data: currentSkillData } = useQuery({
+    queryKey: ['skill', selectedSkill],
     queryFn: () => base44.entities.Skill.list(),
+    enabled: !!selectedSkill,
+    select: (skills) => skills.find(s => s.id === selectedSkill),
+  });
+
+  const { data: currentSubjectData } = useQuery({
+    queryKey: ['subject', selectedSubject],
+    queryFn: () => base44.entities.Subject.list(),
+    enabled: !!selectedSubject,
+    select: (subjects) => subjects.find(s => s.subject_id === selectedSubject),
   });
 
   const generateQuestions = async () => {
+    if (!selectedSubject || !selectedUnit || (!selectedSkill && generationMode === 'skill')) return;
+    
     setGenerating(true);
     setGeneratedQuestions([]);
     setCurrentIndex(0);
 
     try {
       const topicContext = generationMode === 'skill' 
-        ? `Skill: ${selectedSkill.skill_name}\nSubject: ${selectedSkill.subject}`
+        ? `Skill: ${currentSkillData?.skill_name}\nSubject: ${currentSubjectData?.name}`
         : `Student's Notes:\n${notes}`;
 
-      const prompt = `Generate ${questionCount} exam-style multiple choice questions for ${selectedExam.replace(/_/g, ' ').toUpperCase()}.
+      const prompt = `Generate ${questionCount} exam-style multiple choice questions for ${currentSubjectData?.name || selectedSubject}.
 
 ${topicContext}
 
@@ -109,10 +114,11 @@ Return a JSON object with a "questions" array, where each question has:
       const savedQuestions = [];
       for (const q of response.questions) {
         const saved = await base44.entities.Question.create({
-          exam_type: selectedExam,
-          skill_id: selectedSkill?.id || '',
-          skill_name: q.skill_name || selectedSkill?.skill_name || 'Generated',
-          subject: selectedSkill?.subject || 'Custom',
+          subject_id: selectedSubject,
+          unit_id: selectedUnit,
+          skill_id: selectedSkill || '',
+          unit_name: currentSkillData?.unit_name || '',
+          skill_name: q.skill_name || currentSkillData?.skill_name || 'Generated',
           difficulty: selectedDifficulty,
           question_text: q.question_text,
           choice_a: q.choice_a,
@@ -121,7 +127,6 @@ Return a JSON object with a "questions" array, where each question has:
           choice_d: q.choice_d,
           correct_answer: q.correct_answer,
           explanation: q.explanation,
-          source_notes: generationMode === 'notes' ? notes : undefined,
           is_ai_generated: true,
         });
         savedQuestions.push(saved);
@@ -140,9 +145,11 @@ Return a JSON object with a "questions" array, where each question has:
 
     await base44.entities.Attempt.create({
       question_id: question.id,
-      exam_type: selectedExam,
+      subject_id: selectedSubject,
+      unit_id: selectedUnit,
+      skill_id: question.skill_id,
+      unit_name: question.unit_name,
       skill_name: question.skill_name,
-      subject: question.subject,
       difficulty: selectedDifficulty,
       selected_answer: selectedAnswer,
       correct_answer: question.correct_answer,
@@ -151,7 +158,7 @@ Return a JSON object with a "questions" array, where each question has:
     });
   };
 
-  const canGenerate = selectedExam && (generationMode === 'skill' ? !!selectedSkill : notes.trim().length > 20);
+  const canGenerate = selectedSubject && selectedUnit && (generationMode === 'skill' ? !!selectedSkill : notes.trim().length > 20);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -206,18 +213,22 @@ Return a JSON object with a "questions" array, where each question has:
                 </div>
               </div>
 
-              {/* Exam Selector */}
+              {/* Subject, Unit, Skill Selector */}
               <div className="bg-white rounded-xl border border-slate-200 p-4">
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 block">
-                  Select Exam
-                </label>
-                <ExamSelector
-                  selected={selectedExam}
-                  onSelect={(examId) => {
-                    setSelectedExam(examId);
-                    setSelectedSkill(null);
+                <SubjectUnitSelector
+                  selectedSubject={selectedSubject}
+                  selectedUnit={selectedUnit}
+                  selectedSkill={selectedSkill}
+                  onSubjectChange={(subjectId) => {
+                    setSelectedSubject(subjectId);
+                    setSelectedUnit('');
+                    setSelectedSkill('');
                   }}
-                  multiple={false}
+                  onUnitChange={(unitId) => {
+                    setSelectedUnit(unitId);
+                    setSelectedSkill('');
+                  }}
+                  onSkillChange={setSelectedSkill}
                 />
               </div>
 
@@ -286,21 +297,7 @@ Return a JSON object with a "questions" array, where each question has:
 
             {/* Main Content */}
             <div className="lg:col-span-2">
-              {generationMode === 'skill' ? (
-                <div className="bg-white rounded-xl border border-slate-200 p-4">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 block">
-                    Select Skill
-                  </label>
-                  <div className="max-h-[500px] overflow-y-auto pr-2 -mr-2">
-                    <SkillSelector
-                      skills={skills}
-                      selectedSkill={selectedSkill}
-                      onSelect={setSelectedSkill}
-                      examType={selectedExam}
-                    />
-                  </div>
-                </div>
-              ) : (
+              {generationMode === 'notes' && (
                 <div className="bg-white rounded-xl border border-slate-200 p-6">
                   <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 block">
                     Paste Your Notes
@@ -319,7 +316,6 @@ The derivative of a function represents the rate of change. The power rule state
                   </p>
                 </div>
               )}
-            </div>
           </div>
         ) : (
           /* Question Review */

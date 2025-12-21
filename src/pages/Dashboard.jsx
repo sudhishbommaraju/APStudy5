@@ -54,9 +54,7 @@ export default function Dashboard() {
     enabled: !!user,
   });
 
-  const primaryExam = user?.primary_exam || 'sat_math';
   const userAttempts = attempts.filter(a => a.created_by === user?.email);
-  const examAttempts = userAttempts.filter(a => a.exam_type === primaryExam);
 
   // Calculate stats
   const totalQuestions = userAttempts.length;
@@ -65,7 +63,7 @@ export default function Dashboard() {
 
   // Accuracy by skill
   const skillStats = {};
-  examAttempts.forEach(attempt => {
+  userAttempts.forEach(attempt => {
     if (!skillStats[attempt.skill_name]) {
       skillStats[attempt.skill_name] = { correct: 0, total: 0 };
     }
@@ -145,13 +143,13 @@ export default function Dashboard() {
             Welcome back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
           </h1>
           <p className="text-slate-500 mt-1">
-            Focusing on {EXAM_NAMES[primaryExam] || 'your exams'}
+            Ready to master your subjects
           </p>
         </div>
 
         {/* Quick Actions */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          <Link to={createPageUrl('Practice') + `?exam=${primaryExam}`}>
+          <Link to={createPageUrl('Practice')}>
             <div className="bg-slate-900 text-white rounded-xl p-5 hover:bg-slate-800 transition-colors cursor-pointer">
               <div className="flex items-center justify-between">
                 <div>
@@ -162,7 +160,7 @@ export default function Dashboard() {
               </div>
             </div>
           </Link>
-          <Link to={createPageUrl('Exam') + `?exam=${primaryExam}`}>
+          <Link to={createPageUrl('Exam')}>
             <div className="bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-300 transition-colors cursor-pointer">
               <div className="flex items-center justify-between">
                 <div>
@@ -173,7 +171,7 @@ export default function Dashboard() {
               </div>
             </div>
           </Link>
-          <Link to={createPageUrl('Generate') + `?exam=${primaryExam}`}>
+          <Link to={createPageUrl('Generate')}>
             <div className="bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-300 transition-colors cursor-pointer">
               <div className="flex items-center justify-between">
                 <div>
@@ -221,8 +219,7 @@ export default function Dashboard() {
 
           {/* Recommendations */}
           <RecommendationCard 
-            recommendations={recommendations} 
-            examType={primaryExam}
+            recommendations={recommendations}
           />
         </div>
 
@@ -243,7 +240,7 @@ export default function Dashboard() {
                 <div key={session.id} className="px-6 py-4 flex items-center justify-between">
                   <div>
                     <p className="font-medium text-slate-900">
-                      {EXAM_NAMES[session.exam_type]} - {session.total_questions} questions
+                      {session.total_questions} questions
                     </p>
                     <p className="text-sm text-slate-500">
                       {format(parseISO(session.created_date), 'MMM d, yyyy')}
