@@ -24,17 +24,25 @@ export default function Onboarding() {
   const [primaryExam, setPrimaryExam] = useState('');
   const [gradeLevel, setGradeLevel] = useState('');
 
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
   useEffect(() => {
     const loadUser = async () => {
       try {
+        const isAuth = await base44.auth.isAuthenticated();
+        if (!isAuth) {
+          base44.auth.redirectToLogin(createPageUrl('Onboarding'));
+          return;
+        }
         const currentUser = await base44.auth.me();
         setUser(currentUser);
         if (currentUser.onboarding_complete) {
           navigate(createPageUrl('Dashboard'));
         }
       } catch (e) {
-        navigate(createPageUrl('Home'));
+        base44.auth.redirectToLogin(createPageUrl('Onboarding'));
       }
+      setCheckingAuth(false);
     };
     loadUser();
   }, [navigate]);
@@ -60,6 +68,14 @@ export default function Onboarding() {
     if (step === 2) return gradeLevel !== '';
     return true;
   };
+
+  if (checkingAuth) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
