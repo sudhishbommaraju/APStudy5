@@ -81,7 +81,7 @@ export default function Layout({ children, currentPageName }) {
               <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center">
                 <span className="text-white font-bold text-sm">P</span>
               </div>
-              <span className="font-bold text-lg text-slate-900 hidden sm:block">PrepPath</span>
+              <span className="font-bold text-lg text-slate-900 hidden sm:block">Proofly</span>
             </Link>
 
             {/* Desktop Nav */}
