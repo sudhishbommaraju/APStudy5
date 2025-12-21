@@ -6,14 +6,8 @@ import { Loader2, ArrowRight, ChevronLeft, Clock, AlertTriangle, CheckCircle2, X
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import QuestionCard from '@/components/ui/QuestionCard';
+import ExamSelector from '@/components/ui/ExamSelector';
 import { cn } from '@/lib/utils';
-
-const EXAM_NAMES = {
-  ap_calculus: 'AP Calculus',
-  sat_math: 'SAT Math',
-  act_math: 'ACT Math',
-  psat_math: 'PSAT Math',
-};
 
 export default function Exam() {
   const urlParams = new URLSearchParams(window.location.search);
