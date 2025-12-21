@@ -48,7 +48,9 @@ export default function QuestionReview({
       {/* Question Text */}
       <div className="px-6 py-5">
         <div className="prose prose-slate prose-sm max-w-none">
-          <ReactMarkdown>{question.question_text}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+            {question.question_text}
+          </ReactMarkdown>
         </div>
       </div>
 
@@ -85,7 +87,13 @@ export default function QuestionReview({
                 {!isCorrectAnswer && !isSelected && key}
               </span>
               <span className="text-sm leading-relaxed pt-0.5">
-                <ReactMarkdown className="prose prose-sm max-w-none [&>p]:m-0">{text}</ReactMarkdown>
+                <ReactMarkdown 
+                  remarkPlugins={[remarkMath]} 
+                  rehypePlugins={[rehypeKatex]}
+                  className="prose prose-sm max-w-none [&>p]:m-0"
+                >
+                  {text}
+                </ReactMarkdown>
               </span>
             </div>
           );

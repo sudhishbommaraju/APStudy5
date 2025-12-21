@@ -1,6 +1,10 @@
+css
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* KaTeX math rendering */
+@import 'katex/dist/katex.min.css';
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {

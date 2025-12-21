@@ -68,8 +68,10 @@ export default function QuestionCard({
       {/* Question Text */}
       <div className="px-6 py-5">
         <div className="prose prose-slate prose-sm max-w-none">
-          <ReactMarkdown>{question.question_text}</ReactMarkdown>
-        </div>
+            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+              {question.question_text}
+            </ReactMarkdown>
+          </div>
       </div>
 
       {/* Answer Choices */}
@@ -114,7 +116,13 @@ export default function QuestionCard({
                 {!showResult && key}
               </span>
               <span className="text-sm leading-relaxed pt-0.5">
-                <ReactMarkdown className="prose prose-sm max-w-none [&>p]:m-0">{text}</ReactMarkdown>
+                <ReactMarkdown 
+                  remarkPlugins={[remarkMath]} 
+                  rehypePlugins={[rehypeKatex]}
+                  className="prose prose-sm max-w-none [&>p]:m-0"
+                >
+                  {text}
+                </ReactMarkdown>
               </span>
             </button>
           );
@@ -173,7 +181,9 @@ export default function QuestionCard({
           </div>
           <div className="prose prose-sm max-w-none text-slate-700">
             <p className="font-medium text-slate-900 mb-2">Explanation:</p>
-            <ReactMarkdown>{question.explanation}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+              {question.explanation}
+            </ReactMarkdown>
           </div>
           {question.wrong_answer_explanations?.[localSelected] && (
             <div className="mt-3 pt-3 border-t border-rose-200">
