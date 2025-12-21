@@ -5,9 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Loader2, ArrowRight, RotateCcw, ChevronLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import SkillSelector from '@/components/ui/SkillSelector';
 import QuestionCard from '@/components/ui/QuestionCard';
-import ExamSelector from '@/components/ui/ExamSelector';
+import SubjectUnitSelector from '@/components/study/SubjectUnitSelector';
 import { cn } from '@/lib/utils';
 
 export default function Practice() {
@@ -15,8 +14,9 @@ export default function Practice() {
   const examFromUrl = urlParams.get('exam');
   
   const [user, setUser] = useState(null);
-  const [selectedExam, setSelectedExam] = useState(examFromUrl || '');
-  const [selectedSkill, setSelectedSkill] = useState(null);
+  const [selectedSubject, setSelectedSubject] = useState('');
+  const [selectedUnit, setSelectedUnit] = useState('');
+  const [selectedSkill, setSelectedSkill] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState('medium');
   const [currentQuestion, setCurrentQuestion] = useState(null);
   const [answered, setAnswered] = useState(false);
@@ -30,43 +30,35 @@ export default function Practice() {
     const loadUser = async () => {
       const currentUser = await base44.auth.me();
       setUser(currentUser);
-      if (!examFromUrl && currentUser.primary_exam) {
-        setSelectedExam(currentUser.primary_exam);
-      }
     };
     loadUser();
-  }, [examFromUrl]);
+  }, []);
 
-  const { data: skills = [] } = useQuery({
-    queryKey: ['skills'],
+  const { data: currentSkillData } = useQuery({
+    queryKey: ['skill', selectedSkill],
     queryFn: () => base44.entities.Skill.list(),
-  });
-
-  const { data: existingQuestions = [] } = useQuery({
-    queryKey: ['questions', selectedExam, selectedSkill?.skill_name, selectedDifficulty],
-    queryFn: () => base44.entities.Question.filter({
-      exam_type: selectedExam,
-      skill_name: selectedSkill?.skill_name,
-      difficulty: selectedDifficulty,
-    }),
     enabled: !!selectedSkill,
+    select: (skills) => skills.find(s => s.id === selectedSkill),
   });
 
   const generateQuestion = async () => {
+    if (!currentSkillData) return;
+    
     setGenerating(true);
     setAnswered(false);
     
     try {
       // Check if we have unused questions first
       const existingQuestionsForSkill = await base44.entities.Question.filter({
-        exam_type: selectedExam,
-        skill_name: selectedSkill.skill_name,
+        subject_id: selectedSubject,
+        unit_id: selectedUnit,
+        skill_id: selectedSkill,
         difficulty: selectedDifficulty,
       });
       
       const usedQuestionIds = new Set();
       const attempts = await base44.entities.Attempt.filter({
-        skill_name: selectedSkill.skill_name,
+        skill_id: selectedSkill,
         difficulty: selectedDifficulty,
         created_by: user?.email,
       });
@@ -82,10 +74,9 @@ export default function Practice() {
       }
 
       // Generate new question with AI
-      const prompt = `Generate an exam-style multiple choice question for ${selectedExam.replace(/_/g, ' ').toUpperCase()}.
+      const prompt = `Generate an exam-style multiple choice question for ${currentSkillData.subject_name || selectedSubject}.
 
-Topic/Skill: ${selectedSkill.skill_name}
-Subject Area: ${selectedSkill.subject}
+Topic/Skill: ${currentSkillData.skill_name}
 Difficulty: ${selectedDifficulty}
 
 Requirements:
@@ -134,10 +125,11 @@ Return a JSON object with:
       });
 
       const newQuestion = await base44.entities.Question.create({
-        exam_type: selectedExam,
-        skill_id: selectedSkill.id,
-        skill_name: selectedSkill.skill_name,
-        subject: selectedSkill.subject,
+        subject_id: selectedSubject,
+        unit_id: selectedUnit,
+        skill_id: selectedSkill,
+        unit_name: currentSkillData.unit_name || '',
+        skill_name: currentSkillData.skill_name,
         difficulty: selectedDifficulty,
         question_text: response.question_text,
         choice_a: response.choice_a,
@@ -168,10 +160,11 @@ Return a JSON object with:
     // Record attempt
     await base44.entities.Attempt.create({
       question_id: currentQuestion.id,
-      exam_type: selectedExam,
-      skill_id: selectedSkill.id,
-      skill_name: selectedSkill.skill_name,
-      subject: selectedSkill.subject,
+      subject_id: selectedSubject,
+      unit_id: selectedUnit,
+      skill_id: selectedSkill,
+      unit_name: currentQuestion.unit_name,
+      skill_name: currentQuestion.skill_name,
       difficulty: selectedDifficulty,
       selected_answer: selectedAnswer,
       correct_answer: currentQuestion.correct_answer,
@@ -181,8 +174,6 @@ Return a JSON object with:
 
     queryClient.invalidateQueries({ queryKey: ['attempts'] });
   };
-
-  const filteredSkills = skills.filter(s => s.exam_type === selectedExam);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -203,19 +194,28 @@ Return a JSON object with:
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-4">
-            {/* Exam Selector */}
+            {/* Subject, Unit, Skill Selector */}
             <div className="bg-white rounded-xl border border-slate-200 p-4">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 block">
-                Select Exam
-              </label>
-              <ExamSelector
-                selected={selectedExam}
-                onSelect={(examId) => {
-                  setSelectedExam(examId);
-                  setSelectedSkill(null);
+              <SubjectUnitSelector
+                selectedSubject={selectedSubject}
+                selectedUnit={selectedUnit}
+                selectedSkill={selectedSkill}
+                onSubjectChange={(subjectId) => {
+                  setSelectedSubject(subjectId);
+                  setSelectedUnit('');
+                  setSelectedSkill('');
                   setCurrentQuestion(null);
                 }}
-                multiple={false}
+                onUnitChange={(unitId) => {
+                  setSelectedUnit(unitId);
+                  setSelectedSkill('');
+                  setCurrentQuestion(null);
+                }}
+                onSkillChange={(skillId) => {
+                  setSelectedSkill(skillId);
+                  setCurrentQuestion(null);
+                  setAnswered(false);
+                }}
               />
             </div>
 
@@ -244,25 +244,6 @@ Return a JSON object with:
               </div>
             </div>
 
-            {/* Skill Selector */}
-            <div className="bg-white rounded-xl border border-slate-200 p-4">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 block">
-                Select Skill
-              </label>
-              <div className="max-h-[400px] overflow-y-auto pr-2 -mr-2">
-                <SkillSelector
-                  skills={skills}
-                  selectedSkill={selectedSkill}
-                  onSelect={(skill) => {
-                    setSelectedSkill(skill);
-                    setCurrentQuestion(null);
-                    setAnswered(false);
-                  }}
-                  examType={selectedExam}
-                />
-              </div>
-            </div>
-
             {/* Session Stats */}
             {questionsAnswered > 0 && (
               <div className="bg-white rounded-xl border border-slate-200 p-4">
@@ -287,14 +268,24 @@ Return a JSON object with:
 
           {/* Main Content */}
           <div className="lg:col-span-2">
-            {!selectedExam ? (
+            {!selectedSubject ? (
               <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
                 <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
                   <ArrowRight className="w-6 h-6 text-slate-400" />
                 </div>
-                <h3 className="font-semibold text-slate-900 mb-2">Select an Exam</h3>
+                <h3 className="font-semibold text-slate-900 mb-2">Select a Subject</h3>
                 <p className="text-slate-500 text-sm">
-                  Choose which exam you want to practice for
+                  Choose a subject to get started
+                </p>
+              </div>
+            ) : !selectedUnit ? (
+              <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
+                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                  <ArrowRight className="w-6 h-6 text-slate-400" />
+                </div>
+                <h3 className="font-semibold text-slate-900 mb-2">Select a Unit</h3>
+                <p className="text-slate-500 text-sm">
+                  Choose a unit from the selected subject
                 </p>
               </div>
             ) : !selectedSkill ? (
@@ -304,7 +295,7 @@ Return a JSON object with:
                 </div>
                 <h3 className="font-semibold text-slate-900 mb-2">Select a Skill</h3>
                 <p className="text-slate-500 text-sm">
-                  Choose a skill from the sidebar to start practicing
+                  Choose a specific skill to practice
                 </p>
               </div>
             ) : generating ? (
@@ -333,12 +324,14 @@ Return a JSON object with:
             ) : (
               <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
                 <h3 className="font-semibold text-slate-900 mb-2">
-                  Ready to practice {selectedSkill.skill_name}?
+                  Ready to practice {currentSkillData?.skill_name}?
                 </h3>
-                <p className="text-slate-500 text-sm mb-6">
-                  {selectedSkill.description}
-                </p>
-                <Button onClick={generateQuestion}>
+                {currentSkillData?.description && (
+                  <p className="text-slate-500 text-sm mb-6">
+                    {currentSkillData.description}
+                  </p>
+                )}
+                <Button onClick={generateQuestion} disabled={!currentSkillData}>
                   Generate Question
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
