@@ -3,12 +3,91 @@ import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const EXAMS = [
+  // AP Mathematics
   { 
-    id: 'ap_calculus', 
-    name: 'AP Calculus', 
-    description: 'AB/BC exam preparation',
+    id: 'ap_calculus_ab', 
+    name: 'AP Calculus AB', 
+    description: 'Calculus AB exam prep',
     icon: '∫'
   },
+  { 
+    id: 'ap_calculus_bc', 
+    name: 'AP Calculus BC', 
+    description: 'Calculus BC exam prep',
+    icon: '∂'
+  },
+  { 
+    id: 'ap_statistics', 
+    name: 'AP Statistics', 
+    description: 'Statistics & probability',
+    icon: 'σ'
+  },
+  
+  // AP Sciences
+  { 
+    id: 'ap_physics_1', 
+    name: 'AP Physics 1', 
+    description: 'Algebra-based physics',
+    icon: 'F'
+  },
+  { 
+    id: 'ap_physics_2', 
+    name: 'AP Physics 2', 
+    description: 'Algebra-based physics',
+    icon: 'E'
+  },
+  { 
+    id: 'ap_physics_c_mech', 
+    name: 'AP Physics C: Mechanics', 
+    description: 'Calculus-based mechanics',
+    icon: 'v'
+  },
+  { 
+    id: 'ap_physics_c_em', 
+    name: 'AP Physics C: E&M', 
+    description: 'Electricity & magnetism',
+    icon: 'B'
+  },
+  { 
+    id: 'ap_biology', 
+    name: 'AP Biology', 
+    description: 'Life sciences & ecology',
+    icon: '🧬'
+  },
+  { 
+    id: 'ap_chemistry', 
+    name: 'AP Chemistry', 
+    description: 'Chemical reactions & bonding',
+    icon: '⚗️'
+  },
+  { 
+    id: 'ap_environmental_science', 
+    name: 'AP Environmental Science', 
+    description: 'Ecosystems & sustainability',
+    icon: '🌍'
+  },
+  
+  // AP History
+  { 
+    id: 'ap_us_history', 
+    name: 'AP US History', 
+    description: 'American history & politics',
+    icon: '🗽'
+  },
+  { 
+    id: 'ap_world_history', 
+    name: 'AP World History', 
+    description: 'Global historical patterns',
+    icon: '🌐'
+  },
+  { 
+    id: 'ap_european_history', 
+    name: 'AP European History', 
+    description: 'European civilization',
+    icon: '🏛️'
+  },
+  
+  // Standardized Tests
   { 
     id: 'sat_math', 
     name: 'SAT Math', 
