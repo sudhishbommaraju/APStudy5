@@ -12,7 +12,9 @@ import {
   X,
   ChevronDown,
   User,
-  TrendingUp
+  TrendingUp,
+  FileText,
+  Brain
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -23,12 +25,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import SubjectSwitcher from '@/components/study/SubjectSwitcher';
 
 const NAV_ITEMS = [
   { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
   { name: 'Practice', icon: BookOpen, page: 'Practice' },
   { name: 'Exam', icon: Clock, page: 'Exam' },
   { name: 'Generate', icon: Sparkles, page: 'Generate' },
+  { name: 'Notes', icon: FileText, page: 'Notes' },
+  { name: 'Flashcards', icon: Brain, page: 'Flashcards' },
   { name: 'Progress', icon: TrendingUp, page: 'Progress' },
 ];
 
@@ -43,6 +48,7 @@ export default function Layout({ children, currentPageName }) {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [currentSubject, setCurrentSubject] = useState(null);
 
   // Pages that don't need the full layout
   const noLayoutPages = ['Home', 'Onboarding'];
@@ -54,6 +60,7 @@ export default function Layout({ children, currentPageName }) {
         if (isAuth) {
           const currentUser = await base44.auth.me();
           setUser(currentUser);
+          setCurrentSubject(currentUser.primary_exam || currentUser.selected_exams?.[0]);
         }
       } catch (e) {
         // Not authenticated
@@ -61,6 +68,12 @@ export default function Layout({ children, currentPageName }) {
     };
     loadUser();
   }, []);
+
+  const handleSubjectSwitch = async (examId) => {
+    setCurrentSubject(examId);
+    await base44.auth.updateMe({ primary_exam: examId });
+    window.location.reload();
+  };
 
   if (noLayoutPages.includes(currentPageName)) {
     return children;
@@ -105,11 +118,11 @@ export default function Layout({ children, currentPageName }) {
 
             {/* User Menu */}
             <div className="flex items-center gap-2">
-              {user?.primary_exam && (
-                <span className="hidden sm:block text-xs font-medium text-slate-500 px-2 py-1 bg-slate-100 rounded-full">
-                  {EXAM_NAMES[user.primary_exam]}
-                </span>
-              )}
+              <SubjectSwitcher
+                selectedSubjects={user?.selected_exams || []}
+                currentSubject={currentSubject}
+                onSwitch={handleSubjectSwitch}
+              />
               
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
