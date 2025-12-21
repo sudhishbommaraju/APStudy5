@@ -5,6 +5,8 @@ import Practice from './pages/Practice';
 import Generate from './pages/Generate';
 import Exam from './pages/Exam';
 import Progress from './pages/Progress';
+import Notes from './pages/Notes';
+import Flashcards from './pages/Flashcards';
 import __Layout from './Layout.jsx';
 
 
@@ -16,6 +18,8 @@ export const PAGES = {
     "Generate": Generate,
     "Exam": Exam,
     "Progress": Progress,
+    "Notes": Notes,
+    "Flashcards": Flashcards,
 }
 
 export const pagesConfig = {
