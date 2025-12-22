@@ -111,10 +111,13 @@ export default function Layout({ children, currentPageName }) {
               {user?.plan === 'free' && (
                 <button
                   onClick={() => setUpgradeModalOpen(true)}
-                  className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-full font-semibold text-sm text-white transition-all hover:brightness-110"
-                  style={{ background: 'linear-gradient(135deg, #8B5CF6, #A78BFA)' }}
+                  className="hidden sm:flex items-center gap-1.5 px-5 py-2.5 rounded-full font-bold text-sm text-white transition-all hover:scale-105 animate-pulse"
+                  style={{ 
+                    background: 'linear-gradient(135deg, #A855F7, #C084FC)',
+                    boxShadow: '0 0 20px rgba(168, 85, 247, 0.6), 0 0 40px rgba(168, 85, 247, 0.3)'
+                  }}
                 >
-                  <Zap className="w-3.5 h-3.5" />
+                  <Zap className="w-4 h-4" />
                   Upgrade
                 </button>
               )}
