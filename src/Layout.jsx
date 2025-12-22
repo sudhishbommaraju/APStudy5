@@ -94,12 +94,16 @@ export default function Layout({ children, currentPageName }) {
                   </Link>
 
             {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center gap-1">
+            <nav className="hidden md:flex items-center gap-2">
               {NAV_ITEMS.map((item) => (
                 <Link
                   key={item.page}
                   to={createPageUrl(item.page)}
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-black"
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white rounded-lg hover:bg-opacity-90 transition-all"
+                  style={{ 
+                    background: 'linear-gradient(135deg, #334155, #475569)',
+                    fontFamily: 'Georgia, serif'
+                  }}
                 >
                   <item.icon className="w-4 h-4" />
                   {item.name}
@@ -170,13 +174,17 @@ export default function Layout({ children, currentPageName }) {
         {/* Mobile Nav */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-slate-700/30 bg-slate-900/95 backdrop-blur-lg">
-            <nav className="px-4 py-2 space-y-1">
+            <nav className="px-4 py-2 space-y-2">
               {NAV_ITEMS.map((item) => (
                 <Link
                   key={item.page}
                   to={createPageUrl(item.page)}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white"
+                  className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-white rounded-lg hover:bg-opacity-90 transition-all"
+                  style={{ 
+                    background: 'linear-gradient(135deg, #334155, #475569)',
+                    fontFamily: 'Georgia, serif'
+                  }}
                 >
                   <item.icon className="w-5 h-5" />
                   {item.name}
