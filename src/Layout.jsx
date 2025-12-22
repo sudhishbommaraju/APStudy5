@@ -34,11 +34,11 @@ const NAV_ITEMS = [
   { name: 'Practice', icon: BookOpen, page: 'Practice' },
   { name: 'Exam', icon: Clock, page: 'Exam' },
   { name: 'Tutor', icon: Brain, page: 'Tutor' },
-  { name: 'Generate', icon: Sparkles, page: 'Generate', adminOnly: true },
   { name: 'Notes', icon: FileText, page: 'Notes' },
   { name: 'Flashcards', icon: Brain, page: 'Flashcards' },
   { name: 'Progress', icon: TrendingUp, page: 'Progress' },
   { name: 'Pricing', icon: Zap, page: 'Pricing' },
+  { name: 'Generate', icon: Sparkles, page: 'Generate', adminOnly: true },
   { name: 'Admin Users', icon: User, page: 'AdminUsers', adminOnly: true },
 ];
 

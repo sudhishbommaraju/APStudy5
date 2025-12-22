@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Loader2, Check } from 'lucide-react';
@@ -289,8 +289,22 @@ const UNITS_DATA = {
 };
 
 export default function SeedData() {
+  const [user, setUser] = useState(null);
   const [seeding, setSeeding] = useState(false);
   const [done, setDone] = useState(false);
+  
+  useEffect(() => {
+    const loadUser = async () => {
+      const currentUser = await base44.auth.me();
+      setUser(currentUser);
+      
+      // Only admins can seed database
+      if (currentUser.role !== 'admin') {
+        window.location.href = '/';
+      }
+    };
+    loadUser();
+  }, []);
 
   const seedDatabase = async () => {
     setSeeding(true);
