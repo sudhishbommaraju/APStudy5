@@ -1,33 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowRight, RotateCcw, ChevronLeft } from 'lucide-react';
+import { Loader2, ArrowRight, ChevronLeft, Target, BookOpen } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import QuestionCard from '@/components/ui/QuestionCard';
-import SubjectUnitSelector from '@/components/study/SubjectUnitSelector';
+import StudyPlanCard from '@/components/study/StudyPlanCard';
+import MasteryBadge from '@/components/study/MasteryBadge';
+import ErrorTypeSelector from '@/components/exam/ErrorTypeSelector';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 
 export default function Practice() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const examFromUrl = urlParams.get('exam');
-  
   const [user, setUser] = useState(null);
   const [selectedSubject, setSelectedSubject] = useState('');
-  const [selectedUnit, setSelectedUnit] = useState('');
-  const [selectedSkill, setSelectedSkill] = useState('');
-  const [selectedDifficulty, setSelectedDifficulty] = useState('medium');
-  const [currentQuestion, setCurrentQuestion] = useState(null);
-  const [answered, setAnswered] = useState(false);
+  const [studyPlan, setStudyPlan] = useState(null);
+  const [practiceState, setPracticeState] = useState('plan'); // 'plan', 'practicing', 'complete'
+  const [currentQuestions, setCurrentQuestions] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [answers, setAnswers] = useState({});
   const [generating, setGenerating] = useState(false);
-  const [questionsAnswered, setQuestionsAnswered] = useState(0);
-  const [correctCount, setCorrectCount] = useState(0);
-  const [fullPracticeMode, setFullPracticeMode] = useState(false);
-  const [practiceQuestions, setPracticeQuestions] = useState([]);
-  const [currentPracticeIndex, setCurrentPracticeIndex] = useState(0);
-  const [practiceTimeLimit, setPracticeTimeLimit] = useState(15);
-  
+  const [showErrorSelector, setShowErrorSelector] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -38,61 +38,127 @@ export default function Practice() {
     loadUser();
   }, []);
 
-  const { data: currentSkillData } = useQuery({
-    queryKey: ['skill', selectedSkill],
-    queryFn: () => base44.entities.Skill.list(),
-    enabled: !!selectedSkill,
-    select: (skills) => skills.find(s => s.id === selectedSkill),
+  const { data: subjects = [] } = useQuery({
+    queryKey: ['subjects'],
+    queryFn: () => base44.entities.Subject.list('subject_id'),
   });
 
-  const generateQuestion = async () => {
-    if (!currentSkillData) return;
+  const { data: masteryData = [] } = useQuery({
+    queryKey: ['mastery', selectedSubject],
+    queryFn: () => base44.entities.SkillMastery.filter({ 
+      subject_id: selectedSubject,
+      created_by: user?.email 
+    }),
+    enabled: !!selectedSubject && !!user,
+  });
+
+  const generateStudyPlan = async () => {
+    if (!selectedSubject) return;
     
     setGenerating(true);
-    setAnswered(false);
-    
     try {
-      // Check if we have unused questions first
-      const existingQuestionsForSkill = await base44.entities.Question.filter({
-        subject_id: selectedSubject,
-        unit_id: selectedUnit,
-        skill_id: selectedSkill,
-        difficulty: selectedDifficulty,
+      const allSkills = await base44.entities.Skill.filter({ subject_id: selectedSubject });
+      
+      // Calculate mastery for each skill
+      const skillsWithMastery = allSkills.map(skill => {
+        const mastery = masteryData.find(m => m.skill_id === skill.id);
+        return {
+          ...skill,
+          mastery_level: mastery?.mastery_level || 'not_started',
+          recent_accuracy: mastery?.recent_accuracy || 0,
+          total_attempts: mastery?.total_attempts || 0,
+          last_practiced: mastery?.last_practiced,
+        };
       });
-      
-      const usedQuestionIds = new Set();
-      const attempts = await base44.entities.Attempt.filter({
-        skill_id: selectedSkill,
-        difficulty: selectedDifficulty,
-        created_by: user?.email,
-      });
-      attempts.forEach(a => usedQuestionIds.add(a.question_id));
-      
-      const unusedQuestions = existingQuestionsForSkill.filter(q => !usedQuestionIds.has(q.id));
-      
-      if (unusedQuestions.length > 0) {
-        const randomQ = unusedQuestions[Math.floor(Math.random() * unusedQuestions.length)];
-        setCurrentQuestion(randomQ);
-        setGenerating(false);
-        return;
+
+      // Prioritize skills: developing/not_started, then proficient for review
+      const needsWork = skillsWithMastery
+        .filter(s => ['not_started', 'developing'].includes(s.mastery_level))
+        .sort((a, b) => a.recent_accuracy - b.recent_accuracy)
+        .slice(0, 3);
+
+      const forReview = skillsWithMastery
+        .filter(s => s.mastery_level === 'proficient')
+        .sort((a, b) => {
+          const daysA = a.last_practiced ? (Date.now() - new Date(a.last_practiced).getTime()) / (1000 * 60 * 60 * 24) : 999;
+          const daysB = b.last_practiced ? (Date.now() - new Date(b.last_practiced).getTime()) / (1000 * 60 * 60 * 24) : 999;
+          return daysB - daysA;
+        })
+        .slice(0, 1);
+
+      const focusSkills = [...needsWork, ...forReview].slice(0, 3).map(skill => ({
+        skill_id: skill.id,
+        skill_name: skill.skill_name,
+        unit_id: skill.unit_id,
+        mastery_level: skill.mastery_level,
+        reason: skill.mastery_level === 'not_started' 
+          ? 'New skill to learn'
+          : skill.mastery_level === 'developing'
+          ? `Needs improvement (${skill.recent_accuracy.toFixed(0)}% accuracy)`
+          : 'Spaced review',
+      }));
+
+      if (focusSkills.length === 0) {
+        // No skills found, create a generic plan
+        focusSkills.push({
+          skill_id: null,
+          skill_name: 'General practice',
+          unit_id: null,
+          mastery_level: 'not_started',
+          reason: 'Start with any topic',
+        });
       }
 
-      // Generate new question with AI
-      const prompt = `Generate an exam-style multiple choice question for ${currentSkillData.subject_name || selectedSubject}.
+      const plan = {
+        subject_id: selectedSubject,
+        focus_skills: focusSkills,
+        estimated_minutes: focusSkills.length * 10,
+        plan_type: 'daily',
+        generated_reason: needsWork.length > 0 
+          ? 'Focusing on skills that need the most work'
+          : 'Review practice to maintain mastery',
+      };
 
-Topic/Skill: ${currentSkillData.skill_name}
-Difficulty: ${selectedDifficulty}
+      setStudyPlan(plan);
+    } catch (e) {
+      console.error('Failed to generate study plan:', e);
+    }
+    setGenerating(false);
+  };
+
+  const startPractice = async () => {
+    if (!studyPlan) return;
+    
+    setGenerating(true);
+    setPracticeState('practicing');
+    
+    try {
+      const questionsToGenerate = [];
+      
+      // Generate 3-5 questions per skill, weighted by mastery
+      for (const focusSkill of studyPlan.focus_skills) {
+        const skill = await base44.entities.Skill.list().then(skills => 
+          skills.find(s => s.id === focusSkill.skill_id)
+        );
+        
+        if (!skill) continue;
+        
+        const questionCount = focusSkill.mastery_level === 'developing' ? 5 : 
+                            focusSkill.mastery_level === 'not_started' ? 4 : 3;
+        
+        for (let i = 0; i < questionCount; i++) {
+          const difficulty = focusSkill.mastery_level === 'not_started' ? 'easy' :
+                           focusSkill.mastery_level === 'developing' ? 'medium' : 'hard';
+          
+          const prompt = `Generate an exam-style multiple choice question.
+
+Skill: ${skill.skill_name}
+Difficulty: ${difficulty}
 
 Requirements:
-- Match official College Board/ACT question style and phrasing
+- Match official exam style
 - Exactly 4 answer choices (A, B, C, D)
-- Exactly one correct answer
-- Include plausible distractors that test common misconceptions
-- For ${selectedDifficulty} difficulty: ${
-  selectedDifficulty === 'easy' ? 'straightforward application of concepts' :
-  selectedDifficulty === 'medium' ? 'requires multi-step reasoning' :
-  'complex problem requiring deep understanding and multiple concepts'
-}
+- One correct answer
 - CRITICAL: Use VALID LaTeX with proper escape characters. ALL math must render cleanly.
 - Wrap math: $ for inline, $$ for display blocks
 - Examples of CORRECT LaTeX:
@@ -102,426 +168,330 @@ Requirements:
   * Roots: $\\sqrt{3}$
   * Trig: $\\sin(45^\\circ)$, $\\cos(x)$, $\\tan(x)$ (backslash before all functions)
 - NEVER write: "ext\\lim", "o" (use \\to for arrows), "frac" without backslash
-- Test that your LaTeX compiles correctly before using it
 
-Return a JSON object with:
-- question_text: The question stem (can include LaTeX math notation)
-- choice_a, choice_b, choice_c, choice_d: The four answer choices
-- correct_answer: "A", "B", "C", or "D"
-- explanation: Detailed step-by-step solution
-- wrong_answer_explanations: Object with explanations for why each wrong answer is incorrect`;
+Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation`;
 
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt,
-        response_json_schema: {
-          type: 'object',
-          properties: {
-            question_text: { type: 'string' },
-            choice_a: { type: 'string' },
-            choice_b: { type: 'string' },
-            choice_c: { type: 'string' },
-            choice_d: { type: 'string' },
-            correct_answer: { type: 'string', enum: ['A', 'B', 'C', 'D'] },
-            explanation: { type: 'string' },
-            wrong_answer_explanations: { 
-              type: 'object',
-              properties: {
-                A: { type: 'string' },
-                B: { type: 'string' },
-                C: { type: 'string' },
-                D: { type: 'string' },
-              }
-            },
-          },
-          required: ['question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'correct_answer', 'explanation'],
-        },
-      });
-
-      const newQuestion = await base44.entities.Question.create({
-        subject_id: selectedSubject,
-        unit_id: selectedUnit,
-        skill_id: selectedSkill,
-        unit_name: currentSkillData.unit_name || '',
-        skill_name: currentSkillData.skill_name,
-        difficulty: selectedDifficulty,
-        question_text: response.question_text,
-        choice_a: response.choice_a,
-        choice_b: response.choice_b,
-        choice_c: response.choice_c,
-        choice_d: response.choice_d,
-        correct_answer: response.correct_answer,
-        explanation: response.explanation,
-        wrong_answer_explanations: response.wrong_answer_explanations || {},
-        is_ai_generated: true,
-      });
-
-      setCurrentQuestion(newQuestion);
-    } catch (e) {
-      console.error('Failed to generate question:', e);
-    }
-    setGenerating(false);
-  };
-
-  const generateFullPractice = async () => {
-    if (!currentSkillData) return;
-    
-    setGenerating(true);
-    setFullPracticeMode(true);
-    setPracticeQuestions([]);
-    setCurrentPracticeIndex(0);
-    
-    try {
-      const generatedQuestions = [];
-      const questionCount = 10;
-      
-      for (let i = 0; i < questionCount; i++) {
-        const prompt = `Generate an exam-style multiple choice question for ${currentSkillData.subject_name || selectedSubject}.
-
-Topic/Skill: ${currentSkillData.skill_name}
-Difficulty: ${selectedDifficulty}
-
-Requirements:
-- Match official College Board/ACT question style and phrasing
-- Exactly 4 answer choices (A, B, C, D)
-- Exactly one correct answer
-- Include plausible distractors that test common misconceptions
-- CRITICAL: Use VALID LaTeX with proper escape characters. ALL math must render cleanly.
-- Wrap math: $ for inline, $$ for display blocks
-- Examples of CORRECT LaTeX:
-  * Fractions: $\\frac{\\sin(30^\\circ)}{\\pi}$ (with backslash before frac)
-  * Limits: $\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1$ (backslash before lim and to)
-  * Powers: $x^2 + 5x - 3$
-  * Roots: $\\sqrt{3}$
-  * Trig: $\\sin(45^\\circ)$, $\\cos(x)$, $\\tan(x)$ (backslash before all functions)
-- NEVER write: "ext\\lim", "o" (use \\to for arrows), "frac" without backslash
-- Test that your LaTeX compiles correctly before using it
-
-Return a JSON object with:
-- question_text: The question stem (can include LaTeX math notation)
-- choice_a, choice_b, choice_c, choice_d: The four answer choices
-- correct_answer: "A", "B", "C", or "D"
-- explanation: Detailed step-by-step solution`;
-
-        const response = await base44.integrations.Core.InvokeLLM({
-          prompt,
-          response_json_schema: {
-            type: 'object',
-            properties: {
-              question_text: { type: 'string' },
-              choice_a: { type: 'string' },
-              choice_b: { type: 'string' },
-              choice_c: { type: 'string' },
-              choice_d: { type: 'string' },
-              correct_answer: { type: 'string', enum: ['A', 'B', 'C', 'D'] },
-              explanation: { type: 'string' },
-            },
-            required: ['question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'correct_answer', 'explanation'],
-          },
-        });
-
-        const newQuestion = await base44.entities.Question.create({
-          subject_id: selectedSubject,
-          unit_id: selectedUnit,
-          skill_id: selectedSkill,
-          unit_name: currentSkillData.unit_name || '',
-          skill_name: currentSkillData.skill_name,
-          difficulty: selectedDifficulty,
-          question_text: response.question_text,
-          choice_a: response.choice_a,
-          choice_b: response.choice_b,
-          choice_c: response.choice_c,
-          choice_d: response.choice_d,
-          correct_answer: response.correct_answer,
-          explanation: response.explanation,
-          is_ai_generated: true,
-        });
-
-        generatedQuestions.push(newQuestion);
+          questionsToGenerate.push(
+            base44.integrations.Core.InvokeLLM({
+              prompt,
+              response_json_schema: {
+                type: 'object',
+                properties: {
+                  question_text: { type: 'string' },
+                  choice_a: { type: 'string' },
+                  choice_b: { type: 'string' },
+                  choice_c: { type: 'string' },
+                  choice_d: { type: 'string' },
+                  correct_answer: { type: 'string' },
+                  explanation: { type: 'string' },
+                },
+                required: ['question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'correct_answer', 'explanation'],
+              },
+            }).then(response => ({
+              ...response,
+              skill_id: skill.id,
+              unit_id: skill.unit_id,
+              skill_name: skill.skill_name,
+              difficulty,
+            }))
+          );
+        }
       }
 
-      setPracticeQuestions(generatedQuestions);
+      const responses = await Promise.all(questionsToGenerate);
+      
+      const questions = await Promise.all(
+        responses.map(r => 
+          base44.entities.Question.create({
+            subject_id: selectedSubject,
+            unit_id: r.unit_id,
+            skill_id: r.skill_id,
+            skill_name: r.skill_name,
+            difficulty: r.difficulty,
+            question_text: r.question_text,
+            choice_a: r.choice_a,
+            choice_b: r.choice_b,
+            choice_c: r.choice_c,
+            choice_d: r.choice_d,
+            correct_answer: r.correct_answer,
+            explanation: r.explanation,
+            is_ai_generated: true,
+          })
+        )
+      );
+
+      setCurrentQuestions(questions);
     } catch (e) {
-      console.error('Failed to generate practice:', e);
+      console.error('Failed to start practice:', e);
     }
     setGenerating(false);
   };
 
-  const handleAnswer = async (selectedAnswer) => {
-    const question = fullPracticeMode ? practiceQuestions[currentPracticeIndex] : currentQuestion;
-    if (!question) return;
-    
+  const handleAnswer = (answer) => {
+    setAnswers(prev => ({
+      ...prev,
+      [currentIndex]: answer,
+    }));
+  };
+
+  const handleNext = async () => {
+    const question = currentQuestions[currentIndex];
+    const selectedAnswer = answers[currentIndex];
     const isCorrect = selectedAnswer === question.correct_answer;
-    setAnswered(true);
-    setQuestionsAnswered(prev => prev + 1);
-    if (isCorrect) setCorrectCount(prev => prev + 1);
 
-    // Record attempt
+    // Show error type selector if incorrect
+    if (!isCorrect && !showErrorSelector) {
+      setShowErrorSelector(true);
+      return;
+    }
+
+    if (currentIndex < currentQuestions.length - 1) {
+      setCurrentIndex(prev => prev + 1);
+      setShowErrorSelector(false);
+    } else {
+      await completePractice();
+    }
+  };
+
+  const handleErrorType = async (errorType) => {
+    const question = currentQuestions[currentIndex];
+    const selectedAnswer = answers[currentIndex];
+    const isCorrect = selectedAnswer === question.correct_answer;
+
     await base44.entities.Attempt.create({
       question_id: question.id,
       subject_id: selectedSubject,
-      unit_id: selectedUnit,
-      skill_id: selectedSkill,
-      unit_name: question.unit_name,
+      unit_id: question.unit_id,
+      skill_id: question.skill_id,
       skill_name: question.skill_name,
-      difficulty: selectedDifficulty,
+      difficulty: question.difficulty,
       selected_answer: selectedAnswer,
       correct_answer: question.correct_answer,
       is_correct: isCorrect,
       mode: 'practice',
+      error_type: isCorrect ? 'none' : errorType,
     });
 
-    queryClient.invalidateQueries({ queryKey: ['attempts'] });
-  };
-
-  const handleNextQuestion = () => {
-    if (fullPracticeMode) {
-      if (currentPracticeIndex < practiceQuestions.length - 1) {
-        setCurrentPracticeIndex(prev => prev + 1);
-        setAnswered(false);
-      }
+    await updateMastery(question.skill_id, isCorrect, question.difficulty);
+    
+    setShowErrorSelector(false);
+    
+    if (currentIndex < currentQuestions.length - 1) {
+      setCurrentIndex(prev => prev + 1);
     } else {
-      generateQuestion();
+      await completePractice();
     }
   };
 
-  return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
-          <Link to={createPageUrl('Dashboard')}>
-            <Button variant="ghost" size="icon">
-              <ChevronLeft className="w-5 h-5" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Practice Mode</h1>
-            <p className="text-slate-500">Select a skill and start practicing</p>
+  const updateMastery = async (skillId, isCorrect, difficulty) => {
+    const existing = masteryData.find(m => m.skill_id === skillId);
+    
+    const newTotal = (existing?.total_attempts || 0) + 1;
+    const newCorrect = (existing?.correct_attempts || 0) + (isCorrect ? 1 : 0);
+    const accuracy = (newCorrect / newTotal) * 100;
+    
+    // Calculate mastery level
+    let masteryLevel = 'not_started';
+    if (newTotal >= 10 && accuracy >= 85) masteryLevel = 'mastered';
+    else if (newTotal >= 5 && accuracy >= 70) masteryLevel = 'proficient';
+    else if (newTotal >= 2) masteryLevel = 'developing';
+    
+    if (existing) {
+      await base44.entities.SkillMastery.update(existing.id, {
+        total_attempts: newTotal,
+        correct_attempts: newCorrect,
+        recent_accuracy: accuracy,
+        mastery_level: masteryLevel,
+        last_practiced: new Date().toISOString(),
+      });
+    } else {
+      const skill = await base44.entities.Skill.list().then(skills => skills.find(s => s.id === skillId));
+      await base44.entities.SkillMastery.create({
+        subject_id: selectedSubject,
+        unit_id: skill?.unit_id,
+        skill_id: skillId,
+        skill_name: skill?.skill_name || 'Unknown',
+        total_attempts: newTotal,
+        correct_attempts: newCorrect,
+        recent_accuracy: accuracy,
+        mastery_level: masteryLevel,
+        last_practiced: new Date().toISOString(),
+      });
+    }
+    
+    queryClient.invalidateQueries({ queryKey: ['mastery'] });
+  };
+
+  const completePractice = async () => {
+    setPracticeState('complete');
+    queryClient.invalidateQueries({ queryKey: ['attempts'] });
+  };
+
+  const currentQuestion = currentQuestions[currentIndex];
+  const answered = answers[currentIndex] !== undefined;
+  const isCorrect = answered && answers[currentIndex] === currentQuestion?.correct_answer;
+
+  // Loading
+  if (generating && practiceState === 'plan') {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-slate-600 mx-auto mb-4" />
+          <p className="text-slate-600 font-medium">Generating your study plan...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Plan view
+  if (practiceState === 'plan') {
+    return (
+      <div className="min-h-screen bg-slate-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+          <div className="flex items-center gap-4 mb-6">
+            <Link to={createPageUrl('Dashboard')}>
+              <Button variant="ghost" size="icon">
+                <ChevronLeft className="w-5 h-5" />
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">Practice Mode</h1>
+              <p className="text-slate-500">Adaptive practice based on your progress</p>
+            </div>
+          </div>
+
+          {!selectedSubject ? (
+            <div className="bg-white rounded-xl border border-slate-200 p-6">
+              <label className="text-sm font-medium text-slate-700 mb-3 block">
+                Select Subject
+              </label>
+              <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Choose a subject" />
+                </SelectTrigger>
+                <SelectContent className="max-h-96">
+                  {subjects.map(subject => (
+                    <SelectItem key={subject.subject_id} value={subject.subject_id}>
+                      <div className="flex items-center gap-2">
+                        {subject.icon && <span>{subject.icon}</span>}
+                        <span>{subject.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedSubject && (
+                <Button onClick={generateStudyPlan} className="w-full mt-4">
+                  Generate Study Plan
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              )}
+            </div>
+          ) : studyPlan ? (
+            <StudyPlanCard plan={studyPlan} onStart={startPractice} />
+          ) : null}
+        </div>
+      </div>
+    );
+  }
+
+  // Practicing
+  if (practiceState === 'practicing') {
+    if (generating) {
+      return (
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin text-slate-600 mx-auto mb-4" />
+            <p className="text-slate-600 font-medium">Generating practice questions...</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="min-h-screen bg-slate-50">
+        <div className="sticky top-0 bg-white border-b border-slate-200 z-10">
+          <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+            <span className="text-sm text-slate-600">
+              Question {currentIndex + 1} of {currentQuestions.length}
+            </span>
+            <div className="h-2 w-48 bg-slate-100 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-slate-900 transition-all"
+                style={{ width: `${((currentIndex + 1) / currentQuestions.length) * 100}%` }}
+              />
+            </div>
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Sidebar */}
-          <div className="lg:col-span-1 space-y-4">
-            {/* Subject, Unit, Skill Selector */}
-            <div className="bg-white rounded-xl border border-slate-200 p-4">
-              <SubjectUnitSelector
-                selectedSubject={selectedSubject}
-                selectedUnit={selectedUnit}
-                selectedSkill={selectedSkill}
-                onSubjectChange={(subjectId) => {
-                  setSelectedSubject(subjectId);
-                  setSelectedUnit('');
-                  setSelectedSkill('');
-                  setCurrentQuestion(null);
-                }}
-                onUnitChange={(unitId) => {
-                  setSelectedUnit(unitId);
-                  setSelectedSkill('');
-                  setCurrentQuestion(null);
-                }}
-                onSkillChange={(skillId) => {
-                  setSelectedSkill(skillId);
-                  setCurrentQuestion(null);
-                  setAnswered(false);
-                }}
-              />
-            </div>
+        <div className="max-w-4xl mx-auto px-4 py-6">
+          <QuestionCard
+            question={currentQuestion}
+            onAnswer={handleAnswer}
+            selectedAnswer={answers[currentIndex]}
+            showFeedback={answered}
+            mode="practice"
+          />
 
-            {/* Difficulty */}
-            <div className="bg-white rounded-xl border border-slate-200 p-4">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 block">
-                Difficulty
-              </label>
-              <div className="flex gap-2">
-                {['easy', 'medium', 'hard'].map((d) => (
-                  <button
-                    key={d}
-                    onClick={() => setSelectedDifficulty(d)}
-                    className={cn(
-                      "flex-1 px-3 py-2 rounded-lg text-sm font-medium capitalize transition-all",
-                      selectedDifficulty === d
-                        ? d === 'easy' ? "bg-emerald-100 text-emerald-700" :
-                          d === 'medium' ? "bg-amber-100 text-amber-700" :
-                          "bg-rose-100 text-rose-700"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                    )}
-                  >
-                    {d}
-                  </button>
-                ))}
-              </div>
+          {answered && !isCorrect && showErrorSelector && (
+            <div className="mt-4 bg-white rounded-xl border border-slate-200 p-6">
+              <ErrorTypeSelector onSelect={handleErrorType} />
             </div>
+          )}
 
-            {/* Time Limit */}
-            <div className="bg-white rounded-xl border border-slate-200 p-4">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 block">
-                Time Limit (Full Practice)
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {[10, 15, 20, 30].map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => setPracticeTimeLimit(t)}
-                    className={cn(
-                      "px-3 py-2 rounded-lg text-sm font-medium transition-all",
-                      practiceTimeLimit === t
-                        ? "bg-slate-900 text-white"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                    )}
-                  >
-                    {t} min
-                  </button>
-                ))}
-              </div>
+          {answered && (!showErrorSelector || isCorrect) && (
+            <div className="flex justify-end mt-4">
+              <Button onClick={handleNext}>
+                {currentIndex < currentQuestions.length - 1 ? 'Next Question' : 'Complete Practice'}
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
             </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
-            {/* Session Stats */}
-            {questionsAnswered > 0 && (
-              <div className="bg-white rounded-xl border border-slate-200 p-4">
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 block">
-                  This Session
-                </label>
-                <div className="flex items-center justify-between">
-                  <span className="text-slate-600">Accuracy</span>
-                  <span className="font-semibold text-slate-900">
-                    {((correctCount / questionsAnswered) * 100).toFixed(0)}%
-                  </span>
-                </div>
-                <div className="flex items-center justify-between mt-2">
-                  <span className="text-slate-600">Questions</span>
-                  <span className="font-semibold text-slate-900">
-                    {correctCount}/{questionsAnswered}
-                  </span>
-                </div>
-              </div>
-            )}
+  // Complete
+  if (practiceState === 'complete') {
+    const correctCount = currentQuestions.filter((q, i) => answers[i] === q.correct_answer).length;
+    const accuracy = (correctCount / currentQuestions.length) * 100;
+
+    return (
+      <div className="min-h-screen bg-slate-50">
+        <div className="max-w-3xl mx-auto px-4 py-8">
+          <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center mb-6">
+            <Target className="w-16 h-16 mx-auto mb-4 text-slate-900" />
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">Practice Complete!</h1>
+            <p className="text-xl text-slate-600 mb-4">
+              {accuracy.toFixed(0)}% accuracy
+            </p>
+            <p className="text-slate-500">
+              {correctCount} out of {currentQuestions.length} correct
+            </p>
           </div>
 
-          {/* Main Content */}
-          <div className="lg:col-span-2">
-            {!selectedSubject ? (
-              <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
-                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                  <ArrowRight className="w-6 h-6 text-slate-400" />
-                </div>
-                <h3 className="font-semibold text-slate-900 mb-2">Select a Subject</h3>
-                <p className="text-slate-500 text-sm">
-                  Choose a subject to get started
-                </p>
-              </div>
-            ) : !selectedUnit ? (
-              <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
-                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                  <ArrowRight className="w-6 h-6 text-slate-400" />
-                </div>
-                <h3 className="font-semibold text-slate-900 mb-2">Select a Unit</h3>
-                <p className="text-slate-500 text-sm">
-                  Choose a unit from the selected subject
-                </p>
-              </div>
-            ) : !selectedSkill ? (
-              <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
-                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                  <ArrowRight className="w-6 h-6 text-slate-400" />
-                </div>
-                <h3 className="font-semibold text-slate-900 mb-2">Select a Skill</h3>
-                <p className="text-slate-500 text-sm">
-                  Choose a specific skill to practice
-                </p>
-              </div>
-            ) : generating ? (
-              <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
-                <Loader2 className="w-8 h-8 animate-spin text-slate-400 mx-auto mb-4" />
-                <p className="text-slate-500">Generating {fullPracticeMode ? 'practice questions' : 'question'}...</p>
-              </div>
-            ) : fullPracticeMode && practiceQuestions.length > 0 ? (
-              <div className="space-y-4">
-                <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center justify-between">
-                  <span className="text-sm text-slate-600">
-                    Question {currentPracticeIndex + 1} of {practiceQuestions.length}
-                  </span>
-                  <button
-                    onClick={() => {
-                      setFullPracticeMode(false);
-                      setPracticeQuestions([]);
-                      setCurrentPracticeIndex(0);
-                      setAnswered(false);
-                    }}
-                    className="text-sm text-slate-600 hover:text-slate-900"
-                  >
-                    Exit Practice
-                  </button>
-                </div>
-                <QuestionCard
-                  question={practiceQuestions[currentPracticeIndex]}
-                  onAnswer={handleAnswer}
-                  showFeedback={answered}
-                  mode="practice"
-                />
-                
-                {answered && (
-                  <div className="flex justify-end">
-                    {currentPracticeIndex < practiceQuestions.length - 1 ? (
-                      <Button onClick={handleNextQuestion}>
-                        Next Question
-                        <ArrowRight className="w-4 h-4 ml-1" />
-                      </Button>
-                    ) : (
-                      <Button onClick={() => {
-                        setFullPracticeMode(false);
-                        setPracticeQuestions([]);
-                        setCurrentPracticeIndex(0);
-                        setAnswered(false);
-                      }}>
-                        Finish Exam
-                      </Button>
-                    )}
-                  </div>
-                )}
-              </div>
-            ) : currentQuestion ? (
-              <div className="space-y-4">
-                <QuestionCard
-                  question={currentQuestion}
-                  onAnswer={handleAnswer}
-                  showFeedback={answered}
-                  mode="practice"
-                />
-                
-                {answered && (
-                  <div className="flex justify-end">
-                    <Button onClick={handleNextQuestion}>
-                      Next Question
-                      <ArrowRight className="w-4 h-4 ml-1" />
-                    </Button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
-                <h3 className="font-semibold text-slate-900 mb-2">
-                  Ready to practice {currentSkillData?.skill_name}?
-                </h3>
-                {currentSkillData?.description && (
-                  <p className="text-slate-500 text-sm mb-6">
-                    {currentSkillData.description}
-                  </p>
-                )}
-                <div className="flex gap-3">
-                  <Button onClick={generateQuestion} disabled={!currentSkillData} variant="outline">
-                    Single Question
-                  </Button>
-                  <Button onClick={generateFullPractice} disabled={!currentSkillData}>
-                    Full Practice (10 Questions)
-                    <ArrowRight className="w-4 h-4 ml-1" />
-                  </Button>
-                </div>
-              </div>
-            )}
+          <div className="flex gap-3">
+            <Link to={createPageUrl('Dashboard')} className="flex-1">
+              <Button variant="outline" className="w-full">
+                Back to Dashboard
+              </Button>
+            </Link>
+            <Button 
+              onClick={() => {
+                setPracticeState('plan');
+                setCurrentIndex(0);
+                setAnswers({});
+                setCurrentQuestions([]);
+                generateStudyPlan();
+              }}
+              className="flex-1"
+            >
+              New Study Plan
+            </Button>
           </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 }
