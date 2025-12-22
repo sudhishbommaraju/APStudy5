@@ -82,7 +82,7 @@ export default function Layout({ children, currentPageName }) {
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--color-primary-bg)' }}>
       {/* Top Navigation */}
-      <header className="sticky top-0 z-50 galaxy-gradient-subtle border-b border-slate-700/30">
+      <header className="sticky top-0 z-50 galaxy-gradient-subtle border-b border-slate-700/30 bg-white shadow-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
                 <div className="flex items-center justify-between h-14">
                   {/* Logo */}
