@@ -14,7 +14,8 @@ import {
   User,
   TrendingUp,
   FileText,
-  Brain
+  Brain,
+  Zap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -25,6 +26,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import UpgradeModal from '@/components/monetization/UpgradeModal';
 const NAV_ITEMS = [
   { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
   { name: 'Practice', icon: BookOpen, page: 'Practice' },
@@ -47,6 +49,7 @@ export default function Layout({ children, currentPageName }) {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
   // Pages that don't need the full layout
   const noLayoutPages = ['Home', 'Onboarding'];
@@ -109,6 +112,18 @@ export default function Layout({ children, currentPageName }) {
 
             {/* User Menu */}
             <div className="flex items-center gap-2">
+              {/* Upgrade Button for Free Users */}
+              {user?.plan === 'free' && (
+                <button
+                  onClick={() => setUpgradeModalOpen(true)}
+                  className="hidden sm:flex items-center gap-1.5 px-4 py-2 rounded-full font-semibold text-sm text-white transition-all hover:brightness-110"
+                  style={{ background: 'linear-gradient(135deg, #8B5CF6, #A78BFA)' }}
+                >
+                  <Zap className="w-3.5 h-3.5" />
+                  Upgrade
+                </button>
+              )}
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white/10 transition-colors">
@@ -173,6 +188,9 @@ export default function Layout({ children, currentPageName }) {
 
       {/* Main Content */}
       <main>{children}</main>
-    </div>
-  );
-}
+
+      {/* Upgrade Modal */}
+      <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
+      </div>
+      );
+      }
