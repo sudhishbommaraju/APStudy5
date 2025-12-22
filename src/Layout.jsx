@@ -95,17 +95,17 @@ export default function Layout({ children, currentPageName }) {
                   </Link>
 
             {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center gap-2">
+            <nav className="hidden md:flex items-center gap-1">
               {NAV_ITEMS.map((item) => (
                 <Link
                   key={item.page}
                   to={createPageUrl(item.page)}
-                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-black rounded-lg hover:bg-white/10 transition-all"
+                  className="flex items-center gap-1 px-2 py-1.5 text-xs font-medium text-black rounded-lg hover:bg-white/10 transition-all"
                   style={{ 
                     fontFamily: 'Georgia, serif'
                   }}
                 >
-                  <item.icon className="w-4 h-4" />
+                  <item.icon className="w-3 h-3" />
                   {item.name}
                 </Link>
               ))}
@@ -174,18 +174,18 @@ export default function Layout({ children, currentPageName }) {
         {/* Mobile Nav */}
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-slate-700/30 bg-slate-900/95 backdrop-blur-lg">
-            <nav className="px-4 py-2 space-y-2">
+            <nav className="px-4 py-2 space-y-1">
               {NAV_ITEMS.map((item) => (
                 <Link
                   key={item.page}
                   to={createPageUrl(item.page)}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-white rounded-lg hover:bg-white/10 transition-all"
+                  className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-white rounded-lg hover:bg-white/10 transition-all"
                   style={{ 
                     fontFamily: 'Georgia, serif'
                   }}
                 >
-                  <item.icon className="w-5 h-5" />
+                  <item.icon className="w-4 h-4" />
                   {item.name}
                 </Link>
               ))}
