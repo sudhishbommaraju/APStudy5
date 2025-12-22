@@ -169,7 +169,15 @@ Requirements:
   * Trig: $\\sin(45^\\circ)$, $\\cos(x)$, $\\tan(x)$ (backslash before all functions)
 - NEVER write: "ext\\lim", "o" (use \\to for arrows), "frac" without backslash
 
-Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation`;
+For the explanation:
+- Start with the key concept being tested
+- Provide step-by-step solution with clear reasoning
+- Show all work using proper LaTeX notation
+- Include a final answer statement
+- Add a "Common Mistakes" section explaining why each wrong answer is incorrect
+- Use educational tone that builds understanding, not just procedures
+
+Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, wrong_answer_explanations (object with A/B/C/D keys), conceptual_insight (key concept students should understand)`;
 
           questionsToGenerate.push(
             base44.integrations.Core.InvokeLLM({
@@ -184,6 +192,16 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                   choice_d: { type: 'string' },
                   correct_answer: { type: 'string' },
                   explanation: { type: 'string' },
+                  wrong_answer_explanations: { 
+                    type: 'object',
+                    properties: {
+                      A: { type: 'string' },
+                      B: { type: 'string' },
+                      C: { type: 'string' },
+                      D: { type: 'string' }
+                    }
+                  },
+                  conceptual_insight: { type: 'string' },
                 },
                 required: ['question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'correct_answer', 'explanation'],
               },
@@ -215,6 +233,8 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
             choice_d: r.choice_d,
             correct_answer: r.correct_answer,
             explanation: r.explanation,
+            wrong_answer_explanations: r.wrong_answer_explanations || {},
+            hint: r.conceptual_insight || '',
             is_ai_generated: true,
           })
         )
