@@ -141,40 +141,81 @@ export default function Exam() {
 Topic/Skill: ${skill.skill_name}
 Difficulty: ${difficulty}
 
-CRITICAL MATH RENDERING REQUIREMENTS:
-- ALL math MUST be wrapped in LaTeX delimiters: $ for inline, $$ for display blocks
-- NEVER use caret notation (^) in plain text - it MUST be inside LaTeX
-- ALL exponents MUST use proper LaTeX with curly braces: $x^{2}$ NOT x^2
-- ALL numbers with exponents: $3^{2}$ NOT 3^2
-- Complex expressions: $2n^{2}$ NOT 2n^2
-- Substitutions: $$2(3^{2}) = 18$$ NOT [2(3^2) = 18]
-- Chemical formulas: $\\text{H}_2\\text{O}$ NOT H2O
-- Scientific notation: $3.2 \\times 10^{-5}$ NOT 3.2 × 10^-5
+CRITICAL FORMATTING REQUIREMENTS - READ CAREFULLY:
 
-Examples of CORRECT LaTeX formatting:
-- Powers: $x^{2} + 5x - 3$ (always use curly braces)
-- Fractions: $\\frac{\\sin(30^\\circ)}{\\pi}$
-- Limits: $\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1$
-- Roots: $\\sqrt{3}$ or $\\sqrt[3]{27}$
-- Trig: $\\sin(45^\\circ)$, $\\cos(x)$, $\\tan(x)$
-- Chemistry: $\\text{CO}_2$, $2\\text{H}_2\\text{O}$
-- Physics: $F = ma$, $E = mc^{2}$, $v^{2} = u^{2} + 2as$
+1. NEVER DUPLICATE EQUATIONS OR VALUES
+2. NEVER show raw LaTeX commands like \\text, \\times in visible text
+3. STRICTLY SEPARATE plain text from math blocks
+4. ALL equations in $$ display blocks, ONE TIME ONLY
+5. Units MUST use \\text{} inside math: $9.8 \\text{ m/s}^{2}$
+
+EXPLANATION FORMAT (FOLLOW EXACTLY):
+
+"Concept in plain English.
+
+The formula is:
+
+$$
+[equation with proper LaTeX]
+$$
+
+Given values:
+
+$$
+[var] = [value] \\text{ [unit]}
+$$
+
+Substituting:
+
+$$
+[step 1]
+$$
+
+$$
+[step 2]
+$$
+
+$$
+[result] = [answer] \\text{ [unit]}
+$$
+
+Conclusion in plain text."
+
+CORRECT EXAMPLE:
+
+"The gravitational potential energy formula is:
+
+$$
+PE = mgh
+$$
+
+Given:
+
+$$
+m = 2 \\text{ kg}, \\quad h = 10 \\text{ m}, \\quad g = 9.8 \\text{ m/s}^{2}
+$$
+
+Calculate:
+
+$$
+PE = (2)(9.8)(10) = 196 \\text{ J}
+$$
+
+The answer is approximately 200 J."
+
+NEVER WRITE:
+- PE = mghPE = mgh (duplicated)
+- 9.8\\textm/s^2 (broken)
+- m = 2extkg (corrupted)
 
 Requirements:
-- Match official College Board/ACT question style exactly
-- Exactly 4 answer choices (A, B, C, D)
-- Exactly one correct answer
-- Include plausible distractors
+- Match official exam style
+- 4 choices (A, B, C, D)
+- One correct answer
+- Each equation appears ONCE
+- Units always in \\text{}
 
-For the explanation:
-- Write plain English OUTSIDE of math delimiters
-- Put ALL calculations inside $$ display blocks
-- Show step-by-step work with proper LaTeX
-- Example: "The formula is:" $$\\text{Max electrons} = 2n^{2}$$ "For n = 3:" $$2(3^{2}) = 18$$
-- Include final answer statement
-- Explain why each wrong answer is incorrect
-
-Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, wrong_answer_explanations (object with A/B/C/D keys)`;
+Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer, explanation, wrong_answer_explanations`;
 
           questionPromises.push(
             base44.integrations.Core.InvokeLLM({

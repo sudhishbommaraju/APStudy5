@@ -82,46 +82,94 @@ ${topicContext}
 
 Difficulty: ${selectedDifficulty}
 
-CRITICAL MATH RENDERING REQUIREMENTS:
-- ALL math MUST be wrapped in LaTeX delimiters: $ for inline, $$ for display blocks
-- NEVER use caret notation (^) in plain text - it MUST be inside LaTeX
-- ALL exponents MUST use proper LaTeX with curly braces: $x^{2}$ NOT x^2
-- ALL numbers with exponents: $3^{2}$ NOT 3^2 or 3^2
-- Complex expressions: $2n^{2}$ NOT 2n^2
-- Substitutions: $$2(3^{2}) = 18$$ NOT [2(3^2) = 18]
-- Chemical formulas: $\\text{H}_2\\text{O}$ NOT H2O or H_2O
-- Scientific notation: $3.2 \\times 10^{-5}$ NOT 3.2 × 10^-5
-- Physics equations: $v^{2} = u^{2} + 2as$ NOT v^2 = u^2 + 2as
+CRITICAL FORMATTING REQUIREMENTS - READ CAREFULLY:
 
-Examples of CORRECT LaTeX formatting:
-- Powers: $x^{2} + 5x - 3$ (always use curly braces for exponents)
-- Fractions: $\\frac{\\sin(30^\\circ)}{\\pi}$
-- Limits: $\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1$
-- Roots: $\\sqrt{3}$ or $\\sqrt[3]{27}$
-- Trig: $\\sin(45^\\circ)$, $\\cos(x)$, $\\tan(x)$
-- Chemistry: $\\text{CO}_2$, $2\\text{H}_2\\text{O}$, $\\text{CH}_4$
-- Physics: $F = ma$, $E = mc^{2}$, $a = \\frac{v^{2}}{r}$
+1. NEVER DUPLICATE EQUATIONS OR VALUES
+2. NEVER show raw LaTeX commands like \\text, \\times in visible text
+3. STRICTLY SEPARATE plain text from math blocks
+4. ALL equations in $$ display blocks, ONE TIME ONLY
+5. Units MUST use \\text{} inside math: $9.8 \\text{ m/s}^{2}$
 
-Requirements for each question:
-- Match official College Board/ACT question style exactly
-- Exactly 4 answer choices (A, B, C, D)
-- Exactly one correct answer
-- Include plausible distractors testing common misconceptions
-- Difficulty: ${selectedDifficulty} - ${
-  selectedDifficulty === 'easy' ? 'straightforward application' :
-  selectedDifficulty === 'medium' ? 'multi-step reasoning' :
-  'complex problem requiring deep understanding'
-}
-- Each question tests a slightly different aspect
-- Questions build in complexity
+EXPLANATION FORMAT (FOLLOW EXACTLY):
 
-For each explanation:
-- Write plain English explanation OUTSIDE of math delimiters
-- Put ALL calculations inside $$ display blocks
-- Show step-by-step work with proper LaTeX
-- Example: "The formula is:" $$\\text{Max electrons} = 2n^{2}$$ "For n = 3:" $$2(3^{2}) = 18$$
-- Include final answer statement
-- Explain why each wrong answer is incorrect
+"Concept explanation in plain English.
+
+The relevant formula is:
+
+$$
+[equation with proper LaTeX]
+$$
+
+Given values:
+
+$$
+[var] = [value] \\text{ [unit]}
+$$
+
+Substitute into formula:
+
+$$
+[calculation step 1]
+$$
+
+$$
+[calculation step 2]
+$$
+
+$$
+[final result] = [answer] \\text{ [unit]}
+$$
+
+Conclusion in plain text."
+
+CORRECT EXAMPLES:
+
+Physics:
+"For gravitational potential energy:
+
+$$
+PE = mgh
+$$
+
+Given:
+
+$$
+m = 2 \\text{ kg}, \\quad h = 10 \\text{ m}, \\quad g = 9.8 \\text{ m/s}^{2}
+$$
+
+Calculate:
+
+$$
+PE = (2)(9.8)(10) = 196 \\text{ J}
+$$
+
+Approximately 200 J."
+
+Chemistry:
+"Using the electron configuration formula:
+
+$$
+\\text{Max electrons} = 2n^{2}
+$$
+
+For the third shell:
+
+$$
+2(3)^{2} = 18 \\text{ electrons}
+$$"
+
+NEVER WRITE:
+- PE = mghPE = mgh (duplicated)
+- 9.8\\textm/s^2 (broken LaTeX)
+- 2extkg (corrupted units)
+
+Requirements:
+- Match official exam style
+- 4 choices (A, B, C, D)
+- One correct answer
+- Each equation appears ONCE
+- Units in \\text{}
+- Progressive difficulty
 
 Return a JSON object with a "questions" array, where each question has:
 - question_text: The question stem

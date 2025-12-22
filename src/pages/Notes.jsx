@@ -47,38 +47,62 @@ export default function Notes() {
 Unit: ${unitName}
 Topics to cover: ${topics}
 
-CRITICAL MATH RENDERING REQUIREMENTS:
-- ALL math MUST be wrapped in LaTeX delimiters: $ for inline, $$ for display blocks
-- NEVER use caret notation (^) in plain text - it MUST be inside LaTeX
-- ALL exponents MUST use proper LaTeX with curly braces: $x^{2}$ NOT x^2
-- ALL numbers with exponents: $3^{2}$ NOT 3^2
-- Complex expressions: $2n^{2}$ NOT 2n^2
-- Formula examples: $$2(3^{2}) = 18$$ NOT [2(3^2) = 18]
-- Chemical formulas: $\\text{H}_2\\text{O}$ NOT H2O
-- Scientific notation: $3.2 \\times 10^{-5}$ NOT 3.2 × 10^-5
+CRITICAL FORMATTING REQUIREMENTS - READ CAREFULLY:
 
-Examples of CORRECT LaTeX formatting:
-- Derivatives: $\\frac{d}{dx}[x^{n}] = nx^{n-1}$ (use curly braces)
-- Powers: $x^{2} + 5x - 3$
-- Fractions: $\\frac{a}{b}$
-- Roots: $\\sqrt{x}$ or $\\sqrt[3]{27}$
-- Chemistry: $\\text{CO}_2$, $2\\text{H}_2\\text{O}$, $\\text{C}_6\\text{H}_{12}\\text{O}_6$
-- Physics: $F = ma$, $E = mc^{2}$, $v^{2} = u^{2} + 2as$
+1. NEVER DUPLICATE EQUATIONS OR VALUES
+2. NEVER show raw LaTeX commands like \\text, \\times in visible text
+3. STRICTLY SEPARATE plain text from math blocks
+4. ALL equations in $$ display blocks, ONE TIME ONLY
+5. Units MUST use \\text{} inside math: $9.8 \\text{ m/s}^{2}$
 
-Create detailed, exam-focused notes that include:
-- Key concepts and definitions
-- Important formulas (with proper LaTeX as shown above)
-- Step-by-step examples with display math blocks
-- Common exam question types
+NOTES FORMAT (FOLLOW EXACTLY):
+
+Use markdown headers and bullet points.
+
+For each concept:
+- Write explanation in plain English
+- Show formula in its own $$ block
+- Provide example with step-by-step math blocks
+- No duplicated equations
+
+CORRECT EXAMPLE STRUCTURE:
+
+## Gravitational Potential Energy
+
+Gravitational potential energy is the energy stored due to position.
+
+Formula:
+
+$$
+PE = mgh
+$$
+
+Where:
+- $m$ is mass in kilograms
+- $g$ is gravitational acceleration ($9.8 \\text{ m/s}^{2}$)
+- $h$ is height in meters
+
+### Example Calculation
+
+Given a 2 kg object at 10 m height:
+
+$$
+PE = (2)(9.8)(10) = 196 \\text{ J}
+$$
+
+NEVER WRITE:
+- PE = mghPE = mgh (duplicated)
+- 9.8\\textm/s^2 (broken)
+- Inline math mixed with text
+
+Create detailed notes including:
+- Key concepts (plain text)
+- Formulas (in $$ blocks)
+- Step-by-step examples
 - Practice tips
-- Connections between concepts
+- Common mistakes
 
-Format:
-- Use markdown with clear sections and bullet points
-- Write explanations in plain English OUTSIDE math delimiters
-- Put ALL calculations inside $$ display blocks
-- Example structure: "The formula is:" $$E = mc^{2}$$ "Where E is energy..."
-- Include clear explanations before formulas`;
+Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
 
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,

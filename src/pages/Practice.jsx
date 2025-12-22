@@ -72,34 +72,101 @@ export default function Practice() {
 
         Unit: ${unit?.unit_name || 'General'}
 
-        CRITICAL MATH RENDERING REQUIREMENTS:
-        - ALL math MUST be wrapped in LaTeX delimiters: $ for inline, $$ for display blocks
-        - NEVER use caret notation (^) in plain text - it MUST be inside LaTeX
-        - ALL exponents MUST use proper LaTeX: $x^{2}$ NOT x^2 or x^2
-        - ALL numbers with exponents: $3^{2}$ NOT 3^2
-        - Complex expressions: $2n^{2}$ NOT 2n^2
-        - Substitutions: $$2(3^{2}) = 18$$ NOT 2(3^2) = 18
-        - Chemical formulas: $\\text{H}_2\\text{O}$ NOT H2O
-        - Scientific notation: $3.2 \\times 10^{-5}$ NOT 3.2 × 10^-5
+        CRITICAL FORMATTING REQUIREMENTS - READ CAREFULLY:
 
-        Examples of CORRECT LaTeX formatting:
-        - Powers: $x^{2} + 5x - 3$ (use curly braces for exponents)
-        - Fractions: $\\frac{\\sin(30^\\circ)}{\\pi}$
-        - Limits: $\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1$
-        - Roots: $\\sqrt{3}$ or $\\sqrt[3]{27}$
-        - Trig: $\\sin(45^\\circ)$, $\\cos(x)$, $\\tan(x)$
-        - Chemistry: $\\text{CO}_2$, $2\\text{H}_2\\text{O}$
-        - Physics: $F = ma$, $E = mc^{2}$
+        1. NEVER DUPLICATE EQUATIONS OR VALUES
+        2. NEVER show raw LaTeX commands like \\text, \\times, ^ in visible text
+        3. STRICTLY SEPARATE plain text from math blocks
+        4. ALL equations MUST be in $$ display blocks, ONE TIME ONLY
+        5. Units MUST use \\text{} inside math: $9.8 \\text{ m/s}^{2}$
+
+        CORRECT EXPLANATION FORMAT (FOLLOW THIS EXACTLY):
+
+        "Concept explanation in plain English.
+
+        The formula is:
+
+        $$
+        [equation here with proper LaTeX]
+        $$
+
+        Given values:
+
+        $$
+        [variable] = [value] \\text{ [unit]}
+        $$
+
+        Substituting into the formula:
+
+        $$
+        [calculation step 1]
+        $$
+
+        $$
+        [calculation step 2]
+        $$
+
+        $$
+        [final result] = [answer] \\text{ [unit]}
+        $$
+
+        Final answer in plain English."
+
+        EXAMPLES OF CORRECT FORMATTING:
+
+        Physics energy calculation:
+        "The gravitational potential energy formula is:
+
+        $$
+        PE = mgh
+        $$
+
+        Given:
+
+        $$
+        m = 2 \\text{ kg}
+        $$
+
+        $$
+        h = 10 \\text{ m}
+        $$
+
+        $$
+        g = 9.8 \\text{ m/s}^{2}
+        $$
+
+        Substituting:
+
+        $$
+        PE = (2)(9.8)(10) = 196 \\text{ J}
+        $$
+
+        The answer is approximately 200 J."
+
+        Math derivative:
+        "Using the power rule:
+
+        $$
+        \\frac{d}{dx}[x^{n}] = nx^{n-1}
+        $$
+
+        For this problem:
+
+        $$
+        \\frac{d}{dx}[x^{3}] = 3x^{2}
+        $$"
+
+        NEVER WRITE:
+        - PE = mghPE = mgh (duplicated)
+        - 9.8\\textm/s^2 (broken LaTeX)
+        - m = 2extkg (corrupted)
+        - Mixed inline math with text
 
         For the explanation:
-        - Start with the key concept being tested
-        - Write plain English explanation OUTSIDE of math delimiters
-        - Put ALL calculations inside $$ display blocks
-        - Show step-by-step work with proper LaTeX
-        - Example: "The formula is:" followed by $$\\text{Max electrons} = 2n^{2}$$ then "For n = 3:" followed by $$2(3^{2}) = 18$$
-        - Include a final answer statement
-        - Explain why each wrong answer is incorrect
-        - Use educational tone that builds understanding
+        - Use the format shown above EXACTLY
+        - Each equation appears ONCE in its own $$ block
+        - Plain English between blocks
+        - Units always in \\text{} with proper spacing
 
 Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, wrong_answer_explanations (object with A/B/C/D keys), hint`;
 
