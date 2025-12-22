@@ -86,11 +86,19 @@ Requirements for each question:
 - Each question should test a slightly different aspect of the topic
 - Questions should progressively build in complexity
 
+For each explanation:
+- Start with the key concept being tested
+- Provide clear step-by-step solution with proper LaTeX
+- Show all mathematical work
+- Include final answer statement
+- Explain why each wrong answer is incorrect
+
 Return a JSON object with a "questions" array, where each question has:
 - question_text: The question stem
 - choice_a, choice_b, choice_c, choice_d: The four answer choices  
 - correct_answer: "A", "B", "C", or "D"
-- explanation: Detailed step-by-step solution
+- explanation: Detailed step-by-step solution with LaTeX
+- wrong_answer_explanations: Object with A/B/C/D keys explaining common mistakes
 - skill_name: The specific skill being tested (infer from notes if using notes mode)`;
 
       const response = await base44.integrations.Core.InvokeLLM({
@@ -110,6 +118,15 @@ Return a JSON object with a "questions" array, where each question has:
                   choice_d: { type: 'string' },
                   correct_answer: { type: 'string' },
                   explanation: { type: 'string' },
+                  wrong_answer_explanations: {
+                    type: 'object',
+                    properties: {
+                      A: { type: 'string' },
+                      B: { type: 'string' },
+                      C: { type: 'string' },
+                      D: { type: 'string' }
+                    }
+                  },
                   skill_name: { type: 'string' },
                 },
               },
@@ -136,6 +153,7 @@ Return a JSON object with a "questions" array, where each question has:
           choice_d: q.choice_d,
           correct_answer: q.correct_answer,
           explanation: q.explanation,
+          wrong_answer_explanations: q.wrong_answer_explanations || {},
           is_ai_generated: true,
         });
         savedQuestions.push(saved);
