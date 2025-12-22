@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { format, subDays, parseISO } from 'date-fns';
+import Calendar from '@/components/dashboard/Calendar';
 
 export default function Dashboard() {
   const navigate = useNavigate();
