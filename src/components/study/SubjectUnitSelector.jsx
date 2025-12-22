@@ -18,6 +18,7 @@ export default function SubjectUnitSelector({
   onSubjectChange, 
   onUnitChange,
   onSkillChange,
+  hideSkillSelector = false,
   className 
 }) {
   const { data: subjects = [], isLoading: subjectsLoading } = useQuery({
@@ -117,31 +118,33 @@ export default function SubjectUnitSelector({
       </div>
 
       {/* Skill Selector */}
-      <div>
-        <label className="text-sm font-medium text-slate-700 mb-2 block">
-          Select Skill
-        </label>
-        <Select 
-          value={selectedSkill} 
-          onValueChange={onSkillChange}
-          disabled={!selectedUnit || skills.length === 0}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder={
-              !selectedUnit ? "Select unit first" : 
-              skills.length === 0 ? "Skills coming soon" : 
-              "Choose a skill"
-            } />
-          </SelectTrigger>
-          <SelectContent className="max-h-96">
-            {skills.map((skill) => (
-              <SelectItem key={skill.id} value={skill.id}>
-                {skill.skill_name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {!hideSkillSelector && (
+        <div>
+          <label className="text-sm font-medium text-slate-700 mb-2 block">
+            Select Skill
+          </label>
+          <Select 
+            value={selectedSkill} 
+            onValueChange={onSkillChange}
+            disabled={!selectedUnit || skills.length === 0}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={
+                !selectedUnit ? "Select unit first" : 
+                skills.length === 0 ? "Skills coming soon" : 
+                "Choose a skill"
+              } />
+            </SelectTrigger>
+            <SelectContent className="max-h-96">
+              {skills.map((skill) => (
+                <SelectItem key={skill.id} value={skill.id}>
+                  {skill.skill_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
     </div>
   );
 }
