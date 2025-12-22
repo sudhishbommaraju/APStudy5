@@ -10,6 +10,7 @@ import Flashcards from './pages/Flashcards';
 import SeedData from './pages/SeedData';
 import Tutor from './pages/Tutor';
 import About from './pages/About';
+import Pricing from './pages/Pricing';
 import __Layout from './Layout.jsx';
 
 
@@ -26,6 +27,7 @@ export const PAGES = {
     "SeedData": SeedData,
     "Tutor": Tutor,
     "About": About,
+    "Pricing": Pricing,
 }
 
 export const pagesConfig = {

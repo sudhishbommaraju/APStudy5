@@ -38,6 +38,7 @@ const NAV_ITEMS = [
   { name: 'Notes', icon: FileText, page: 'Notes' },
   { name: 'Flashcards', icon: Brain, page: 'Flashcards' },
   { name: 'Progress', icon: TrendingUp, page: 'Progress' },
+  { name: 'Pricing', icon: Zap, page: 'Pricing' },
 ];
 
 const EXAM_NAMES = {
