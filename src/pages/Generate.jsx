@@ -73,7 +73,8 @@ Requirements for each question:
   selectedDifficulty === 'medium' ? 'requires multi-step reasoning' :
   'complex problem requiring deep understanding and multiple concepts'
 }
-- Use proper mathematical notation
+- Use LaTeX notation for ALL mathematical expressions (wrap in $ for inline math, $$ for display math)
+- Examples: $x^2 + 5x - 3$, $\\frac{a}{b}$, $\\sqrt{x}$, $\\int_{0}^{1} x dx$
 - Each question should test a slightly different aspect of the topic
 - Questions should progressively build in complexity
 

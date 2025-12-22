@@ -26,6 +26,7 @@ export default function Practice() {
   const [fullPracticeMode, setFullPracticeMode] = useState(false);
   const [practiceQuestions, setPracticeQuestions] = useState([]);
   const [currentPracticeIndex, setCurrentPracticeIndex] = useState(0);
+  const [practiceTimeLimit, setPracticeTimeLimit] = useState(15);
   
   const queryClient = useQueryClient();
 
@@ -336,6 +337,29 @@ Return a JSON object with:
               </div>
             </div>
 
+            {/* Time Limit */}
+            <div className="bg-white rounded-xl border border-slate-200 p-4">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 block">
+                Time Limit (Full Practice)
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {[10, 15, 20, 30].map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setPracticeTimeLimit(t)}
+                    className={cn(
+                      "px-3 py-2 rounded-lg text-sm font-medium transition-all",
+                      practiceTimeLimit === t
+                        ? "bg-slate-900 text-white"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    )}
+                  >
+                    {t} min
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Session Stats */}
             {questionsAnswered > 0 && (
               <div className="bg-white rounded-xl border border-slate-200 p-4">
@@ -434,7 +458,7 @@ Return a JSON object with:
                         setCurrentPracticeIndex(0);
                         setAnswered(false);
                       }}>
-                        Finish Practice
+                        Finish Exam
                       </Button>
                     )}
                   </div>
