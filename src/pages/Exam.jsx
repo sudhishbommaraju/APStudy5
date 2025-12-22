@@ -316,10 +316,10 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
   // Loading state
   if (loading && examState === 'setup') {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-slate-600 mb-4" />
-        <p className="text-slate-600 font-medium">Generating your exam questions...</p>
-        <p className="text-slate-400 text-sm mt-1">This may take a moment</p>
+      <div className="min-h-screen focus-mode flex flex-col items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin mb-4" style={{ color: 'var(--color-focus-accent)' }} />
+        <p className="focus-mode-text font-medium">Generating your exam questions...</p>
+        <p className="focus-mode-text-secondary text-sm mt-1">This may take a moment</p>
       </div>
     );
   }
@@ -517,30 +517,30 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
     const answeredCount = Object.keys(answers).length;
 
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen focus-mode">
         {/* Timer Bar */}
-        <div className="sticky top-0 bg-white border-b border-slate-200 z-10">
+        <div className="sticky top-0 focus-mode-card border-b z-10">
           <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <span className="text-sm text-slate-500">
+              <span className="text-sm focus-mode-text-secondary">
                 Question {currentIndex + 1} of {questions.length}
               </span>
-              <span className="text-sm text-slate-500">
+              <span className="text-sm focus-mode-text-secondary">
                 {answeredCount} answered
               </span>
             </div>
             <div className={cn(
               "flex items-center gap-2 font-mono text-lg font-semibold",
-              timeRemaining < 60 ? "text-rose-600" : "text-slate-900"
+              timeRemaining < 60 ? "text-rose-400" : "focus-mode-text"
             )}>
               <Clock className="w-4 h-4" />
               {formatTime(timeRemaining)}
             </div>
           </div>
-          <div className="h-1 bg-slate-100">
+          <div className="h-1 bg-slate-800">
             <div 
-              className="h-full bg-slate-900 transition-all duration-300"
-              style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
+              className="h-full transition-all duration-300"
+              style={{ width: `${((currentIndex + 1) / questions.length) * 100}%`, backgroundColor: 'var(--color-focus-accent)' }}
             />
           </div>
         </div>

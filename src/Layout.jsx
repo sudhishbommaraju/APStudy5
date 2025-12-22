@@ -75,18 +75,18 @@ export default function Layout({ children, currentPageName }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-primary-bg)' }}>
       {/* Top Navigation */}
-      <header className="sticky top-0 z-50 bg-white border-b border-slate-200">
+      <header className="sticky top-0 z-50 galaxy-gradient-subtle border-b border-slate-700/30">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-14">
-            {/* Logo */}
-            <Link to={createPageUrl('Dashboard')} className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">P</span>
-              </div>
-              <span className="font-bold text-lg text-slate-900 hidden sm:block">Proofly</span>
-            </Link>
+                <div className="flex items-center justify-between h-14">
+                  {/* Logo */}
+                  <Link to={createPageUrl('Dashboard')} className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366F1, #A78BFA)' }}>
+                      <span className="text-white font-bold text-sm">P</span>
+                    </div>
+                    <span className="font-bold text-lg text-white hidden sm:block">Proofly</span>
+                  </Link>
 
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-1">
@@ -97,8 +97,8 @@ export default function Layout({ children, currentPageName }) {
                   className={cn(
                     "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                     currentPageName === item.page
-                      ? "bg-slate-100 text-slate-900"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                      ? "bg-white/20 text-white backdrop-blur-sm"
+                      : "text-slate-300 hover:text-white hover:bg-white/10"
                   )}
                 >
                   <item.icon className="w-4 h-4" />
@@ -111,11 +111,11 @@ export default function Layout({ children, currentPageName }) {
             <div className="flex items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
-                    <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center">
-                      <User className="w-4 h-4 text-slate-600" />
+                  <button className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white/10 transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                      <User className="w-4 h-4 text-white" />
                     </div>
-                    <ChevronDown className="w-4 h-4 text-slate-400 hidden sm:block" />
+                    <ChevronDown className="w-4 h-4 text-slate-300 hidden sm:block" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
@@ -134,12 +134,12 @@ export default function Layout({ children, currentPageName }) {
               {/* Mobile Menu Toggle */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-lg hover:bg-slate-100"
+                className="md:hidden p-2 rounded-lg hover:bg-white/10"
               >
                 {mobileMenuOpen ? (
-                  <X className="w-5 h-5 text-slate-600" />
+                  <X className="w-5 h-5 text-white" />
                 ) : (
-                  <Menu className="w-5 h-5 text-slate-600" />
+                  <Menu className="w-5 h-5 text-white" />
                 )}
               </button>
             </div>
@@ -148,7 +148,7 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Mobile Nav */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-100 bg-white">
+          <div className="md:hidden border-t border-slate-700/30 bg-slate-900/95 backdrop-blur-lg">
             <nav className="px-4 py-2 space-y-1">
               {NAV_ITEMS.map((item) => (
                 <Link
@@ -158,8 +158,8 @@ export default function Layout({ children, currentPageName }) {
                   className={cn(
                     "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                     currentPageName === item.page
-                      ? "bg-slate-100 text-slate-900"
-                      : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                      ? "bg-white/20 text-white"
+                      : "text-slate-300 hover:text-white hover:bg-white/10"
                   )}
                 >
                   <item.icon className="w-5 h-5" />

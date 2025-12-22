@@ -417,26 +417,26 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
   if (practiceState === 'practicing') {
     if (generating) {
       return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="min-h-screen focus-mode flex items-center justify-center">
           <div className="text-center">
-            <Loader2 className="w-8 h-8 animate-spin text-slate-600 mx-auto mb-4" />
-            <p className="text-slate-600 font-medium">Generating practice questions...</p>
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" style={{ color: 'var(--color-focus-accent)' }} />
+            <p className="focus-mode-text font-medium">Generating practice questions...</p>
           </div>
         </div>
       );
     }
 
     return (
-      <div className="min-h-screen bg-slate-50">
-        <div className="sticky top-0 bg-white border-b border-slate-200 z-10">
+      <div className="min-h-screen focus-mode">
+        <div className="sticky top-0 focus-mode-card border-b z-10">
           <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-            <span className="text-sm text-slate-600">
+            <span className="text-sm focus-mode-text-secondary">
               Question {currentIndex + 1} of {currentQuestions.length}
             </span>
-            <div className="h-2 w-48 bg-slate-100 rounded-full overflow-hidden">
+            <div className="h-2 w-48 bg-slate-800 rounded-full overflow-hidden">
               <div 
-                className="h-full bg-slate-900 transition-all"
-                style={{ width: `${((currentIndex + 1) / currentQuestions.length) * 100}%` }}
+                className="h-full transition-all"
+                style={{ width: `${((currentIndex + 1) / currentQuestions.length) * 100}%`, backgroundColor: 'var(--color-focus-accent)' }}
               />
             </div>
           </div>

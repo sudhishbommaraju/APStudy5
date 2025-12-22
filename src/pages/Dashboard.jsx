@@ -135,25 +135,28 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-slate-900">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-primary-bg)' }}>
+      {/* Galaxy Hero Header */}
+      <div className="galaxy-gradient">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+          <h1 className="text-3xl font-bold text-white mb-2">
             Welcome back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
           </h1>
-          <p className="text-slate-500 mt-1">
+          <p className="text-slate-300">
             Ready to master your subjects
           </p>
         </div>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 -mt-6">
 
         {/* Quick Actions */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           <Link to={createPageUrl('Practice')}>
-            <div className="bg-slate-900 text-white rounded-xl p-5 hover:bg-slate-800 transition-colors cursor-pointer">
-              <div className="flex items-center justify-between">
+            <div className="rounded-xl p-5 cursor-pointer shadow-lg hover:shadow-xl transition-all" style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)' }}>
+              <div className="flex items-center justify-between text-white">
                 <div>
-                  <p className="text-slate-300 text-sm font-medium">Practice Mode</p>
+                  <p className="text-indigo-100 text-sm font-medium">Practice Mode</p>
                   <p className="text-lg font-semibold mt-1">Start Practicing</p>
                 </div>
                 <ArrowRight className="w-5 h-5" />
@@ -161,24 +164,24 @@ export default function Dashboard() {
             </div>
           </Link>
           <Link to={createPageUrl('Exam')}>
-            <div className="bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-300 transition-colors cursor-pointer">
+            <div className="bg-white rounded-xl p-5 hover:shadow-lg transition-all cursor-pointer" style={{ border: '1px solid var(--color-border)' }}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-slate-500 text-sm font-medium">Exam Mode</p>
-                  <p className="text-lg font-semibold text-slate-900 mt-1">Take a Test</p>
+                  <p className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>Exam Mode</p>
+                  <p className="text-lg font-semibold mt-1" style={{ color: 'var(--color-text-primary)' }}>Take a Test</p>
                 </div>
-                <Clock className="w-5 h-5 text-slate-400" />
+                <Clock className="w-5 h-5" style={{ color: 'var(--color-accent-primary)' }} />
               </div>
             </div>
           </Link>
           <Link to={createPageUrl('Generate')}>
-            <div className="bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-300 transition-colors cursor-pointer">
+            <div className="bg-white rounded-xl p-5 hover:shadow-lg transition-all cursor-pointer" style={{ border: '1px solid var(--color-border)' }}>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-slate-500 text-sm font-medium">AI Generator</p>
-                  <p className="text-lg font-semibold text-slate-900 mt-1">Create Questions</p>
+                  <p className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>AI Generator</p>
+                  <p className="text-lg font-semibold mt-1" style={{ color: 'var(--color-text-primary)' }}>Create Questions</p>
                 </div>
-                <Zap className="w-5 h-5 text-slate-400" />
+                <Zap className="w-5 h-5" style={{ color: 'var(--color-accent-secondary)' }} />
               </div>
             </div>
           </Link>
