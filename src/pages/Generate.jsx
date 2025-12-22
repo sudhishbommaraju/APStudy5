@@ -74,15 +74,36 @@ If this is a YouTube video, extract the main points discussed. If it's an articl
     setCurrentIndex(0);
 
     try {
-      const topicContext = generationMode === 'notes' 
-        ? `Student's Notes:\n${notes}`
-        : `Subject: ${currentSubjectData?.name}`;
-
-      const prompt = `Generate ${questionCount} exam-style multiple choice questions for ${currentSubjectData?.name || selectedSubject}.
+      const { data: units = [] } = await base44.entities.Unit.filter({ subject_id: selectedSubject });
+      const unit = units.find(u => u.id === selectedUnit);
+      
+      let contextInstructions = '';
+      
+      // SAT/ACT specific instructions
+      if (selectedSubject === 'sat' && unit?.unit_name === 'Math') {
+        contextInstructions = `Generate ${questionCount} SAT Math questions (${selectedDifficulty} difficulty). Topics: algebra, problem-solving, data analysis, advanced math (quadratics, exponentials, functions), geometry, trigonometry. Use real SAT format and difficulty.`;
+      } else if (selectedSubject === 'sat' && unit?.unit_name === 'Reading and Writing') {
+        contextInstructions = `Generate ${questionCount} SAT Reading and Writing questions (${selectedDifficulty} difficulty). Include short passages (2-4 sentences each) about literature, history, science, or social studies. Ask about grammar, vocabulary in context, rhetorical skills, or comprehension. Use real SAT format.`;
+      } else if (selectedSubject === 'act' && unit?.unit_name === 'Math') {
+        contextInstructions = `Generate ${questionCount} ACT Math questions (${selectedDifficulty} difficulty). Topics: pre-algebra, elementary algebra, intermediate algebra, coordinate geometry, plane geometry, trigonometry. Use real ACT format.`;
+      } else if (selectedSubject === 'act' && unit?.unit_name === 'English') {
+        contextInstructions = `Generate ${questionCount} ACT English questions (${selectedDifficulty} difficulty). Include sentences or short passages with grammar, punctuation, sentence structure, strategy, organization, or style issues. Test grammar rules, rhetorical skills, and writing conventions. Use real ACT format.`;
+      } else if (selectedSubject === 'act' && unit?.unit_name === 'Reading') {
+        contextInstructions = `Generate ${questionCount} ACT Reading questions (${selectedDifficulty} difficulty). Include passage excerpts (3-5 sentences each) from prose fiction, social science, humanities, or natural science. Ask about main ideas, details, inferences, vocabulary, or author's craft. Use real ACT format.`;
+      } else if (selectedSubject === 'act' && unit?.unit_name === 'Science') {
+        contextInstructions = `Generate ${questionCount} ACT Science questions (${selectedDifficulty} difficulty). Present data (describe charts/graphs/experiments) about biology, chemistry, physics, or earth science. Ask about data interpretation, scientific investigation, or evaluation of models. Use real ACT format.`;
+      } else {
+        const topicContext = generationMode === 'notes' 
+          ? `Student's Notes:\n${notes}`
+          : `Subject: ${currentSubjectData?.name}`;
+        contextInstructions = `Generate ${questionCount} exam-style multiple choice questions for ${currentSubjectData?.name || selectedSubject}.
 
 ${topicContext}
 
-Difficulty: ${selectedDifficulty}
+Difficulty: ${selectedDifficulty}`;
+      }
+
+      const prompt = `${contextInstructions}
 
 CRITICAL FORMATTING REQUIREMENTS - READ CAREFULLY:
 

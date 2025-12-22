@@ -153,11 +153,31 @@ export default function Exam() {
       for (const difficulty of difficulties) {
         for (let i = 0; i < questionsPerDifficulty && questionIndex < questionCount; i++) {
           const skill = skillsToUse[questionIndex % skillsToUse.length];
+          const unit = units.find(u => u.id === skill.unit_id);
           
-          const prompt = `Generate an exam-style multiple choice question for ${currentSubject?.name || selectedSubject}.
+          let contextInstructions = '';
+          
+          // SAT/ACT specific instructions
+          if (selectedSubject === 'sat' && unit?.unit_name === 'Math') {
+            contextInstructions = `Generate a SAT Math question (${difficulty} difficulty). Topics: algebra, problem-solving, data analysis, advanced math (quadratics, exponentials, functions), geometry, trigonometry. Use real SAT format.`;
+          } else if (selectedSubject === 'sat' && unit?.unit_name === 'Reading and Writing') {
+            contextInstructions = `Generate a SAT Reading and Writing question (${difficulty} difficulty). Include a short passage (2-4 sentences) about literature, history, science, or social studies. Ask about grammar, vocabulary in context, rhetorical skills, or comprehension. Use real SAT format.`;
+          } else if (selectedSubject === 'act' && unit?.unit_name === 'Math') {
+            contextInstructions = `Generate an ACT Math question (${difficulty} difficulty). Topics: pre-algebra, elementary algebra, intermediate algebra, coordinate geometry, plane geometry, trigonometry. Use real ACT format.`;
+          } else if (selectedSubject === 'act' && unit?.unit_name === 'English') {
+            contextInstructions = `Generate an ACT English question (${difficulty} difficulty). Include a sentence or short passage with grammar, punctuation, sentence structure, strategy, organization, or style issues. Test grammar rules, rhetorical skills, and writing conventions. Use real ACT format.`;
+          } else if (selectedSubject === 'act' && unit?.unit_name === 'Reading') {
+            contextInstructions = `Generate an ACT Reading question (${difficulty} difficulty). Include a passage excerpt (3-5 sentences) from prose fiction, social science, humanities, or natural science. Ask about main ideas, details, inferences, vocabulary, or author's craft. Use real ACT format.`;
+          } else if (selectedSubject === 'act' && unit?.unit_name === 'Science') {
+            contextInstructions = `Generate an ACT Science question (${difficulty} difficulty). Present data (describe a chart/graph/experiment) about biology, chemistry, physics, or earth science. Ask about data interpretation, scientific investigation, or evaluation of models. Use real ACT format.`;
+          } else {
+            contextInstructions = `Generate an exam-style multiple choice question for ${currentSubject?.name || selectedSubject}.
 
 Topic/Skill: ${skill.skill_name}
-Difficulty: ${difficulty}
+Difficulty: ${difficulty}`;
+          }
+          
+          const prompt = `${contextInstructions}
 
 CRITICAL FORMATTING REQUIREMENTS - READ CAREFULLY:
 
