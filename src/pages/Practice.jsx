@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowRight, ChevronLeft, Target, BookOpen, Zap } from 'lucide-react';
+import { Loader2, ArrowRight, ChevronLeft, Target, BookOpen, Zap, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import QuestionCard from '@/components/ui/QuestionCard';
@@ -11,6 +11,8 @@ import MasteryBadge from '@/components/study/MasteryBadge';
 import ErrorTypeSelector from '@/components/exam/ErrorTypeSelector';
 import ErrorTypeFeedback from '@/components/ui/ErrorTypeFeedback';
 import UpgradeModal from '@/components/monetization/UpgradeModal';
+import { motion, AnimatePresence } from 'framer-motion';
+import confetti from 'canvas-confetti';
 import {
   Select,
   SelectContent,
@@ -161,6 +163,17 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
       ...prev,
       [currentIndex]: answer,
     }));
+    
+    // Trigger confetti on correct answer
+    const question = currentQuestions[currentIndex];
+    if (answer === question.correct_answer) {
+      confetti({
+        particleCount: 50,
+        spread: 60,
+        origin: { y: 0.6 },
+        colors: ['#6366F1', '#8B5CF6', '#A78BFA']
+      });
+    }
   };
 
   const handleNext = async () => {
@@ -207,9 +220,13 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
     return (
       <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #e8f1f8, #d9e9f5)', fontFamily: 'Georgia, serif' }}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-          <div className="flex items-center gap-4 mb-6">
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-4 mb-6"
+          >
             <Link to={createPageUrl('Dashboard')}>
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="hover:scale-110 transition-transform">
                 <ChevronLeft className="w-5 h-5" />
               </Button>
             </Link>
@@ -217,11 +234,20 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
               <h1 className="text-2xl font-bold text-slate-900">Practice Mode</h1>
               <p className="text-slate-500">Choose what to practice</p>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="space-y-4">
+          <motion.div 
+            className="space-y-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.1 }}
+          >
             {/* Subject Selector */}
-            <div className="bg-white rounded-xl border border-slate-200 p-6">
+            <motion.div 
+              className="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-shadow"
+              whileHover={{ scale: 1.01 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
               <label className="text-sm font-medium text-slate-700 mb-3 block">
                 Select Subject
               </label>
@@ -243,11 +269,18 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+            </motion.div>
 
             {/* Unit Selector */}
-            {selectedSubject && (
-              <div className="bg-white rounded-xl border border-slate-200 p-6">
+            <AnimatePresence>
+              {selectedSubject && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-shadow"
+                  whileHover={{ scale: 1.01 }}
+                >
                 <label className="text-sm font-medium text-slate-700 mb-3 block">
                   Select Unit
                 </label>
@@ -263,20 +296,29 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-            )}
+              </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Question Count */}
-            {selectedUnit && (
-              <div className="bg-white rounded-xl border border-slate-200 p-6">
+            <AnimatePresence>
+              {selectedUnit && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-shadow"
+                >
                 <label className="text-sm font-medium text-slate-700 mb-3 block">
                   Number of Questions
                 </label>
                 <div className="flex gap-3">
                   {[5, 10, 15, 20].map((count) => (
-                    <button
+                    <motion.button
                       key={count}
                       onClick={() => setQuestionCount(count)}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       className={cn(
                         "flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all",
                         questionCount === count
@@ -285,33 +327,50 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                       )}
                     >
                       {count}
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
-              </div>
-            )}
+              </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Start Button */}
-            {selectedUnit && (
-              <Button
-                onClick={startPractice}
-                disabled={generating}
-                className="w-full h-12 text-base font-medium"
-              >
-                {generating ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                    Generating Questions...
-                  </>
-                ) : (
-                  <>
-                    <BookOpen className="w-5 h-5 mr-2" />
-                    Start Practice ({questionCount} questions)
-                  </>
-                )}
-              </Button>
-            )}
-          </div>
+            <AnimatePresence>
+              {selectedUnit && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                >
+                  <Button
+                    onClick={startPractice}
+                    disabled={generating}
+                    className="w-full h-12 text-base font-medium relative overflow-hidden group"
+                  >
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600"
+                      initial={{ x: "-100%" }}
+                      whileHover={{ x: 0 }}
+                      transition={{ duration: 0.3 }}
+                    />
+                    <span className="relative z-10 flex items-center justify-center">
+                      {generating ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                          Generating Questions...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-5 h-5 mr-2" />
+                          Start Practice ({questionCount} questions)
+                        </>
+                      )}
+                    </span>
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
         </div>
       </div>
     );
@@ -359,22 +418,45 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
         </div>
 
         <div className="max-w-4xl mx-auto px-4 py-6">
-          <QuestionCard
-            question={currentQuestion}
-            onAnswer={handleAnswer}
-            selectedAnswer={answers[currentIndex]}
-            showFeedback={answered}
-            mode="practice"
-          />
+          <motion.div
+            key={currentIndex}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ type: "spring", stiffness: 200, damping: 20 }}
+          >
+            <QuestionCard
+              question={currentQuestion}
+              onAnswer={handleAnswer}
+              selectedAnswer={answers[currentIndex]}
+              showFeedback={answered}
+              mode="practice"
+            />
+          </motion.div>
 
-          {answered && (
-            <div className="flex justify-end mt-4">
-              <Button onClick={handleNext}>
-                {currentIndex < currentQuestions.length - 1 ? 'Next Question' : 'Complete Practice'}
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </div>
-          )}
+          <AnimatePresence>
+            {answered && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                className="flex justify-end mt-4"
+              >
+                <Button 
+                  onClick={handleNext}
+                  className="group"
+                >
+                  {currentIndex < currentQuestions.length - 1 ? 'Next Question' : 'Complete Practice'}
+                  <motion.div
+                    animate={{ x: [0, 5, 0] }}
+                    transition={{ repeat: Infinity, duration: 1.5 }}
+                  >
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </motion.div>
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     );
@@ -388,20 +470,53 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
     return (
       <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #e8f1f8, #d9e9f5)', fontFamily: 'Georgia, serif' }}>
         <div className="max-w-3xl mx-auto px-4 py-8">
-          <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center mb-6">
-            <Target className="w-16 h-16 mx-auto mb-4 text-slate-900" />
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">Practice Complete!</h1>
-            <p className="text-xl text-slate-600 mb-4">
-              {accuracy.toFixed(0)}% accuracy
-            </p>
-            <p className="text-slate-500">
+          <motion.div 
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", duration: 0.6 }}
+            className="bg-white rounded-2xl border border-slate-200 p-8 text-center mb-6 shadow-lg"
+          >
+            <motion.div
+              initial={{ rotate: 0 }}
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 0.6 }}
+            >
+              <Target className="w-16 h-16 mx-auto mb-4 text-indigo-600" />
+            </motion.div>
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-3xl font-bold text-slate-900 mb-2"
+            >
+              Practice Complete!
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3, type: "spring" }}
+              className="text-4xl font-bold text-indigo-600 mb-4"
+            >
+              {accuracy.toFixed(0)}%
+            </motion.p>
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-slate-500"
+            >
               {correctCount} out of {currentQuestions.length} correct
-            </p>
-          </div>
+            </motion.p>
+          </motion.div>
 
-          <div className="flex gap-3">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="flex gap-3"
+          >
             <Link to={createPageUrl('Dashboard')} className="flex-1">
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full hover:scale-105 transition-transform">
                 Back to Dashboard
               </Button>
             </Link>
@@ -413,12 +528,18 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                 setCurrentQuestions([]);
                 setSelectedSubject('');
                 setSelectedUnit('');
+                confetti({
+                  particleCount: 100,
+                  spread: 70,
+                  origin: { y: 0.6 }
+                });
               }}
-              className="flex-1"
+              className="flex-1 hover:scale-105 transition-transform"
             >
+              <Sparkles className="w-4 h-4 mr-2" />
               New Practice
             </Button>
-          </div>
+          </motion.div>
           </div>
 
           <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
