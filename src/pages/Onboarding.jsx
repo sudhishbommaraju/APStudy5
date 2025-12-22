@@ -13,11 +13,22 @@ const GRADES = [
   { id: 'senior', name: 'Senior', year: '12th Grade' },
 ];
 
+const IMPROVEMENT_GOALS = [
+  { id: 'ap_scores', label: 'Better AP Scores', icon: '📚' },
+  { id: 'sat_scores', label: 'Higher SAT Scores', icon: '🎯' },
+  { id: 'act_scores', label: 'Higher ACT Scores', icon: '📝' },
+  { id: 'college_prep', label: 'College Preparation', icon: '🎓' },
+  { id: 'understanding', label: 'Better Understanding', icon: '💡' },
+  { id: 'grades', label: 'Better Grades', icon: '⭐' },
+];
+
 export default function Onboarding() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
+  const [step, setStep] = useState(1);
   const [gradeLevel, setGradeLevel] = useState('');
+  const [improvementGoals, setImprovementGoals] = useState([]);
 
   const [checkingAuth, setCheckingAuth] = useState(true);
 
@@ -42,11 +53,20 @@ export default function Onboarding() {
     loadUser();
   }, [navigate]);
 
+  const toggleGoal = (goalId) => {
+    setImprovementGoals(prev => 
+      prev.includes(goalId) 
+        ? prev.filter(g => g !== goalId)
+        : [...prev, goalId]
+    );
+  };
+
   const handleComplete = async () => {
     setLoading(true);
     try {
       await base44.auth.updateMe({
         grade_level: gradeLevel,
+        improvement_goals: improvementGoals,
         onboarding_complete: true,
       });
       navigate(createPageUrl('Dashboard'));
@@ -68,42 +88,89 @@ export default function Onboarding() {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
-          <div className="space-y-6">
-            <div className="text-center">
-              <h1 className="text-2xl font-bold text-slate-900">Welcome to Proofly</h1>
-              <p className="text-slate-500 mt-2">Let's personalize your learning experience</p>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {GRADES.map((grade) => (
-                <button
-                  key={grade.id}
-                  onClick={() => setGradeLevel(grade.id)}
-                  className={cn(
-                    "p-4 rounded-xl border-2 text-left transition-all duration-150",
-                    gradeLevel === grade.id
-                      ? "border-slate-900 bg-slate-50"
-                      : "border-slate-200 hover:border-slate-300"
-                  )}
-                >
-                  <span className="font-semibold text-slate-900">{grade.name}</span>
-                  <span className="block text-sm text-slate-500">{grade.year}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+          {/* Step 1: Grade Level */}
+          {step === 1 && (
+            <div className="space-y-6">
+              <div className="text-center">
+                <h1 className="text-2xl font-bold text-slate-900">Welcome to Proofly</h1>
+                <p className="text-slate-500 mt-2">What grade are you in?</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {GRADES.map((grade) => (
+                  <button
+                    key={grade.id}
+                    onClick={() => setGradeLevel(grade.id)}
+                    className={cn(
+                      "p-4 rounded-xl border-2 text-left transition-all duration-150",
+                      gradeLevel === grade.id
+                        ? "border-slate-900 bg-slate-50"
+                        : "border-slate-200 hover:border-slate-300"
+                    )}
+                  >
+                    <span className="font-semibold text-slate-900">{grade.name}</span>
+                    <span className="block text-sm text-slate-500">{grade.year}</span>
+                  </button>
+                ))}
+              </div>
 
-          <div className="flex justify-end mt-8 pt-6 border-t border-slate-100">
-            <Button
-              onClick={handleComplete}
-              disabled={loading || !gradeLevel}
-            >
-              {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin mr-1" />
-              ) : null}
-              Get Started
-              <ArrowRight className="w-4 h-4 ml-1" />
-            </Button>
-          </div>
+              <div className="flex justify-end mt-8 pt-6 border-t border-slate-100">
+                <Button
+                  onClick={() => setStep(2)}
+                  disabled={!gradeLevel}
+                >
+                  Next
+                  <ArrowRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 2: Improvement Goals */}
+          {step === 2 && (
+            <div className="space-y-6">
+              <div className="text-center">
+                <h2 className="text-2xl font-bold text-slate-900">What are your goals?</h2>
+                <p className="text-slate-500 mt-2">Select all that apply</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {IMPROVEMENT_GOALS.map((goal) => (
+                  <button
+                    key={goal.id}
+                    onClick={() => toggleGoal(goal.id)}
+                    className={cn(
+                      "p-4 rounded-xl border-2 text-left transition-all duration-150",
+                      improvementGoals.includes(goal.id)
+                        ? "border-slate-900 bg-slate-50"
+                        : "border-slate-200 hover:border-slate-300"
+                    )}
+                  >
+                    <span className="text-2xl mb-2 block">{goal.icon}</span>
+                    <span className="font-medium text-slate-900 text-sm">{goal.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex justify-between mt-8 pt-6 border-t border-slate-100">
+                <Button
+                  variant="outline"
+                  onClick={() => setStep(1)}
+                >
+                  <ArrowLeft className="w-4 h-4 mr-1" />
+                  Back
+                </Button>
+                <Button
+                  onClick={handleComplete}
+                  disabled={loading || improvementGoals.length === 0}
+                >
+                  {loading ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                  ) : null}
+                  Get Started
+                  <ArrowRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
