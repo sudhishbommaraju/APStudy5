@@ -9,6 +9,7 @@ import QuestionCard from '@/components/ui/QuestionCard';
 import StudyPlanCard from '@/components/study/StudyPlanCard';
 import MasteryBadge from '@/components/study/MasteryBadge';
 import ErrorTypeSelector from '@/components/exam/ErrorTypeSelector';
+import ErrorTypeFeedback from '@/components/ui/ErrorTypeFeedback';
 import {
   Select,
   SelectContent,
@@ -28,6 +29,7 @@ export default function Practice() {
   const [answers, setAnswers] = useState({});
   const [generating, setGenerating] = useState(false);
   const [showErrorSelector, setShowErrorSelector] = useState(false);
+  const [errorTypes, setErrorTypes] = useState({});
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -278,6 +280,8 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
     const selectedAnswer = answers[currentIndex];
     const isCorrect = selectedAnswer === question.correct_answer;
 
+    setErrorTypes(prev => ({ ...prev, [currentIndex]: errorType }));
+
     await base44.entities.Attempt.create({
       question_id: question.id,
       subject_id: selectedSubject,
@@ -295,12 +299,6 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
     await updateMastery(question.skill_id, isCorrect, question.difficulty);
     
     setShowErrorSelector(false);
-    
-    if (currentIndex < currentQuestions.length - 1) {
-      setCurrentIndex(prev => prev + 1);
-    } else {
-      await completePractice();
-    }
   };
 
   const updateMastery = async (skillId, isCorrect, difficulty) => {
@@ -457,6 +455,14 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
             <div className="mt-4 bg-white rounded-xl border border-slate-200 p-6">
               <ErrorTypeSelector onSelect={handleErrorType} />
             </div>
+          )}
+
+          {answered && !isCorrect && !showErrorSelector && errorTypes[currentIndex] && (
+            <ErrorTypeFeedback 
+              errorType={errorTypes[currentIndex]}
+              question={currentQuestion}
+              selectedAnswer={answers[currentIndex]}
+            />
           )}
 
           {answered && (!showErrorSelector || isCorrect) && (

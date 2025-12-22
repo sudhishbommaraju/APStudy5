@@ -157,7 +157,14 @@ Requirements:
 - NEVER write: "ext\\lim", "o" (use \\to for arrows), "frac" without backslash
 - Test that your LaTeX compiles correctly before using it
 
-Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation`;
+For the explanation:
+- Start with the key concept being tested
+- Provide step-by-step solution with clear reasoning using proper LaTeX
+- Show all mathematical work
+- Include a final answer statement
+- Add why each wrong answer is a common mistake
+
+Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, wrong_answer_explanations (object with A/B/C/D keys)`;
 
           questionPromises.push(
             base44.integrations.Core.InvokeLLM({
@@ -172,6 +179,15 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                   choice_d: { type: 'string' },
                   correct_answer: { type: 'string' },
                   explanation: { type: 'string' },
+                  wrong_answer_explanations: {
+                    type: 'object',
+                    properties: {
+                      A: { type: 'string' },
+                      B: { type: 'string' },
+                      C: { type: 'string' },
+                      D: { type: 'string' }
+                    }
+                  }
                 },
                 required: ['question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'correct_answer', 'explanation'],
               },
