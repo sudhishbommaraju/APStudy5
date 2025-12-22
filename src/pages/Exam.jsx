@@ -316,7 +316,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
   // Loading state
   if (loading && examState === 'setup') {
     return (
-      <div className="min-h-screen focus-mode flex flex-col items-center justify-center">
+      <div className="min-h-screen flex flex-col items-center justify-center" style={{ background: 'linear-gradient(135deg, #e8f1f8, #d9e9f5)', fontFamily: 'Georgia, serif' }}>
         <Loader2 className="w-8 h-8 animate-spin mb-4" style={{ color: 'var(--color-focus-accent)' }} />
         <p className="focus-mode-text font-medium">Generating your exam questions...</p>
         <p className="focus-mode-text-secondary text-sm mt-1">This may take a moment</p>
@@ -327,7 +327,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
   // Setup Screen
   if (examState === 'setup') {
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #e8f1f8, #d9e9f5)', fontFamily: 'Georgia, serif' }}>
         <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
           <div className="flex items-center gap-4 mb-6">
             <Link to={createPageUrl('Dashboard')}>
@@ -642,7 +642,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
       .slice(0, 3);
 
     return (
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #e8f1f8, #d9e9f5)', fontFamily: 'Georgia, serif' }}>
         <div className="max-w-3xl mx-auto px-4 py-8">
           {/* Score Card */}
           <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center mb-6">
