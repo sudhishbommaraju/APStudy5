@@ -205,7 +205,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
   // Setup view
   if (practiceState === 'setup') {
     return (
-      <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #1e3a5f, #2d4a6f)', fontFamily: 'Georgia, serif' }}>
+      <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #e8f1f8, #d9e9f5)', fontFamily: 'Georgia, serif' }}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
           <div className="flex items-center gap-4 mb-6">
             <Link to={createPageUrl('Dashboard')}>
@@ -386,7 +386,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
     const accuracy = (correctCount / currentQuestions.length) * 100;
 
     return (
-      <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #1e3a5f, #2d4a6f)', fontFamily: 'Georgia, serif' }}>
+      <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #e8f1f8, #d9e9f5)', fontFamily: 'Georgia, serif' }}>
         <div className="max-w-3xl mx-auto px-4 py-8">
           <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center mb-6">
             <Target className="w-16 h-16 mx-auto mb-4 text-slate-900" />

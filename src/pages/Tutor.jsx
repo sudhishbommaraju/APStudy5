@@ -146,7 +146,7 @@ Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper e
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #1e3a5f, #2d4a6f)', fontFamily: 'Georgia, serif' }}>
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #e8f1f8, #d9e9f5)', fontFamily: 'Georgia, serif' }}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 flex flex-col" style={{ height: 'calc(100vh - 64px)' }}>
         {/* Header */}
         <div className="mb-6">

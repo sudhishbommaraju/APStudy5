@@ -6,7 +6,7 @@ import { ChevronLeft, Mail } from 'lucide-react';
 
 export default function About() {
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 50%, #DDD6FE 100%)' }}>
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #e8f1f8, #d9e9f5)', fontFamily: 'Georgia, serif' }}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
         {/* Header */}
         <div className="flex items-center gap-4 mb-12">

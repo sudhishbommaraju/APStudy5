@@ -183,7 +183,7 @@ Return a JSON object with a "questions" array, where each question has:
   const canGenerate = selectedSubject && selectedUnit && (generationMode === 'notes' ? notes.trim().length > 20 : true);
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #1e3a5f, #2d4a6f)', fontFamily: 'Georgia, serif' }}>
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #e8f1f8, #d9e9f5)', fontFamily: 'Georgia, serif' }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-6">
