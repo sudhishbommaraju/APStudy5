@@ -135,7 +135,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-primary-bg)' }}>
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #1e3a5f, #2d4a6f)', fontFamily: 'Georgia, serif' }}>
       {/* Galaxy Hero Header */}
       <div className="galaxy-gradient">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
