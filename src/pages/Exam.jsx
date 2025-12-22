@@ -94,7 +94,7 @@ export default function Exam() {
     setLoading(true);
     
     try {
-      // Get skills from selected units
+      // Get skills from selected units - if no skills exist, use unit info directly
       const unitsToUse = selectedUnits.length > 0 ? selectedUnits : units.map(u => u.id);
       
       const allSkills = await base44.entities.Skill.list();
@@ -102,8 +102,21 @@ export default function Exam() {
         unitsToUse.includes(skill.unit_id)
       );
       
-      if (relevantSkills.length === 0) {
-        console.error('No skills found for selected units');
+      // If no skills, create temporary skill data from units
+      const skillsToUse = relevantSkills.length > 0 
+        ? relevantSkills 
+        : unitsToUse.map(unitId => {
+            const unit = units.find(u => u.id === unitId);
+            return {
+              id: unitId,
+              unit_id: unitId,
+              skill_name: unit?.unit_name || 'General',
+              subject_id: selectedSubject,
+            };
+          });
+      
+      if (skillsToUse.length === 0) {
+        console.error('No skills or units found');
         setLoading(false);
         return;
       }
@@ -119,7 +132,7 @@ export default function Exam() {
       for (const difficulty of difficulties) {
         for (let i = 0; i < questionsPerDifficulty && generatedQuestions.length < questionCount; i++) {
           // Rotate through skills to ensure variety
-          const skill = relevantSkills[generatedQuestions.length % relevantSkills.length];
+          const skill = skillsToUse[generatedQuestions.length % skillsToUse.length];
           
           const prompt = `Generate an exam-style multiple choice question for ${currentSubject?.name || selectedSubject}.
 
