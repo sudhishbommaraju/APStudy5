@@ -179,6 +179,12 @@ Difficulty: ${difficulty}`;
           
           const prompt = `${contextInstructions}
 
+TABLES AND GRAPHS (For Science/Math):
+- If the question involves data analysis, comparisons, or scientific results, include a table or graph description
+- Format tables as markdown: | Header 1 | Header 2 |\n|---------|----------|\n| Data 1 | Data 2 |
+- For graphs, describe the data points as JSON: {"type": "line/bar/scatter", "data": [{"x": 1, "y": 2}, ...], "labels": {"x": "Time (s)", "y": "Distance (m)"}}
+- Only include visual data when it enhances understanding
+
 CRITICAL FORMATTING REQUIREMENTS - READ CAREFULLY:
 
 1. NEVER DUPLICATE EQUATIONS OR VALUES
@@ -288,6 +294,40 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                 required: ['question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'correct_answer', 'explanation'],
               },
             }).then(response => ({ response, skill, difficulty }))
+          
+          // Add table_data and graph_data to schema
+          questionPromises[questionPromises.length - 1] = questionPromises[questionPromises.length - 1].then(result => {
+            const llmPromise = base44.integrations.Core.InvokeLLM({
+              prompt,
+              response_json_schema: {
+                type: 'object',
+                properties: {
+                  question_text: { type: 'string' },
+                  table_data: { type: 'string' },
+                  graph_data: { type: 'string' },
+                  choice_a: { type: 'string' },
+                  choice_b: { type: 'string' },
+                  choice_c: { type: 'string' },
+                  choice_d: { type: 'string' },
+                  correct_answer: { type: 'string' },
+                  explanation: { type: 'string' },
+                  wrong_answer_explanations: {
+                    type: 'object',
+                    properties: {
+                      A: { type: 'string' },
+                      B: { type: 'string' },
+                      C: { type: 'string' },
+                      D: { type: 'string' }
+                    }
+                  }
+                },
+                required: ['question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'correct_answer', 'explanation'],
+              },
+            });
+            return llmPromise.then(response => ({ response, skill, difficulty }));
+          });
+          
+          questionIndex++;
           );
           
           questionIndex++;

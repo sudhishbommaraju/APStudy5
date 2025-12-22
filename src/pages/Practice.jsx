@@ -106,6 +106,12 @@ export default function Practice() {
 
         const prompt = `${contextInstructions}
 
+        TABLES AND GRAPHS (For Science/Math):
+        - If the question involves data analysis, comparisons, or scientific results, include a table or graph description
+        - Format tables as markdown: | Header 1 | Header 2 |\n|---------|----------|\n| Data 1 | Data 2 |
+        - For graphs, describe the data points as JSON: {"type": "line/bar/scatter", "data": [{"x": 1, "y": 2}, ...], "labels": {"x": "Time (s)", "y": "Distance (m)"}}
+        - Only include visual data when it enhances understanding
+
         CRITICAL FORMATTING REQUIREMENTS - READ CAREFULLY:
 
         1. NEVER DUPLICATE EQUATIONS OR VALUES
@@ -218,6 +224,8 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
               type: 'object',
               properties: {
                 question_text: { type: 'string' },
+                table_data: { type: 'string' },
+                graph_data: { type: 'string' },
                 choice_a: { type: 'string' },
                 choice_b: { type: 'string' },
                 choice_c: { type: 'string' },
@@ -253,6 +261,8 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
             skill_name: 'General',
             difficulty: 'medium',
             question_text: r.question_text,
+            table_data: r.table_data || '',
+            graph_data: r.graph_data || '',
             choice_a: r.choice_a,
             choice_b: r.choice_b,
             choice_c: r.choice_c,
