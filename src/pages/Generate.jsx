@@ -171,6 +171,13 @@ Requirements:
 - Units in \\text{}
 - Progressive difficulty
 
+CRITICAL - ANSWER CONSISTENCY:
+- Calculate the correct answer first
+- The correct_answer field MUST point to the choice with that calculated value
+- Double-check: if math gives 196 ≈ 200, correct_answer must be the letter with 200
+- NEVER let explanation contradict the correct_answer field
+- Verify the letter matches the value BEFORE returning JSON
+
 Return a JSON object with a "questions" array, where each question has:
 - question_text: The question stem
 - choice_a, choice_b, choice_c, choice_d: The four answer choices  

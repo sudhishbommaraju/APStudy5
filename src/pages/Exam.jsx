@@ -215,6 +215,13 @@ Requirements:
 - Each equation appears ONCE
 - Units always in \\text{}
 
+CRITICAL - ANSWER CONSISTENCY:
+- Calculate the correct answer using the math shown
+- The correct_answer field MUST point to the choice with the mathematically correct value
+- Double-check: if calculation gives 196 J ≈ 200 J, correct_answer must be the letter for 200 J
+- NEVER have explanation say "200 J is correct" but mark a different value as correct_answer
+- Verify correct_answer letter matches the choice with the right value BEFORE returning
+
 Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer, explanation, wrong_answer_explanations`;
 
           questionPromises.push(

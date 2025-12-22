@@ -168,6 +168,13 @@ export default function Practice() {
         - Plain English between blocks
         - Units always in \\text{} with proper spacing
 
+        CRITICAL - ANSWER CONSISTENCY:
+        - Calculate the correct answer using the math shown
+        - The choice labeled as correct_answer MUST contain the mathematically correct value
+        - Double-check: if your calculation gives 196 J ≈ 200 J, then correct_answer must point to the choice with 200 J
+        - NEVER have explanation say "200 J is correct" but mark a different choice as correct_answer
+        - Verify the correct_answer letter matches the choice with the right value
+
 Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, wrong_answer_explanations (object with A/B/C/D keys), hint`;
 
         questionsToGenerate.push(
