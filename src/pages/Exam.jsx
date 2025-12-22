@@ -121,18 +121,20 @@ export default function Exam() {
         return;
       }
 
-      // Generate questions
-      const generatedQuestions = [];
+      // Generate questions in parallel
       const difficulties = selectedDifficulty === 'mixed' 
         ? ['easy', 'medium', 'hard'] 
         : [selectedDifficulty];
       
       const questionsPerDifficulty = Math.ceil(questionCount / difficulties.length);
       
+      // Build array of questions to generate
+      const questionPromises = [];
+      let questionIndex = 0;
+      
       for (const difficulty of difficulties) {
-        for (let i = 0; i < questionsPerDifficulty && generatedQuestions.length < questionCount; i++) {
-          // Rotate through skills to ensure variety
-          const skill = skillsToUse[generatedQuestions.length % skillsToUse.length];
+        for (let i = 0; i < questionsPerDifficulty && questionIndex < questionCount; i++) {
+          const skill = skillsToUse[questionIndex % skillsToUse.length];
           
           const prompt = `Generate an exam-style multiple choice question for ${currentSubject?.name || selectedSubject}.
 
@@ -157,24 +159,36 @@ Requirements:
 
 Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation`;
 
-          const response = await base44.integrations.Core.InvokeLLM({
-            prompt,
-            response_json_schema: {
-              type: 'object',
-              properties: {
-                question_text: { type: 'string' },
-                choice_a: { type: 'string' },
-                choice_b: { type: 'string' },
-                choice_c: { type: 'string' },
-                choice_d: { type: 'string' },
-                correct_answer: { type: 'string' },
-                explanation: { type: 'string' },
+          questionPromises.push(
+            base44.integrations.Core.InvokeLLM({
+              prompt,
+              response_json_schema: {
+                type: 'object',
+                properties: {
+                  question_text: { type: 'string' },
+                  choice_a: { type: 'string' },
+                  choice_b: { type: 'string' },
+                  choice_c: { type: 'string' },
+                  choice_d: { type: 'string' },
+                  correct_answer: { type: 'string' },
+                  explanation: { type: 'string' },
+                },
+                required: ['question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'correct_answer', 'explanation'],
               },
-              required: ['question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'correct_answer', 'explanation'],
-            },
-          });
-
-          const saved = await base44.entities.Question.create({
+            }).then(response => ({ response, skill, difficulty }))
+          );
+          
+          questionIndex++;
+        }
+      }
+      
+      // Wait for all questions to generate
+      const questionResponses = await Promise.all(questionPromises);
+      
+      // Save all questions to database
+      const generatedQuestions = await Promise.all(
+        questionResponses.map(({ response, skill, difficulty }) =>
+          base44.entities.Question.create({
             subject_id: selectedSubject,
             unit_id: skill.unit_id,
             skill_id: skill.id,
@@ -189,11 +203,9 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
             correct_answer: response.correct_answer,
             explanation: response.explanation,
             is_ai_generated: true,
-          });
-
-          generatedQuestions.push(saved);
-        }
-      }
+          })
+        )
+      );
 
       // Create session
       const newSession = await base44.entities.Session.create({
