@@ -82,33 +82,44 @@ ${topicContext}
 
 Difficulty: ${selectedDifficulty}
 
+CRITICAL MATH RENDERING REQUIREMENTS:
+- ALL math MUST be wrapped in LaTeX delimiters: $ for inline, $$ for display blocks
+- NEVER use caret notation (^) in plain text - it MUST be inside LaTeX
+- ALL exponents MUST use proper LaTeX with curly braces: $x^{2}$ NOT x^2
+- ALL numbers with exponents: $3^{2}$ NOT 3^2 or 3^2
+- Complex expressions: $2n^{2}$ NOT 2n^2
+- Substitutions: $$2(3^{2}) = 18$$ NOT [2(3^2) = 18]
+- Chemical formulas: $\\text{H}_2\\text{O}$ NOT H2O or H_2O
+- Scientific notation: $3.2 \\times 10^{-5}$ NOT 3.2 × 10^-5
+- Physics equations: $v^{2} = u^{2} + 2as$ NOT v^2 = u^2 + 2as
+
+Examples of CORRECT LaTeX formatting:
+- Powers: $x^{2} + 5x - 3$ (always use curly braces for exponents)
+- Fractions: $\\frac{\\sin(30^\\circ)}{\\pi}$
+- Limits: $\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1$
+- Roots: $\\sqrt{3}$ or $\\sqrt[3]{27}$
+- Trig: $\\sin(45^\\circ)$, $\\cos(x)$, $\\tan(x)$
+- Chemistry: $\\text{CO}_2$, $2\\text{H}_2\\text{O}$, $\\text{CH}_4$
+- Physics: $F = ma$, $E = mc^{2}$, $a = \\frac{v^{2}}{r}$
+
 Requirements for each question:
-- Match official College Board/ACT question style and phrasing exactly
+- Match official College Board/ACT question style exactly
 - Exactly 4 answer choices (A, B, C, D)
 - Exactly one correct answer
-- Include plausible distractors that test common misconceptions
-- For ${selectedDifficulty} difficulty: ${
-  selectedDifficulty === 'easy' ? 'straightforward application of concepts' :
-  selectedDifficulty === 'medium' ? 'requires multi-step reasoning' :
-  'complex problem requiring deep understanding and multiple concepts'
+- Include plausible distractors testing common misconceptions
+- Difficulty: ${selectedDifficulty} - ${
+  selectedDifficulty === 'easy' ? 'straightforward application' :
+  selectedDifficulty === 'medium' ? 'multi-step reasoning' :
+  'complex problem requiring deep understanding'
 }
-- CRITICAL: Use VALID LaTeX with proper escape characters. ALL math must render cleanly.
-- Wrap math: $ for inline, $$ for display blocks
-- Examples of CORRECT LaTeX:
-  * Fractions: $\\frac{\\sin(30^\\circ)}{\\pi}$ (with backslash before frac)
-  * Limits: $\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1$ (backslash before lim and to)
-  * Powers: $x^2 + 5x - 3$
-  * Roots: $\\sqrt{3}$
-  * Trig: $\\sin(45^\\circ)$, $\\cos(x)$, $\\tan(x)$ (backslash before all functions)
-- NEVER write: "ext\\lim", "o" (use \\to for arrows), "frac" without backslash
-- Test that your LaTeX compiles correctly before using it
-- Each question should test a slightly different aspect of the topic
-- Questions should progressively build in complexity
+- Each question tests a slightly different aspect
+- Questions build in complexity
 
 For each explanation:
-- Start with the key concept being tested
-- Provide clear step-by-step solution with proper LaTeX
-- Show all mathematical work
+- Write plain English explanation OUTSIDE of math delimiters
+- Put ALL calculations inside $$ display blocks
+- Show step-by-step work with proper LaTeX
+- Example: "The formula is:" $$\\text{Max electrons} = 2n^{2}$$ "For n = 3:" $$2(3^{2}) = 18$$
 - Include final answer statement
 - Explain why each wrong answer is incorrect
 

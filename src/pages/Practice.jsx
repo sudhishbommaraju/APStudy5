@@ -70,29 +70,36 @@ export default function Practice() {
       for (let i = 0; i < questionCount; i++) {
         const prompt = `Generate an exam-style multiple choice question for ${subject?.name || 'general topic'}.
 
-Unit: ${unit?.unit_name || 'General'}
+        Unit: ${unit?.unit_name || 'General'}
 
-Requirements:
-- Match official exam style
-- Exactly 4 answer choices (A, B, C, D)
-- One correct answer
-- CRITICAL: Use VALID LaTeX with proper escape characters. ALL math must render cleanly.
-- Wrap math: $ for inline, $$ for display blocks
-- Examples of CORRECT LaTeX:
-  * Fractions: $\\frac{\\sin(30^\\circ)}{\\pi}$ (with backslash before frac)
-  * Limits: $\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1$ (backslash before lim and to)
-  * Powers: $x^2 + 5x - 3$
-  * Roots: $\\sqrt{3}$
-  * Trig: $\\sin(45^\\circ)$, $\\cos(x)$, $\\tan(x)$ (backslash before all functions)
-- NEVER write: "ext\\lim", "o" (use \\to for arrows), "frac" without backslash
+        CRITICAL MATH RENDERING REQUIREMENTS:
+        - ALL math MUST be wrapped in LaTeX delimiters: $ for inline, $$ for display blocks
+        - NEVER use caret notation (^) in plain text - it MUST be inside LaTeX
+        - ALL exponents MUST use proper LaTeX: $x^{2}$ NOT x^2 or x^2
+        - ALL numbers with exponents: $3^{2}$ NOT 3^2
+        - Complex expressions: $2n^{2}$ NOT 2n^2
+        - Substitutions: $$2(3^{2}) = 18$$ NOT 2(3^2) = 18
+        - Chemical formulas: $\\text{H}_2\\text{O}$ NOT H2O
+        - Scientific notation: $3.2 \\times 10^{-5}$ NOT 3.2 × 10^-5
 
-For the explanation:
-- Start with the key concept being tested
-- Provide step-by-step solution with clear reasoning
-- Show all work using proper LaTeX notation
-- Include a final answer statement
-- Add a "Common Mistakes" section explaining why each wrong answer is incorrect
-- Use educational tone that builds understanding, not just procedures
+        Examples of CORRECT LaTeX formatting:
+        - Powers: $x^{2} + 5x - 3$ (use curly braces for exponents)
+        - Fractions: $\\frac{\\sin(30^\\circ)}{\\pi}$
+        - Limits: $\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1$
+        - Roots: $\\sqrt{3}$ or $\\sqrt[3]{27}$
+        - Trig: $\\sin(45^\\circ)$, $\\cos(x)$, $\\tan(x)$
+        - Chemistry: $\\text{CO}_2$, $2\\text{H}_2\\text{O}$
+        - Physics: $F = ma$, $E = mc^{2}$
+
+        For the explanation:
+        - Start with the key concept being tested
+        - Write plain English explanation OUTSIDE of math delimiters
+        - Put ALL calculations inside $$ display blocks
+        - Show step-by-step work with proper LaTeX
+        - Example: "The formula is:" followed by $$\\text{Max electrons} = 2n^{2}$$ then "For n = 3:" followed by $$2(3^{2}) = 18$$
+        - Include a final answer statement
+        - Explain why each wrong answer is incorrect
+        - Use educational tone that builds understanding
 
 Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, wrong_answer_explanations (object with A/B/C/D keys), hint`;
 
