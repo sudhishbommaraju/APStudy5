@@ -388,14 +388,30 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                   <SelectValue placeholder="Choose a subject" />
                 </SelectTrigger>
                 <SelectContent className="max-h-96">
-                  {subjects.map(subject => (
-                    <SelectItem key={subject.subject_id} value={subject.subject_id}>
-                      <div className="flex items-center gap-2">
-                        {subject.icon && <span>{subject.icon}</span>}
-                        <span>{subject.name}</span>
+                  {(() => {
+                    const grouped = subjects.reduce((acc, subject) => {
+                      const category = subject.category;
+                      if (!acc[category]) acc[category] = [];
+                      acc[category].push(subject);
+                      return acc;
+                    }, {});
+                    
+                    return Object.entries(grouped).map(([category, categorySubjects]) => (
+                      <div key={category}>
+                        <div className="px-2 py-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                          {category}
+                        </div>
+                        {categorySubjects.map((subject) => (
+                          <SelectItem key={subject.subject_id} value={subject.subject_id}>
+                            <div className="flex items-center gap-2">
+                              {subject.icon && <span>{subject.icon}</span>}
+                              <span>{subject.name}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
                       </div>
-                    </SelectItem>
-                  ))}
+                    ));
+                  })()}
                 </SelectContent>
               </Select>
             </motion.div>
