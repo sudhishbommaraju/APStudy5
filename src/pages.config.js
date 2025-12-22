@@ -1,35 +1,37 @@
-import Onboarding from './pages/Onboarding';
-import Home from './pages/Home';
+import About from './pages/About';
 import Dashboard from './pages/Dashboard';
-import Practice from './pages/Practice';
-import Generate from './pages/Generate';
 import Exam from './pages/Exam';
-import Progress from './pages/Progress';
-import Notes from './pages/Notes';
 import Flashcards from './pages/Flashcards';
+import Generate from './pages/Generate';
+import Home from './pages/Home';
+import MistakeReplay from './pages/MistakeReplay';
+import Notes from './pages/Notes';
+import Onboarding from './pages/Onboarding';
+import Practice from './pages/Practice';
+import Pricing from './pages/Pricing';
+import Progress from './pages/Progress';
 import SeedData from './pages/SeedData';
 import Tutor from './pages/Tutor';
-import About from './pages/About';
-import Pricing from './pages/Pricing';
-import MistakeReplay from './pages/MistakeReplay';
+import AdminUsers from './pages/AdminUsers';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Onboarding": Onboarding,
-    "Home": Home,
+    "About": About,
     "Dashboard": Dashboard,
-    "Practice": Practice,
-    "Generate": Generate,
     "Exam": Exam,
-    "Progress": Progress,
-    "Notes": Notes,
     "Flashcards": Flashcards,
+    "Generate": Generate,
+    "Home": Home,
+    "MistakeReplay": MistakeReplay,
+    "Notes": Notes,
+    "Onboarding": Onboarding,
+    "Practice": Practice,
+    "Pricing": Pricing,
+    "Progress": Progress,
     "SeedData": SeedData,
     "Tutor": Tutor,
-    "About": About,
-    "Pricing": Pricing,
-    "MistakeReplay": MistakeReplay,
+    "AdminUsers": AdminUsers,
 }
 
 export const pagesConfig = {

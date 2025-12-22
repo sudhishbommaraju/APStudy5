@@ -39,6 +39,7 @@ const NAV_ITEMS = [
   { name: 'Flashcards', icon: Brain, page: 'Flashcards' },
   { name: 'Progress', icon: TrendingUp, page: 'Progress' },
   { name: 'Pricing', icon: Zap, page: 'Pricing' },
+  { name: 'Admin Users', icon: User, page: 'AdminUsers', adminOnly: true },
 ];
 
 const EXAM_NAMES = {
@@ -96,7 +97,7 @@ export default function Layout({ children, currentPageName }) {
 
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-1">
-              {NAV_ITEMS.map((item) => (
+              {NAV_ITEMS.filter(item => !item.adminOnly || user?.role === 'admin').map((item) => (
                 <Link
                   key={item.page}
                   to={createPageUrl(item.page)}
@@ -175,7 +176,7 @@ export default function Layout({ children, currentPageName }) {
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-slate-700/30 bg-slate-900/95 backdrop-blur-lg">
             <nav className="px-4 py-2 space-y-1">
-              {NAV_ITEMS.map((item) => (
+              {NAV_ITEMS.filter(item => !item.adminOnly || user?.role === 'admin').map((item) => (
                 <Link
                   key={item.page}
                   to={createPageUrl(item.page)}
