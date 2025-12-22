@@ -169,7 +169,23 @@ export default function QuestionCard({
         </div>
       )}
 
-      {/* Feedback (Practice Mode) - Only show for incorrect answers */}
+      {/* Feedback (Practice Mode) - Show for all answers */}
+      {showResult && isCorrect && (
+        <div className="px-6 py-5 border-t bg-emerald-50 border-emerald-100">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
+              <Check className="w-4 h-4 text-white" />
+            </div>
+            <span className="font-semibold text-emerald-800">Correct!</span>
+          </div>
+          <div className="prose prose-sm max-w-none text-slate-700">
+            <p className="font-medium text-slate-900 mb-2">Explanation:</p>
+            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+              {question.explanation}
+            </ReactMarkdown>
+          </div>
+        </div>
+      )}
       {showResult && !isCorrect && (
         <div className="px-6 py-5 border-t bg-rose-50 border-rose-100">
           <div className="flex items-center gap-2 mb-3">
