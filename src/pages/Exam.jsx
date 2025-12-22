@@ -833,9 +833,9 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
             </Button>
           </div>
         </div>
+        
+        <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
       </div>
-      
-      <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
-    </div>
-  );
+    );
+  }
 }
