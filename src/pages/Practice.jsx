@@ -13,6 +13,7 @@ import ErrorTypeFeedback from '@/components/ui/ErrorTypeFeedback';
 import UpgradeModal from '@/components/monetization/UpgradeModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
+import { checkAndResetCredits, checkCredits, useCredit } from '@/components/monetization/CreditHelper';
 import {
   Select,
   SelectContent,
@@ -38,7 +39,8 @@ export default function Practice() {
   useEffect(() => {
     const loadUser = async () => {
       const currentUser = await base44.auth.me();
-      setUser(currentUser);
+      const { user: refreshedUser } = await checkAndResetCredits(currentUser);
+      setUser(refreshedUser);
     };
     loadUser();
   }, []);
@@ -59,8 +61,19 @@ export default function Practice() {
   const startPractice = async () => {
     if (!selectedSubject || !selectedUnit) return;
     
+    // Check credits
+    const { allowed, remaining } = await checkCredits(user, 'daily_practice_count');
+    if (!allowed) {
+      setUpgradeModalOpen(true);
+      return;
+    }
+    
     setGenerating(true);
     setPracticeState('practicing');
+    
+    // Use a credit
+    const updatedUser = await useCredit(user, 'daily_practice_count');
+    setUser(updatedUser);
     
     try {
       const subject = subjects.find(s => s.subject_id === selectedSubject);
@@ -311,9 +324,14 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                 <ChevronLeft className="w-5 h-5" />
               </Button>
             </Link>
-            <div>
+            <div className="flex-1">
               <h1 className="text-2xl font-bold text-slate-900">Practice Mode</h1>
               <p className="text-slate-500">Choose what to practice</p>
+              {user?.plan === 'free' && (
+                <p className="text-xs text-slate-600 mt-1">
+                  Daily practice exams: {(user.daily_practice_count || 0)}/5 used
+                </p>
+              )}
             </div>
           </motion.div>
 

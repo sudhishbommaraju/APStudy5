@@ -11,6 +11,8 @@ import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import StudyTimer from '@/components/study/StudyTimer';
+import { checkAndResetCredits, checkCredits, useCredit } from '@/components/monetization/CreditHelper';
+import UpgradeModal from '@/components/monetization/UpgradeModal';
 
 export default function Notes() {
   const [user, setUser] = useState(null);
@@ -19,14 +21,16 @@ export default function Notes() {
   const [unitName, setUnitName] = useState('');
   const [topics, setTopics] = useState('');
   const [generatedNote, setGeneratedNote] = useState(null);
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
   const queryClient = useQueryClient();
 
   useEffect(() => {
     const loadUser = async () => {
       const currentUser = await base44.auth.me();
-      setUser(currentUser);
-      setSelectedExam(currentUser.primary_exam || currentUser.selected_exams?.[0]);
+      const { user: refreshedUser } = await checkAndResetCredits(currentUser);
+      setUser(refreshedUser);
+      setSelectedExam(refreshedUser.primary_exam || refreshedUser.selected_exams?.[0]);
     };
     loadUser();
   }, []);
@@ -39,6 +43,13 @@ export default function Notes() {
 
   const generateNotes = async () => {
     if (!unitName || !topics) return;
+    
+    // Check credits
+    const { allowed, remaining } = await checkCredits(user, 'daily_notes_count');
+    if (!allowed) {
+      setUpgradeModalOpen(true);
+      return;
+    }
     
     setGenerating(true);
     try {
@@ -130,6 +141,10 @@ Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
       queryClient.invalidateQueries({ queryKey: ['notes'] });
       setUnitName('');
       setTopics('');
+      
+      // Use a credit
+      const updatedUser = await useCredit(user, 'daily_notes_count');
+      setUser(updatedUser);
     } catch (e) {
       console.error('Failed to generate notes:', e);
     }
@@ -146,9 +161,14 @@ Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
                 <ChevronLeft className="w-5 h-5" />
               </Button>
             </Link>
-            <div>
+            <div className="flex-1">
               <h1 className="text-2xl font-bold text-slate-900">Study Notes</h1>
               <p className="text-slate-500">AI-generated notes for each unit</p>
+              {user?.plan === 'free' && (
+                <p className="text-xs text-slate-600 mt-1">
+                  Daily note generations: {(user.daily_notes_count || 0)}/5 used
+                </p>
+              )}
             </div>
           </div>
           <StudyTimer examType={selectedExam} activityType="notes" />
@@ -250,6 +270,8 @@ Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
           </div>
         </div>
       </div>
+      
+      <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
     </div>
   );
 }

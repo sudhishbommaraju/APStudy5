@@ -8,6 +8,8 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { cn } from '@/lib/utils';
 import SubjectChangeDialog from '@/components/study/SubjectChangeDialog';
+import { checkAndResetCredits, checkCredits, useCredit } from '@/components/monetization/CreditHelper';
+import UpgradeModal from '@/components/monetization/UpgradeModal';
 
 export default function Tutor() {
   const [user, setUser] = useState(null);
@@ -18,13 +20,15 @@ export default function Tutor() {
   const [showSubjectDialog, setShowSubjectDialog] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
     const loadUser = async () => {
       const currentUser = await base44.auth.me();
-      setUser(currentUser);
+      const { user: refreshedUser } = await checkAndResetCredits(currentUser);
+      setUser(refreshedUser);
     };
     loadUser();
   }, []);
@@ -62,6 +66,13 @@ export default function Tutor() {
 
   const handleSendMessage = async () => {
     if ((!input.trim() && uploadedFiles.length === 0) || loading) return;
+
+    // Check credits
+    const { allowed, remaining } = await checkCredits(user, 'daily_tutor_count');
+    if (!allowed) {
+      setUpgradeModalOpen(true);
+      return;
+    }
 
     const userMessage = input.trim();
     const filesToSend = [...uploadedFiles];
@@ -122,6 +133,10 @@ Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper e
       });
 
       setMessages(prev => [...prev, { role: 'assistant', content: response }]);
+      
+      // Use a credit after successful response
+      const updatedUser = await useCredit(user, 'daily_tutor_count');
+      setUser(updatedUser);
     } catch (e) {
       console.error('Failed to get tutor response:', e);
       setMessages(prev => [...prev, { 
@@ -159,6 +174,11 @@ Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper e
               <p className="text-slate-500 mt-1">
                 Ask questions and get detailed explanations
               </p>
+              {user?.plan === 'free' && (
+                <p className="text-xs text-slate-600 mt-1">
+                  Daily questions: {(user.daily_tutor_count || 0)}/5 used
+                </p>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -417,7 +437,9 @@ Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper e
           setSelectedSubject(subjectId);
           setShowSubjectDialog(false);
         }}
-      />
-    </div>
-  );
-}
+        />
+
+        <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
+        </div>
+        );
+        }

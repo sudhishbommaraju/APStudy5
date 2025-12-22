@@ -8,6 +8,8 @@ import { createPageUrl } from '@/utils';
 import QuestionCard from '@/components/ui/QuestionCard';
 import UnitMultiSelect from '@/components/exam/UnitMultiSelect';
 import { cn } from '@/lib/utils';
+import { checkAndResetCredits, checkCredits, useCredit } from '@/components/monetization/CreditHelper';
+import UpgradeModal from '@/components/monetization/UpgradeModal';
 import {
   Select,
   SelectContent,
@@ -36,13 +38,15 @@ export default function Exam() {
   const [answers, setAnswers] = useState({});
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   
   const timerRef = useRef(null);
 
   useEffect(() => {
     const loadUser = async () => {
       const currentUser = await base44.auth.me();
-      setUser(currentUser);
+      const { user: refreshedUser } = await checkAndResetCredits(currentUser);
+      setUser(refreshedUser);
     };
     loadUser();
   }, []);
@@ -91,7 +95,18 @@ export default function Exam() {
   const startExam = async () => {
     if (!selectedSubject || selectedUnits.length === 0) return;
     
+    // Check credits
+    const { allowed, remaining } = await checkCredits(user, 'daily_exam_count');
+    if (!allowed) {
+      setUpgradeModalOpen(true);
+      return;
+    }
+    
     setLoading(true);
+    
+    // Use a credit
+    const updatedUser = await useCredit(user, 'daily_exam_count');
+    setUser(updatedUser);
     
     try {
       // Get skills from selected units - if no skills exist, use unit info directly
@@ -393,9 +408,14 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                 <ChevronLeft className="w-5 h-5" />
               </Button>
             </Link>
-            <div>
+            <div className="flex-1">
               <h1 className="text-2xl font-bold text-slate-900">Exam Mode</h1>
               <p className="text-slate-500">Timed test with no explanations until the end</p>
+              {user?.plan === 'free' && (
+                <p className="text-xs text-slate-600 mt-1">
+                  Daily timed exams: {(user.daily_exam_count || 0)}/3 used
+                </p>
+              )}
             </div>
           </div>
 
@@ -814,6 +834,8 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
           </div>
         </div>
       </div>
-    );
-  }
+      
+      <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
+    </div>
+  );
 }
