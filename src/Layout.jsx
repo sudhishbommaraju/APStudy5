@@ -15,7 +15,8 @@ import {
   TrendingUp,
   FileText,
   Brain,
-  Zap
+  Zap,
+  Info
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import UpgradeModal from '@/components/monetization/UpgradeModal';
 const NAV_ITEMS = [
+  { name: 'About', icon: Info, page: 'About' },
   { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
   { name: 'Practice', icon: BookOpen, page: 'Practice' },
   { name: 'Exam', icon: Clock, page: 'Exam' },
