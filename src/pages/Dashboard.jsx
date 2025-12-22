@@ -122,34 +122,34 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: '#F1F5FB', fontFamily: 'Georgia, serif' }}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
 
         {/* Hero Section */}
-        <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 p-8 mb-6">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">
+        <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border border-slate-200 p-4 mb-4">
+          <h1 className="text-xl font-bold text-slate-900 mb-1">
             {getGreeting()}{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
           </h1>
-          <p className="text-slate-600 text-lg mb-6">
+          <p className="text-slate-600 text-sm mb-3">
             Choose a subject and start a personalized study session.
           </p>
           <Button 
-            size="lg" 
+            size="sm" 
             onClick={() => document.getElementById('study-action-card')?.scrollIntoView({ behavior: 'smooth' })}
             className="bg-indigo-600 hover:bg-indigo-700"
           >
-            <Play className="w-5 h-5 mr-2" />
+            <Play className="w-4 h-4 mr-2" />
             Start Study Session
           </Button>
         </div>
 
         {/* Study Action Card - PRIMARY */}
-        <div id="study-action-card" className="bg-white rounded-2xl border border-slate-200 p-6 mb-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-900 mb-4">Start Studying</h2>
+        <div id="study-action-card" className="bg-white rounded-xl border border-slate-200 p-4 mb-4 shadow-sm">
+          <h2 className="text-base font-semibold text-slate-900 mb-3">Start Studying</h2>
           
-          <div className="space-y-4">
+          <div className="space-y-3">
             {/* Subject Selector */}
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-2 block">
+              <label className="text-xs font-medium text-slate-700 mb-1.5 block">
                 Select Subject
               </label>
               <Select value={selectedSubject} onValueChange={setSelectedSubject}>
@@ -188,7 +188,7 @@ export default function Dashboard() {
             {/* Unit Selector (appears after subject selection) */}
             {selectedSubject && (
               <div>
-                <label className="text-sm font-medium text-slate-700 mb-2 block">
+                <label className="text-xs font-medium text-slate-700 mb-1.5 block">
                   Select Unit (Optional)
                 </label>
                 <Select value={selectedUnit} onValueChange={setSelectedUnit}>
@@ -208,22 +208,24 @@ export default function Dashboard() {
             )}
 
             {/* Action Buttons */}
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-2 pt-1">
               <Button 
                 onClick={handleStartPractice}
                 disabled={!selectedSubject}
+                size="sm"
                 className="flex-1 bg-indigo-600 hover:bg-indigo-700"
               >
-                <BookOpen className="w-4 h-4 mr-2" />
+                <BookOpen className="w-3 h-3 mr-1.5" />
                 Start Practice
               </Button>
               <Button 
                 onClick={handleStartExam}
                 disabled={!selectedSubject}
                 variant="outline"
+                size="sm"
                 className="flex-1"
               >
-                <Clock className="w-4 h-4 mr-2" />
+                <Clock className="w-3 h-3 mr-1.5" />
                 Create Exam
               </Button>
             </div>
@@ -232,23 +234,22 @@ export default function Dashboard() {
 
         {/* Today's Plan (Contextual) */}
         {recommendedSubject && totalQuestions > 10 && (
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
-            <div className="flex items-start justify-between mb-4">
+          <div className="bg-white rounded-xl border border-slate-200 p-3 mb-4">
+            <div className="flex items-start justify-between mb-2">
               <div>
-                <h3 className="text-lg font-semibold text-slate-900">Recommended Study Session</h3>
-                <p className="text-sm text-slate-600 mt-1">Based on your recent activity</p>
+                <h3 className="text-sm font-semibold text-slate-900">Recommended Session</h3>
+                <p className="text-xs text-slate-600 mt-0.5">Based on recent activity</p>
               </div>
-              <Target className="w-5 h-5 text-indigo-600" />
+              <Target className="w-4 h-4 text-indigo-600" />
             </div>
-            <div className="space-y-2 mb-4">
+            <div className="space-y-1 mb-3">
               <div className="flex items-center gap-2">
-                <span className="text-2xl">{recommendedSubject.icon}</span>
-                <span className="font-medium text-slate-900">{recommendedSubject.name}</span>
+                <span className="text-lg">{recommendedSubject.icon}</span>
+                <span className="text-sm font-medium text-slate-900">{recommendedSubject.name}</span>
               </div>
-              <p className="text-sm text-slate-600">
+              <p className="text-xs text-slate-600">
                 {lastAttempt.unit_name && `Focus: ${lastAttempt.unit_name}`}
               </p>
-              <p className="text-sm text-slate-600">Estimated time: 15-20 minutes</p>
             </div>
             <Button 
               onClick={() => {
@@ -257,181 +258,183 @@ export default function Dashboard() {
                 document.getElementById('study-action-card')?.scrollIntoView({ behavior: 'smooth' });
               }}
               variant="outline"
+              size="sm"
               className="w-full"
             >
-              Start Recommended Session
-              <ArrowRight className="w-4 h-4 ml-2" />
+              Start Session
+              <ArrowRight className="w-3 h-3 ml-2" />
             </Button>
           </div>
         )}
 
         {/* Progress Snapshot */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">Your Progress</h3>
-          <div className="grid sm:grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-slate-50 rounded-xl">
-              <div className="text-3xl font-bold text-slate-900">{totalQuestions}</div>
-              <div className="text-sm text-slate-600 mt-1">Questions Practiced</div>
+        <div className="bg-white rounded-xl border border-slate-200 p-3 mb-4">
+          <h3 className="text-sm font-semibold text-slate-900 mb-2">Your Progress</h3>
+          <div className="grid sm:grid-cols-3 gap-2">
+            <div className="text-center p-2 bg-slate-50 rounded-lg">
+              <div className="text-xl font-bold text-slate-900">{totalQuestions}</div>
+              <div className="text-xs text-slate-600 mt-0.5">Questions</div>
             </div>
-            <div className="text-center p-4 bg-slate-50 rounded-xl">
-              <div className="text-3xl font-bold text-indigo-600">{overallAccuracy.toFixed(0)}%</div>
-              <div className="text-sm text-slate-600 mt-1">Overall Accuracy</div>
+            <div className="text-center p-2 bg-slate-50 rounded-lg">
+              <div className="text-xl font-bold text-indigo-600">{overallAccuracy.toFixed(0)}%</div>
+              <div className="text-xs text-slate-600 mt-0.5">Accuracy</div>
             </div>
-            <div className="text-center p-4 bg-slate-50 rounded-xl">
-              <div className="text-3xl font-bold text-slate-900">{studyDays.size}</div>
-              <div className="text-sm text-slate-600 mt-1">Study Days</div>
+            <div className="text-center p-2 bg-slate-50 rounded-lg">
+              <div className="text-xl font-bold text-slate-900">{studyDays.size}</div>
+              <div className="text-xs text-slate-600 mt-0.5">Study Days</div>
             </div>
           </div>
         </div>
 
         {/* Quick Actions */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-4">
           <button
             onClick={() => navigate(createPageUrl('Practice'))}
-            className="bg-white rounded-xl border border-slate-200 p-5 hover:border-indigo-300 hover:shadow-sm transition-all text-left"
+            className="bg-white rounded-lg border border-slate-200 p-3 hover:border-indigo-300 hover:shadow-sm transition-all text-left"
           >
-            <BookOpen className="w-6 h-6 text-slate-600 mb-3" />
-            <div className="font-medium text-slate-900">Practice by Unit</div>
-            <div className="text-sm text-slate-600 mt-1">Master specific topics</div>
+            <BookOpen className="w-5 h-5 text-slate-600 mb-2" />
+            <div className="text-sm font-medium text-slate-900">Practice</div>
+            <div className="text-xs text-slate-600 mt-0.5">Master topics</div>
           </button>
 
           <button
             onClick={() => navigate(createPageUrl('Exam'))}
-            className="bg-white rounded-xl border border-slate-200 p-5 hover:border-indigo-300 hover:shadow-sm transition-all text-left"
+            className="bg-white rounded-lg border border-slate-200 p-3 hover:border-indigo-300 hover:shadow-sm transition-all text-left"
           >
-            <Clock className="w-6 h-6 text-slate-600 mb-3" />
-            <div className="font-medium text-slate-900">Custom Exam</div>
-            <div className="text-sm text-slate-600 mt-1">Timed practice test</div>
+            <Clock className="w-5 h-5 text-slate-600 mb-2" />
+            <div className="text-sm font-medium text-slate-900">Exam</div>
+            <div className="text-xs text-slate-600 mt-0.5">Timed test</div>
           </button>
 
           <button
             onClick={() => navigate(createPageUrl('Notes'))}
-            className="bg-white rounded-xl border border-slate-200 p-5 hover:border-indigo-300 hover:shadow-sm transition-all text-left"
+            className="bg-white rounded-lg border border-slate-200 p-3 hover:border-indigo-300 hover:shadow-sm transition-all text-left"
           >
-            <FileText className="w-6 h-6 text-slate-600 mb-3" />
-            <div className="font-medium text-slate-900">Study Notes</div>
-            <div className="text-sm text-slate-600 mt-1">Review key concepts</div>
+            <FileText className="w-5 h-5 text-slate-600 mb-2" />
+            <div className="text-sm font-medium text-slate-900">Notes</div>
+            <div className="text-xs text-slate-600 mt-0.5">Key concepts</div>
           </button>
 
           <button
             onClick={() => navigate(createPageUrl('Progress'))}
-            className="bg-white rounded-xl border border-slate-200 p-5 hover:border-indigo-300 hover:shadow-sm transition-all text-left"
+            className="bg-white rounded-lg border border-slate-200 p-3 hover:border-indigo-300 hover:shadow-sm transition-all text-left"
           >
-            <TrendingUp className="w-6 h-6 text-slate-600 mb-3" />
-            <div className="font-medium text-slate-900">View Progress</div>
-            <div className="text-sm text-slate-600 mt-1">Track your growth</div>
+            <TrendingUp className="w-5 h-5 text-slate-600 mb-2" />
+            <div className="text-sm font-medium text-slate-900">Progress</div>
+            <div className="text-xs text-slate-600 mt-0.5">Track growth</div>
           </button>
         </div>
 
         {/* Pricing Plans */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">Choose Your Plan</h3>
-          <div className="grid md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-xl border border-slate-200 p-3">
+          <h3 className="text-sm font-semibold text-slate-900 mb-2">Choose Your Plan</h3>
+          <div className="grid md:grid-cols-2 gap-3">
             {/* Free Plan */}
-            <div className="border-2 border-slate-200 rounded-xl p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="text-xl font-bold text-slate-900">Free</h4>
-                <div className="text-2xl font-bold text-slate-900">$0</div>
+            <div className="border-2 border-slate-200 rounded-lg p-3">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="text-base font-bold text-slate-900">Free</h4>
+                <div className="text-lg font-bold text-slate-900">$0</div>
               </div>
-              <p className="text-slate-600 text-sm mb-6">Perfect for getting started</p>
+              <p className="text-slate-600 text-xs mb-3">Perfect for getting started</p>
               
-              <ul className="space-y-3 mb-6">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm text-slate-700">5 AI-generated questions per day</span>
+              <ul className="space-y-1.5 mb-3">
+                <li className="flex items-start gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-xs text-slate-700">5 questions/day</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm text-slate-700">Basic practice mode</span>
+                <li className="flex items-start gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-xs text-slate-700">Basic practice</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm text-slate-700">Progress tracking</span>
+                <li className="flex items-start gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-xs text-slate-700">Progress tracking</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <X className="w-5 h-5 text-slate-300 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm text-slate-400">Custom exams</span>
+                <li className="flex items-start gap-1.5">
+                  <X className="w-3.5 h-3.5 text-slate-300 flex-shrink-0 mt-0.5" />
+                  <span className="text-xs text-slate-400">Custom exams</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <X className="w-5 h-5 text-slate-300 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm text-slate-400">AI tutor</span>
+                <li className="flex items-start gap-1.5">
+                  <X className="w-3.5 h-3.5 text-slate-300 flex-shrink-0 mt-0.5" />
+                  <span className="text-xs text-slate-400">AI tutor</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <X className="w-5 h-5 text-slate-300 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm text-slate-400">Generate from notes/videos</span>
+                <li className="flex items-start gap-1.5">
+                  <X className="w-3.5 h-3.5 text-slate-300 flex-shrink-0 mt-0.5" />
+                  <span className="text-xs text-slate-400">Notes/videos</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <X className="w-5 h-5 text-slate-300 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm text-slate-400">Flashcards</span>
+                <li className="flex items-start gap-1.5">
+                  <X className="w-3.5 h-3.5 text-slate-300 flex-shrink-0 mt-0.5" />
+                  <span className="text-xs text-slate-400">Flashcards</span>
                 </li>
               </ul>
 
               {user?.plan === 'free' && (
-                <div className="text-center py-2 text-sm text-slate-500 font-medium">
+                <div className="text-center py-1.5 text-xs text-slate-500 font-medium">
                   Current Plan
                 </div>
               )}
             </div>
 
             {/* Pro Plan */}
-            <div className="border-2 border-purple-500 rounded-xl p-6 relative overflow-hidden">
-              <div className="absolute top-0 right-0 bg-gradient-to-br from-purple-500 to-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+            <div className="border-2 border-purple-500 rounded-lg p-3 relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-gradient-to-br from-purple-500 to-indigo-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
                 POPULAR
               </div>
               
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <h4 className="text-xl font-bold text-slate-900">Pro</h4>
-                  <Crown className="w-5 h-5 text-purple-600" />
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1.5">
+                  <h4 className="text-base font-bold text-slate-900">Pro</h4>
+                  <Crown className="w-3.5 h-3.5 text-purple-600" />
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-slate-900">$9.99</div>
-                  <div className="text-xs text-slate-500">/month</div>
+                  <div className="text-lg font-bold text-slate-900">$9.99</div>
+                  <div className="text-[10px] text-slate-500">/month</div>
                 </div>
               </div>
-              <p className="text-slate-600 text-sm mb-6">Unlock your full potential</p>
+              <p className="text-slate-600 text-xs mb-3">Unlock full potential</p>
               
-              <ul className="space-y-3 mb-6">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm text-slate-700 font-medium">Unlimited AI-generated questions</span>
+              <ul className="space-y-1.5 mb-3">
+                <li className="flex items-start gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-purple-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-xs text-slate-700 font-medium">Unlimited questions</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm text-slate-700 font-medium">Custom timed exams</span>
+                <li className="flex items-start gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-purple-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-xs text-slate-700 font-medium">Timed exams</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm text-slate-700 font-medium">AI tutor for instant help</span>
+                <li className="flex items-start gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-purple-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-xs text-slate-700 font-medium">AI tutor</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm text-slate-700 font-medium">Generate from your notes & videos</span>
+                <li className="flex items-start gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-purple-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-xs text-slate-700 font-medium">Notes & videos</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm text-slate-700 font-medium">Unlimited flashcards</span>
+                <li className="flex items-start gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-purple-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-xs text-slate-700 font-medium">Flashcards</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm text-slate-700 font-medium">Advanced analytics</span>
+                <li className="flex items-start gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-purple-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-xs text-slate-700 font-medium">Analytics</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm text-slate-700 font-medium">Priority support</span>
+                <li className="flex items-start gap-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-purple-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-xs text-slate-700 font-medium">Priority support</span>
                 </li>
               </ul>
 
               {user?.plan === 'free' ? (
                 <Button 
                   onClick={() => setUpgradeModalOpen(true)}
+                  size="sm"
                   className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
                 >
-                  <Zap className="w-4 h-4 mr-2" />
+                  <Zap className="w-3 h-3 mr-1.5" />
                   Upgrade to Pro
                 </Button>
               ) : (
-                <div className="text-center py-2 text-sm text-purple-600 font-medium">
+                <div className="text-center py-1.5 text-xs text-purple-600 font-medium">
                   Current Plan
                 </div>
               )}
