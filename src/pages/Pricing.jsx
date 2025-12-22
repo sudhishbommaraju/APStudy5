@@ -55,35 +55,35 @@ export default function Pricing() {
             <ul className="space-y-3 mb-6">
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-700">5 AI-generated questions per day</span>
+                <span className="text-sm text-slate-700">5 practice exams per day</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-700">Basic practice mode</span>
+                <span className="text-sm text-slate-700">3 custom timed exams per day</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <span className="text-sm text-slate-700">5 AI tutor questions per day</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <span className="text-sm text-slate-700">5 note sets per day</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <span className="text-sm text-slate-700">Flashcards</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                 <span className="text-sm text-slate-700">Progress tracking</span>
               </li>
               <li className="flex items-start gap-2">
-                <X className="w-5 h-5 text-slate-300 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-400">Custom timed exams</span>
+                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <span className="text-sm text-slate-700">Generate from notes/videos</span>
               </li>
               <li className="flex items-start gap-2">
-                <X className="w-5 h-5 text-slate-300 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-400">AI tutor for instant help</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <X className="w-5 h-5 text-slate-300 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-400">Generate from notes/videos</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <X className="w-5 h-5 text-slate-300 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-400">Unlimited flashcards</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <X className="w-5 h-5 text-slate-300 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-400">Advanced analytics</span>
+                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <span className="text-sm text-slate-700">All core features</span>
               </li>
             </ul>
 
@@ -119,19 +119,19 @@ export default function Pricing() {
             <ul className="space-y-3 mb-6">
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-700 font-medium">Unlimited AI-generated questions</span>
+                <span className="text-sm text-slate-700 font-medium">Unlimited practice exams</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-700 font-medium">Custom timed exams</span>
+                <span className="text-sm text-slate-700 font-medium">Unlimited custom timed exams</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-700 font-medium">AI tutor for instant help</span>
+                <span className="text-sm text-slate-700 font-medium">Unlimited AI tutor questions</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-700 font-medium">Generate from your notes & videos</span>
+                <span className="text-sm text-slate-700 font-medium">Unlimited note generation</span>
               </li>
               <li className="flex items-start gap-2">
                 <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
