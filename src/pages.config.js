@@ -11,6 +11,7 @@ import SeedData from './pages/SeedData';
 import Tutor from './pages/Tutor';
 import About from './pages/About';
 import Pricing from './pages/Pricing';
+import MistakeReplay from './pages/MistakeReplay';
 import __Layout from './Layout.jsx';
 
 
@@ -28,6 +29,7 @@ export const PAGES = {
     "Tutor": Tutor,
     "About": About,
     "Pricing": Pricing,
+    "MistakeReplay": MistakeReplay,
 }
 
 export const pagesConfig = {
