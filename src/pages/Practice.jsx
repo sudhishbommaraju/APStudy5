@@ -63,6 +63,14 @@ export default function Practice() {
     try {
       const allSkills = await base44.entities.Skill.filter({ subject_id: selectedSubject });
       
+      // If no skills, auto-start practice immediately
+      if (allSkills.length === 0) {
+        setStudyPlan({ subject_id: selectedSubject, focus_skills: [], estimated_minutes: 20, plan_type: 'daily', generated_reason: 'General practice' });
+        setGenerating(false);
+        await startPracticeDirectly(selectedSubject);
+        return;
+      }
+
       // Calculate mastery for each skill
       const skillsWithMastery = allSkills.map(skill => {
         const mastery = masteryData.find(m => m.skill_id === skill.id);
@@ -126,6 +134,78 @@ export default function Practice() {
       setStudyPlan(plan);
     } catch (e) {
       console.error('Failed to generate study plan:', e);
+    }
+    setGenerating(false);
+  };
+
+  const startPracticeDirectly = async (subjectId) => {
+    setPracticeState('practicing');
+    setGenerating(true);
+    
+    try {
+      const subject = subjects.find(s => s.subject_id === subjectId);
+      const questionsToGenerate = [];
+      
+      for (let i = 0; i < 10; i++) {
+        const prompt = `Generate an exam-style multiple choice question for ${subject?.name || 'general topic'}.
+
+Requirements:
+- Match official exam style
+- Exactly 4 answer choices (A, B, C, D)
+- One correct answer
+- Use proper LaTeX math notation
+- Include clear explanation
+
+Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, hint`;
+
+        questionsToGenerate.push(
+          base44.integrations.Core.InvokeLLM({
+            prompt,
+            response_json_schema: {
+              type: 'object',
+              properties: {
+                question_text: { type: 'string' },
+                choice_a: { type: 'string' },
+                choice_b: { type: 'string' },
+                choice_c: { type: 'string' },
+                choice_d: { type: 'string' },
+                correct_answer: { type: 'string' },
+                explanation: { type: 'string' },
+                hint: { type: 'string' },
+              },
+              required: ['question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'correct_answer', 'explanation'],
+            },
+          })
+        );
+      }
+
+      const responses = await Promise.all(questionsToGenerate);
+      
+      const questions = await Promise.all(
+        responses.map(r => 
+          base44.entities.Question.create({
+            subject_id: subjectId,
+            unit_id: '',
+            skill_id: '',
+            skill_name: 'General',
+            difficulty: 'medium',
+            question_text: r.question_text,
+            choice_a: r.choice_a,
+            choice_b: r.choice_b,
+            choice_c: r.choice_c,
+            choice_d: r.choice_d,
+            correct_answer: r.correct_answer,
+            explanation: r.explanation,
+            wrong_answer_explanations: {},
+            hint: r.hint || '',
+            is_ai_generated: true,
+          })
+        )
+      );
+
+      setCurrentQuestions(questions);
+    } catch (e) {
+      console.error('Failed to generate questions:', e);
     }
     setGenerating(false);
   };
@@ -263,10 +343,23 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
     const selectedAnswer = answers[currentIndex];
     const isCorrect = selectedAnswer === question.correct_answer;
 
-    // Show error type selector if incorrect
-    if (!isCorrect && !showErrorSelector) {
-      setShowErrorSelector(true);
-      return;
+    // Record attempt
+    await base44.entities.Attempt.create({
+      question_id: question.id,
+      subject_id: selectedSubject,
+      unit_id: question.unit_id,
+      skill_id: question.skill_id,
+      skill_name: question.skill_name,
+      difficulty: question.difficulty,
+      selected_answer: selectedAnswer,
+      correct_answer: question.correct_answer,
+      is_correct: isCorrect,
+      mode: 'practice',
+      error_type: 'none',
+    });
+
+    if (question.skill_id) {
+      await updateMastery(question.skill_id, isCorrect, question.difficulty);
     }
 
     if (currentIndex < currentQuestions.length - 1) {
@@ -465,21 +558,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
             mode="practice"
           />
 
-          {answered && !isCorrect && showErrorSelector && (
-            <div className="mt-4 bg-white rounded-xl border border-slate-200 p-6">
-              <ErrorTypeSelector onSelect={handleErrorType} />
-            </div>
-          )}
-
-          {answered && !isCorrect && !showErrorSelector && errorTypes[currentIndex] && (
-            <ErrorTypeFeedback 
-              errorType={errorTypes[currentIndex]}
-              question={currentQuestion}
-              selectedAnswer={answers[currentIndex]}
-            />
-          )}
-
-          {answered && (!showErrorSelector || isCorrect) && (
+          {answered && (
             <div className="flex justify-end mt-4">
               <Button onClick={handleNext}>
                 {currentIndex < currentQuestions.length - 1 ? 'Next Question' : 'Complete Practice'}
