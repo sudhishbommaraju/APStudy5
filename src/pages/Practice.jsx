@@ -23,14 +23,13 @@ import { cn } from '@/lib/utils';
 export default function Practice() {
   const [user, setUser] = useState(null);
   const [selectedSubject, setSelectedSubject] = useState('');
-  const [studyPlan, setStudyPlan] = useState(null);
-  const [practiceState, setPracticeState] = useState('plan'); // 'plan', 'practicing', 'complete'
+  const [selectedUnit, setSelectedUnit] = useState('');
+  const [questionCount, setQuestionCount] = useState(10);
+  const [practiceState, setPracticeState] = useState('setup'); // 'setup', 'practicing', 'complete'
   const [currentQuestions, setCurrentQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [generating, setGenerating] = useState(false);
-  const [showErrorSelector, setShowErrorSelector] = useState(false);
-  const [errorTypes, setErrorTypes] = useState({});
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
@@ -42,208 +41,34 @@ export default function Practice() {
     loadUser();
   }, []);
 
-  useEffect(() => {
-    if (selectedSubject && !studyPlan && !generating && practiceState === 'plan') {
-      generateStudyPlan();
-    }
-  }, [selectedSubject]);
+
 
   const { data: subjects = [] } = useQuery({
     queryKey: ['subjects'],
     queryFn: () => base44.entities.Subject.list('subject_id'),
   });
 
-  const { data: masteryData = [] } = useQuery({
-    queryKey: ['mastery', selectedSubject],
-    queryFn: () => base44.entities.SkillMastery.filter({ 
-      subject_id: selectedSubject,
-      created_by: user?.email 
-    }),
-    enabled: !!selectedSubject && !!user,
+  const { data: units = [] } = useQuery({
+    queryKey: ['units', selectedSubject],
+    queryFn: () => base44.entities.Unit.filter({ subject_id: selectedSubject }),
+    enabled: !!selectedSubject,
   });
 
-  const generateStudyPlan = async () => {
-    if (!selectedSubject) return;
+  const startPractice = async () => {
+    if (!selectedSubject || !selectedUnit) return;
     
     setGenerating(true);
-    try {
-      const allSkills = await base44.entities.Skill.filter({ subject_id: selectedSubject });
-      
-      // If no skills, auto-start practice immediately
-      if (allSkills.length === 0) {
-        setStudyPlan({ subject_id: selectedSubject, focus_skills: [], estimated_minutes: 20, plan_type: 'daily', generated_reason: 'General practice' });
-        setGenerating(false);
-        await startPracticeDirectly(selectedSubject);
-        return;
-      }
-
-      // Calculate mastery for each skill
-      const skillsWithMastery = allSkills.map(skill => {
-        const mastery = masteryData.find(m => m.skill_id === skill.id);
-        return {
-          ...skill,
-          mastery_level: mastery?.mastery_level || 'not_started',
-          recent_accuracy: mastery?.recent_accuracy || 0,
-          total_attempts: mastery?.total_attempts || 0,
-          last_practiced: mastery?.last_practiced,
-        };
-      });
-
-      // Prioritize skills: developing/not_started, then proficient for review
-      const needsWork = skillsWithMastery
-        .filter(s => ['not_started', 'developing'].includes(s.mastery_level))
-        .sort((a, b) => a.recent_accuracy - b.recent_accuracy)
-        .slice(0, 3);
-
-      const forReview = skillsWithMastery
-        .filter(s => s.mastery_level === 'proficient')
-        .sort((a, b) => {
-          const daysA = a.last_practiced ? (Date.now() - new Date(a.last_practiced).getTime()) / (1000 * 60 * 60 * 24) : 999;
-          const daysB = b.last_practiced ? (Date.now() - new Date(b.last_practiced).getTime()) / (1000 * 60 * 60 * 24) : 999;
-          return daysB - daysA;
-        })
-        .slice(0, 1);
-
-      const focusSkills = [...needsWork, ...forReview].slice(0, 3).map(skill => ({
-        skill_id: skill.id,
-        skill_name: skill.skill_name,
-        unit_id: skill.unit_id,
-        mastery_level: skill.mastery_level,
-        reason: skill.mastery_level === 'not_started' 
-          ? 'New skill to learn'
-          : skill.mastery_level === 'developing'
-          ? `Needs improvement (${skill.recent_accuracy.toFixed(0)}% accuracy)`
-          : 'Spaced review',
-      }));
-
-      if (focusSkills.length === 0) {
-        // No skills found, create a generic plan
-        focusSkills.push({
-          skill_id: null,
-          skill_name: 'General practice',
-          unit_id: null,
-          mastery_level: 'not_started',
-          reason: 'Start with any topic',
-        });
-      }
-
-      const plan = {
-        subject_id: selectedSubject,
-        focus_skills: focusSkills,
-        estimated_minutes: focusSkills.length * 10,
-        plan_type: 'daily',
-        generated_reason: needsWork.length > 0 
-          ? 'Focusing on skills that need the most work'
-          : 'Review practice to maintain mastery',
-      };
-
-      setStudyPlan(plan);
-    } catch (e) {
-      console.error('Failed to generate study plan:', e);
-    }
-    setGenerating(false);
-  };
-
-  const startPracticeDirectly = async (subjectId) => {
     setPracticeState('practicing');
-    setGenerating(true);
     
     try {
-      const subject = subjects.find(s => s.subject_id === subjectId);
+      const subject = subjects.find(s => s.subject_id === selectedSubject);
+      const unit = units.find(u => u.id === selectedUnit);
       const questionsToGenerate = [];
       
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < questionCount; i++) {
         const prompt = `Generate an exam-style multiple choice question for ${subject?.name || 'general topic'}.
 
-Requirements:
-- Match official exam style
-- Exactly 4 answer choices (A, B, C, D)
-- One correct answer
-- Use proper LaTeX math notation
-- Include clear explanation
-
-Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, hint`;
-
-        questionsToGenerate.push(
-          base44.integrations.Core.InvokeLLM({
-            prompt,
-            response_json_schema: {
-              type: 'object',
-              properties: {
-                question_text: { type: 'string' },
-                choice_a: { type: 'string' },
-                choice_b: { type: 'string' },
-                choice_c: { type: 'string' },
-                choice_d: { type: 'string' },
-                correct_answer: { type: 'string' },
-                explanation: { type: 'string' },
-                hint: { type: 'string' },
-              },
-              required: ['question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'correct_answer', 'explanation'],
-            },
-          })
-        );
-      }
-
-      const responses = await Promise.all(questionsToGenerate);
-      
-      const questions = await Promise.all(
-        responses.map(r => 
-          base44.entities.Question.create({
-            subject_id: subjectId,
-            unit_id: '',
-            skill_id: '',
-            skill_name: 'General',
-            difficulty: 'medium',
-            question_text: r.question_text,
-            choice_a: r.choice_a,
-            choice_b: r.choice_b,
-            choice_c: r.choice_c,
-            choice_d: r.choice_d,
-            correct_answer: r.correct_answer,
-            explanation: r.explanation,
-            wrong_answer_explanations: {},
-            hint: r.hint || '',
-            is_ai_generated: true,
-          })
-        )
-      );
-
-      setCurrentQuestions(questions);
-    } catch (e) {
-      console.error('Failed to generate questions:', e);
-    }
-    setGenerating(false);
-  };
-
-  const startPractice = async () => {
-    if (!studyPlan) return;
-    
-    setGenerating(true);
-    setPracticeState('practicing');
-    
-    try {
-      const questionsToGenerate = [];
-      
-      // Generate 3-5 questions per skill, weighted by mastery
-      for (const focusSkill of studyPlan.focus_skills) {
-        const skill = await base44.entities.Skill.list().then(skills => 
-          skills.find(s => s.id === focusSkill.skill_id)
-        );
-        
-        if (!skill) continue;
-        
-        const questionCount = focusSkill.mastery_level === 'developing' ? 5 : 
-                            focusSkill.mastery_level === 'not_started' ? 4 : 3;
-        
-        for (let i = 0; i < questionCount; i++) {
-          const difficulty = focusSkill.mastery_level === 'not_started' ? 'easy' :
-                           focusSkill.mastery_level === 'developing' ? 'medium' : 'hard';
-          
-          const prompt = `Generate an exam-style multiple choice question.
-
-Skill: ${skill.skill_name}
-Difficulty: ${difficulty}
+Unit: ${unit?.unit_name || 'General'}
 
 Requirements:
 - Match official exam style
@@ -267,43 +92,36 @@ For the explanation:
 - Add a "Common Mistakes" section explaining why each wrong answer is incorrect
 - Use educational tone that builds understanding, not just procedures
 
-Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, wrong_answer_explanations (object with A/B/C/D keys), conceptual_insight (key concept students should understand)`;
+Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, wrong_answer_explanations (object with A/B/C/D keys), hint`;
 
-          questionsToGenerate.push(
-            base44.integrations.Core.InvokeLLM({
-              prompt,
-              response_json_schema: {
-                type: 'object',
-                properties: {
-                  question_text: { type: 'string' },
-                  choice_a: { type: 'string' },
-                  choice_b: { type: 'string' },
-                  choice_c: { type: 'string' },
-                  choice_d: { type: 'string' },
-                  correct_answer: { type: 'string' },
-                  explanation: { type: 'string' },
-                  wrong_answer_explanations: { 
-                    type: 'object',
-                    properties: {
-                      A: { type: 'string' },
-                      B: { type: 'string' },
-                      C: { type: 'string' },
-                      D: { type: 'string' }
-                    }
-                  },
-                  conceptual_insight: { type: 'string' },
+        questionsToGenerate.push(
+          base44.integrations.Core.InvokeLLM({
+            prompt,
+            response_json_schema: {
+              type: 'object',
+              properties: {
+                question_text: { type: 'string' },
+                choice_a: { type: 'string' },
+                choice_b: { type: 'string' },
+                choice_c: { type: 'string' },
+                choice_d: { type: 'string' },
+                correct_answer: { type: 'string' },
+                explanation: { type: 'string' },
+                wrong_answer_explanations: { 
+                  type: 'object',
+                  properties: {
+                    A: { type: 'string' },
+                    B: { type: 'string' },
+                    C: { type: 'string' },
+                    D: { type: 'string' }
+                  }
                 },
-                required: ['question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'correct_answer', 'explanation'],
+                hint: { type: 'string' },
               },
-            }).then(response => ({
-              ...response,
-              skill_id: skill.id,
-              unit_id: skill.unit_id,
-              skill_name: skill.skill_name,
-              difficulty,
-            }))
-          );
-        }
+              required: ['question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'correct_answer', 'explanation'],
+            },
+          })
+        );
       }
 
       const responses = await Promise.all(questionsToGenerate);
@@ -312,10 +130,11 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
         responses.map(r => 
           base44.entities.Question.create({
             subject_id: selectedSubject,
-            unit_id: r.unit_id,
-            skill_id: r.skill_id,
-            skill_name: r.skill_name,
-            difficulty: r.difficulty,
+            unit_id: selectedUnit,
+            skill_id: '',
+            unit_name: unit?.unit_name || '',
+            skill_name: 'General',
+            difficulty: 'medium',
             question_text: r.question_text,
             choice_a: r.choice_a,
             choice_b: r.choice_b,
@@ -324,7 +143,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
             correct_answer: r.correct_answer,
             explanation: r.explanation,
             wrong_answer_explanations: r.wrong_answer_explanations || {},
-            hint: r.conceptual_insight || '',
+            hint: r.hint || '',
             is_ai_generated: true,
           })
         )
@@ -364,10 +183,6 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
       error_type: 'none',
     });
 
-    if (question.skill_id) {
-      await updateMastery(question.skill_id, isCorrect, question.difficulty);
-    }
-
     if (currentIndex < currentQuestions.length - 1) {
       setCurrentIndex(prev => prev + 1);
       setShowErrorSelector(false);
@@ -376,70 +191,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
     }
   };
 
-  const handleErrorType = async (errorType) => {
-    const question = currentQuestions[currentIndex];
-    const selectedAnswer = answers[currentIndex];
-    const isCorrect = selectedAnswer === question.correct_answer;
 
-    setErrorTypes(prev => ({ ...prev, [currentIndex]: errorType }));
-
-    await base44.entities.Attempt.create({
-      question_id: question.id,
-      subject_id: selectedSubject,
-      unit_id: question.unit_id,
-      skill_id: question.skill_id,
-      skill_name: question.skill_name,
-      difficulty: question.difficulty,
-      selected_answer: selectedAnswer,
-      correct_answer: question.correct_answer,
-      is_correct: isCorrect,
-      mode: 'practice',
-      error_type: isCorrect ? 'none' : errorType,
-    });
-
-    await updateMastery(question.skill_id, isCorrect, question.difficulty);
-    
-    setShowErrorSelector(false);
-  };
-
-  const updateMastery = async (skillId, isCorrect, difficulty) => {
-    const existing = masteryData.find(m => m.skill_id === skillId);
-    
-    const newTotal = (existing?.total_attempts || 0) + 1;
-    const newCorrect = (existing?.correct_attempts || 0) + (isCorrect ? 1 : 0);
-    const accuracy = (newCorrect / newTotal) * 100;
-    
-    // Calculate mastery level
-    let masteryLevel = 'not_started';
-    if (newTotal >= 10 && accuracy >= 85) masteryLevel = 'mastered';
-    else if (newTotal >= 5 && accuracy >= 70) masteryLevel = 'proficient';
-    else if (newTotal >= 2) masteryLevel = 'developing';
-    
-    if (existing) {
-      await base44.entities.SkillMastery.update(existing.id, {
-        total_attempts: newTotal,
-        correct_attempts: newCorrect,
-        recent_accuracy: accuracy,
-        mastery_level: masteryLevel,
-        last_practiced: new Date().toISOString(),
-      });
-    } else {
-      const skill = await base44.entities.Skill.list().then(skills => skills.find(s => s.id === skillId));
-      await base44.entities.SkillMastery.create({
-        subject_id: selectedSubject,
-        unit_id: skill?.unit_id,
-        skill_id: skillId,
-        skill_name: skill?.skill_name || 'Unknown',
-        total_attempts: newTotal,
-        correct_attempts: newCorrect,
-        recent_accuracy: accuracy,
-        mastery_level: masteryLevel,
-        last_practiced: new Date().toISOString(),
-      });
-    }
-    
-    queryClient.invalidateQueries({ queryKey: ['mastery'] });
-  };
 
   const completePractice = async () => {
     setPracticeState('complete');
@@ -450,20 +202,8 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
   const answered = answers[currentIndex] !== undefined;
   const isCorrect = answered && answers[currentIndex] === currentQuestion?.correct_answer;
 
-  // Loading
-  if (generating && practiceState === 'plan') {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-slate-600 mx-auto mb-4" />
-          <p className="text-slate-600 font-medium">Generating your study plan...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Plan view
-  if (practiceState === 'plan') {
+  // Setup view
+  if (practiceState === 'setup') {
     return (
       <div className="min-h-screen bg-slate-50">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
@@ -475,31 +215,103 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
             </Link>
             <div>
               <h1 className="text-2xl font-bold text-slate-900">Practice Mode</h1>
-              <p className="text-slate-500">Adaptive practice based on your progress</p>
+              <p className="text-slate-500">Choose what to practice</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 p-6">
-            <label className="text-sm font-medium text-slate-700 mb-3 block">
-              Select Subject
-            </label>
-            <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Choose a subject" />
-              </SelectTrigger>
-              <SelectContent className="max-h-96">
-                {subjects.map(subject => (
-                  <SelectItem key={subject.subject_id} value={subject.subject_id}>
-                    <div className="flex items-center gap-2">
-                      {subject.icon && <span>{subject.icon}</span>}
-                      <span>{subject.name}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="space-y-4">
+            {/* Subject Selector */}
+            <div className="bg-white rounded-xl border border-slate-200 p-6">
+              <label className="text-sm font-medium text-slate-700 mb-3 block">
+                Select Subject
+              </label>
+              <Select value={selectedSubject} onValueChange={(value) => {
+                setSelectedSubject(value);
+                setSelectedUnit('');
+              }}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Choose a subject" />
+                </SelectTrigger>
+                <SelectContent className="max-h-96">
+                  {subjects.map(subject => (
+                    <SelectItem key={subject.subject_id} value={subject.subject_id}>
+                      <div className="flex items-center gap-2">
+                        {subject.icon && <span>{subject.icon}</span>}
+                        <span>{subject.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Unit Selector */}
+            {selectedSubject && (
+              <div className="bg-white rounded-xl border border-slate-200 p-6">
+                <label className="text-sm font-medium text-slate-700 mb-3 block">
+                  Select Unit
+                </label>
+                <Select value={selectedUnit} onValueChange={setSelectedUnit}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Choose a unit" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-96">
+                    {units.sort((a, b) => a.unit_number - b.unit_number).map((unit) => (
+                      <SelectItem key={unit.id} value={unit.id}>
+                        Unit {unit.unit_number}: {unit.unit_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Question Count */}
+            {selectedUnit && (
+              <div className="bg-white rounded-xl border border-slate-200 p-6">
+                <label className="text-sm font-medium text-slate-700 mb-3 block">
+                  Number of Questions
+                </label>
+                <div className="flex gap-3">
+                  {[5, 10, 15, 20].map((count) => (
+                    <button
+                      key={count}
+                      onClick={() => setQuestionCount(count)}
+                      className={cn(
+                        "flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all",
+                        questionCount === count
+                          ? "bg-slate-900 text-white"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      )}
+                    >
+                      {count}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Start Button */}
+            {selectedUnit && (
+              <Button
+                onClick={startPractice}
+                disabled={generating}
+                className="w-full h-12 text-base font-medium"
+              >
+                {generating ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                    Generating Questions...
+                  </>
+                ) : (
+                  <>
+                    <BookOpen className="w-5 h-5 mr-2" />
+                    Start Practice ({questionCount} questions)
+                  </>
+                )}
+              </Button>
+            )}
           </div>
-          {studyPlan && <StudyPlanCard plan={studyPlan} onStart={startPractice} />}
         </div>
       </div>
     );
@@ -595,15 +407,16 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
             </Link>
             <Button 
               onClick={() => {
-                setPracticeState('plan');
+                setPracticeState('setup');
                 setCurrentIndex(0);
                 setAnswers({});
                 setCurrentQuestions([]);
-                generateStudyPlan();
+                setSelectedSubject('');
+                setSelectedUnit('');
               }}
               className="flex-1"
             >
-              New Study Plan
+              New Practice
             </Button>
           </div>
           </div>
