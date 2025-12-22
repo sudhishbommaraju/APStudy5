@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Loader2, BookOpen, Brain } from 'lucide-react';
+import { Send, Loader2, BookOpen, Brain, Paperclip, X, Image as ImageIcon } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -16,7 +16,10 @@ export default function Tutor() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [showSubjectDialog, setShowSubjectDialog] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [uploading, setUploading] = useState(false);
   const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -30,12 +33,46 @@ export default function Tutor() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const handleFileUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    setUploading(true);
+    try {
+      const uploadPromises = files.map(file => 
+        base44.integrations.Core.UploadFile({ file })
+      );
+      const results = await Promise.all(uploadPromises);
+      const fileUrls = results.map((r, idx) => ({
+        url: r.file_url,
+        name: files[idx].name,
+        type: files[idx].type,
+      }));
+      setUploadedFiles(prev => [...prev, ...fileUrls]);
+    } catch (e) {
+      console.error('Failed to upload files:', e);
+    }
+    setUploading(false);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeFile = (idx) => {
+    setUploadedFiles(prev => prev.filter((_, i) => i !== idx));
+  };
+
   const handleSendMessage = async () => {
-    if (!input.trim() || loading) return;
+    if ((!input.trim() && uploadedFiles.length === 0) || loading) return;
 
     const userMessage = input.trim();
+    const filesToSend = [...uploadedFiles];
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    setUploadedFiles([]);
+    
+    const messageContent = {
+      text: userMessage,
+      files: filesToSend,
+    };
+    setMessages(prev => [...prev, { role: 'user', content: messageContent }]);
     setLoading(true);
 
     try {
@@ -43,21 +80,36 @@ export default function Tutor() {
         ? `The student is currently studying ${selectedSubject}. ` 
         : '';
 
-      const prompt = `You are an expert tutor helping students prepare for AP exams and standardized tests. ${subjectContext}
+      // Build conversation history for context
+      const conversationHistory = messages.slice(-6).map(msg => {
+        if (msg.role === 'user') {
+          return `Student: ${typeof msg.content === 'string' ? msg.content : msg.content.text}`;
+        } else {
+          return `Tutor: ${msg.content}`;
+        }
+      }).join('\n\n');
 
-Student question: ${userMessage}
+      const contextSection = conversationHistory 
+        ? `\n\nPrevious conversation:\n${conversationHistory}\n\n` 
+        : '';
+
+      const prompt = `You are an expert tutor helping students prepare for AP exams and standardized tests. ${subjectContext}${contextSection}
+
+Student question: ${userMessage}${filesToSend.length > 0 ? '\n(The student has provided screenshots/images for you to analyze)' : ''}
 
 Provide a detailed, educational response that:
 1. Explains the concept thoroughly with clear examples
 2. Highlights what types of questions commonly appear on tests about this topic
 3. Provides tips for remembering key information
 4. Uses clear formatting with bullet points and examples where helpful
+${filesToSend.length > 0 ? '5. Analyzes any images provided and addresses questions about them' : ''}
 
 Keep your tone friendly and encouraging. Use mathematical notation when needed.`;
 
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
         add_context_from_internet: false,
+        file_urls: filesToSend.length > 0 ? filesToSend.map(f => f.url) : undefined,
       });
 
       setMessages(prev => [...prev, { role: 'assistant', content: response }]);
@@ -81,6 +133,7 @@ Keep your tone friendly and encouraging. Use mathematical notation when needed.`
   const startNewConversation = () => {
     setMessages([]);
     setInput('');
+    setUploadedFiles([]);
   };
 
   return (
@@ -179,7 +232,37 @@ Keep your tone friendly and encouraging. Use mathematical notation when needed.`
                   )}
                 >
                   {message.role === 'user' ? (
-                    <p className="text-sm leading-relaxed">{message.content}</p>
+                    <div>
+                      {typeof message.content === 'string' ? (
+                        <p className="text-sm leading-relaxed">{message.content}</p>
+                      ) : (
+                        <>
+                          {message.content.text && (
+                            <p className="text-sm leading-relaxed mb-2">{message.content.text}</p>
+                          )}
+                          {message.content.files && message.content.files.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {message.content.files.map((file, i) => (
+                                <div key={i} className="relative group">
+                                  {file.type?.startsWith('image/') ? (
+                                    <img 
+                                      src={file.url} 
+                                      alt={file.name}
+                                      className="max-w-[200px] max-h-[200px] rounded-lg border border-slate-300"
+                                    />
+                                  ) : (
+                                    <div className="px-3 py-2 bg-slate-800 rounded-lg flex items-center gap-2">
+                                      <Paperclip className="w-4 h-4" />
+                                      <span className="text-xs">{file.name}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
                   ) : (
                     <div className="prose prose-sm prose-slate max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
                       <ReactMarkdown
@@ -234,7 +317,62 @@ Keep your tone friendly and encouraging. Use mathematical notation when needed.`
 
         {/* Input */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+          {uploadedFiles.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-3 pb-3 border-b border-slate-100">
+              {uploadedFiles.map((file, idx) => (
+                <div key={idx} className="relative group">
+                  {file.type?.startsWith('image/') ? (
+                    <div className="relative">
+                      <img 
+                        src={file.url} 
+                        alt={file.name}
+                        className="max-w-[100px] max-h-[100px] rounded-lg border border-slate-200"
+                      />
+                      <button
+                        onClick={() => removeFile(idx)}
+                        className="absolute -top-2 -right-2 w-5 h-5 bg-slate-900 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="relative px-3 py-2 bg-slate-100 rounded-lg flex items-center gap-2">
+                      <Paperclip className="w-4 h-4 text-slate-600" />
+                      <span className="text-xs text-slate-700">{file.name}</span>
+                      <button
+                        onClick={() => removeFile(idx)}
+                        className="ml-1"
+                      >
+                        <X className="w-3 h-3 text-slate-500 hover:text-slate-700" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
           <div className="flex gap-3">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={loading || uploading}
+              className="self-end"
+            >
+              {uploading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <ImageIcon className="w-4 h-4" />
+              )}
+            </Button>
             <Textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -245,7 +383,7 @@ Keep your tone friendly and encouraging. Use mathematical notation when needed.`
             />
             <Button
               onClick={handleSendMessage}
-              disabled={!input.trim() || loading}
+              disabled={(!input.trim() && uploadedFiles.length === 0) || loading}
               className="self-end"
               size="icon"
             >
@@ -257,7 +395,7 @@ Keep your tone friendly and encouraging. Use mathematical notation when needed.`
             </Button>
           </div>
           <p className="text-xs text-slate-400 mt-2">
-            Press Enter to send, Shift+Enter for new line
+            Press Enter to send, Shift+Enter for new line • Upload images for analysis
           </p>
         </div>
       </div>
