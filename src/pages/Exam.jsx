@@ -478,6 +478,11 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                         return acc;
                       }, {});
                       
+                      // Remove duplicates by subject_id
+                      const uniqueSubjects = Array.from(
+                        new Map(subjects.map(s => [s.subject_id, s])).values()
+                      );
+                      
                       return Object.entries(grouped).map(([category, categorySubjects]) => (
                         <div key={category}>
                           <div className="px-2 py-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">

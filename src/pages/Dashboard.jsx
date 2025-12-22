@@ -153,13 +153,18 @@ export default function Dashboard() {
                 </SelectTrigger>
                 <SelectContent className="max-h-96">
                   {(() => {
-                    const grouped = subjects.reduce((acc, subject) => {
+                    // Remove duplicates by subject_id
+                    const uniqueSubjects = Array.from(
+                      new Map(subjects.map(s => [s.subject_id, s])).values()
+                    );
+
+                    const grouped = uniqueSubjects.reduce((acc, subject) => {
                       const category = subject.category;
                       if (!acc[category]) acc[category] = [];
                       acc[category].push(subject);
                       return acc;
                     }, {});
-                    
+
                     return Object.entries(grouped).map(([category, categorySubjects]) => (
                       <div key={category}>
                         <div className="px-2 py-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">

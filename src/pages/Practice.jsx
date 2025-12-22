@@ -389,7 +389,12 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                 </SelectTrigger>
                 <SelectContent className="max-h-96">
                   {(() => {
-                    const grouped = subjects.reduce((acc, subject) => {
+                    // Remove duplicates by subject_id
+                    const uniqueSubjects = Array.from(
+                      new Map(subjects.map(s => [s.subject_id, s])).values()
+                    );
+                    
+                    const grouped = uniqueSubjects.reduce((acc, subject) => {
                       const category = subject.category;
                       if (!acc[category]) acc[category] = [];
                       acc[category].push(subject);
