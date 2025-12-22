@@ -92,7 +92,8 @@ Requirements:
   selectedDifficulty === 'medium' ? 'requires multi-step reasoning' :
   'complex problem requiring deep understanding and multiple concepts'
 }
-- Use proper mathematical notation where needed
+- Use LaTeX notation for ALL mathematical expressions (wrap in $ for inline math, $$ for display math)
+- Examples: $x^2 + 5x - 3$, $\\frac{a}{b}$, $\\sqrt{x}$, $\\int_{0}^{1} x dx$
 
 Return a JSON object with:
 - question_text: The question stem (can include LaTeX math notation)
