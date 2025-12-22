@@ -44,8 +44,9 @@ export default function Calendar({ user }) {
   const queryClient = useQueryClient();
 
   const { data: events = [] } = useQuery({
-    queryKey: ['calendar-events'],
-    queryFn: () => base44.entities.CalendarEvent.list('-date'),
+    queryKey: ['calendar-events', user?.email],
+    queryFn: () => base44.entities.CalendarEvent.filter({ created_by: user.email }),
+    enabled: !!user,
   });
 
   const createEventMutation = useMutation({
@@ -71,7 +72,8 @@ export default function Calendar({ user }) {
   const startDay = monthStart.getDay();
   const previousMonthDays = Array.from({ length: startDay }, (_, i) => null);
 
-  const userEvents = events.filter(e => e.created_by === user?.email);
+  // Already filtered by user at query level
+  const userEvents = events;
 
   const getEventsForDate = (date) => {
     return userEvents.filter(e => isSameDay(new Date(e.date), date));
