@@ -144,7 +144,13 @@ Requirements:
 - Exactly 4 answer choices (A, B, C, D)
 - Exactly one correct answer
 - Include plausible distractors
-- Use proper mathematical notation
+- CRITICAL: Use LaTeX notation for ALL mathematical expressions. Wrap math in $ for inline or $$ for display.
+- Examples:
+  * Fractions: $\\frac{\\sin(30^\\circ)}{\\pi}$ not "sin(30)/pi"
+  * Powers: $x^2 + 5x - 3$ not "x^2 + 5x - 3"
+  * Roots: $\\sqrt{3}$ not "sqrt(3)"
+  * Trig: $\\sin(45^\\circ)$ not "sin(45)"
+  * All numbers and variables in math context must be in $...$
 
 Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation`;
 

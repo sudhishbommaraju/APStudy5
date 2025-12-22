@@ -104,7 +104,12 @@ Provide a detailed, educational response that:
 4. Uses clear formatting with bullet points and examples where helpful
 ${filesToSend.length > 0 ? '5. Analyzes any images provided and addresses questions about them' : ''}
 
-Keep your tone friendly and encouraging. Use LaTeX notation for ALL mathematical expressions (wrap in $ for inline math, $$ for display math). Examples: $x^2 + 5x - 3$, $\\frac{a}{b}$, $\\sqrt{x}$`;
+Keep your tone friendly and encouraging. CRITICAL: Use LaTeX notation for ALL mathematical expressions. Wrap math in $ for inline or $$ for display.
+Examples:
+- Fractions: $\\frac{\\sin(30^\\circ)}{\\pi}$ not "sin(30)/pi"
+- Powers: $x^2$ not "x^2"
+- Roots: $\\sqrt{3}$ not "sqrt(3)"
+- Trig: $\\sin(45^\\circ)$ not "sin(45)"`;
 
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,

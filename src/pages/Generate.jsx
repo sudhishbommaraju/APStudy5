@@ -73,8 +73,13 @@ Requirements for each question:
   selectedDifficulty === 'medium' ? 'requires multi-step reasoning' :
   'complex problem requiring deep understanding and multiple concepts'
 }
-- Use LaTeX notation for ALL mathematical expressions (wrap in $ for inline math, $$ for display math)
-- Examples: $x^2 + 5x - 3$, $\\frac{a}{b}$, $\\sqrt{x}$, $\\int_{0}^{1} x dx$
+- CRITICAL: Use LaTeX notation for ALL mathematical expressions. Wrap math in $ for inline or $$ for display.
+- Examples:
+  * Fractions: $\\frac{\\sin(30^\\circ)}{\\pi}$ not "sin(30)/pi"
+  * Powers: $x^2 + 5x - 3$ not "x^2 + 5x - 3"
+  * Roots: $\\sqrt{3}$ not "sqrt(3)"
+  * Trig: $\\sin(45^\\circ)$ not "sin(45)"
+  * All numbers and variables in math context must be in $...$
 - Each question should test a slightly different aspect of the topic
 - Questions should progressively build in complexity
 
