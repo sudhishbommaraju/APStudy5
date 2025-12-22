@@ -1,4 +1,5 @@
 import About from './pages/About';
+import AdminUsers from './pages/AdminUsers';
 import Dashboard from './pages/Dashboard';
 import Exam from './pages/Exam';
 import Flashcards from './pages/Flashcards';
@@ -12,12 +13,12 @@ import Pricing from './pages/Pricing';
 import Progress from './pages/Progress';
 import SeedData from './pages/SeedData';
 import Tutor from './pages/Tutor';
-import AdminUsers from './pages/AdminUsers';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "About": About,
+    "AdminUsers": AdminUsers,
     "Dashboard": Dashboard,
     "Exam": Exam,
     "Flashcards": Flashcards,
@@ -31,7 +32,6 @@ export const PAGES = {
     "Progress": Progress,
     "SeedData": SeedData,
     "Tutor": Tutor,
-    "AdminUsers": AdminUsers,
 }
 
 export const pagesConfig = {

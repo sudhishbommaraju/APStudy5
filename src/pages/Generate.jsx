@@ -117,47 +117,58 @@ TABLES AND GRAPHS (For Science/Math):
 - For graphs, describe the data points as JSON: {"type": "line/bar/scatter", "data": [{"x": 1, "y": 2}, ...], "labels": {"x": "Time (s)", "y": "Distance (m)"}}
 - Only include visual data when it enhances understanding
 
-CRITICAL FORMATTING REQUIREMENTS - READ CAREFULLY:
+CRITICAL LATEX FORMATTING REQUIREMENTS - PROFESSIONAL RENDERING:
 
-1. NEVER DUPLICATE EQUATIONS OR VALUES
-2. NEVER show raw LaTeX commands like \\text, \\times in visible text
-3. STRICTLY SEPARATE plain text from math blocks
-4. ALL equations in $$ display blocks, ONE TIME ONLY
-5. Units MUST use \\text{} inside math: $9.8 \\text{ m/s}^{2}$
+1. EVERY number, variable, formula MUST be in proper LaTeX
+2. Use $x^{2}$ NOT x^2 or x² (LaTeX renders superscripts professionally)
+3. Use $\\frac{1}{2}$ NOT 1/2 (proper fractions)
+4. Use $\\sqrt{x}$ NOT √x (proper roots)
+5. NEVER show raw text like x^2, x/y, sqrt(x) - ALWAYS wrap in $ $
+6. Units MUST use \\text{} inside math: $9.8 \\text{ m/s}^{2}$
+7. ALL equations in $$ display blocks for multi-line, $ $ for inline
+8. NEVER DUPLICATE EQUATIONS OR VALUES
+9. Greek letters: $\\alpha$, $\\beta$, $\\theta$, $\\pi$, etc.
+10. Chemical formulas: $\\text{H}_{2}\\text{O}$, $\\text{CO}_{2}$
 
-EXPLANATION FORMAT (FOLLOW EXACTLY):
+CORRECT EXAMPLES:
+- "The equation $E = mc^{2}$ shows..."
+- "Calculate $\\frac{dx}{dt}$ when..."
+- "Given $v = \\sqrt{2gh}$..."
+- "Concentration of $\\text{H}_{2}\\text{O}$ is..."
 
-"Concept explanation in plain English.
+WRONG EXAMPLES (NEVER USE):
+- "The equation E = mc^2 shows..." ❌
+- "Calculate dx/dt when..." ❌
+- "Given v = sqrt(2gh)..." ❌
+- "Concentration of H2O is..." ❌
+
+EXPLANATION FORMAT (FOLLOW EXACTLY - ALL MATH IN LATEX):
+
+"Concept explanation in plain English (no math).
 
 The relevant formula is:
 
 $$
-[equation with proper LaTeX]
+[equation with proper LaTeX, e.g., F = ma]
 $$
 
 Given values:
 
 $$
-[var] = [value] \\text{ [unit]}
+m = 5 \\text{ kg}, \\quad a = 2 \\text{ m/s}^{2}
 $$
 
 Substitute into formula:
 
 $$
-[calculation step 1]
+F = (5)(2) = 10 \\text{ N}
 $$
 
-$$
-[calculation step 2]
-$$
+Therefore the force is $10 \\text{ N}$."
 
-$$
-[final result] = [answer] \\text{ [unit]}
-$$
+REMEMBER: Every number, every variable, every formula MUST be wrapped in $ $ or $$ $$
 
-Conclusion in plain text."
-
-CORRECT EXAMPLES:
+CORRECT EXAMPLES (EVERY NUMBER/FORMULA IN LATEX):
 
 Physics:
 "For gravitational potential energy:
@@ -178,7 +189,7 @@ $$
 PE = (2)(9.8)(10) = 196 \\text{ J}
 $$
 
-Approximately 200 J."
+The answer is approximately $200 \\text{ J}$."
 
 Chemistry:
 "Using the electron configuration formula:
@@ -187,16 +198,33 @@ $$
 \\text{Max electrons} = 2n^{2}
 $$
 
-For the third shell:
+For the third shell where $n = 3$:
 
 $$
 2(3)^{2} = 18 \\text{ electrons}
 $$"
 
-NEVER WRITE:
-- PE = mghPE = mgh (duplicated)
-- 9.8\\textm/s^2 (broken LaTeX)
-- 2extkg (corrupted units)
+Math:
+"The quadratic formula is:
+
+$$
+x = \\frac{-b \\pm \\sqrt{b^{2} - 4ac}}{2a}
+$$
+
+For $ax^{2} + bx + c = 0$ where $a = 1$, $b = -3$, $c = 2$:
+
+$$
+x = \\frac{3 \\pm \\sqrt{9 - 8}}{2} = \\frac{3 \\pm 1}{2}
+$$
+
+Solutions are $x = 2$ or $x = 1$."
+
+WRONG EXAMPLES (NEVER USE):
+- "The answer is approximately 200 J" ❌ (should be $200 \\text{ J}$)
+- "For n = 3:" ❌ (should be "For $n = 3$:")
+- "x^2 + 5x + 6" ❌ (should be "$x^{2} + 5x + 6$")
+- PE = mghPE = mgh ❌ (duplicated)
+- 9.8\\textm/s^2 ❌ (broken LaTeX)
 
 Requirements:
 - Match official exam style
