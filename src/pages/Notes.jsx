@@ -47,25 +47,38 @@ export default function Notes() {
 Unit: ${unitName}
 Topics to cover: ${topics}
 
+CRITICAL MATH RENDERING REQUIREMENTS:
+- ALL math MUST be wrapped in LaTeX delimiters: $ for inline, $$ for display blocks
+- NEVER use caret notation (^) in plain text - it MUST be inside LaTeX
+- ALL exponents MUST use proper LaTeX with curly braces: $x^{2}$ NOT x^2
+- ALL numbers with exponents: $3^{2}$ NOT 3^2
+- Complex expressions: $2n^{2}$ NOT 2n^2
+- Formula examples: $$2(3^{2}) = 18$$ NOT [2(3^2) = 18]
+- Chemical formulas: $\\text{H}_2\\text{O}$ NOT H2O
+- Scientific notation: $3.2 \\times 10^{-5}$ NOT 3.2 × 10^-5
+
+Examples of CORRECT LaTeX formatting:
+- Derivatives: $\\frac{d}{dx}[x^{n}] = nx^{n-1}$ (use curly braces)
+- Powers: $x^{2} + 5x - 3$
+- Fractions: $\\frac{a}{b}$
+- Roots: $\\sqrt{x}$ or $\\sqrt[3]{27}$
+- Chemistry: $\\text{CO}_2$, $2\\text{H}_2\\text{O}$, $\\text{C}_6\\text{H}_{12}\\text{O}_6$
+- Physics: $F = ma$, $E = mc^{2}$, $v^{2} = u^{2} + 2as$
+
 Create detailed, exam-focused notes that include:
 - Key concepts and definitions
-- Important formulas or principles
+- Important formulas (with proper LaTeX as shown above)
+- Step-by-step examples with display math blocks
 - Common exam question types
 - Practice tips
 - Connections between concepts
 
-Format in markdown with clear sections and bullet points.
-
-CRITICAL: Use VALID LaTeX with proper escape characters for all math. ALL math must render cleanly.
-- Wrap math: $ for inline, $$ for display blocks
-- Examples of CORRECT LaTeX:
-  * Fractions: $\\frac{\\sin(30^\\circ)}{\\pi}$ (with backslash before frac)
-  * Limits: $\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1$ (backslash before lim and to)
-  * Powers: $x^2 + 5x - 3$
-  * Roots: $\\sqrt{3}$
-  * Trig: $\\sin(45^\\circ)$, $\\cos(x)$, $\\tan(x)$ (backslash before all functions)
-- NEVER write: "ext\\lim", "o" (use \\to for arrows), "frac" without backslash
-- Test that your LaTeX compiles correctly before using it`;
+Format:
+- Use markdown with clear sections and bullet points
+- Write explanations in plain English OUTSIDE math delimiters
+- Put ALL calculations inside $$ display blocks
+- Example structure: "The formula is:" $$E = mc^{2}$$ "Where E is energy..."
+- Include clear explanations before formulas`;
 
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
