@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { 
   BookOpen, 
@@ -10,25 +10,26 @@ import {
   TrendingUp, 
   ArrowRight, 
   CheckCircle2,
-  XCircle,
-  Zap
+  Zap,
+  Play,
+  FileText,
+  Brain
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import StatsCard from '@/components/dashboard/StatsCard';
-import SkillAccuracyChart from '@/components/dashboard/SkillAccuracyChart';
-import AccuracyOverTimeChart from '@/components/dashboard/AccuracyOverTimeChart';
-import RecommendationCard from '@/components/dashboard/RecommendationCard';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { format, subDays, parseISO } from 'date-fns';
 
-const EXAM_NAMES = {
-  ap_calculus: 'AP Calculus',
-  sat_math: 'SAT Math',
-  act_math: 'ACT Math',
-  psat_math: 'PSAT Math',
-};
-
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [selectedSubject, setSelectedSubject] = useState('');
+  const [selectedUnit, setSelectedUnit] = useState('');
   
   useEffect(() => {
     const loadUser = async () => {
@@ -54,6 +55,17 @@ export default function Dashboard() {
     enabled: !!user,
   });
 
+  const { data: subjects = [] } = useQuery({
+    queryKey: ['subjects'],
+    queryFn: () => base44.entities.Subject.list('subject_id'),
+  });
+
+  const { data: units = [] } = useQuery({
+    queryKey: ['units', selectedSubject],
+    queryFn: () => base44.entities.Unit.filter({ subject_id: selectedSubject }),
+    enabled: !!selectedSubject,
+  });
+
   const userAttempts = attempts.filter(a => a.created_by === user?.email);
 
   // Calculate stats
@@ -61,59 +73,29 @@ export default function Dashboard() {
   const correctCount = userAttempts.filter(a => a.is_correct).length;
   const overallAccuracy = totalQuestions > 0 ? (correctCount / totalQuestions) * 100 : 0;
 
-  // Accuracy by skill
-  const skillStats = {};
-  userAttempts.forEach(attempt => {
-    if (!skillStats[attempt.skill_name]) {
-      skillStats[attempt.skill_name] = { correct: 0, total: 0 };
+  // Get time of day greeting
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 18) return 'Good afternoon';
+    return 'Good evening';
+  };
+
+  // Recommendation based on recent activity
+  const lastAttempt = userAttempts[0];
+  const recommendedSubject = lastAttempt ? subjects.find(s => s.subject_id === lastAttempt.subject_id) : null;
+
+  const handleStartPractice = () => {
+    if (selectedSubject) {
+      navigate(createPageUrl('Practice') + `?subject=${selectedSubject}${selectedUnit ? `&unit=${selectedUnit}` : ''}`);
     }
-    skillStats[attempt.skill_name].total++;
-    if (attempt.is_correct) skillStats[attempt.skill_name].correct++;
-  });
+  };
 
-  const skillAccuracyData = Object.entries(skillStats)
-    .map(([name, stats]) => ({
-      name: name.length > 20 ? name.substring(0, 20) + '...' : name,
-      fullName: name,
-      accuracy: (stats.correct / stats.total) * 100,
-      correct: stats.correct,
-      total: stats.total,
-    }))
-    .sort((a, b) => a.accuracy - b.accuracy);
-
-  // Accuracy over time (last 14 days)
-  const accuracyByDate = {};
-  for (let i = 13; i >= 0; i--) {
-    const date = format(subDays(new Date(), i), 'MMM d');
-    accuracyByDate[date] = { correct: 0, total: 0 };
-  }
-
-  userAttempts.forEach(attempt => {
-    const date = format(parseISO(attempt.created_date), 'MMM d');
-    if (accuracyByDate[date]) {
-      accuracyByDate[date].total++;
-      if (attempt.is_correct) accuracyByDate[date].correct++;
+  const handleStartExam = () => {
+    if (selectedSubject) {
+      navigate(createPageUrl('Exam') + `?subject=${selectedSubject}`);
     }
-  });
-
-  const accuracyOverTimeData = Object.entries(accuracyByDate)
-    .filter(([_, stats]) => stats.total > 0)
-    .map(([date, stats]) => ({
-      date,
-      accuracy: (stats.correct / stats.total) * 100,
-    }));
-
-  // Recommendations
-  const recommendations = skillAccuracyData
-    .filter(s => s.total >= 2)
-    .slice(0, 5)
-    .map(s => ({
-      skill_name: s.fullName,
-      accuracy: s.accuracy,
-      attempts: s.total,
-      priority: s.accuracy < 50 ? 'high' : s.accuracy < 70 ? 'medium' : 'low',
-      difficulty: s.accuracy < 40 ? 'easy' : s.accuracy < 70 ? 'medium' : 'hard',
-    }));
+  };
 
   // Recent sessions
   const recentSessions = sessions
@@ -135,131 +117,207 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #e8f1f8, #d9e9f5)', fontFamily: 'Georgia, serif' }}>
-      {/* Hero Header */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
-        <h1 className="text-3xl font-bold text-black mb-2">
-          Welcome back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
-        </h1>
-        <p className="text-slate-600">
-          Ready to master your subjects
-        </p>
-      </div>
-
+    <div className="min-h-screen" style={{ backgroundColor: '#F1F5FB', fontFamily: 'Georgia, serif' }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
 
-        {/* Quick Actions */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          <Link to={createPageUrl('Practice')}>
-            <div className="rounded-xl p-5 cursor-pointer shadow-lg hover:shadow-xl transition-all" style={{ background: 'linear-gradient(135deg, #6366F1, #8B5CF6)' }}>
-              <div className="flex items-center justify-between text-white">
-                <div>
-                  <p className="text-indigo-100 text-sm font-medium">Practice Mode</p>
-                  <p className="text-lg font-semibold mt-1">Start Practicing</p>
-                </div>
-                <ArrowRight className="w-5 h-5" />
-              </div>
-            </div>
-          </Link>
-          <Link to={createPageUrl('Exam')}>
-            <div className="bg-white rounded-xl p-5 hover:shadow-lg transition-all cursor-pointer" style={{ border: '1px solid var(--color-border)' }}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>Exam Mode</p>
-                  <p className="text-lg font-semibold mt-1" style={{ color: 'var(--color-text-primary)' }}>Take a Test</p>
-                </div>
-                <Clock className="w-5 h-5" style={{ color: 'var(--color-accent-primary)' }} />
-              </div>
-            </div>
-          </Link>
-          <Link to={createPageUrl('Generate')}>
-            <div className="bg-white rounded-xl p-5 hover:shadow-lg transition-all cursor-pointer" style={{ border: '1px solid var(--color-border)' }}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>AI Generator</p>
-                  <p className="text-lg font-semibold mt-1" style={{ color: 'var(--color-text-primary)' }}>Create Questions</p>
-                </div>
-                <Zap className="w-5 h-5" style={{ color: 'var(--color-accent-secondary)' }} />
-              </div>
-            </div>
-          </Link>
+        {/* Hero Section */}
+        <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-2xl border border-slate-200 p-8 mb-6">
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">
+            {getGreeting()}{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
+          </h1>
+          <p className="text-slate-600 text-lg mb-6">
+            Choose a subject and start a personalized study session.
+          </p>
+          <Button 
+            size="lg" 
+            onClick={() => document.getElementById('study-action-card')?.scrollIntoView({ behavior: 'smooth' })}
+            className="bg-indigo-600 hover:bg-indigo-700"
+          >
+            <Play className="w-5 h-5 mr-2" />
+            Start Study Session
+          </Button>
         </div>
 
-        {/* Stats */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <StatsCard
-            title="Questions Answered"
-            value={totalQuestions}
-            icon={BookOpen}
-          />
-          <StatsCard
-            title="Overall Accuracy"
-            value={`${overallAccuracy.toFixed(0)}%`}
-            subtitle={`${correctCount} correct`}
-            icon={Target}
-          />
-          <StatsCard
-            title="Study Days"
-            value={studyDays.size}
-            icon={TrendingUp}
-          />
-          <StatsCard
-            title="Exams Completed"
-            value={recentSessions.length}
-            icon={CheckCircle2}
-          />
-        </div>
+        {/* Study Action Card - PRIMARY */}
+        <div id="study-action-card" className="bg-white rounded-2xl border border-slate-200 p-6 mb-6 shadow-sm">
+          <h2 className="text-xl font-semibold text-slate-900 mb-4">Start Studying</h2>
+          
+          <div className="space-y-4">
+            {/* Subject Selector */}
+            <div>
+              <label className="text-sm font-medium text-slate-700 mb-2 block">
+                Select Subject
+              </label>
+              <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Choose a subject to study" />
+                </SelectTrigger>
+                <SelectContent className="max-h-96">
+                  {(() => {
+                    const grouped = subjects.reduce((acc, subject) => {
+                      const category = subject.category;
+                      if (!acc[category]) acc[category] = [];
+                      acc[category].push(subject);
+                      return acc;
+                    }, {});
+                    
+                    return Object.entries(grouped).map(([category, categorySubjects]) => (
+                      <div key={category}>
+                        <div className="px-2 py-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                          {category}
+                        </div>
+                        {categorySubjects.map((subject) => (
+                          <SelectItem key={subject.subject_id} value={subject.subject_id}>
+                            <div className="flex items-center gap-2">
+                              {subject.icon && <span>{subject.icon}</span>}
+                              <span>{subject.name}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </div>
+                    ));
+                  })()}
+                </SelectContent>
+              </Select>
+            </div>
 
-        {/* Charts and Recommendations */}
-        <div className="grid lg:grid-cols-3 gap-6 mb-8">
-          {/* Skill Accuracy */}
-          <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 p-6">
-            <h3 className="font-semibold text-slate-900 mb-4">Accuracy by Skill</h3>
-            <SkillAccuracyChart data={skillAccuracyData.slice(0, 8)} />
+            {/* Unit Selector (appears after subject selection) */}
+            {selectedSubject && (
+              <div>
+                <label className="text-sm font-medium text-slate-700 mb-2 block">
+                  Select Unit (Optional)
+                </label>
+                <Select value={selectedUnit} onValueChange={setSelectedUnit}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="All units" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-96">
+                    <SelectItem value={null}>All Units</SelectItem>
+                    {units.sort((a, b) => a.unit_number - b.unit_number).map((unit) => (
+                      <SelectItem key={unit.id} value={unit.id}>
+                        Unit {unit.unit_number}: {unit.unit_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-2">
+              <Button 
+                onClick={handleStartPractice}
+                disabled={!selectedSubject}
+                className="flex-1 bg-indigo-600 hover:bg-indigo-700"
+              >
+                <BookOpen className="w-4 h-4 mr-2" />
+                Start Practice
+              </Button>
+              <Button 
+                onClick={handleStartExam}
+                disabled={!selectedSubject}
+                variant="outline"
+                className="flex-1"
+              >
+                <Clock className="w-4 h-4 mr-2" />
+                Create Exam
+              </Button>
+            </div>
           </div>
-
-          {/* Recommendations */}
-          <RecommendationCard 
-            recommendations={recommendations}
-          />
         </div>
 
-        {/* Accuracy Over Time */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 mb-8">
-          <h3 className="font-semibold text-slate-900 mb-4">Progress Over Time</h3>
-          <AccuracyOverTimeChart data={accuracyOverTimeData} />
-        </div>
-
-        {/* Recent Activity */}
-        {recentSessions.length > 0 && (
-          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-100">
-              <h3 className="font-semibold text-slate-900">Recent Exams</h3>
+        {/* Today's Plan (Contextual) */}
+        {recommendedSubject && totalQuestions > 10 && (
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900">Recommended Study Session</h3>
+                <p className="text-sm text-slate-600 mt-1">Based on your recent activity</p>
+              </div>
+              <Target className="w-5 h-5 text-indigo-600" />
             </div>
-            <div className="divide-y divide-slate-100">
-              {recentSessions.map((session) => (
-                <div key={session.id} className="px-6 py-4 flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-slate-900">
-                      {session.total_questions} questions
-                    </p>
-                    <p className="text-sm text-slate-500">
-                      {format(parseISO(session.created_date), 'MMM d, yyyy')}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-slate-900">
-                      {((session.correct_count / session.total_questions) * 100).toFixed(0)}%
-                    </p>
-                    <p className="text-sm text-slate-500">
-                      {session.correct_count}/{session.total_questions} correct
-                    </p>
-                  </div>
-                </div>
-              ))}
+            <div className="space-y-2 mb-4">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">{recommendedSubject.icon}</span>
+                <span className="font-medium text-slate-900">{recommendedSubject.name}</span>
+              </div>
+              <p className="text-sm text-slate-600">
+                {lastAttempt.unit_name && `Focus: ${lastAttempt.unit_name}`}
+              </p>
+              <p className="text-sm text-slate-600">Estimated time: 15-20 minutes</p>
             </div>
+            <Button 
+              onClick={() => {
+                setSelectedSubject(recommendedSubject.subject_id);
+                if (lastAttempt.unit_id) setSelectedUnit(lastAttempt.unit_id);
+                document.getElementById('study-action-card')?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              variant="outline"
+              className="w-full"
+            >
+              Start Recommended Session
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
           </div>
         )}
+
+        {/* Progress Snapshot */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Your Progress</h3>
+          <div className="grid sm:grid-cols-3 gap-4">
+            <div className="text-center p-4 bg-slate-50 rounded-xl">
+              <div className="text-3xl font-bold text-slate-900">{totalQuestions}</div>
+              <div className="text-sm text-slate-600 mt-1">Questions Practiced</div>
+            </div>
+            <div className="text-center p-4 bg-slate-50 rounded-xl">
+              <div className="text-3xl font-bold text-indigo-600">{overallAccuracy.toFixed(0)}%</div>
+              <div className="text-sm text-slate-600 mt-1">Overall Accuracy</div>
+            </div>
+            <div className="text-center p-4 bg-slate-50 rounded-xl">
+              <div className="text-3xl font-bold text-slate-900">{studyDays.size}</div>
+              <div className="text-sm text-slate-600 mt-1">Study Days</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <button
+            onClick={() => navigate(createPageUrl('Practice'))}
+            className="bg-white rounded-xl border border-slate-200 p-5 hover:border-indigo-300 hover:shadow-sm transition-all text-left"
+          >
+            <BookOpen className="w-6 h-6 text-slate-600 mb-3" />
+            <div className="font-medium text-slate-900">Practice by Unit</div>
+            <div className="text-sm text-slate-600 mt-1">Master specific topics</div>
+          </button>
+
+          <button
+            onClick={() => navigate(createPageUrl('Exam'))}
+            className="bg-white rounded-xl border border-slate-200 p-5 hover:border-indigo-300 hover:shadow-sm transition-all text-left"
+          >
+            <Clock className="w-6 h-6 text-slate-600 mb-3" />
+            <div className="font-medium text-slate-900">Custom Exam</div>
+            <div className="text-sm text-slate-600 mt-1">Timed practice test</div>
+          </button>
+
+          <button
+            onClick={() => navigate(createPageUrl('Notes'))}
+            className="bg-white rounded-xl border border-slate-200 p-5 hover:border-indigo-300 hover:shadow-sm transition-all text-left"
+          >
+            <FileText className="w-6 h-6 text-slate-600 mb-3" />
+            <div className="font-medium text-slate-900">Study Notes</div>
+            <div className="text-sm text-slate-600 mt-1">Review key concepts</div>
+          </button>
+
+          <button
+            onClick={() => navigate(createPageUrl('Progress'))}
+            className="bg-white rounded-xl border border-slate-200 p-5 hover:border-indigo-300 hover:shadow-sm transition-all text-left"
+          >
+            <TrendingUp className="w-6 h-6 text-slate-600 mb-3" />
+            <div className="font-medium text-slate-900">View Progress</div>
+            <div className="text-sm text-slate-600 mt-1">Track your growth</div>
+          </button>
+        </div>
       </div>
     </div>
   );
