@@ -105,6 +105,12 @@ Difficulty: ${selectedDifficulty}`;
 
       const prompt = `${contextInstructions}
 
+TABLES AND GRAPHS (For Science/Math):
+- If the question involves data analysis, comparisons, or scientific results, include a table or graph description
+- Format tables as markdown: | Header 1 | Header 2 |\n|---------|----------|\n| Data 1 | Data 2 |
+- For graphs, describe the data points as JSON: {"type": "line/bar/scatter", "data": [{"x": 1, "y": 2}, ...], "labels": {"x": "Time (s)", "y": "Distance (m)"}}
+- Only include visual data when it enhances understanding
+
 CRITICAL FORMATTING REQUIREMENTS - READ CAREFULLY:
 
 1. NEVER DUPLICATE EQUATIONS OR VALUES
@@ -220,6 +226,8 @@ Return a JSON object with a "questions" array, where each question has:
                 type: 'object',
                 properties: {
                   question_text: { type: 'string' },
+                  table_data: { type: 'string' },
+                  graph_data: { type: 'string' },
                   choice_a: { type: 'string' },
                   choice_b: { type: 'string' },
                   choice_c: { type: 'string' },
@@ -255,6 +263,8 @@ Return a JSON object with a "questions" array, where each question has:
           skill_name: q.skill_name || 'Generated',
           difficulty: selectedDifficulty,
           question_text: q.question_text,
+          table_data: q.table_data || '',
+          graph_data: q.graph_data || '',
           choice_a: q.choice_a,
           choice_b: q.choice_b,
           choice_c: q.choice_c,

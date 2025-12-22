@@ -275,34 +275,6 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                 type: 'object',
                 properties: {
                   question_text: { type: 'string' },
-                  choice_a: { type: 'string' },
-                  choice_b: { type: 'string' },
-                  choice_c: { type: 'string' },
-                  choice_d: { type: 'string' },
-                  correct_answer: { type: 'string' },
-                  explanation: { type: 'string' },
-                  wrong_answer_explanations: {
-                    type: 'object',
-                    properties: {
-                      A: { type: 'string' },
-                      B: { type: 'string' },
-                      C: { type: 'string' },
-                      D: { type: 'string' }
-                    }
-                  }
-                },
-                required: ['question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'correct_answer', 'explanation'],
-              },
-            }).then(response => ({ response, skill, difficulty }))
-          
-          // Add table_data and graph_data to schema
-          questionPromises[questionPromises.length - 1] = questionPromises[questionPromises.length - 1].then(result => {
-            const llmPromise = base44.integrations.Core.InvokeLLM({
-              prompt,
-              response_json_schema: {
-                type: 'object',
-                properties: {
-                  question_text: { type: 'string' },
                   table_data: { type: 'string' },
                   graph_data: { type: 'string' },
                   choice_a: { type: 'string' },
@@ -323,9 +295,8 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                 },
                 required: ['question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'correct_answer', 'explanation'],
               },
-            });
-            return llmPromise.then(response => ({ response, skill, difficulty }));
-          });
+            }).then(response => ({ response, skill, difficulty }))
+          );
           
           questionIndex++;
           );
@@ -348,6 +319,8 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
             skill_name: skill.skill_name,
             difficulty,
             question_text: response.question_text,
+            table_data: response.table_data || '',
+            graph_data: response.graph_data || '',
             choice_a: response.choice_a,
             choice_b: response.choice_b,
             choice_c: response.choice_c,
