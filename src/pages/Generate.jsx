@@ -14,7 +14,7 @@ export default function Generate() {
   const [user, setUser] = useState(null);
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedUnit, setSelectedUnit] = useState('');
-  const [selectedSkill, setSelectedSkill] = useState('');
+
   const [generationMode, setGenerationMode] = useState('skill'); // 'skill' or 'notes'
   const [notes, setNotes] = useState('');
   const [selectedDifficulty, setSelectedDifficulty] = useState('medium');
@@ -31,12 +31,7 @@ export default function Generate() {
     loadUser();
   }, []);
 
-  const { data: currentSkillData } = useQuery({
-    queryKey: ['skill', selectedSkill],
-    queryFn: () => base44.entities.Skill.list(),
-    enabled: !!selectedSkill,
-    select: (skills) => skills.find(s => s.id === selectedSkill),
-  });
+
 
   const { data: currentSubjectData } = useQuery({
     queryKey: ['subject', selectedSubject],
@@ -46,16 +41,16 @@ export default function Generate() {
   });
 
   const generateQuestions = async () => {
-    if (!selectedSubject || !selectedUnit || (!selectedSkill && generationMode === 'skill')) return;
+    if (!selectedSubject || !selectedUnit) return;
     
     setGenerating(true);
     setGeneratedQuestions([]);
     setCurrentIndex(0);
 
     try {
-      const topicContext = generationMode === 'skill' 
-        ? `Skill: ${currentSkillData?.skill_name}\nSubject: ${currentSubjectData?.name}`
-        : `Student's Notes:\n${notes}`;
+      const topicContext = generationMode === 'notes' 
+        ? `Student's Notes:\n${notes}`
+        : `Subject: ${currentSubjectData?.name}`;
 
       const prompt = `Generate ${questionCount} exam-style multiple choice questions for ${currentSubjectData?.name || selectedSubject}.
 
@@ -142,9 +137,9 @@ Return a JSON object with a "questions" array, where each question has:
         const saved = await base44.entities.Question.create({
           subject_id: selectedSubject,
           unit_id: selectedUnit,
-          skill_id: selectedSkill || '',
-          unit_name: currentSkillData?.unit_name || '',
-          skill_name: q.skill_name || currentSkillData?.skill_name || 'Generated',
+          skill_id: '',
+          unit_name: '',
+          skill_name: q.skill_name || 'Generated',
           difficulty: selectedDifficulty,
           question_text: q.question_text,
           choice_a: q.choice_a,
@@ -185,7 +180,7 @@ Return a JSON object with a "questions" array, where each question has:
     });
   };
 
-  const canGenerate = selectedSubject && selectedUnit && (generationMode === 'skill' ? !!selectedSkill : notes.trim().length > 20);
+  const canGenerate = selectedSubject && selectedUnit && (generationMode === 'notes' ? notes.trim().length > 20 : true);
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -240,22 +235,17 @@ Return a JSON object with a "questions" array, where each question has:
                 </div>
               </div>
 
-              {/* Subject, Unit, Skill Selector */}
+              {/* Subject, Unit Selector */}
               <div className="bg-white rounded-xl border border-slate-200 p-4">
                 <SubjectUnitSelector
                   selectedSubject={selectedSubject}
                   selectedUnit={selectedUnit}
-                  selectedSkill={selectedSkill}
                   onSubjectChange={(subjectId) => {
                     setSelectedSubject(subjectId);
                     setSelectedUnit('');
-                    setSelectedSkill('');
                   }}
-                  onUnitChange={(unitId) => {
-                    setSelectedUnit(unitId);
-                    setSelectedSkill('');
-                  }}
-                  onSkillChange={setSelectedSkill}
+                  onUnitChange={setSelectedUnit}
+                  hideSkillSelector={true}
                 />
               </div>
 
