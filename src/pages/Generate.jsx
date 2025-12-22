@@ -3,7 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, ArrowRight, ChevronLeft, Sparkles, BookOpen } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Loader2, ArrowRight, ChevronLeft, Sparkles, BookOpen, Link as LinkIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import QuestionCard from '@/components/ui/QuestionCard';
@@ -17,6 +18,8 @@ export default function Generate() {
 
   const [generationMode, setGenerationMode] = useState('skill'); // 'skill' or 'notes'
   const [notes, setNotes] = useState('');
+  const [videoUrl, setVideoUrl] = useState('');
+  const [fetchingContent, setFetchingContent] = useState(false);
   const [selectedDifficulty, setSelectedDifficulty] = useState('medium');
   const [questionCount, setQuestionCount] = useState(5);
   const [generatedQuestions, setGeneratedQuestions] = useState([]);
@@ -39,6 +42,27 @@ export default function Generate() {
     enabled: !!selectedSubject,
     select: (subjects) => subjects.find(s => s.subject_id === selectedSubject),
   });
+
+  const fetchLinkContent = async () => {
+    if (!videoUrl.trim()) return;
+    
+    setFetchingContent(true);
+    try {
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `Extract and summarize the key educational content from this URL: ${videoUrl}
+        
+Please provide a comprehensive summary of the main concepts, topics, and information covered. Focus on educational content that can be used to generate study questions.
+
+If this is a YouTube video, extract the main points discussed. If it's an article or webpage, summarize the key concepts.`,
+        add_context_from_internet: true,
+      });
+      
+      setNotes(response);
+    } catch (e) {
+      console.error('Failed to fetch content:', e);
+    }
+    setFetchingContent(false);
+  };
 
   const generateQuestions = async () => {
     if (!selectedSubject || !selectedUnit) return;
@@ -182,6 +206,10 @@ Return a JSON object with a "questions" array, where each question has:
 
   const canGenerate = selectedSubject && selectedUnit && (generationMode === 'notes' ? notes.trim().length > 20 : true);
 
+  const isYouTubeUrl = (url) => {
+    return url.includes('youtube.com') || url.includes('youtu.be');
+  };
+
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #e8f1f8, #d9e9f5)', fontFamily: 'Georgia, serif' }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
@@ -313,25 +341,65 @@ Return a JSON object with a "questions" array, where each question has:
             </div>
 
             {/* Main Content */}
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-2 space-y-4">
               {generationMode === 'notes' && (
-                <div className="bg-white rounded-xl border border-slate-200 p-6">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 block">
-                    Paste Your Notes
-                  </label>
-                  <Textarea
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Paste your study notes, textbook excerpts, or topic summary here. The AI will analyze your notes and generate exam-style questions to test your understanding.
+                <>
+                  {/* URL Input */}
+                  <div className="bg-white rounded-xl border border-slate-200 p-6">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 block">
+                      Generate from YouTube Video or Link
+                    </label>
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <Input
+                          value={videoUrl}
+                          onChange={(e) => setVideoUrl(e.target.value)}
+                          placeholder="Paste YouTube video URL or article link..."
+                          className="h-11"
+                        />
+                      </div>
+                      <Button 
+                        onClick={fetchLinkContent}
+                        disabled={!videoUrl.trim() || fetchingContent}
+                        variant="outline"
+                      >
+                        {fetchingContent ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <>
+                            <LinkIcon className="w-4 h-4 mr-2" />
+                            Fetch Content
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    {videoUrl && isYouTubeUrl(videoUrl) && (
+                      <p className="text-xs text-slate-600 mt-2 flex items-center gap-1">
+                        <Sparkles className="w-3 h-3" />
+                        YouTube video detected - AI will extract key concepts from the video
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Notes Input */}
+                  <div className="bg-white rounded-xl border border-slate-200 p-6">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 block">
+                      Your Notes {videoUrl && '(or edit extracted content)'}
+                    </label>
+                    <Textarea
+                      value={notes}
+                      onChange={(e) => setNotes(e.target.value)}
+                      placeholder="Paste your study notes, textbook excerpts, or topic summary here. The AI will analyze your notes and generate exam-style questions to test your understanding.
 
 Example:
 The derivative of a function represents the rate of change. The power rule states that d/dx[x^n] = nx^(n-1). For the chain rule, if y = f(g(x)), then dy/dx = f'(g(x)) · g'(x)..."
-                    className="min-h-[400px] resize-none"
-                  />
-                  <p className="text-xs text-slate-500 mt-2">
-                    Minimum 20 characters required. More detailed notes will produce better questions.
-                  </p>
-                </div>
+                      className="min-h-[300px] resize-none"
+                    />
+                    <p className="text-xs text-slate-500 mt-2">
+                      Minimum 20 characters required. More detailed notes will produce better questions.
+                    </p>
+                  </div>
+                </>
               )}
             </div>
           </div>
