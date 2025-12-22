@@ -54,7 +54,18 @@ Create detailed, exam-focused notes that include:
 - Practice tips
 - Connections between concepts
 
-Format in markdown with clear sections and bullet points.`;
+Format in markdown with clear sections and bullet points.
+
+CRITICAL: Use VALID LaTeX with proper escape characters for all math. ALL math must render cleanly.
+- Wrap math: $ for inline, $$ for display blocks
+- Examples of CORRECT LaTeX:
+  * Fractions: $\\frac{\\sin(30^\\circ)}{\\pi}$ (with backslash before frac)
+  * Limits: $\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1$ (backslash before lim and to)
+  * Powers: $x^2 + 5x - 3$
+  * Roots: $\\sqrt{3}$
+  * Trig: $\\sin(45^\\circ)$, $\\cos(x)$, $\\tan(x)$ (backslash before all functions)
+- NEVER write: "ext\\lim", "o" (use \\to for arrows), "frac" without backslash
+- Test that your LaTeX compiles correctly before using it`;
 
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
