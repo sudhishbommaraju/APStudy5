@@ -15,6 +15,7 @@ export default function Generate() {
   const [user, setUser] = useState(null);
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedUnit, setSelectedUnit] = useState('');
+  const navigate = useNavigate();
 
   const [generationMode, setGenerationMode] = useState('skill'); // 'skill' or 'notes'
   const [notes, setNotes] = useState('');
@@ -30,6 +31,11 @@ export default function Generate() {
     const loadUser = async () => {
       const currentUser = await base44.auth.me();
       setUser(currentUser);
+      
+      // Only admins can generate questions (creates curriculum)
+      if (currentUser.role !== 'admin') {
+        window.location.href = createPageUrl('Dashboard');
+      }
     };
     loadUser();
   }, []);

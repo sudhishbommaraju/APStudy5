@@ -34,7 +34,7 @@ const NAV_ITEMS = [
   { name: 'Practice', icon: BookOpen, page: 'Practice' },
   { name: 'Exam', icon: Clock, page: 'Exam' },
   { name: 'Tutor', icon: Brain, page: 'Tutor' },
-  { name: 'Generate', icon: Sparkles, page: 'Generate' },
+  { name: 'Generate', icon: Sparkles, page: 'Generate', adminOnly: true },
   { name: 'Notes', icon: FileText, page: 'Notes' },
   { name: 'Flashcards', icon: Brain, page: 'Flashcards' },
   { name: 'Progress', icon: TrendingUp, page: 'Progress' },
@@ -57,6 +57,15 @@ export default function Layout({ children, currentPageName }) {
 
   // Pages that don't need the full layout
   const noLayoutPages = ['Home', 'Onboarding'];
+  
+  // Admin-only pages - redirect non-admins
+  const adminOnlyPages = ['AdminUsers', 'SeedData'];
+  
+  // Check admin access
+  if (user && adminOnlyPages.includes(currentPageName) && user.role !== 'admin') {
+    window.location.href = createPageUrl('Dashboard');
+    return null;
+  }
 
   useEffect(() => {
     const loadUser = async () => {
