@@ -299,9 +299,6 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
           );
           
           questionIndex++;
-          );
-          
-          questionIndex++;
         }
       }
       
