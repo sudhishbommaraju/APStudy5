@@ -13,7 +13,9 @@ import {
   Zap,
   Play,
   FileText,
-  Brain
+  Brain,
+  X,
+  Crown
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,12 +26,14 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { format, subDays, parseISO } from 'date-fns';
+import UpgradeModal from '@/components/monetization/UpgradeModal';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedUnit, setSelectedUnit] = useState('');
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   
   useEffect(() => {
     const loadUser = async () => {
@@ -281,7 +285,7 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <button
             onClick={() => navigate(createPageUrl('Practice'))}
             className="bg-white rounded-xl border border-slate-200 p-5 hover:border-indigo-300 hover:shadow-sm transition-all text-left"
@@ -318,7 +322,125 @@ export default function Dashboard() {
             <div className="text-sm text-slate-600 mt-1">Track your growth</div>
           </button>
         </div>
+
+        {/* Pricing Plans */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-6">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Choose Your Plan</h3>
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Free Plan */}
+            <div className="border-2 border-slate-200 rounded-xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-xl font-bold text-slate-900">Free</h4>
+                <div className="text-2xl font-bold text-slate-900">$0</div>
+              </div>
+              <p className="text-slate-600 text-sm mb-6">Perfect for getting started</p>
+              
+              <ul className="space-y-3 mb-6">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-sm text-slate-700">5 AI-generated questions per day</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-sm text-slate-700">Basic practice mode</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-sm text-slate-700">Progress tracking</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <X className="w-5 h-5 text-slate-300 flex-shrink-0 mt-0.5" />
+                  <span className="text-sm text-slate-400">Custom exams</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <X className="w-5 h-5 text-slate-300 flex-shrink-0 mt-0.5" />
+                  <span className="text-sm text-slate-400">AI tutor</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <X className="w-5 h-5 text-slate-300 flex-shrink-0 mt-0.5" />
+                  <span className="text-sm text-slate-400">Generate from notes/videos</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <X className="w-5 h-5 text-slate-300 flex-shrink-0 mt-0.5" />
+                  <span className="text-sm text-slate-400">Flashcards</span>
+                </li>
+              </ul>
+
+              {user?.plan === 'free' && (
+                <div className="text-center py-2 text-sm text-slate-500 font-medium">
+                  Current Plan
+                </div>
+              )}
+            </div>
+
+            {/* Pro Plan */}
+            <div className="border-2 border-purple-500 rounded-xl p-6 relative overflow-hidden">
+              <div className="absolute top-0 right-0 bg-gradient-to-br from-purple-500 to-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+                POPULAR
+              </div>
+              
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <h4 className="text-xl font-bold text-slate-900">Pro</h4>
+                  <Crown className="w-5 h-5 text-purple-600" />
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-slate-900">$9.99</div>
+                  <div className="text-xs text-slate-500">/month</div>
+                </div>
+              </div>
+              <p className="text-slate-600 text-sm mb-6">Unlock your full potential</p>
+              
+              <ul className="space-y-3 mb-6">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-sm text-slate-700 font-medium">Unlimited AI-generated questions</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-sm text-slate-700 font-medium">Custom timed exams</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-sm text-slate-700 font-medium">AI tutor for instant help</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-sm text-slate-700 font-medium">Generate from your notes & videos</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-sm text-slate-700 font-medium">Unlimited flashcards</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-sm text-slate-700 font-medium">Advanced analytics</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-sm text-slate-700 font-medium">Priority support</span>
+                </li>
+              </ul>
+
+              {user?.plan === 'free' ? (
+                <Button 
+                  onClick={() => setUpgradeModalOpen(true)}
+                  className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                >
+                  <Zap className="w-4 h-4 mr-2" />
+                  Upgrade to Pro
+                </Button>
+              ) : (
+                <div className="text-center py-2 text-sm text-purple-600 font-medium">
+                  Current Plan
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
+
+      <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
     </div>
   );
 }
