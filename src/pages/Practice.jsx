@@ -28,6 +28,7 @@ export default function Practice() {
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedUnit, setSelectedUnit] = useState('');
   const [questionCount, setQuestionCount] = useState(10);
+  const [customQuestionCount, setCustomQuestionCount] = useState(10);
   const [practiceState, setPracticeState] = useState('setup'); // 'setup', 'practicing', 'complete'
   const [currentQuestions, setCurrentQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -51,6 +52,9 @@ export default function Practice() {
     queryKey: ['subjects'],
     queryFn: () => base44.entities.Subject.list('subject_id'),
   });
+
+  const selectedSubjectData = subjects.find(s => s.subject_id === selectedSubject);
+  const isStandardizedTest = selectedSubjectData?.category === 'Standardized';
 
   const { data: units = [] } = useQuery({
     queryKey: ['units', selectedSubject],
@@ -409,26 +413,45 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                   className="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-shadow"
                 >
                 <label className="text-sm font-medium text-slate-700 mb-3 block">
-                  Number of Questions
+                  Number of Questions {isStandardizedTest && '(Custom for SAT/ACT)'}
                 </label>
-                <div className="flex gap-3">
-                  {[5, 10, 15, 20].map((count) => (
-                    <motion.button
-                      key={count}
-                      onClick={() => setQuestionCount(count)}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className={cn(
-                        "flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all",
-                        questionCount === count
-                          ? "bg-slate-900 text-white"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                      )}
-                    >
-                      {count}
-                    </motion.button>
-                  ))}
-                </div>
+                {isStandardizedTest ? (
+                  <div className="space-y-3">
+                    <input
+                      type="number"
+                      min="1"
+                      max="60"
+                      value={customQuestionCount}
+                      onChange={(e) => {
+                        const val = Math.min(60, Math.max(1, parseInt(e.target.value) || 1));
+                        setCustomQuestionCount(val);
+                        setQuestionCount(val);
+                      }}
+                      className="w-full px-4 py-3 rounded-lg border border-slate-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900"
+                      placeholder="Enter 1-60"
+                    />
+                    <p className="text-xs text-slate-500">Max 60 questions for SAT/ACT practice</p>
+                  </div>
+                ) : (
+                  <div className="flex gap-3">
+                    {[5, 10, 15, 20].map((count) => (
+                      <motion.button
+                        key={count}
+                        onClick={() => setQuestionCount(count)}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={cn(
+                          "flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all",
+                          questionCount === count
+                            ? "bg-slate-900 text-white"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        )}
+                      >
+                        {count}
+                      </motion.button>
+                    ))}
+                  </div>
+                )}
               </motion.div>
               )}
             </AnimatePresence>

@@ -43,6 +43,8 @@ export default function Generate() {
     select: (subjects) => subjects.find(s => s.subject_id === selectedSubject),
   });
 
+  const isStandardizedTest = currentSubjectData?.category === 'Standardized';
+
   const fetchLinkContent = async () => {
     if (!videoUrl.trim()) return;
     
@@ -371,24 +373,42 @@ Return a JSON object with a "questions" array, where each question has:
               {/* Question Count */}
               <div className="bg-white rounded-xl border border-slate-200 p-4">
                 <label className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3 block">
-                  Number of Questions
+                  Number of Questions {isStandardizedTest && '(Custom for SAT/ACT)'}
                 </label>
-                <div className="flex gap-2">
-                  {[3, 5, 10].map((n) => (
-                    <button
-                      key={n}
-                      onClick={() => setQuestionCount(n)}
-                      className={cn(
-                        "flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all",
-                        questionCount === n
-                          ? "bg-slate-900 text-white"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                      )}
-                    >
-                      {n}
-                    </button>
-                  ))}
-                </div>
+                {isStandardizedTest ? (
+                  <div className="space-y-2">
+                    <input
+                      type="number"
+                      min="1"
+                      max="60"
+                      value={questionCount}
+                      onChange={(e) => {
+                        const val = Math.min(60, Math.max(1, parseInt(e.target.value) || 1));
+                        setQuestionCount(val);
+                      }}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900"
+                      placeholder="Enter 1-60"
+                    />
+                    <p className="text-xs text-slate-500">Max 60 questions</p>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    {[3, 5, 10].map((n) => (
+                      <button
+                        key={n}
+                        onClick={() => setQuestionCount(n)}
+                        className={cn(
+                          "flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all",
+                          questionCount === n
+                            ? "bg-slate-900 text-white"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        )}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Generate Button */}

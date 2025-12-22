@@ -31,6 +31,8 @@ const SUBJECTS_DATA = [
   { subject_id: 'ap_seminar', name: 'AP Seminar', category: 'Capstone', icon: '💡' },
   { subject_id: 'ap_research', name: 'AP Research', category: 'Capstone', icon: '🔬' },
   { subject_id: 'ap_african_american_studies', name: 'AP African American Studies', category: 'Social Science', icon: '✊' },
+  { subject_id: 'sat', name: 'SAT', category: 'Standardized', icon: '📝' },
+  { subject_id: 'act', name: 'ACT', category: 'Standardized', icon: '📋' },
 ];
 
 const UNITS_DATA = {
@@ -273,6 +275,16 @@ const UNITS_DATA = {
     'Freedom, Enslavement, and Resistance',
     'The Practice of Freedom',
     'Movements and Debates',
+  ],
+  sat: [
+    'Math',
+    'Reading and Writing',
+  ],
+  act: [
+    'Math',
+    'English',
+    'Reading',
+    'Science',
   ],
 };
 

@@ -56,6 +56,9 @@ export default function Exam() {
     queryFn: () => base44.entities.Subject.list('subject_id'),
   });
 
+  const selectedSubjectData = subjects.find(s => s.subject_id === selectedSubject);
+  const isStandardizedTest = selectedSubjectData?.category === 'Standardized';
+
   const { data: units = [] } = useQuery({
     queryKey: ['units', selectedSubject],
     queryFn: () => base44.entities.Unit.filter({ subject_id: selectedSubject }),
@@ -488,23 +491,43 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
 
             {/* Question Count */}
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-3 block">Number of Questions</label>
-              <div className="flex gap-2">
-                {[10, 15, 20].map((n) => (
-                  <button
-                    key={n}
-                    onClick={() => setQuestionCount(n)}
-                    className={cn(
-                      "flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all",
-                      questionCount === n
-                        ? "bg-slate-900 text-white"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                    )}
-                  >
-                    {n} questions
-                  </button>
-                ))}
-              </div>
+              <label className="text-sm font-medium text-slate-700 mb-3 block">
+                Number of Questions {isStandardizedTest && '(Custom for SAT/ACT)'}
+              </label>
+              {isStandardizedTest ? (
+                <div className="space-y-2">
+                  <input
+                    type="number"
+                    min="1"
+                    max="60"
+                    value={questionCount}
+                    onChange={(e) => {
+                      const val = Math.min(60, Math.max(1, parseInt(e.target.value) || 1));
+                      setQuestionCount(val);
+                    }}
+                    className="w-full px-4 py-3 rounded-lg border border-slate-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900"
+                    placeholder="Enter 1-60"
+                  />
+                  <p className="text-xs text-slate-500">Max 60 questions for SAT/ACT exams</p>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  {[10, 15, 20].map((n) => (
+                    <button
+                      key={n}
+                      onClick={() => setQuestionCount(n)}
+                      className={cn(
+                        "flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all",
+                        questionCount === n
+                          ? "bg-slate-900 text-white"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      )}
+                    >
+                      {n} questions
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Difficulty */}
