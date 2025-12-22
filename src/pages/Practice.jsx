@@ -93,13 +93,16 @@ Requirements:
   selectedDifficulty === 'medium' ? 'requires multi-step reasoning' :
   'complex problem requiring deep understanding and multiple concepts'
 }
-- CRITICAL: Use LaTeX notation for ALL mathematical expressions. Wrap math in $ for inline or $$ for display.
-- Examples:
-  * Fractions: $\\frac{\\sin(30^\\circ)}{\\pi}$ not "sin(30)/pi"
-  * Powers: $x^2 + 5x - 3$ not "x^2 + 5x - 3"
-  * Roots: $\\sqrt{3}$ not "sqrt(3)"
-  * Trig: $\\sin(45^\\circ)$ not "sin(45)"
-  * All numbers and variables in math context must be in $...$
+- CRITICAL: Use VALID LaTeX with proper escape characters. ALL math must render cleanly.
+- Wrap math: $ for inline, $$ for display blocks
+- Examples of CORRECT LaTeX:
+  * Fractions: $\\frac{\\sin(30^\\circ)}{\\pi}$ (with backslash before frac)
+  * Limits: $\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1$ (backslash before lim and to)
+  * Powers: $x^2 + 5x - 3$
+  * Roots: $\\sqrt{3}$
+  * Trig: $\\sin(45^\\circ)$, $\\cos(x)$, $\\tan(x)$ (backslash before all functions)
+- NEVER write: "ext\\lim", "o" (use \\to for arrows), "frac" without backslash
+- Test that your LaTeX compiles correctly before using it
 
 Return a JSON object with:
 - question_text: The question stem (can include LaTeX math notation)
@@ -182,13 +185,16 @@ Requirements:
 - Exactly 4 answer choices (A, B, C, D)
 - Exactly one correct answer
 - Include plausible distractors that test common misconceptions
-- CRITICAL: Use LaTeX notation for ALL mathematical expressions. Wrap math in $ for inline or $$ for display.
-- Examples: 
-  * Fractions: $\\frac{\\sin(30^\\circ)}{\\pi}$ not "sin(30)/pi"
-  * Powers: $x^2 + 5x - 3$ not "x^2 + 5x - 3"
-  * Roots: $\\sqrt{3}$ not "sqrt(3)"
-  * Trig: $\\sin(45^\\circ)$ not "sin(45)"
-  * All numbers and variables in math context must be in $...$
+- CRITICAL: Use VALID LaTeX with proper escape characters. ALL math must render cleanly.
+- Wrap math: $ for inline, $$ for display blocks
+- Examples of CORRECT LaTeX:
+  * Fractions: $\\frac{\\sin(30^\\circ)}{\\pi}$ (with backslash before frac)
+  * Limits: $\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1$ (backslash before lim and to)
+  * Powers: $x^2 + 5x - 3$
+  * Roots: $\\sqrt{3}$
+  * Trig: $\\sin(45^\\circ)$, $\\cos(x)$, $\\tan(x)$ (backslash before all functions)
+- NEVER write: "ext\\lim", "o" (use \\to for arrows), "frac" without backslash
+- Test that your LaTeX compiles correctly before using it
 
 Return a JSON object with:
 - question_text: The question stem (can include LaTeX math notation)

@@ -104,12 +104,16 @@ Provide a detailed, educational response that:
 4. Uses clear formatting with bullet points and examples where helpful
 ${filesToSend.length > 0 ? '5. Analyzes any images provided and addresses questions about them' : ''}
 
-Keep your tone friendly and encouraging. CRITICAL: Use LaTeX notation for ALL mathematical expressions. Wrap math in $ for inline or $$ for display.
-Examples:
-- Fractions: $\\frac{\\sin(30^\\circ)}{\\pi}$ not "sin(30)/pi"
-- Powers: $x^2$ not "x^2"
-- Roots: $\\sqrt{3}$ not "sqrt(3)"
-- Trig: $\\sin(45^\\circ)$ not "sin(45)"`;
+Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper escape characters. ALL math must render cleanly.
+- Wrap math: $ for inline, $$ for display blocks
+- Examples of CORRECT LaTeX:
+  * Fractions: $\\frac{\\sin(30^\\circ)}{\\pi}$ (with backslash before frac)
+  * Limits: $\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1$ (backslash before lim and to)
+  * Powers: $x^2 + 5x - 3$
+  * Roots: $\\sqrt{3}$
+  * Trig: $\\sin(45^\\circ)$, $\\cos(x)$, $\\tan(x)$ (backslash before all functions)
+- NEVER write: "ext\\lim", "o" (use \\to for arrows), "frac" without backslash
+- Test that your LaTeX compiles correctly before using it`;
 
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
