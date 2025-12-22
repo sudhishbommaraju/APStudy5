@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, CheckCircle2, Target, TrendingUp, BookOpen, Loader2 } from 'lucide-react';
+import { ArrowRight, Target, Brain, TrendingUp, CheckCircle2, Users, Loader2 } from 'lucide-react';
 
 export default function Home() {
   const navigate = useNavigate();
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const sectionsRef = useRef([]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -28,6 +29,25 @@ export default function Home() {
     };
     checkAuth();
   }, [navigate]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-in');
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    sectionsRef.current.forEach((section) => {
+      if (section) observer.observe(section);
+    });
+
+    return () => observer.disconnect();
+  }, [checkingAuth]);
 
   const handleGetStarted = () => {
     base44.auth.redirectToLogin(createPageUrl('Onboarding'));
