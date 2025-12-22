@@ -313,7 +313,6 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
 
     if (currentIndex < currentQuestions.length - 1) {
       setCurrentIndex(prev => prev + 1);
-      setShowErrorSelector(false);
     } else {
       await completePractice();
     }
