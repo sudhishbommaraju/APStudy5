@@ -70,10 +70,98 @@ export default function QuestionCard({
       {/* Question Text */}
       <div className="px-6 py-5">
         <div className="prose prose-slate prose-sm max-w-none">
-            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-              {question.question_text}
+          <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+            {question.question_text}
+          </ReactMarkdown>
+        </div>
+
+        {/* Table Data */}
+        {question.table_data && (
+          <div className="mt-4 overflow-x-auto">
+            <ReactMarkdown 
+              remarkPlugins={[remarkMath]} 
+              rehypePlugins={[rehypeKatex]}
+              className="prose prose-sm max-w-none"
+              components={{
+                table: ({node, ...props}) => <table className="min-w-full border border-slate-300" {...props} />,
+                th: ({node, ...props}) => <th className="border border-slate-300 px-3 py-2 bg-slate-100 font-semibold" {...props} />,
+                td: ({node, ...props}) => <td className="border border-slate-300 px-3 py-2" {...props} />,
+              }}
+            >
+              {question.table_data}
             </ReactMarkdown>
           </div>
+        )}
+
+        {/* Graph Data */}
+        {question.graph_data && (() => {
+          try {
+            const graphData = JSON.parse(question.graph_data);
+            const maxY = Math.max(...graphData.data.map(d => d.y));
+            const minY = Math.min(...graphData.data.map(d => d.y));
+            const range = maxY - minY;
+
+            return (
+              <div className="mt-4 p-4 bg-slate-50 rounded-lg">
+                <div className="text-xs text-slate-600 mb-2 text-center">
+                  {graphData.labels?.title || 'Graph'}
+                </div>
+                <div className="relative h-48 border-l-2 border-b-2 border-slate-400 ml-8 mb-6">
+                  {/* Y-axis label */}
+                  <div className="absolute -left-8 top-1/2 -translate-y-1/2 -rotate-90 text-xs text-slate-600 whitespace-nowrap">
+                    {graphData.labels?.y || 'Y'}
+                  </div>
+
+                  {/* Data points */}
+                  {graphData.data.map((point, i) => {
+                    const x = (i / (graphData.data.length - 1)) * 100;
+                    const y = ((point.y - minY) / range) * 100;
+                    return (
+                      <div
+                        key={i}
+                        className="absolute w-2 h-2 bg-indigo-600 rounded-full -translate-x-1 -translate-y-1"
+                        style={{ left: `${x}%`, bottom: `${y}%` }}
+                        title={`(${point.x}, ${point.y})`}
+                      />
+                    );
+                  })}
+
+                  {/* Line connecting points (if line graph) */}
+                  {graphData.type === 'line' && graphData.data.map((point, i) => {
+                    if (i === graphData.data.length - 1) return null;
+                    const nextPoint = graphData.data[i + 1];
+                    const x1 = (i / (graphData.data.length - 1)) * 100;
+                    const y1 = ((point.y - minY) / range) * 100;
+                    const x2 = ((i + 1) / (graphData.data.length - 1)) * 100;
+                    const y2 = ((nextPoint.y - minY) / range) * 100;
+
+                    const length = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+                    const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+
+                    return (
+                      <div
+                        key={`line-${i}`}
+                        className="absolute h-0.5 bg-indigo-600 origin-left"
+                        style={{
+                          left: `${x1}%`,
+                          bottom: `${y1}%`,
+                          width: `${length}%`,
+                          transform: `rotate(${angle}deg)`,
+                        }}
+                      />
+                    );
+                  })}
+                </div>
+                {/* X-axis label */}
+                <div className="text-xs text-slate-600 text-center">
+                  {graphData.labels?.x || 'X'}
+                </div>
+              </div>
+            );
+          } catch (e) {
+            return null;
+          }
+        })()}
       </div>
 
       {/* Answer Choices */}
