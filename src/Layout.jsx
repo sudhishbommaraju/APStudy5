@@ -90,7 +90,7 @@ export default function Layout({ children, currentPageName }) {
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366F1, #A78BFA)' }}>
                       <span className="text-white font-bold text-sm">P</span>
                     </div>
-                    <span className="font-bold text-lg text-white hidden sm:block">Proofly</span>
+                    <span className="font-bold text-lg text-black hidden sm:block">Proofly</span>
                   </Link>
 
             {/* Desktop Nav */}
