@@ -137,6 +137,12 @@ export default function Layout({ children, currentPageName }) {
                     <p className="text-xs text-slate-500 truncate">{user?.email}</p>
                   </div>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to={createPageUrl('About')} className="cursor-pointer">
+                      About Proofly
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="text-rose-600">
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign Out

@@ -9,6 +9,7 @@ import Notes from './pages/Notes';
 import Flashcards from './pages/Flashcards';
 import SeedData from './pages/SeedData';
 import Tutor from './pages/Tutor';
+import About from './pages/About';
 import __Layout from './Layout.jsx';
 
 
@@ -24,6 +25,7 @@ export const PAGES = {
     "Flashcards": Flashcards,
     "SeedData": SeedData,
     "Tutor": Tutor,
+    "About": About,
 }
 
 export const pagesConfig = {
