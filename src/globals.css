@@ -13,6 +13,7 @@ css
   --color-border: #E5E7EB;
   --color-text-primary: #1E1B4B;
   --color-text-secondary: #4C1D95;
+  --color-text-tertiary: #5B21B6;
   --color-accent-primary: #6366F1;
   --color-accent-secondary: #A78BFA;
   --color-focus-bg: #0F172A;
@@ -20,6 +21,19 @@ css
   --color-focus-text: #E5E7EB;
   --color-focus-text-secondary: #94A3B8;
   --color-focus-accent: #818CF8;
+}
+
+/* Override lighter text colors globally */
+.text-slate-500 {
+  color: var(--color-text-secondary) !important;
+}
+
+.text-slate-400 {
+  color: var(--color-text-tertiary) !important;
+}
+
+.text-slate-600 {
+  color: var(--color-text-primary) !important;
 }
 
 /* Galaxy Gradient - Limited Use */
