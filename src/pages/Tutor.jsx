@@ -104,7 +104,7 @@ Provide a detailed, educational response that:
 4. Uses clear formatting with bullet points and examples where helpful
 ${filesToSend.length > 0 ? '5. Analyzes any images provided and addresses questions about them' : ''}
 
-Keep your tone friendly and encouraging. Use mathematical notation when needed.`;
+Keep your tone friendly and encouraging. Use LaTeX notation for ALL mathematical expressions (wrap in $ for inline math, $$ for display math). Examples: $x^2 + 5x - 3$, $\\frac{a}{b}$, $\\sqrt{x}$`;
 
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,

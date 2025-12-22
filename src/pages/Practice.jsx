@@ -175,7 +175,8 @@ Requirements:
 - Exactly 4 answer choices (A, B, C, D)
 - Exactly one correct answer
 - Include plausible distractors that test common misconceptions
-- Use proper mathematical notation where needed
+- Use LaTeX notation for ALL mathematical expressions (wrap in $ for inline math, $$ for display math)
+- Examples: $x^2 + 5x - 3$, $\\frac{a}{b}$, $\\sqrt{x}$, $\\int_{0}^{1} x dx$
 
 Return a JSON object with:
 - question_text: The question stem (can include LaTeX math notation)
