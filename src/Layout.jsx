@@ -97,12 +97,7 @@ export default function Layout({ children, currentPageName }) {
                 <Link
                   key={item.page}
                   to={createPageUrl(item.page)}
-                  className={cn(
-                    "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                    currentPageName === item.page
-                      ? "bg-white/20 text-white backdrop-blur-sm"
-                      : "text-slate-300 hover:text-white hover:bg-white/10"
-                  )}
+                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-black"
                 >
                   <item.icon className="w-4 h-4" />
                   {item.name}
@@ -170,12 +165,7 @@ export default function Layout({ children, currentPageName }) {
                   key={item.page}
                   to={createPageUrl(item.page)}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
-                    currentPageName === item.page
-                      ? "bg-white/20 text-white"
-                      : "text-slate-300 hover:text-white hover:bg-white/10"
-                  )}
+                  className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white"
                 >
                   <item.icon className="w-5 h-5" />
                   {item.name}
