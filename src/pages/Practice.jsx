@@ -42,6 +42,12 @@ export default function Practice() {
     loadUser();
   }, []);
 
+  useEffect(() => {
+    if (selectedSubject && !studyPlan && !generating && practiceState === 'plan') {
+      generateStudyPlan();
+    }
+  }, [selectedSubject]);
+
   const { data: subjects = [] } = useQuery({
     queryKey: ['subjects'],
     queryFn: () => base44.entities.Subject.list('subject_id'),
@@ -473,36 +479,27 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
             </div>
           </div>
 
-          {!selectedSubject ? (
-            <div className="bg-white rounded-xl border border-slate-200 p-6">
-              <label className="text-sm font-medium text-slate-700 mb-3 block">
-                Select Subject
-              </label>
-              <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Choose a subject" />
-                </SelectTrigger>
-                <SelectContent className="max-h-96">
-                  {subjects.map(subject => (
-                    <SelectItem key={subject.subject_id} value={subject.subject_id}>
-                      <div className="flex items-center gap-2">
-                        {subject.icon && <span>{subject.icon}</span>}
-                        <span>{subject.name}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {selectedSubject && (
-                <Button onClick={generateStudyPlan} className="w-full mt-4">
-                  Generate Study Plan
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              )}
-            </div>
-          ) : studyPlan ? (
-            <StudyPlanCard plan={studyPlan} onStart={startPractice} />
-          ) : null}
+          <div className="bg-white rounded-xl border border-slate-200 p-6">
+            <label className="text-sm font-medium text-slate-700 mb-3 block">
+              Select Subject
+            </label>
+            <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Choose a subject" />
+              </SelectTrigger>
+              <SelectContent className="max-h-96">
+                {subjects.map(subject => (
+                  <SelectItem key={subject.subject_id} value={subject.subject_id}>
+                    <div className="flex items-center gap-2">
+                      {subject.icon && <span>{subject.icon}</span>}
+                      <span>{subject.name}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {studyPlan && <StudyPlanCard plan={studyPlan} onStart={startPractice} />}
         </div>
       </div>
     );
