@@ -262,11 +262,8 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Calendar */}
-        <Calendar user={user} />
-
         {/* Progress Snapshot */}
-        <div className="bg-white rounded-xl border border-slate-200 p-3 mb-4 mt-4">
+        <div className="bg-white rounded-xl border border-slate-200 p-3 mb-4">
           <h3 className="text-sm font-semibold text-slate-900 mb-2">Your Progress</h3>
           <div className="grid sm:grid-cols-3 gap-2">
             <div className="text-center p-2 bg-slate-50 rounded-lg">
@@ -322,6 +319,9 @@ export default function Dashboard() {
             <div className="text-xs text-slate-600 mt-0.5">Track growth</div>
           </button>
         </div>
+
+        {/* Calendar */}
+        <Calendar user={user} />
 
       </div>
     </div>
