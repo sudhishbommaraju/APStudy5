@@ -99,9 +99,8 @@ export default function Layout({ children, currentPageName }) {
                 <Link
                   key={item.page}
                   to={createPageUrl(item.page)}
-                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white rounded-lg hover:bg-opacity-90 transition-all"
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-black rounded-lg hover:bg-white/10 transition-all"
                   style={{ 
-                    background: 'linear-gradient(135deg, #334155, #475569)',
                     fontFamily: 'Georgia, serif'
                   }}
                 >
@@ -180,9 +179,8 @@ export default function Layout({ children, currentPageName }) {
                   key={item.page}
                   to={createPageUrl(item.page)}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-white rounded-lg hover:bg-opacity-90 transition-all"
+                  className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-white rounded-lg hover:bg-white/10 transition-all"
                   style={{ 
-                    background: 'linear-gradient(135deg, #334155, #475569)',
                     fontFamily: 'Georgia, serif'
                   }}
                 >

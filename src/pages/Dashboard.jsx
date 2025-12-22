@@ -136,19 +136,17 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #e8f1f8, #d9e9f5)', fontFamily: 'Georgia, serif' }}>
-      {/* Galaxy Hero Header */}
-      <div className="galaxy-gradient">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Welcome back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
-          </h1>
-          <p className="text-slate-300">
-            Ready to master your subjects
-          </p>
-        </div>
+      {/* Hero Header */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+        <h1 className="text-3xl font-bold text-black mb-2">
+          Welcome back{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
+        </h1>
+        <p className="text-slate-600">
+          Ready to master your subjects
+        </p>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 -mt-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
 
         {/* Quick Actions */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
