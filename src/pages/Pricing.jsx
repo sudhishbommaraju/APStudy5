@@ -110,7 +110,7 @@ export default function Pricing() {
                 <Crown className="w-6 h-6 text-purple-600" />
               </div>
               <div>
-                <div className="text-3xl font-bold text-slate-900">$9.99</div>
+                <div className="text-3xl font-bold text-slate-900">$5.99</div>
                 <div className="text-xs text-slate-500">/month</div>
               </div>
             </div>
