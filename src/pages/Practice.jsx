@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowRight, ChevronLeft, Target, BookOpen } from 'lucide-react';
+import { Loader2, ArrowRight, ChevronLeft, Target, BookOpen, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import QuestionCard from '@/components/ui/QuestionCard';
@@ -10,6 +10,7 @@ import StudyPlanCard from '@/components/study/StudyPlanCard';
 import MasteryBadge from '@/components/study/MasteryBadge';
 import ErrorTypeSelector from '@/components/exam/ErrorTypeSelector';
 import ErrorTypeFeedback from '@/components/ui/ErrorTypeFeedback';
+import UpgradeModal from '@/components/monetization/UpgradeModal';
 import {
   Select,
   SelectContent,
@@ -30,6 +31,7 @@ export default function Practice() {
   const [generating, setGenerating] = useState(false);
   const [showErrorSelector, setShowErrorSelector] = useState(false);
   const [errorTypes, setErrorTypes] = useState({});
+  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -433,11 +435,23 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
             <span className="text-sm focus-mode-text-secondary">
               Question {currentIndex + 1} of {currentQuestions.length}
             </span>
-            <div className="h-2 w-48 bg-slate-800 rounded-full overflow-hidden">
-              <div 
-                className="h-full transition-all"
-                style={{ width: `${((currentIndex + 1) / currentQuestions.length) * 100}%`, backgroundColor: 'var(--color-focus-accent)' }}
-              />
+            <div className="flex items-center gap-3">
+              <div className="h-2 w-48 bg-slate-800 rounded-full overflow-hidden">
+                <div 
+                  className="h-full transition-all"
+                  style={{ width: `${((currentIndex + 1) / currentQuestions.length) * 100}%`, backgroundColor: 'var(--color-focus-accent)' }}
+                />
+              </div>
+              {user?.plan === 'free' && (
+                <button
+                  onClick={() => setUpgradeModalOpen(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full font-semibold text-xs text-white transition-all hover:brightness-110"
+                  style={{ background: 'linear-gradient(135deg, #8B5CF6, #A78BFA)' }}
+                >
+                  <Zap className="w-3 h-3" />
+                  Upgrade
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -516,8 +530,10 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
               New Study Plan
             </Button>
           </div>
-        </div>
-      </div>
-    );
-  }
+          </div>
+
+          <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
+          </div>
+          );
+          }
 }
