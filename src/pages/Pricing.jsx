@@ -5,6 +5,7 @@ import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, X, Crown, Zap, ChevronLeft } from 'lucide-react';
 import UpgradeModal from '@/components/monetization/UpgradeModal';
+import StripeCheckout from '@/components/monetization/StripeCheckout';
 
 export default function Pricing() {
   const [user, setUser] = useState(null);
@@ -17,6 +18,10 @@ export default function Pricing() {
     };
     loadUser();
   }, []);
+
+  const handleUpgradeSuccess = () => {
+    window.location.reload();
+  };
 
   if (!user) {
     return (
@@ -152,13 +157,7 @@ export default function Pricing() {
             </ul>
 
             {user?.plan === 'free' ? (
-              <Button 
-                onClick={() => setUpgradeModalOpen(true)}
-                className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 h-12 text-base"
-              >
-                <Zap className="w-5 h-5 mr-2" />
-                Upgrade to Pro
-              </Button>
+              <StripeCheckout user={user} onSuccess={handleUpgradeSuccess} />
             ) : (
               <div className="text-center py-3 text-sm text-purple-600 font-medium border-2 border-purple-200 rounded-lg bg-purple-50">
                 Current Plan

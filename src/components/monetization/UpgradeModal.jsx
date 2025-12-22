@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import { base44 } from '@/api/base44Client';
 import { Check, Sparkles } from 'lucide-react';
+import StripeCheckout from './StripeCheckout';
 
 const FREE_FEATURES = [
   'Limited daily practice questions',
@@ -25,9 +26,18 @@ const PRO_FEATURES = [
 ];
 
 export default function UpgradeModal({ open, onOpenChange }) {
-  const handleUpgrade = () => {
-    // TODO: Integrate with payment system
-    alert('Payment integration coming soon! This will redirect to checkout.');
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const currentUser = await base44.auth.me();
+      setUser(currentUser);
+    };
+    if (open) loadUser();
+  }, [open]);
+
+  const handleSuccess = () => {
+    window.location.reload(); // Reload to update plan status
   };
 
   return (
@@ -72,17 +82,10 @@ export default function UpgradeModal({ open, onOpenChange }) {
             </div>
             <div className="mb-4">
               <p className="font-bold text-2xl" style={{ color: 'var(--color-text-primary)' }}>
-                $9.99<span className="text-sm font-normal" style={{ color: 'var(--color-text-secondary)' }}>/month</span>
+                $5.99<span className="text-sm font-normal" style={{ color: 'var(--color-text-secondary)' }}>/month</span>
               </p>
             </div>
-            <Button 
-              onClick={handleUpgrade}
-              className="w-full h-12 text-base font-semibold"
-              style={{ backgroundColor: 'var(--color-accent-primary)' }}
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Upgrade to Pro
-            </Button>
+            {user && <StripeCheckout user={user} onSuccess={handleSuccess} />}
           </div>
         </div>
 
