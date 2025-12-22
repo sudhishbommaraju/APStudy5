@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 export default function QuestionCard({ 
   question, 
@@ -76,22 +77,99 @@ export default function QuestionCard({
         </div>
 
         {/* Table Data */}
-        {question.table_data && (
-          <div className="mt-4 overflow-x-auto">
-            <ReactMarkdown 
-              remarkPlugins={[remarkMath]} 
-              rehypePlugins={[rehypeKatex]}
-              className="prose prose-sm max-w-none"
-              components={{
-                table: ({node, ...props}) => <table className="min-w-full border border-slate-300" {...props} />,
-                th: ({node, ...props}) => <th className="border border-slate-300 px-3 py-2 bg-slate-100 font-semibold" {...props} />,
-                td: ({node, ...props}) => <td className="border border-slate-300 px-3 py-2" {...props} />,
-              }}
-            >
-              {question.table_data}
-            </ReactMarkdown>
-          </div>
-        )}
+        {question.table_data && (() => {
+          // Parse markdown table into chart data
+          const parseTableToChart = (markdown) => {
+            const lines = markdown.trim().split('\n').filter(line => line.trim() && !line.includes('---'));
+            if (lines.length < 2) return null;
+
+            const headers = lines[0].split('|').map(h => h.trim()).filter(Boolean);
+            const rows = lines.slice(1).map(line => 
+              line.split('|').map(cell => cell.trim()).filter(Boolean)
+            );
+
+            // Convert to chart data
+            const chartData = rows.map(row => {
+              const obj = { [headers[0]]: row[0] };
+              for (let i = 1; i < headers.length; i++) {
+                const value = parseFloat(row[i]);
+                obj[headers[i]] = isNaN(value) ? row[i] : value;
+              }
+              return obj;
+            });
+
+            // Check if data is numeric (suitable for charting)
+            const hasNumericData = chartData.some(item => 
+              Object.values(item).some(v => typeof v === 'number')
+            );
+
+            return hasNumericData ? { headers, chartData } : null;
+          };
+
+          const chartInfo = parseTableToChart(question.table_data);
+
+          if (chartInfo) {
+            const { headers, chartData } = chartInfo;
+            const dataKeys = headers.slice(1); // Skip first column (category)
+            const colors = ['#6366F1', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981'];
+
+            return (
+              <div className="mt-4 p-4 bg-slate-50 rounded-lg">
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis 
+                      dataKey={headers[0]} 
+                      tick={{ fill: '#64748b', fontSize: 12 }}
+                      stroke="#94a3b8"
+                    />
+                    <YAxis 
+                      tick={{ fill: '#64748b', fontSize: 12 }}
+                      stroke="#94a3b8"
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'white', 
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        fontSize: '12px'
+                      }}
+                    />
+                    <Legend 
+                      wrapperStyle={{ fontSize: '12px' }}
+                    />
+                    {dataKeys.map((key, index) => (
+                      <Bar 
+                        key={key} 
+                        dataKey={key} 
+                        fill={colors[index % colors.length]}
+                        radius={[4, 4, 0, 0]}
+                      />
+                    ))}
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            );
+          }
+
+          // Fallback to table rendering
+          return (
+            <div className="mt-4 overflow-x-auto">
+              <ReactMarkdown 
+                remarkPlugins={[remarkMath]} 
+                rehypePlugins={[rehypeKatex]}
+                className="prose prose-sm max-w-none"
+                components={{
+                  table: ({node, ...props}) => <table className="min-w-full border border-slate-300" {...props} />,
+                  th: ({node, ...props}) => <th className="border border-slate-300 px-3 py-2 bg-slate-100 font-semibold" {...props} />,
+                  td: ({node, ...props}) => <td className="border border-slate-300 px-3 py-2" {...props} />,
+                }}
+              >
+                {question.table_data}
+              </ReactMarkdown>
+            </div>
+          );
+        })()}
 
         {/* Graph Data */}
         {question.graph_data && (() => {
