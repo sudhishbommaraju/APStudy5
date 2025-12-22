@@ -37,9 +37,9 @@ export default function Flashcards() {
   }, []);
 
   const { data: flashcards = [] } = useQuery({
-    queryKey: ['flashcards', selectedExam],
-    queryFn: () => base44.entities.Flashcard.filter({ exam_type: selectedExam }),
-    enabled: !!selectedExam,
+    queryKey: ['flashcards', selectedExam, user?.email],
+    queryFn: () => base44.entities.Flashcard.filter({ exam_type: selectedExam, created_by: user.email }),
+    enabled: !!selectedExam && !!user,
   });
 
   const updateCardMutation = useMutation({
@@ -114,8 +114,8 @@ Return an array of flashcard objects.`;
   };
 
   const startStudySession = () => {
-    const userCards = flashcards.filter(c => c.created_by === user?.email);
-    setStudyCards(userCards);
+    // Already filtered by user at query level
+    setStudyCards(flashcards);
     setStudyMode(true);
     setCurrentCardIndex(0);
     setFlipped(false);
@@ -307,11 +307,11 @@ Return an array of flashcard objects.`;
           </div>
 
           <div className="lg:col-span-2">
-            {flashcards.filter(c => c.created_by === user?.email).length > 0 ? (
+            {flashcards.length > 0 ? (
               <>
                 <div className="flex items-center justify-between mb-4">
                   <p className="text-sm text-slate-500">
-                    {flashcards.filter(c => c.created_by === user?.email).length} cards
+                    {flashcards.length} cards
                   </p>
                   <Button onClick={startStudySession}>
                     <Brain className="w-4 h-4 mr-2" />
@@ -320,9 +320,7 @@ Return an array of flashcard objects.`;
                 </div>
 
                 <div className="grid gap-3">
-                  {flashcards
-                    .filter(c => c.created_by === user?.email)
-                    .map((card) => (
+                  {flashcards.map((card) => (
                       <div
                         key={card.id}
                         className="bg-white rounded-lg border border-slate-200 p-4"

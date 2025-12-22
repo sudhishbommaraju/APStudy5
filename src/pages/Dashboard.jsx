@@ -43,14 +43,14 @@ export default function Dashboard() {
   }, []);
 
   const { data: attempts = [] } = useQuery({
-    queryKey: ['attempts'],
-    queryFn: () => base44.entities.Attempt.list('-created_date', 500),
+    queryKey: ['attempts', user?.email],
+    queryFn: () => base44.entities.Attempt.filter({ created_by: user.email }),
     enabled: !!user,
   });
 
   const { data: sessions = [] } = useQuery({
-    queryKey: ['sessions'],
-    queryFn: () => base44.entities.Session.list('-created_date', 50),
+    queryKey: ['sessions', user?.email],
+    queryFn: () => base44.entities.Session.filter({ created_by: user.email }),
     enabled: !!user,
   });
 
@@ -65,7 +65,8 @@ export default function Dashboard() {
     enabled: !!selectedSubject,
   });
 
-  const userAttempts = attempts.filter(a => a.created_by === user?.email);
+  // Already filtered by user at query level
+  const userAttempts = attempts;
 
   // Calculate stats
   const totalQuestions = userAttempts.length;
@@ -96,9 +97,9 @@ export default function Dashboard() {
     }
   };
 
-  // Recent sessions
+  // Recent sessions - already filtered by user
   const recentSessions = sessions
-    .filter(s => s.created_by === user?.email && s.status === 'completed')
+    .filter(s => s.status === 'completed')
     .slice(0, 5);
 
   // Study streak (days in a row with attempts)
