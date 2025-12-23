@@ -109,11 +109,9 @@ export default function Layout({ children, currentPageName }) {
                 <Link
                   key={item.page}
                   to={createPageUrl(item.page)}
-                  className="flex items-center gap-1 px-2 py-1.5 text-xs font-bold rounded-lg hover:bg-white/10 transition-all"
+                  className="flex items-center gap-1 px-2 py-1.5 text-xs font-bold text-black rounded-lg hover:bg-white/10 transition-all"
                   style={{ 
-                    fontFamily: 'Georgia, serif',
-                    color: '#000',
-                    textShadow: '0 0 8px rgba(168, 85, 247, 0.6), 0 0 15px rgba(168, 85, 247, 0.3)'
+                    fontFamily: 'Georgia, serif'
                   }}
                 >
                   <item.icon className="w-3 h-3" />
@@ -145,7 +143,7 @@ export default function Layout({ children, currentPageName }) {
                     <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
                       <User className="w-4 h-4 text-white" />
                     </div>
-                    <ChevronDown className="w-4 h-4 text-slate-300 hidden sm:block" />
+                    <ChevronDown className="w-4 h-4 text-black hidden sm:block" />
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
