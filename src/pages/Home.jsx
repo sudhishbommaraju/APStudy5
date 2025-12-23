@@ -1,33 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { base44 } from '@/api/base44Client';
-import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Target, Brain, TrendingUp, CheckCircle2, Loader2 } from 'lucide-react';
+import { ArrowRight, Target, Brain, TrendingUp, CheckCircle2 } from 'lucide-react';
 
 export default function Home() {
-  const navigate = useNavigate();
-  const [checkingAuth, setCheckingAuth] = useState(true);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const isAuth = await base44.auth.isAuthenticated();
-        if (isAuth) {
-          const user = await base44.auth.me();
-          if (user.onboarding_complete) {
-            navigate(createPageUrl('Dashboard'));
-          } else {
-            navigate(createPageUrl('Onboarding'));
-          }
-        }
-      } catch (e) {
-        // Not authenticated, show landing
-      }
-      setCheckingAuth(false);
-    };
-    checkAuth();
-  }, [navigate]);
 
   const handleGetStarted = () => {
     base44.auth.redirectToLogin(createPageUrl('Onboarding'));
@@ -54,14 +31,6 @@ export default function Home() {
       description: 'See your mastery improve over time',
     },
   ];
-
-  if (checkingAuth) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#0a0e1a]">
