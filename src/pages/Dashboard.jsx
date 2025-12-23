@@ -114,8 +114,8 @@ export default function Dashboard() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-slate-300 border-t-slate-600 rounded-full" />
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-2 border-slate-700 border-t-violet-500 rounded-full" />
       </div>
     );
   }
@@ -135,13 +135,13 @@ export default function Dashboard() {
       <div className="space-y-6">
 
         {/* Study Action Card - PRIMARY */}
-        <div id="study-action-card" className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">Start Studying</h2>
+        <div id="study-action-card" className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg">
+          <h2 className="text-lg font-semibold text-slate-100 mb-4">Start Studying</h2>
           
           <div className="space-y-3">
             {/* Subject Selector */}
             <div>
-              <label className="text-xs font-medium text-slate-700 mb-1.5 block">
+              <label className="text-xs font-medium text-slate-300 mb-1.5 block">
                 Select Subject
               </label>
               <Select value={selectedSubject} onValueChange={setSelectedSubject}>
@@ -185,7 +185,7 @@ export default function Dashboard() {
             {/* Unit Selector (appears after subject selection) */}
             {selectedSubject && (
               <div>
-                <label className="text-xs font-medium text-slate-700 mb-1.5 block">
+                <label className="text-xs font-medium text-slate-300 mb-1.5 block">
                   Select Unit (Optional)
                 </label>
                 <Select value={selectedUnit} onValueChange={setSelectedUnit}>
@@ -210,7 +210,7 @@ export default function Dashboard() {
                 onClick={handleStartPractice}
                 disabled={!selectedSubject}
                 size="sm"
-                className="flex-1 bg-indigo-600 hover:bg-indigo-700"
+                className="flex-1 bg-violet-600 hover:bg-violet-700"
               >
                 <BookOpen className="w-3 h-3 mr-1.5" />
                 Start Practice
@@ -231,20 +231,20 @@ export default function Dashboard() {
 
         {/* Today's Plan (Contextual) */}
         {recommendedSubject && totalQuestions > 10 && (
-          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+          <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg">
             <div className="flex items-start justify-between mb-2">
               <div>
-                <h3 className="text-sm font-semibold text-slate-900">Recommended Session</h3>
-                <p className="text-xs text-slate-600 mt-0.5">Based on recent activity</p>
+                <h3 className="text-sm font-semibold text-slate-100">Recommended Session</h3>
+                <p className="text-xs text-slate-400 mt-0.5">Based on recent activity</p>
               </div>
-              <Target className="w-4 h-4 text-indigo-600" />
+              <Target className="w-4 h-4 text-violet-400" />
             </div>
             <div className="space-y-1 mb-3">
               <div className="flex items-center gap-2">
                 <span className="text-lg">{recommendedSubject.icon}</span>
-                <span className="text-sm font-medium text-slate-900">{recommendedSubject.name}</span>
+                <span className="text-sm font-medium text-slate-100">{recommendedSubject.name}</span>
               </div>
-              <p className="text-xs text-slate-600">
+              <p className="text-xs text-slate-400">
                 {lastAttempt.unit_name && `Focus: ${lastAttempt.unit_name}`}
               </p>
             </div>
@@ -265,20 +265,20 @@ export default function Dashboard() {
         )}
 
         {/* Progress Snapshot */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">Your Progress</h3>
+        <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg">
+          <h3 className="text-lg font-semibold text-slate-100 mb-4">Your Progress</h3>
           <div className="grid sm:grid-cols-3 gap-2">
-            <div className="text-center p-2 bg-slate-50 rounded-lg">
-              <div className="text-xl font-bold text-slate-900">{totalQuestions}</div>
-              <div className="text-xs text-slate-600 mt-0.5">Questions</div>
+            <div className="text-center p-2 bg-slate-900/50 rounded-lg border border-slate-700/30">
+              <div className="text-xl font-bold text-slate-100">{totalQuestions}</div>
+              <div className="text-xs text-slate-400 mt-0.5">Questions</div>
             </div>
-            <div className="text-center p-2 bg-slate-50 rounded-lg">
-              <div className="text-xl font-bold text-indigo-600">{overallAccuracy.toFixed(0)}%</div>
-              <div className="text-xs text-slate-600 mt-0.5">Accuracy</div>
+            <div className="text-center p-2 bg-slate-900/50 rounded-lg border border-slate-700/30">
+              <div className="text-xl font-bold text-violet-400">{overallAccuracy.toFixed(0)}%</div>
+              <div className="text-xs text-slate-400 mt-0.5">Accuracy</div>
             </div>
-            <div className="text-center p-2 bg-slate-50 rounded-lg">
-              <div className="text-xl font-bold text-slate-900">{studyDays.size}</div>
-              <div className="text-xs text-slate-600 mt-0.5">Study Days</div>
+            <div className="text-center p-2 bg-slate-900/50 rounded-lg border border-slate-700/30">
+              <div className="text-xl font-bold text-slate-100">{studyDays.size}</div>
+              <div className="text-xs text-slate-400 mt-0.5">Study Days</div>
             </div>
           </div>
         </div>
@@ -287,38 +287,38 @@ export default function Dashboard() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <button
             onClick={() => navigate(createPageUrl('Practice'))}
-            className="bg-white rounded-lg border border-slate-200 p-3 hover:border-indigo-300 hover:shadow-sm transition-all text-left"
+            className="bg-slate-800/40 backdrop-blur-sm rounded-lg border border-slate-700/50 p-3 hover:border-violet-500/50 hover:bg-slate-800/60 transition-all text-left"
           >
-            <BookOpen className="w-5 h-5 text-slate-600 mb-2" />
-            <div className="text-sm font-medium text-slate-900">Practice</div>
-            <div className="text-xs text-slate-600 mt-0.5">Master topics</div>
+            <BookOpen className="w-5 h-5 text-violet-400 mb-2" />
+            <div className="text-sm font-medium text-slate-100">Practice</div>
+            <div className="text-xs text-slate-400 mt-0.5">Master topics</div>
           </button>
 
           <button
             onClick={() => navigate(createPageUrl('Exam'))}
-            className="bg-white rounded-lg border border-slate-200 p-3 hover:border-indigo-300 hover:shadow-sm transition-all text-left"
+            className="bg-slate-800/40 backdrop-blur-sm rounded-lg border border-slate-700/50 p-3 hover:border-violet-500/50 hover:bg-slate-800/60 transition-all text-left"
           >
-            <Clock className="w-5 h-5 text-slate-600 mb-2" />
-            <div className="text-sm font-medium text-slate-900">Exam</div>
-            <div className="text-xs text-slate-600 mt-0.5">Timed test</div>
+            <Clock className="w-5 h-5 text-violet-400 mb-2" />
+            <div className="text-sm font-medium text-slate-100">Exam</div>
+            <div className="text-xs text-slate-400 mt-0.5">Timed test</div>
           </button>
 
           <button
             onClick={() => navigate(createPageUrl('Notes'))}
-            className="bg-white rounded-lg border border-slate-200 p-3 hover:border-indigo-300 hover:shadow-sm transition-all text-left"
+            className="bg-slate-800/40 backdrop-blur-sm rounded-lg border border-slate-700/50 p-3 hover:border-violet-500/50 hover:bg-slate-800/60 transition-all text-left"
           >
-            <FileText className="w-5 h-5 text-slate-600 mb-2" />
-            <div className="text-sm font-medium text-slate-900">Notes</div>
-            <div className="text-xs text-slate-600 mt-0.5">Key concepts</div>
+            <FileText className="w-5 h-5 text-violet-400 mb-2" />
+            <div className="text-sm font-medium text-slate-100">Notes</div>
+            <div className="text-xs text-slate-400 mt-0.5">Key concepts</div>
           </button>
 
           <button
             onClick={() => navigate(createPageUrl('Progress'))}
-            className="bg-white rounded-lg border border-slate-200 p-3 hover:border-indigo-300 hover:shadow-sm transition-all text-left"
+            className="bg-slate-800/40 backdrop-blur-sm rounded-lg border border-slate-700/50 p-3 hover:border-violet-500/50 hover:bg-slate-800/60 transition-all text-left"
           >
-            <TrendingUp className="w-5 h-5 text-slate-600 mb-2" />
-            <div className="text-sm font-medium text-slate-900">Progress</div>
-            <div className="text-xs text-slate-600 mt-0.5">Track growth</div>
+            <TrendingUp className="w-5 h-5 text-violet-400 mb-2" />
+            <div className="text-sm font-medium text-slate-100">Progress</div>
+            <div className="text-xs text-slate-400 mt-0.5">Track growth</div>
           </button>
         </div>
 

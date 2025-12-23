@@ -144,11 +144,23 @@ p {
 }
 
 .bg-slate-50 {
-  background-color: #1a1f2e !important;
+  background-color: #0f1420 !important;
 }
 
 .bg-slate-100 {
+  background-color: #1a1f2e !important;
+}
+
+.bg-slate-200 {
   background-color: #1e2538 !important;
+}
+
+.bg-gray-50 {
+  background-color: #0f1420 !important;
+}
+
+.bg-gray-100 {
+  background-color: #1a1f2e !important;
 }
 
 /* Border colors */
@@ -158,6 +170,19 @@ p {
 
 .border-slate-300 {
   border-color: #2a3448 !important;
+}
+
+/* Hover states */
+.hover\:bg-slate-50:hover {
+  background-color: #1a1f2e !important;
+}
+
+.hover\:bg-slate-100:hover {
+  background-color: #1e2538 !important;
+}
+
+.hover\:bg-white:hover {
+  background-color: var(--color-card-bg) !important;
 }
 
 /* Galaxy Gradient - Limited Use */
