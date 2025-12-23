@@ -56,25 +56,12 @@ export default function GlobalNav() {
 
   // App pages nav items
   const appNavItems = [
-    { label: 'Dashboard', path: createPageUrl('Dashboard') },
-    { label: 'Practice', path: createPageUrl('Practice') },
-    { label: 'Exam', path: createPageUrl('Exam') },
-    { label: 'Tutor', path: createPageUrl('Tutor') },
-    { label: 'Notes', path: createPageUrl('Notes') },
-    { label: 'Flashcards', path: createPageUrl('Flashcards') },
-    { label: 'Progress', path: createPageUrl('Progress') },
     { label: 'Pricing', path: createPageUrl('Pricing') },
   ];
 
   const navItems = user ? appNavItems : marketingNavItems;
 
-  // Get current page name
-  const getCurrentPageName = () => {
-    const currentItem = navItems.find(item => item.path === location.pathname);
-    return currentItem ? currentItem.label : 'Proofly';
-  };
-
-  const currentPageName = getCurrentPageName();
+  const currentPageName = 'Proofly';
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-4 px-4">
