@@ -94,27 +94,27 @@ export default function Calendar({ user }) {
     .slice(0, 3);
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-4">
+    <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-4">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-slate-900 flex items-center gap-2">
+        <h3 className="font-semibold text-slate-100 flex items-center gap-2">
           <CalendarIcon className="w-4 h-4" />
           Calendar
         </h3>
         <div className="flex items-center gap-2">
           <button
             onClick={() => setCurrentDate(subMonths(currentDate, 1))}
-            className="p-1 hover:bg-slate-100 rounded"
+            className="p-1 hover:bg-slate-700/50 rounded"
           >
-            <ChevronLeft className="w-4 h-4 text-slate-600" />
+            <ChevronLeft className="w-4 h-4 text-slate-300" />
           </button>
-          <span className="text-sm font-medium text-slate-900 min-w-[120px] text-center">
+          <span className="text-sm font-medium text-slate-100 min-w-[120px] text-center">
             {format(currentDate, 'MMMM yyyy')}
           </span>
           <button
             onClick={() => setCurrentDate(addMonths(currentDate, 1))}
-            className="p-1 hover:bg-slate-100 rounded"
+            className="p-1 hover:bg-slate-700/50 rounded"
           >
-            <ChevronRight className="w-4 h-4 text-slate-600" />
+            <ChevronRight className="w-4 h-4 text-slate-300" />
           </button>
           <Button
             size="sm"
@@ -122,7 +122,7 @@ export default function Calendar({ user }) {
               setNewEvent({ ...newEvent, date: format(new Date(), 'yyyy-MM-dd') });
               setShowAddDialog(true);
             }}
-            className="ml-2"
+            className="ml-2 bg-violet-600 hover:bg-violet-700"
           >
             <Plus className="w-3 h-3 mr-1" />
             Add
@@ -133,7 +133,7 @@ export default function Calendar({ user }) {
       {/* Calendar Grid */}
       <div className="grid grid-cols-7 gap-1 mb-4">
         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-          <div key={day} className="text-xs font-medium text-slate-500 text-center py-1">
+          <div key={day} className="text-xs font-medium text-slate-400 text-center py-1">
             {day}
           </div>
         ))}
@@ -155,9 +155,9 @@ export default function Calendar({ user }) {
                 }
               }}
               className={cn(
-                "aspect-square p-1 rounded-lg text-xs transition-colors relative",
-                isCurrentDay && "bg-indigo-50 font-semibold text-indigo-600",
-                !isCurrentDay && "hover:bg-slate-50",
+                "aspect-square p-1 rounded-lg text-xs transition-colors relative text-slate-300",
+                isCurrentDay && "bg-violet-500/20 font-semibold text-violet-300",
+                !isCurrentDay && "hover:bg-slate-700/30",
                 dayEvents.length > 0 && "font-medium"
               )}
             >
@@ -180,8 +180,8 @@ export default function Calendar({ user }) {
 
       {/* Upcoming Events */}
       {upcomingEvents.length > 0 && (
-        <div className="border-t border-slate-200 pt-3">
-          <p className="text-xs font-medium text-slate-500 mb-2">Upcoming</p>
+        <div className="border-t border-slate-700/30 pt-3">
+          <p className="text-xs font-medium text-slate-400 mb-2">Upcoming</p>
           <div className="space-y-2">
             {upcomingEvents.map(event => (
               <div key={event.id} className="flex items-start gap-2 text-xs">
@@ -190,12 +190,12 @@ export default function Calendar({ user }) {
                   style={{ backgroundColor: event.color }}
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-slate-900 truncate">{event.title}</p>
-                  <p className="text-slate-500">{format(new Date(event.date), 'MMM d, yyyy')}</p>
+                  <p className="font-medium text-slate-100 truncate">{event.title}</p>
+                  <p className="text-slate-400">{format(new Date(event.date), 'MMM d, yyyy')}</p>
                 </div>
                 <button
                   onClick={() => deleteEventMutation.mutate(event.id)}
-                  className="text-slate-400 hover:text-red-600"
+                  className="text-slate-500 hover:text-red-400"
                 >
                   <Trash2 className="w-3 h-3" />
                 </button>
