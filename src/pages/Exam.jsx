@@ -199,6 +199,7 @@ CRITICAL FORMATTING REQUIREMENTS - READ CAREFULLY:
 6. STRICTLY SEPARATE plain text from math blocks
 7. ALL equations in $$ display blocks, ONE TIME ONLY
 8. Units MUST use \\text{} inside math: $9.8 \\text{ m/s}^{2}$
+9. PERCENTAGES: Write as plain numbers with % sign: "80%" NOT "$80\\%$" or "$80 \\text{%}$"
 
 EXAMPLES OF CORRECT QUESTION/CHOICE FORMATTING:
 
