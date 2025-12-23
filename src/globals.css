@@ -8,15 +8,15 @@ css
 
 /* Global Design System */
 :root {
-  /* Colors */
-  --color-primary-bg: #F8FAFC;
-  --color-card-bg: #FFFFFF;
-  --color-border: #E5E7EB;
-  --color-text-primary: #0F172A;
-  --color-text-secondary: #475569;
-  --color-text-tertiary: #64748B;
-  --color-accent-primary: #6366F1;
-  --color-accent-secondary: #A78BFA;
+  /* Galaxy Dark Theme Colors */
+  --color-primary-bg: #0a0e1a;
+  --color-card-bg: #141827;
+  --color-border: #1e2538;
+  --color-text-primary: #e8edf5;
+  --color-text-secondary: #94a3b8;
+  --color-text-tertiary: #64748b;
+  --color-accent-primary: #8b5cf6;
+  --color-accent-secondary: #6366f1;
   
   /* Typography */
   --font-primary: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
@@ -42,6 +42,7 @@ css
 body {
   font-family: var(--font-primary);
   color: var(--color-text-primary);
+  background-color: var(--color-primary-bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -72,6 +73,18 @@ p {
   color: var(--color-text-secondary);
 }
 
+/* Galaxy Marketing Pages */
+.galaxy-page {
+  position: relative;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0a0e1a 0%, #0f1728 50%, #0a0e1a 100%);
+}
+
+.galaxy-content {
+  position: relative;
+  z-index: 10;
+}
+
 /* Page Layout Utilities */
 .page-header {
   margin-bottom: var(--spacing-xl);
@@ -100,17 +113,51 @@ p {
   margin-bottom: var(--spacing-md);
 }
 
-/* Override lighter text colors globally */
-.text-slate-500 {
+/* Dark theme text overrides */
+.text-slate-900 {
+  color: var(--color-text-primary) !important;
+}
+
+.text-slate-800 {
+  color: var(--color-text-primary) !important;
+}
+
+.text-slate-700 {
   color: var(--color-text-secondary) !important;
+}
+
+.text-slate-600 {
+  color: var(--color-text-secondary) !important;
+}
+
+.text-slate-500 {
+  color: var(--color-text-tertiary) !important;
 }
 
 .text-slate-400 {
   color: var(--color-text-tertiary) !important;
 }
 
-.text-slate-600 {
-  color: var(--color-text-primary) !important;
+/* Dark theme background overrides */
+.bg-white {
+  background-color: var(--color-card-bg) !important;
+}
+
+.bg-slate-50 {
+  background-color: #1a1f2e !important;
+}
+
+.bg-slate-100 {
+  background-color: #1e2538 !important;
+}
+
+/* Border colors */
+.border-slate-200 {
+  border-color: var(--color-border) !important;
+}
+
+.border-slate-300 {
+  border-color: #2a3448 !important;
 }
 
 /* Galaxy Gradient - Limited Use */

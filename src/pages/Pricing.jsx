@@ -3,6 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { Check, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import StripeCheckout from '@/components/monetization/StripeCheckout';
+import GalaxyBackground from '@/components/effects/GalaxyBackground';
+import CursorGlow from '@/components/effects/CursorGlow';
 
 const FREE_FEATURES = [
   'Limited daily practice questions',
@@ -45,7 +47,10 @@ export default function Pricing() {
   };
 
   return (
-    <>
+    <div className="galaxy-page">
+      <GalaxyBackground />
+      <CursorGlow />
+      <div className="galaxy-content">
       {/* Page Header */}
       <div className="page-header text-center">
         <h1 className="page-title">Simple, transparent pricing</h1>
@@ -128,6 +133,7 @@ export default function Pricing() {
           Cancel anytime. Student-friendly pricing. Questions? <a href="mailto:partnerships@proofly.com" className="text-indigo-600 hover:underline">Contact us</a>
         </p>
       </div>
-    </>
+      </div>
+    </div>
   );
 }
