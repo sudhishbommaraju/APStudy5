@@ -29,7 +29,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import UpgradeModal from '@/components/monetization/UpgradeModal';
 const NAV_ITEMS = [
-  { name: 'About', icon: Info, page: 'About' },
   { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
   { name: 'Practice', icon: BookOpen, page: 'Practice' },
   { name: 'Exam', icon: Clock, page: 'Exam' },
@@ -152,12 +151,6 @@ export default function Layout({ children, currentPageName }) {
                     <p className="text-sm font-medium text-slate-900">{user?.full_name || 'Student'}</p>
                     <p className="text-xs text-slate-500 truncate">{user?.email}</p>
                   </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link to={createPageUrl('About')} className="cursor-pointer">
-                      About Proofly
-                    </Link>
-                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="text-rose-600">
                     <LogOut className="w-4 h-4 mr-2" />
