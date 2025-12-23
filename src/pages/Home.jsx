@@ -16,11 +16,11 @@ export default function Home() {
   }, []);
 
   const handleGetStarted = () => {
-    window.location.href = createPageUrl('Dashboard');
+    window.location.href = createPageUrl('Login');
   };
 
   const handleLogin = () => {
-    window.location.href = createPageUrl('Dashboard');
+    window.location.href = createPageUrl('Login');
   };
 
   const steps = [

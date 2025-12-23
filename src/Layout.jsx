@@ -51,20 +51,18 @@ const EXAM_NAMES = {
 export default function Layout({ children, currentPageName }) {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
   // Pages that don't need the full layout
-  const noLayoutPages = ['Home', 'Onboarding'];
+  const noLayoutPages = ['Home', 'Onboarding', 'Login'];
+  
+  // Pages that require authentication
+  const protectedPages = ['Dashboard', 'Practice', 'Exam', 'Tutor', 'Notes', 'Flashcards', 'Progress', 'Generate', 'AdminUsers', 'SeedData', 'MistakeReplay', 'Pricing'];
   
   // Admin-only pages - redirect non-admins
   const adminOnlyPages = ['AdminUsers', 'SeedData'];
-  
-  // Check admin access
-  if (user && adminOnlyPages.includes(currentPageName) && user.role !== 'admin') {
-    window.location.href = createPageUrl('Dashboard');
-    return null;
-  }
 
   useEffect(() => {
     const loadUser = async () => {
@@ -73,13 +71,39 @@ export default function Layout({ children, currentPageName }) {
         if (isAuth) {
           const currentUser = await base44.auth.me();
           setUser(currentUser);
+        } else {
+          setUser(null);
         }
       } catch (e) {
-        // Not authenticated
+        setUser(null);
+      } finally {
+        setIsLoading(false);
       }
     };
     loadUser();
   }, []);
+
+  // Authentication guard - redirect to login if not authenticated
+  useEffect(() => {
+    if (!isLoading && !user && protectedPages.includes(currentPageName)) {
+      window.location.href = createPageUrl('Login');
+    }
+  }, [isLoading, user, currentPageName]);
+  
+  // Check admin access
+  if (user && adminOnlyPages.includes(currentPageName) && user.role !== 'admin') {
+    window.location.href = createPageUrl('Dashboard');
+    return null;
+  }
+
+  // Show loading state while checking auth
+  if (isLoading && protectedPages.includes(currentPageName)) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-2 border-slate-300 border-t-indigo-600 rounded-full" />
+      </div>
+    );
+  }
 
   if (noLayoutPages.includes(currentPageName)) {
     return children;
