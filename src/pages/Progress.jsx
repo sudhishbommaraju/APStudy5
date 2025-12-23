@@ -22,15 +22,10 @@ export default function Progress() {
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const isAuth = await base44.auth.isAuthenticated();
-        if (!isAuth) {
-          base44.auth.redirectToLogin(window.location.pathname);
-          return;
-        }
         const currentUser = await base44.auth.me();
         setUser(currentUser);
       } catch (e) {
-        base44.auth.redirectToLogin(window.location.pathname);
+        // User not authenticated, continue without user
       }
     };
     loadUser();

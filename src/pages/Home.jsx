@@ -16,15 +16,11 @@ export default function Home() {
   }, []);
 
   const handleGetStarted = () => {
-    if (isAuthenticated) {
-      window.location.href = createPageUrl('Dashboard');
-    } else {
-      base44.auth.redirectToLogin(createPageUrl('Dashboard'));
-    }
+    window.location.href = createPageUrl('Dashboard');
   };
 
   const handleLogin = () => {
-    base44.auth.redirectToLogin(createPageUrl('Dashboard'));
+    window.location.href = createPageUrl('Dashboard');
   };
 
   const steps = [
