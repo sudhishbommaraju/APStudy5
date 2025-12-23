@@ -1,4 +1,3 @@
-import About from './pages/About';
 import AdminUsers from './pages/AdminUsers';
 import Dashboard from './pages/Dashboard';
 import Exam from './pages/Exam';
@@ -17,7 +16,6 @@ import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "About": About,
     "AdminUsers": AdminUsers,
     "Dashboard": Dashboard,
     "Exam": Exam,
