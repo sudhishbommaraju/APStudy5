@@ -156,29 +156,21 @@ Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #e8f1f8, #d9e9f5)', fontFamily: 'Georgia, serif' }}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Link to={createPageUrl('Dashboard')}>
-              <Button variant="ghost" size="icon">
-                <ChevronLeft className="w-5 h-5" />
-              </Button>
-            </Link>
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-slate-900">Study Notes</h1>
-              <p className="text-slate-500">AI-generated notes for each unit</p>
-              {user?.plan === 'free' && (
-                <p className="text-xs text-slate-600 mt-1">
-                  Daily note generations: {(user.daily_notes_count || 0)}/5 used
-                </p>
-              )}
-            </div>
-          </div>
-          <StudyTimer examType={selectedExam} activityType="notes" />
+    <>
+      <div className="page-header flex items-center justify-between">
+        <div>
+          <h1 className="page-title">Study Notes</h1>
+          <p className="page-description">AI-generated notes for each unit</p>
+          {user?.plan === 'free' && (
+            <p className="text-sm text-slate-500 mt-2">
+              Daily note generations: {(user.daily_notes_count || 0)}/5 used
+            </p>
+          )}
         </div>
+        <StudyTimer examType={selectedExam} activityType="notes" />
+      </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid lg:grid-cols-3 gap-6">
           {/* Generator */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl border border-slate-200 p-6 sticky top-6">
@@ -271,11 +263,10 @@ Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
                 <p className="text-slate-500 text-sm">Generate your first set of study notes</p>
               </div>
             )}
-          </div>
         </div>
       </div>
       
       <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
-    </div>
+    </>
   );
 }

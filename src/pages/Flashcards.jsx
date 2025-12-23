@@ -162,7 +162,7 @@ Return an array of flashcard objects.`;
 
   if (studyMode && studyCards.length > 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'linear-gradient(135deg, #e8f1f8, #d9e9f5)', fontFamily: 'Georgia, serif' }}>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50">
         <div className="w-full max-w-2xl">
           <div className="flex items-center justify-between mb-6">
             <Button variant="ghost" onClick={() => setStudyMode(false)}>
@@ -233,24 +233,16 @@ Return an array of flashcard objects.`;
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #e8f1f8, #d9e9f5)', fontFamily: 'Georgia, serif' }}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Link to={createPageUrl('Dashboard')}>
-              <Button variant="ghost" size="icon">
-                <ChevronLeft className="w-5 h-5" />
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900">Flashcards</h1>
-              <p className="text-slate-500">Generate and study with AI flashcards</p>
-            </div>
-          </div>
-          <StudyTimer examType={selectedExam} activityType="flashcards" />
+    <>
+      <div className="page-header flex items-center justify-between">
+        <div>
+          <h1 className="page-title">Flashcards</h1>
+          <p className="page-description">Generate and study with AI flashcards</p>
         </div>
+        <StudyTimer examType={selectedExam} activityType="flashcards" />
+      </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl border border-slate-200 p-6 sticky top-6">
               <h3 className="font-semibold text-slate-900 mb-4">Generate Flashcards</h3>
@@ -350,9 +342,8 @@ Return an array of flashcard objects.`;
                 <p className="text-slate-500 text-sm">Generate your first set of flashcards</p>
               </div>
             )}
-          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

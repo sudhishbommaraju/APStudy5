@@ -123,7 +123,7 @@ export default function Progress() {
               </Button>
             </Link>
           </div>
-        ) : (
+      ) : (
           <div className="space-y-6">
             {/* Summary Cards */}
             <div className="grid sm:grid-cols-3 gap-4">
@@ -223,8 +223,7 @@ export default function Progress() {
               </div>
             )}
           </div>
-        )}
-      </div>
-    </div>
+      )}
+    </>
   );
 }

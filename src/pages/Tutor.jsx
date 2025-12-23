@@ -165,49 +165,45 @@ Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper e
   };
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #e8f1f8, #d9e9f5)', fontFamily: 'Georgia, serif' }}>
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 flex flex-col" style={{ height: 'calc(100vh - 64px)' }}>
-        {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-                <Brain className="w-6 h-6" />
-                AI Tutor
-              </h1>
-              <p className="text-slate-500 mt-1">
-                Ask questions and get detailed explanations
-              </p>
-              {user?.plan === 'free' && (
-                <p className="text-xs text-slate-600 mt-1">
-                  Daily questions: {(user.daily_tutor_count || 0)}/5 used
-                </p>
-              )}
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowSubjectDialog(true)}
-              >
-                <BookOpen className="w-4 h-4 mr-1" />
-                {selectedSubject || 'Select Subject'}
-              </Button>
-              {messages.length > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={startNewConversation}
-                >
-                  New Chat
-                </Button>
-              )}
-            </div>
-          </div>
+    <div className="flex flex-col" style={{ height: 'calc(100vh - 200px)' }}>
+      <div className="page-header flex items-center justify-between">
+        <div>
+          <h1 className="page-title flex items-center gap-2">
+            <Brain className="w-8 h-8" />
+            AI Tutor
+          </h1>
+          <p className="page-description">
+            Ask questions and get detailed explanations
+          </p>
+          {user?.plan === 'free' && (
+            <p className="text-sm text-slate-500 mt-2">
+              Daily questions: {(user.daily_tutor_count || 0)}/5 used
+            </p>
+          )}
         </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowSubjectDialog(true)}
+          >
+            <BookOpen className="w-4 h-4 mr-1" />
+            {selectedSubject || 'Select Subject'}
+          </Button>
+          {messages.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={startNewConversation}
+            >
+              New Chat
+            </Button>
+          )}
+        </div>
+      </div>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto mb-4 space-y-4">
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto mb-6 space-y-4">
           {messages.length === 0 ? (
             <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">
               <Brain className="w-12 h-12 text-slate-300 mx-auto mb-4" />
@@ -345,11 +341,11 @@ Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper e
               </div>
             </div>
           )}
-          <div ref={messagesEndRef} />
-        </div>
+        <div ref={messagesEndRef} />
+      </div>
 
-        {/* Input */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+      {/* Input */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
           {uploadedFiles.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-3 pb-3 border-b border-slate-100">
               {uploadedFiles.map((file, idx) => (
@@ -427,10 +423,9 @@ Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper e
               )}
             </Button>
           </div>
-          <p className="text-xs text-slate-400 mt-2">
-            Press Enter to send, Shift+Enter for new line • Upload images for analysis
-          </p>
-        </div>
+        <p className="text-xs text-slate-400 mt-2">
+          Press Enter to send, Shift+Enter for new line • Upload images for analysis
+        </p>
       </div>
 
       <SubjectChangeDialog
@@ -441,9 +436,9 @@ Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper e
           setSelectedSubject(subjectId);
           setShowSubjectDialog(false);
         }}
-        />
+      />
 
-        <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
-        </div>
-        );
-        }
+      <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
+    </div>
+  );
+}
