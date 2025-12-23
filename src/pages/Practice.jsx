@@ -39,9 +39,13 @@ export default function Practice() {
 
   useEffect(() => {
     const loadUser = async () => {
-      const currentUser = await base44.auth.me();
-      const { user: refreshedUser } = await checkAndResetCredits(currentUser);
-      setUser(refreshedUser);
+      try {
+        const currentUser = await base44.auth.me();
+        const { user: refreshedUser } = await checkAndResetCredits(currentUser);
+        setUser(refreshedUser);
+      } catch (e) {
+        // User not authenticated, continue without user
+      }
     };
     loadUser();
   }, []);
