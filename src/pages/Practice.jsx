@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Loader2, ArrowRight, ChevronLeft, Target, BookOpen, Zap, Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import QuestionCard from '@/components/ui/QuestionCard';
 import StudyPlanCard from '@/components/study/StudyPlanCard';
@@ -24,6 +24,7 @@ import {
 import { cn } from '@/lib/utils';
 
 export default function Practice() {
+  const location = useLocation();
   const [user, setUser] = useState(null);
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedUnit, setSelectedUnit] = useState('');
@@ -49,6 +50,16 @@ export default function Practice() {
     };
     loadUser();
   }, []);
+
+  // Handle preloaded questions from Dashboard
+  useEffect(() => {
+    if (location.state?.preloadedQuestions && location.state?.subjectId) {
+      setCurrentQuestions(location.state.preloadedQuestions);
+      setSelectedSubject(location.state.subjectId);
+      setPracticeState('practicing');
+      setGenerating(false);
+    }
+  }, [location.state]);
 
 
 

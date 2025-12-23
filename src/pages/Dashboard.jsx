@@ -11,7 +11,8 @@ import {
   ArrowRight, 
   Play,
   FileText,
-  Brain
+  Brain,
+  Loader2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,12 +24,14 @@ import {
 } from '@/components/ui/select';
 import { format, subDays, parseISO } from 'date-fns';
 import Calendar from '@/components/dashboard/Calendar';
+import { checkCredits, useCredit } from '@/components/monetization/CreditHelper';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedUnit, setSelectedUnit] = useState('');
+  const [generatingWeakPractice, setGeneratingWeakPractice] = useState(false);
   
   useEffect(() => {
     const loadUser = async () => {
@@ -112,6 +115,110 @@ export default function Dashboard() {
     studyDays.add(format(parseISO(a.created_date), 'yyyy-MM-dd'));
   });
 
+  const handleWeakSubjectPractice = async (weakSubject) => {
+    // Check credits
+    const { allowed } = await checkCredits(user, 'daily_practice_count');
+    if (!allowed) {
+      alert('Daily practice limit reached. Please upgrade to Pro for unlimited practice.');
+      return;
+    }
+
+    setGeneratingWeakPractice(true);
+
+    try {
+      // Use a credit
+      const updatedUser = await useCredit(user, 'daily_practice_count');
+      setUser(updatedUser);
+
+      const subject = subjects.find(s => s.subject_id === weakSubject.subject_id);
+      const allUnits = await base44.entities.Unit.filter({ subject_id: weakSubject.subject_id });
+      
+      // Generate 10 questions for the weak subject
+      const questionsToGenerate = [];
+      for (let i = 0; i < 10; i++) {
+        const randomUnit = allUnits[Math.floor(Math.random() * allUnits.length)];
+        
+        const prompt = `Generate an exam-style multiple choice question for ${subject?.name || 'general topic'}. Unit: ${randomUnit?.unit_name || 'General'}
+
+CRITICAL FORMATTING REQUIREMENTS:
+1. FORMAT ALL NUMBERS AND FORMULAS IN LaTeX
+2. Use inline math $...$ for ALL numbers, variables, and formulas
+3. Units MUST use \\text{} inside math: $9.8 \\text{ m/s}^{2}$
+
+Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, wrong_answer_explanations (object with A/B/C/D keys), hint`;
+
+        questionsToGenerate.push(
+          base44.integrations.Core.InvokeLLM({
+            prompt,
+            response_json_schema: {
+              type: 'object',
+              properties: {
+                question_text: { type: 'string' },
+                choice_a: { type: 'string' },
+                choice_b: { type: 'string' },
+                choice_c: { type: 'string' },
+                choice_d: { type: 'string' },
+                correct_answer: { type: 'string' },
+                explanation: { type: 'string' },
+                wrong_answer_explanations: { 
+                  type: 'object',
+                  properties: {
+                    A: { type: 'string' },
+                    B: { type: 'string' },
+                    C: { type: 'string' },
+                    D: { type: 'string' }
+                  }
+                },
+                hint: { type: 'string' },
+              },
+              required: ['question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'correct_answer', 'explanation'],
+            },
+          }).then(r => ({ ...r, unit: randomUnit }))
+        );
+      }
+
+      const responses = await Promise.all(questionsToGenerate);
+      
+      const questions = await Promise.all(
+        responses.map(({ unit, ...r }) => 
+          base44.entities.Question.create({
+            subject_id: weakSubject.subject_id,
+            unit_id: unit?.id || '',
+            skill_id: '',
+            unit_name: unit?.unit_name || '',
+            skill_name: 'General',
+            difficulty: 'medium',
+            question_text: r.question_text,
+            table_data: '',
+            graph_data: '',
+            choice_a: r.choice_a,
+            choice_b: r.choice_b,
+            choice_c: r.choice_c,
+            choice_d: r.choice_d,
+            correct_answer: r.correct_answer,
+            explanation: r.explanation,
+            wrong_answer_explanations: r.wrong_answer_explanations || {},
+            hint: r.hint || '',
+            is_ai_generated: true,
+          })
+        )
+      );
+
+      // Navigate to practice with the generated questions
+      navigate(createPageUrl('Practice'), { 
+        state: { 
+          preloadedQuestions: questions,
+          subjectId: weakSubject.subject_id 
+        } 
+      });
+    } catch (e) {
+      console.error('Failed to generate practice:', e);
+      alert('Failed to generate practice questions. Please try again.');
+    }
+    
+    setGeneratingWeakPractice(false);
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -177,12 +284,22 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <Button 
-                    onClick={() => navigate(createPageUrl('Practice') + `?subject=${weakestSubject.subject_id}`)}
+                    onClick={() => handleWeakSubjectPractice(weakestSubject)}
                     size="sm"
                     className="w-full bg-rose-500 hover:bg-rose-600"
+                    disabled={generatingWeakPractice}
                   >
-                    <BookOpen className="w-4 h-4 mr-2" />
-                    Practice {subjectData.name}
+                    {generatingWeakPractice ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <BookOpen className="w-4 h-4 mr-2" />
+                        Practice {subjectData.name}
+                      </>
+                    )}
                   </Button>
                 </div>
               );
