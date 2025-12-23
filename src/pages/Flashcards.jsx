@@ -187,10 +187,10 @@ Return an array of flashcard objects.`;
                   <p className="text-xs uppercase tracking-wider text-slate-400 mb-4">
                     Question
                   </p>
-                  <div className="text-xl font-medium text-slate-100 prose prose-slate max-w-none">
-                    <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-                      {currentCard.front}
-                    </ReactMarkdown>
+                  <div className="text-xl font-medium text-slate-100 prose prose-slate max-w-none prose-invert">
+                   <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                     {currentCard.front}
+                   </ReactMarkdown>
                   </div>
                 </>
               ) : (
@@ -198,10 +198,10 @@ Return an array of flashcard objects.`;
                   <p className="text-xs uppercase tracking-wider text-slate-400 mb-4">
                     Answer
                   </p>
-                  <div className="text-lg text-slate-300 leading-relaxed prose prose-slate max-w-none">
-                    <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
-                      {currentCard.back}
-                    </ReactMarkdown>
+                  <div className="text-lg text-slate-300 leading-relaxed prose prose-slate max-w-none prose-invert">
+                   <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                     {currentCard.back}
+                   </ReactMarkdown>
                   </div>
                 </>
               )}

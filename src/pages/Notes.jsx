@@ -40,9 +40,9 @@ export default function Notes() {
   }, []);
 
   const { data: notes = [] } = useQuery({
-    queryKey: ['notes', selectedExam],
-    queryFn: () => base44.entities.Note.filter({ exam_type: selectedExam }),
-    enabled: !!selectedExam,
+    queryKey: ['notes'],
+    queryFn: () => base44.entities.Note.filter({ created_by: user.email }),
+    enabled: !!user,
   });
 
   const generateNotes = async () => {
@@ -133,7 +133,7 @@ Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
       });
 
       const note = await base44.entities.Note.create({
-        exam_type: selectedExam,
+        exam_type: selectedExam || 'general',
         unit_name: unitName,
         title: response.title,
         content: response.content,
@@ -231,7 +231,7 @@ Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
                     <p className="text-sm text-slate-400">{generatedNote.unit_name}</p>
                   </div>
                 </div>
-                <div className="prose prose-sm max-w-none">
+                <div className="prose prose-sm max-w-none prose-invert">
                   <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                     {generatedNote.content}
                   </ReactMarkdown>
@@ -248,7 +248,7 @@ Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
                     <p className="text-sm text-slate-400">{note.unit_name}</p>
                   </div>
                 </div>
-                <div className="prose prose-sm max-w-none">
+                <div className="prose prose-sm max-w-none prose-invert">
                   <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                     {note.content}
                   </ReactMarkdown>

@@ -293,20 +293,20 @@ Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper e
                       )}
                     </div>
                   ) : (
-                    <div className="prose prose-sm prose-slate max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                    <div className="prose prose-sm prose-slate max-w-none prose-invert [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
                       <ReactMarkdown
                         remarkPlugins={[remarkMath]}
                         rehypePlugins={[rehypeKatex]}
                         components={{
-                          p: ({ children }) => <p className="my-2 leading-relaxed">{children}</p>,
-                          ul: ({ children }) => <ul className="my-2 ml-4 list-disc">{children}</ul>,
-                          ol: ({ children }) => <ol className="my-2 ml-4 list-decimal">{children}</ol>,
-                          li: ({ children }) => <li className="my-1">{children}</li>,
-                          h3: ({ children }) => <h3 className="text-base font-semibold my-3">{children}</h3>,
-                          strong: ({ children }) => <strong className="font-semibold text-slate-900">{children}</strong>,
+                          p: ({ children }) => <p className="my-2 leading-relaxed text-slate-200">{children}</p>,
+                          ul: ({ children }) => <ul className="my-2 ml-4 list-disc text-slate-200">{children}</ul>,
+                          ol: ({ children }) => <ol className="my-2 ml-4 list-decimal text-slate-200">{children}</ol>,
+                          li: ({ children }) => <li className="my-1 text-slate-200">{children}</li>,
+                          h3: ({ children }) => <h3 className="text-base font-semibold my-3 text-slate-100">{children}</h3>,
+                          strong: ({ children }) => <strong className="font-semibold text-slate-100">{children}</strong>,
                           code: ({ inline, children }) => 
                             inline ? (
-                              <code className="px-1 py-0.5 rounded bg-slate-100 text-slate-700 text-xs">
+                              <code className="px-1 py-0.5 rounded bg-slate-700 text-slate-200 text-xs">
                                 {children}
                               </code>
                             ) : (
@@ -423,7 +423,7 @@ Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper e
               )}
             </Button>
           </div>
-        <p className="text-xs text-slate-500 mt-2">
+        <p className="text-xs text-slate-400 mt-2">
           Press Enter to send, Shift+Enter for new line • Upload images for analysis
         </p>
       </div>
