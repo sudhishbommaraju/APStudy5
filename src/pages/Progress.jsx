@@ -92,22 +92,14 @@ export default function Progress() {
   });
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #e8f1f8, #d9e9f5)', fontFamily: 'Georgia, serif' }}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
-          <Link to={createPageUrl('Dashboard')}>
-            <Button variant="ghost" size="icon">
-              <ChevronLeft className="w-5 h-5" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Progress Report</h1>
-            <p className="text-slate-500">Detailed breakdown of your performance</p>
-          </div>
-        </div>
+    <>
+      {/* Header */}
+      <div className="page-header">
+        <h1 className="page-title">Your Progress</h1>
+        <p className="page-description">Track your performance and mastery</p>
+      </div>
 
-        {userAttempts.length === 0 ? (
+      {userAttempts.length === 0 ? (
           <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
             <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
               <Target className="w-6 h-6 text-slate-400" />
@@ -122,7 +114,7 @@ export default function Progress() {
                 <ArrowRight className="w-4 h-4 ml-1" />
               </Button>
             </Link>
-          </div>
+        </div>
       ) : (
           <div className="space-y-6">
             {/* Summary Cards */}
@@ -222,7 +214,7 @@ export default function Progress() {
                 </Link>
               </div>
             )}
-          </div>
+        </div>
       )}
     </>
   );
