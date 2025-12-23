@@ -13,7 +13,7 @@ export default function Layout({ children, currentPageName }) {
   const noLayoutPages = ['Onboarding'];
   
   // Pages that require authentication
-  const protectedPages = ['Dashboard', 'Practice', 'Exam', 'Tutor', 'Notes', 'Flashcards', 'Progress', 'Generate', 'AdminUsers', 'SeedData', 'MistakeReplay', 'Pricing'];
+  const protectedPages = ['Dashboard', 'Practice', 'Exam', 'Tutor', 'Notes', 'Flashcards', 'Progress', 'Generate', 'AdminUsers', 'SeedData', 'MistakeReplay'];
   
   // Admin-only pages
   const adminOnlyPages = ['AdminUsers', 'SeedData'];
