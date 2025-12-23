@@ -382,21 +382,21 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
           >
             {/* Subject Selector */}
             <motion.div 
-              className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm"
+              className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg"
               whileHover={{ scale: 1.01 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <label className="text-sm font-medium text-slate-700 mb-3 block">
+              <label className="text-sm font-medium text-slate-200 mb-3 block">
                 Select Subject
               </label>
               <Select value={selectedSubject} onValueChange={(value) => {
                 setSelectedSubject(value);
                 setSelectedUnit('');
               }}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full bg-slate-900/50 border-slate-700/50 text-slate-200 hover:bg-slate-900/70">
                   <SelectValue placeholder="Choose a subject" />
                 </SelectTrigger>
-                <SelectContent className="max-h-96">
+                <SelectContent className="max-h-96 bg-slate-900/95 backdrop-blur-xl border-slate-700/50">
                   {(() => {
                     // Remove duplicates by subject_id
                     const uniqueSubjects = Array.from(
@@ -412,11 +412,11 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                     
                     return Object.entries(grouped).map(([category, categorySubjects]) => (
                       <div key={category}>
-                        <div className="px-2 py-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                        <div className="px-2 py-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">
                           {category}
                         </div>
                         {categorySubjects.map((subject) => (
-                          <SelectItem key={subject.subject_id} value={subject.subject_id}>
+                          <SelectItem key={subject.subject_id} value={subject.subject_id} className="text-slate-200 focus:bg-slate-800/50 focus:text-white">
                             <div className="flex items-center gap-2">
                               {subject.icon && <span>{subject.icon}</span>}
                               <span>{subject.name}</span>
@@ -425,7 +425,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                         ))}
                       </div>
                     ));
-                  })()}
+                    })()}
                 </SelectContent>
               </Select>
             </motion.div>
@@ -437,25 +437,25 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-shadow"
+                  className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg"
                   whileHover={{ scale: 1.01 }}
                 >
-                <label className="text-sm font-medium text-slate-700 mb-3 block">
+                <label className="text-sm font-medium text-slate-200 mb-3 block">
                   Select Unit
                 </label>
                 <Select value={selectedUnit} onValueChange={setSelectedUnit}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full bg-slate-900/50 border-slate-700/50 text-slate-200 hover:bg-slate-900/70">
                     <SelectValue placeholder="Choose a unit" />
                   </SelectTrigger>
-                  <SelectContent className="max-h-96">
+                  <SelectContent className="max-h-96 bg-slate-900/95 backdrop-blur-xl border-slate-700/50">
                     {units.sort((a, b) => a.unit_number - b.unit_number).map((unit) => (
-                      <SelectItem key={unit.id} value={unit.id}>
+                      <SelectItem key={unit.id} value={unit.id} className="text-slate-200 focus:bg-slate-800/50 focus:text-white">
                         Unit {unit.unit_number}: {unit.unit_name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-              </motion.div>
+                </motion.div>
               )}
             </AnimatePresence>
 
@@ -466,9 +466,9 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-shadow"
+                  className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg"
                 >
-                <label className="text-sm font-medium text-slate-700 mb-3 block">
+                <label className="text-sm font-medium text-slate-200 mb-3 block">
                   Number of Questions {isStandardizedTest && '(Custom for SAT/ACT)'}
                 </label>
                 {isStandardizedTest ? (
@@ -483,10 +483,10 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                         setCustomQuestionCount(val);
                         setQuestionCount(val);
                       }}
-                      className="w-full px-4 py-3 rounded-lg border border-slate-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900"
+                      className="w-full px-4 py-3 rounded-lg border border-slate-700/50 bg-slate-900/50 text-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/50"
                       placeholder="Enter 1-60"
                     />
-                    <p className="text-xs text-slate-500">Max 60 questions for SAT/ACT practice</p>
+                    <p className="text-xs text-slate-400">Max 60 questions for SAT/ACT practice</p>
                   </div>
                 ) : (
                   <div className="flex gap-3">
@@ -499,10 +499,10 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                         className={cn(
                           "flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all",
                           questionCount === count
-                            ? "bg-slate-900 text-white"
-                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                            ? "bg-violet-600 text-white shadow-[0_0_15px_rgba(139,92,246,0.4)]"
+                            : "bg-slate-900/50 text-slate-300 hover:bg-slate-900/70 border border-slate-700/50"
                         )}
-                      >
+                        >
                         {count}
                       </motion.button>
                     ))}
