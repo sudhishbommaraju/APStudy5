@@ -477,7 +477,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
           <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 space-y-6">
             {/* Subject Selection */}
             <div>
-              <label className="text-sm font-medium text-slate-300 mb-3 block">
+              <label className="text-sm font-medium text-slate-100 mb-3 block">
                 Select Subject
               </label>
               <Select value={selectedSubject} onValueChange={handleSubjectChange}>
@@ -535,7 +535,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
             {/* Unit Selection */}
             {selectedSubject && (
               <div>
-                <label className="text-sm font-medium text-slate-300 mb-3 block">
+                <label className="text-sm font-medium text-slate-100 mb-3 block">
                   Select Units
                 </label>
                 <UnitMultiSelect
@@ -548,7 +548,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
 
             {/* Question Count */}
             <div>
-              <label className="text-sm font-medium text-slate-300 mb-3 block">
+              <label className="text-sm font-medium text-slate-100 mb-3 block">
                 Number of Questions {isStandardizedTest && '(Custom for SAT/ACT)'}
               </label>
               {isStandardizedTest ? (
@@ -589,7 +589,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
 
             {/* Difficulty */}
             <div>
-              <label className="text-sm font-medium text-slate-300 mb-3 block">Difficulty</label>
+              <label className="text-sm font-medium text-slate-100 mb-3 block">Difficulty</label>
               <div className="flex gap-2">
                 {[
                   { id: 'mixed', label: 'Mixed' },
@@ -615,7 +615,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
 
             {/* Time Limit */}
             <div>
-              <label className="text-sm font-medium text-slate-300 mb-3 block">Time Limit</label>
+              <label className="text-sm font-medium text-slate-100 mb-3 block">Time Limit</label>
               <div className="flex gap-2">
                 {[10, 15, 20, 30].map((t) => (
                   <button
