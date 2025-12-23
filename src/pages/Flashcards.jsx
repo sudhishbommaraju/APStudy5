@@ -7,6 +7,13 @@ import { ChevronLeft, Loader2, Brain, Sparkles, RotateCcw, Check, X } from 'luci
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -15,9 +22,9 @@ import StudyTimer from '@/components/study/StudyTimer';
 
 export default function Flashcards() {
   const [user, setUser] = useState(null);
-  const [selectedExam, setSelectedExam] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState('');
+  const [selectedUnit, setSelectedUnit] = useState('');
   const [generating, setGenerating] = useState(false);
-  const [unitName, setUnitName] = useState('');
   const [topics, setTopics] = useState('');
   const [cardCount, setCardCount] = useState(10);
   const [studyMode, setStudyMode] = useState(false);
@@ -32,7 +39,6 @@ export default function Flashcards() {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
-        setSelectedExam(currentUser.primary_exam || currentUser.selected_exams?.[0]);
       } catch (e) {
         // User not authenticated, continue without user
       }
@@ -40,10 +46,21 @@ export default function Flashcards() {
     loadUser();
   }, []);
 
+  const { data: subjects = [] } = useQuery({
+    queryKey: ['subjects'],
+    queryFn: () => base44.entities.Subject.list('subject_id'),
+  });
+
+  const { data: units = [] } = useQuery({
+    queryKey: ['units', selectedSubject],
+    queryFn: () => base44.entities.Unit.filter({ subject_id: selectedSubject }),
+    enabled: !!selectedSubject,
+  });
+
   const { data: flashcards = [] } = useQuery({
-    queryKey: ['flashcards', selectedExam, user?.email],
-    queryFn: () => base44.entities.Flashcard.filter({ exam_type: selectedExam, created_by: user.email }),
-    enabled: !!selectedExam && !!user,
+    queryKey: ['flashcards', user?.email],
+    queryFn: () => base44.entities.Flashcard.filter({ created_by: user.email }),
+    enabled: !!user,
   });
 
   const updateCardMutation = useMutation({
@@ -52,13 +69,16 @@ export default function Flashcards() {
   });
 
   const generateFlashcards = async () => {
-    if (!unitName || !topics) return;
+    if (!selectedUnit || !topics) return;
     
     setGenerating(true);
     try {
-      const prompt = `Generate ${cardCount} flashcards for ${selectedExam.replace(/_/g, ' ').toUpperCase()}.
+      const subject = subjects.find(s => s.subject_id === selectedSubject);
+      const unit = units.find(u => u.id === selectedUnit);
+      
+      const prompt = `Generate ${cardCount} flashcards for ${subject?.name || 'general topic'}.
 
-Unit: ${unitName}
+Unit: ${unit?.unit_name || 'General'}
 Topics: ${topics}
 
 Create high-quality flashcards that:
@@ -95,8 +115,9 @@ Return an array of flashcard objects.`;
       const newCards = await Promise.all(
         response.flashcards.map(card =>
           base44.entities.Flashcard.create({
-            exam_type: selectedExam,
-            unit_name: unitName,
+            exam_type: selectedSubject,
+            unit_id: selectedUnit,
+            unit_name: unit?.unit_name || 'General',
             front: card.front,
             back: card.back,
             topic: card.topic,
@@ -109,7 +130,7 @@ Return an array of flashcard objects.`;
       queryClient.invalidateQueries({ queryKey: ['flashcards'] });
       setStudyCards(newCards);
       setStudyMode(true);
-      setUnitName('');
+      setSelectedUnit('');
       setTopics('');
     } catch (e) {
       console.error('Failed to generate flashcards:', e);
@@ -237,9 +258,9 @@ Return an array of flashcard objects.`;
       <div className="page-header flex items-center justify-between">
         <div>
           <h1 className="page-title">Flashcards</h1>
-          <p className="page-description">Generate and study with AI flashcards</p>
+          <p className="page-description">Generate and study AI flashcards for any subject</p>
         </div>
-        <StudyTimer examType={selectedExam} activityType="flashcards" />
+        <StudyTimer examType={selectedSubject} activityType="flashcards" />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
@@ -249,15 +270,65 @@ Return an array of flashcard objects.`;
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium text-slate-300 mb-1 block">
-                    Unit Name
+                    Subject
                   </label>
-                  <Input
-                    placeholder="e.g., Unit 2: Cell Structure"
-                    value={unitName}
-                    onChange={(e) => setUnitName(e.target.value)}
-                    className="text-white"
-                  />
+                  <Select value={selectedSubject} onValueChange={(value) => {
+                    setSelectedSubject(value);
+                    setSelectedUnit('');
+                  }}>
+                    <SelectTrigger className="w-full bg-slate-900/50 border-slate-700/50 text-slate-200">
+                      <SelectValue placeholder="Choose a subject" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-96 bg-slate-900/95 backdrop-blur-xl border-slate-700/50">
+                      {(() => {
+                        const uniqueSubjects = Array.from(
+                          new Map(subjects.map(s => [s.subject_id, s])).values()
+                        );
+                        const grouped = uniqueSubjects.reduce((acc, subject) => {
+                          const category = subject.category;
+                          if (!acc[category]) acc[category] = [];
+                          acc[category].push(subject);
+                          return acc;
+                        }, {});
+                        
+                        return Object.entries(grouped).map(([category, categorySubjects]) => (
+                          <div key={category}>
+                            <div className="px-2 py-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                              {category}
+                            </div>
+                            {categorySubjects.map((subject) => (
+                              <SelectItem key={subject.subject_id} value={subject.subject_id} className="text-slate-200 focus:bg-slate-800/50 focus:text-white">
+                                <div className="flex items-center gap-2">
+                                  {subject.icon && <span>{subject.icon}</span>}
+                                  <span>{subject.name}</span>
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </div>
+                        ));
+                      })()}
+                    </SelectContent>
+                  </Select>
                 </div>
+                {selectedSubject && (
+                  <div>
+                    <label className="text-sm font-medium text-slate-300 mb-1 block">
+                      Unit
+                    </label>
+                    <Select value={selectedUnit} onValueChange={setSelectedUnit}>
+                      <SelectTrigger className="w-full bg-slate-900/50 border-slate-700/50 text-slate-200">
+                        <SelectValue placeholder="Choose a unit" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-96 bg-slate-900/95 backdrop-blur-xl border-slate-700/50">
+                        {units.sort((a, b) => a.unit_number - b.unit_number).map((unit) => (
+                          <SelectItem key={unit.id} value={unit.id} className="text-slate-200 focus:bg-slate-800/50 focus:text-white">
+                            Unit {unit.unit_number}: {unit.unit_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
                 <div>
                   <label className="text-sm font-medium text-slate-300 mb-1 block">
                     Topics
@@ -285,7 +356,7 @@ Return an array of flashcard objects.`;
                 </div>
                 <Button
                   onClick={generateFlashcards}
-                  disabled={generating || !unitName || !topics}
+                  disabled={generating || !selectedUnit || !topics}
                   className="w-full bg-violet-600 hover:bg-violet-700"
                 >
                   {generating ? (
