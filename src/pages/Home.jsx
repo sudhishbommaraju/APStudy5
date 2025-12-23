@@ -1,14 +1,13 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Target, Brain, TrendingUp, CheckCircle2, Users, Loader2 } from 'lucide-react';
+import { ArrowRight, Target, Brain, TrendingUp, CheckCircle2, Loader2 } from 'lucide-react';
 
 export default function Home() {
   const navigate = useNavigate();
   const [checkingAuth, setCheckingAuth] = useState(true);
-  const sectionsRef = useRef([]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -30,49 +29,29 @@ export default function Home() {
     checkAuth();
   }, [navigate]);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('animate-in');
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    sectionsRef.current.forEach((section) => {
-      if (section) observer.observe(section);
-    });
-
-    return () => observer.disconnect();
-  }, [checkingAuth]);
-
   const handleGetStarted = () => {
     base44.auth.redirectToLogin(createPageUrl('Onboarding'));
   };
 
-  const features = [
+  const handleLogin = () => {
+    base44.auth.redirectToLogin(createPageUrl('Dashboard'));
+  };
+
+  const steps = [
     {
-      icon: Target,
-      title: 'Personalized Study Plans',
-      description: 'The app guides you toward the skills and units that need the most attention, based on your performance.',
+      number: '1',
+      title: 'Choose Your Subject',
+      description: 'Select from AP Calculus, SAT, ACT, and more',
     },
     {
-      icon: Brain,
-      title: 'Adaptive Practice',
-      description: 'Questions adjust based on your strengths and weaknesses, so time is spent where it matters most.',
+      number: '2',
+      title: 'Practice Smart',
+      description: 'Get personalized questions based on your performance',
     },
     {
-      icon: TrendingUp,
-      title: 'Practice and Exam Modes',
-      description: 'Switch between learning mode and timed exam mode to prepare effectively.',
-    },
-    {
-      icon: CheckCircle2,
-      title: 'Clear Progress Tracking',
-      description: 'See which skills you have mastered and which ones need more work.',
+      number: '3',
+      title: 'Track Progress',
+      description: 'See your mastery improve over time',
     },
   ];
 
@@ -85,221 +64,202 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(180deg, #1e3a5f 0%, #2d5a7b 100%)', fontFamily: 'Georgia, serif' }}>
+    <div className="min-h-screen bg-[#0a0e1a]">
       
       {/* Navigation Bar */}
-      <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+      <nav className="border-b border-slate-800">
+        <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366F1, #A78BFA)' }}>
                 <span className="text-white font-bold text-sm">P</span>
               </div>
-              <span className="font-bold text-xl text-slate-900" style={{ fontFamily: 'Georgia, serif' }}>Proofly</span>
+              <span className="font-bold text-xl text-white" style={{ fontFamily: 'Georgia, serif' }}>Proofly</span>
             </div>
             
-            {/* Sign Up Button */}
-            <Button onClick={handleGetStarted} className="bg-indigo-600 hover:bg-indigo-700 text-white">
-              Sign Up
-            </Button>
+            {/* Right side buttons */}
+            <div className="flex items-center gap-3">
+              <Button onClick={handleLogin} variant="ghost" className="text-slate-300 hover:text-white hover:bg-slate-800">
+                Login
+              </Button>
+              <Button onClick={handleGetStarted} className="bg-slate-100 hover:bg-white text-slate-900 rounded-lg">
+                Get started
+              </Button>
+            </div>
           </div>
         </div>
       </nav>
       
-      {/* Hero Section */}
+      {/* Hero Section - Split Layout */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(99,102,241,0.1),transparent_50%)]" />
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-20 text-center relative">
-          <div 
-            ref={(el) => (sectionsRef.current[0] = el)}
-            className="opacity-0 transition-all duration-1000 translate-y-8"
-            style={{ transitionDelay: '100ms' }}
-          >
-            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6" style={{ fontFamily: 'Georgia, serif' }}>
-              Built to Make Studying Work.
-            </h1>
-            <p className="text-2xl text-slate-200 mb-4 font-light">
-              A smarter way to study for AP, SAT, ACT, and beyond.
-            </p>
-            <p className="text-lg text-slate-300 leading-relaxed max-w-3xl mx-auto mb-8">
-              This app was built to solve a real problem: studying hard without seeing results. Instead of guessing what to study next, the app guides students with structure, feedback, and personalized practice.
-            </p>
-            <Button size="lg" onClick={handleGetStarted} className="h-14 px-8 text-lg bg-white text-slate-900 hover:bg-slate-100">
-              Start Using Proofly
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
-          </div>
-        </div>
-      </section>
+        <div className="max-w-7xl mx-auto px-6 py-20">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            
+            {/* Left Side - Content */}
+            <div className="space-y-8">
+              <div>
+                <h1 className="text-5xl lg:text-6xl font-bold text-white mb-4" style={{ fontFamily: 'Georgia, serif' }}>
+                  <span className="text-indigo-400">Proofly</span>, your AI study partner
+                </h1>
+                <p className="text-xl text-slate-400 leading-relaxed">
+                  Ace your exams with personalized practice and adaptive learning
+                </p>
+              </div>
 
-      {/* Why This App Was Built */}
-      <section className="py-20 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div 
-            ref={(el) => (sectionsRef.current[1] = el)}
-            className="opacity-0 transition-all duration-1000 translate-y-8"
-            style={{ transitionDelay: '200ms' }}
-          >
-            <h2 className="text-4xl font-bold text-slate-900 mb-8 text-center" style={{ fontFamily: 'Georgia, serif' }}>
-              Why This App Exists
-            </h2>
-            <div className="space-y-6 text-slate-700 leading-relaxed text-lg">
-              <p>
-                In middle school, academics came easily to me. I didn't need much structure and still earned strong grades. High school changed that quickly. The expectations were higher, the material was more demanding, and studying without a clear system stopped working.
-              </p>
-              <p>
-                I finished my freshman year with a 3.6 GPA, and during the first semester of my sophomore year, my grades slipped further to a 3.33. That was a wake-up call. I was putting in the hours, but I wasn't studying efficiently or intentionally. I didn't need to work harder. I needed to work smarter.
-              </p>
-              <p>
-                That realization is what led me to start building this app. I wanted a system that could tell me what to focus on, adapt as I improved, and make progress measurable instead of guesswork. This app is the result of that process, built to help students avoid the same trial-and-error approach I went through.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+              <Button 
+                size="lg" 
+                onClick={handleGetStarted} 
+                className="h-12 px-8 text-base bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
+              >
+                Start studying
+              </Button>
 
-      {/* The Problem */}
-      <section className="py-20" style={{ background: 'linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%)' }}>
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div 
-            ref={(el) => (sectionsRef.current[2] = el)}
-            className="opacity-0 transition-all duration-1000 translate-y-8"
-            style={{ transitionDelay: '300ms' }}
-          >
-            <h2 className="text-4xl font-bold text-slate-900 mb-8 text-center" style={{ fontFamily: 'Georgia, serif' }}>
-              Studying Is Harder Than It Should Be
-            </h2>
-            <div className="grid sm:grid-cols-2 gap-4 mb-8">
-              {[
-                'Students do not know what to study next',
-                'Practice is often random or repetitive',
-                'Progress is hard to measure',
-                'Time is wasted on already-mastered material',
-              ].map((problem, i) => (
-                <div 
-                  key={i}
-                  className="bg-white rounded-lg p-6 border border-slate-200 hover:border-slate-300 transition-all duration-300 hover:shadow-md"
-                  style={{ transitionDelay: `${i * 100}ms` }}
-                >
-                  <p className="text-slate-700 leading-relaxed">{problem}</p>
-                </div>
-              ))}
-            </div>
-            <p className="text-xl text-slate-800 text-center font-medium">
-              This app was built to replace guesswork with clarity.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* How the App Helps */}
-      <section className="py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div 
-            ref={(el) => (sectionsRef.current[3] = el)}
-            className="opacity-0 transition-all duration-1000 translate-y-8"
-            style={{ transitionDelay: '400ms' }}
-          >
-            <h2 className="text-4xl font-bold text-slate-900 mb-12 text-center" style={{ fontFamily: 'Georgia, serif' }}>
-              How the App Helps You Study Smarter
-            </h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              {features.map((feature, i) => (
-                <div 
-                  key={i}
-                  className="bg-slate-50 rounded-xl p-8 border border-slate-200 hover:border-indigo-300 transition-all duration-300 hover:shadow-lg group"
-                  style={{ transitionDelay: `${i * 100}ms` }}
-                >
-                  <feature.icon className="w-10 h-10 text-indigo-600 mb-4 group-hover:scale-110 transition-transform duration-300" />
-                  <h3 className="text-xl font-bold text-slate-900 mb-3">{feature.title}</h3>
-                  <p className="text-slate-600 leading-relaxed">{feature.description}</p>
-                </div>
-              ))}
-            </div>
-            <div className="mt-6 bg-slate-50 rounded-xl p-8 border border-slate-200">
-              <h3 className="text-xl font-bold text-slate-900 mb-3">Clean, Distraction-Free Design</h3>
-              <p className="text-slate-600 leading-relaxed">
-                The interface is built for focus, not clutter.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Who This Is For */}
-      <section className="py-20" style={{ background: 'linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%)' }}>
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div 
-            ref={(el) => (sectionsRef.current[4] = el)}
-            className="opacity-0 transition-all duration-1000 translate-y-8"
-            style={{ transitionDelay: '500ms' }}
-          >
-            <h2 className="text-4xl font-bold text-slate-900 mb-8 text-center" style={{ fontFamily: 'Georgia, serif' }}>
-              Who This Is For
-            </h2>
-            <div className="bg-white rounded-xl p-8 border border-slate-200">
-              <ul className="space-y-4 text-slate-700 text-lg">
-                {[
-                  'High school students taking AP classes',
-                  'Students preparing for SAT or ACT',
-                  'Students who want structure, not shortcuts',
-                  'Anyone who wants to study efficiently',
-                ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-4">
-                    <Users className="w-6 h-6 text-indigo-600 flex-shrink-0" />
-                    <span>{item}</span>
-                  </li>
+              {/* Steps */}
+              <div className="space-y-4 pt-4">
+                {steps.map((step, i) => (
+                  <div key={i} className="flex gap-4 group">
+                    <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-slate-800 group-hover:bg-slate-700 flex items-center justify-center text-slate-400 font-semibold transition-colors">
+                      {step.number}
+                    </div>
+                    <div>
+                      <h3 className="text-white font-semibold mb-1">{step.title}</h3>
+                      <p className="text-slate-400 text-sm">{step.description}</p>
+                    </div>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
+
+            {/* Right Side - Visual/Mockup */}
+            <div className="relative lg:ml-8">
+              <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-2xl border border-slate-700 p-8 backdrop-blur-sm shadow-2xl">
+                <div className="space-y-4">
+                  {/* Mock dashboard preview */}
+                  <div className="bg-slate-900 rounded-lg p-4 border border-slate-700">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Target className="w-5 h-5 text-indigo-400" />
+                      <span className="text-white font-semibold">Your Progress</span>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-slate-400">AP Calculus AB</span>
+                        <span className="text-emerald-400 font-semibold">87%</span>
+                      </div>
+                      <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 rounded-full" style={{ width: '87%' }} />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-900 rounded-lg p-4 border border-slate-700">
+                    <div className="flex items-center gap-3 mb-4">
+                      <Brain className="w-5 h-5 text-purple-400" />
+                      <span className="text-white font-semibold">Today's Practice</span>
+                    </div>
+                    <div className="space-y-2 text-sm text-slate-400">
+                      <div className="flex items-center justify-between">
+                        <span>Questions completed</span>
+                        <span className="text-white font-semibold">24/30</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>Accuracy</span>
+                        <span className="text-emerald-400 font-semibold">92%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-900 rounded-lg p-4 border border-slate-700">
+                    <div className="flex items-center gap-3 mb-3">
+                      <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                      <span className="text-white font-semibold">Skills Mastered</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="px-3 py-1 bg-slate-800 text-slate-300 text-xs rounded-full">Derivatives</span>
+                      <span className="px-3 py-1 bg-slate-800 text-slate-300 text-xs rounded-full">Limits</span>
+                      <span className="px-3 py-1 bg-slate-800 text-slate-300 text-xs rounded-full">Integration</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Decorative glow effect */}
+              <div className="absolute -top-4 -right-4 w-72 h-72 bg-indigo-500/20 rounded-full blur-3xl -z-10" />
+              <div className="absolute -bottom-8 -left-8 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl -z-10" />
+            </div>
+
           </div>
         </div>
       </section>
 
-      {/* Closing Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <div 
-            ref={(el) => (sectionsRef.current[5] = el)}
-            className="opacity-0 transition-all duration-1000 translate-y-8"
-            style={{ transitionDelay: '600ms' }}
-          >
-            <h2 className="text-4xl font-bold text-slate-900 mb-6" style={{ fontFamily: 'Georgia, serif' }}>
-              Built With Students in Mind
+      {/* Features Section */}
+      <section className="py-20 border-t border-slate-800">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-white mb-4" style={{ fontFamily: 'Georgia, serif' }}>
+              Everything you need to succeed
             </h2>
-            <p className="text-lg text-slate-700 leading-relaxed max-w-3xl mx-auto mb-8">
-              This app was built by a student, refined through real use, and designed to support long-term learning. The goal is not shortcuts or inflated scores, but better habits, clearer focus, and real understanding.
+            <p className="text-xl text-slate-400 max-w-2xl mx-auto">
+              Built for students who want to study smarter, not harder
             </p>
-            <Button size="lg" onClick={handleGetStarted} className="h-14 px-8 text-lg bg-indigo-600 hover:bg-indigo-700">
-              Start Using Proofly
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { icon: Target, title: 'Personalized Plans', desc: 'Study what matters most' },
+              { icon: Brain, title: 'Adaptive Practice', desc: 'Questions that match your level' },
+              { icon: TrendingUp, title: 'Track Progress', desc: 'See your improvement' },
+              { icon: CheckCircle2, title: 'Master Skills', desc: 'Build confidence' },
+            ].map((feature, i) => (
+              <div 
+                key={i}
+                className="bg-slate-900/50 border border-slate-800 rounded-xl p-6 hover:border-slate-700 transition-all hover:bg-slate-900"
+              >
+                <feature.icon className="w-8 h-8 text-indigo-400 mb-4" />
+                <h3 className="text-white font-semibold mb-2">{feature.title}</h3>
+                <p className="text-slate-400 text-sm">{feature.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Contact */}
-      <section className="py-12 border-t border-slate-200 bg-slate-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-slate-600 mb-2">
-            Questions or partnership inquiries?
+      {/* CTA Section */}
+      <section className="py-20 border-t border-slate-800">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <h2 className="text-4xl font-bold text-white mb-4" style={{ fontFamily: 'Georgia, serif' }}>
+            Ready to ace your exams?
+          </h2>
+          <p className="text-xl text-slate-400 mb-8">
+            Join students who are studying smarter with Proofly
           </p>
-          <a 
-            href="mailto:partnerships@proofly.com" 
-            className="text-indigo-600 hover:text-indigo-700 font-medium"
+          <Button 
+            size="lg" 
+            onClick={handleGetStarted} 
+            className="h-14 px-10 text-lg bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg"
           >
-            partnerships@proofly.com
-          </a>
+            Get started for free
+            <ArrowRight className="w-5 h-5 ml-2" />
+          </Button>
         </div>
       </section>
 
-      <style jsx>{`
-        .animate-in {
-          opacity: 1 !important;
-          transform: translateY(0) !important;
-        }
-      `}</style>
+      {/* Footer */}
+      <footer className="border-t border-slate-800 py-8">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-between text-slate-500 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366F1, #A78BFA)' }}>
+                <span className="text-white font-bold text-xs">P</span>
+              </div>
+              <span>Proofly © 2024</span>
+            </div>
+            <a href="mailto:partnerships@proofly.com" className="hover:text-slate-400 transition-colors">
+              Contact
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
