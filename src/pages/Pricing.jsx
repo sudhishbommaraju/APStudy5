@@ -62,64 +62,64 @@ export default function Pricing() {
       {/* Pricing Cards */}
       <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
         {/* Free Plan */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
-          <h3 className="text-2xl font-bold text-slate-900 mb-2">Free</h3>
-          <p className="text-slate-600 mb-6">Get started with essential tools</p>
+        <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl border border-slate-700/50 p-8 shadow-lg">
+          <h3 className="text-2xl font-bold text-slate-100 mb-2">Free</h3>
+          <p className="text-slate-300 mb-6">Get started with essential tools</p>
           
           <div className="mb-6">
-            <p className="text-4xl font-bold text-slate-900">$0</p>
+            <p className="text-4xl font-bold text-slate-100">$0</p>
           </div>
 
           <div className="space-y-3 mb-8">
             {FREE_FEATURES.map((feature, i) => (
               <div key={i} className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5" />
-                <span className="text-slate-700">{feature}</span>
+                <Check className="w-5 h-5 text-slate-500 flex-shrink-0 mt-0.5" />
+                <span className="text-slate-300">{feature}</span>
               </div>
             ))}
           </div>
 
           {!user && (
-            <Button onClick={handleGetStarted} variant="outline" className="w-full">
+            <Button onClick={handleGetStarted} variant="outline" className="w-full border-slate-600 text-slate-300 hover:bg-slate-700/50">
               Get started
             </Button>
           )}
         </div>
 
         {/* Pro Plan */}
-        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl border-2 border-indigo-200 p-8 shadow-lg relative">
-          <div className="absolute top-0 right-0 bg-indigo-600 text-white px-4 py-1 text-sm font-semibold rounded-tr-2xl rounded-bl-lg">
+        <div className="bg-gradient-to-br from-violet-500/20 to-indigo-500/20 backdrop-blur-sm rounded-2xl border-2 border-violet-500/50 p-8 shadow-lg relative">
+          <div className="absolute top-0 right-0 bg-violet-600 text-white px-4 py-1 text-sm font-semibold rounded-tr-2xl rounded-bl-lg">
             POPULAR
           </div>
           
-          <h3 className="text-2xl font-bold text-slate-900 mb-2">Pro</h3>
-          <p className="text-slate-700 mb-6">Study smarter with unlimited access</p>
+          <h3 className="text-2xl font-bold text-slate-100 mb-2">Pro</h3>
+          <p className="text-slate-200 mb-6">Study smarter with unlimited access</p>
           
           <div className="mb-6">
-            <p className="text-4xl font-bold text-slate-900">
-              $5.99<span className="text-lg font-normal text-slate-600">/month</span>
+            <p className="text-4xl font-bold text-slate-100">
+              $5.99<span className="text-lg font-normal text-slate-300">/month</span>
             </p>
           </div>
 
           <div className="space-y-3 mb-8">
             {PRO_FEATURES.map((feature, i) => (
               <div key={i} className="flex items-start gap-3">
-                <Check className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-0.5" />
-                <span className="text-slate-900 font-medium">{feature}</span>
+                <Check className="w-5 h-5 text-violet-400 flex-shrink-0 mt-0.5" />
+                <span className="text-slate-100 font-medium">{feature}</span>
               </div>
             ))}
           </div>
 
           {user ? (
             user.plan === 'pro' ? (
-              <Button disabled className="w-full bg-slate-300">
+              <Button disabled className="w-full bg-slate-600">
                 Current Plan
               </Button>
             ) : (
               <StripeCheckout user={user} onSuccess={() => window.location.reload()} />
             )
           ) : (
-            <Button onClick={handleGetStarted} className="w-full bg-indigo-600 hover:bg-indigo-700">
+            <Button onClick={handleGetStarted} className="w-full bg-violet-600 hover:bg-violet-700">
               <Sparkles className="w-4 h-4 mr-2" />
               Upgrade to Pro
             </Button>
@@ -129,8 +129,8 @@ export default function Pricing() {
 
       {/* FAQ or Additional Info */}
       <div className="mt-16 text-center">
-        <p className="text-slate-600">
-          Cancel anytime. Student-friendly pricing. Questions? <a href="mailto:partnerships@proofly.com" className="text-indigo-600 hover:underline">Contact us</a>
+        <p className="text-slate-400">
+          Cancel anytime. Student-friendly pricing. Questions? <a href="mailto:partnerships@proofly.com" className="text-violet-400 hover:underline">Contact us</a>
         </p>
       </div>
       </div>
