@@ -443,10 +443,10 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
   // Loading state
   if (loading && examState === 'setup') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center" style={{ background: 'linear-gradient(135deg, #e8f1f8, #d9e9f5)', fontFamily: 'Georgia, serif' }}>
-        <Loader2 className="w-8 h-8 animate-spin mb-4" style={{ color: 'var(--color-focus-accent)' }} />
-        <p className="focus-mode-text font-medium">Generating your exam questions...</p>
-        <p className="focus-mode-text-secondary text-sm mt-1">This may take a moment</p>
+      <div className="min-h-screen flex flex-col items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin mb-4 text-violet-400" />
+        <p className="text-slate-100 font-medium">Generating your exam questions...</p>
+        <p className="text-slate-400 text-sm mt-1">This may take a moment</p>
       </div>
     );
   }
@@ -454,8 +454,8 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
   // Setup Screen
   if (examState === 'setup') {
     return (
-      <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #e8f1f8, #d9e9f5)', fontFamily: 'Georgia, serif' }}>
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-8">
+      <>
+        <div className="max-w-2xl mx-auto">
           <div className="flex items-center gap-4 mb-6">
             <Link to={createPageUrl('Dashboard')}>
               <Button variant="ghost" size="icon">
@@ -463,20 +463,20 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
               </Button>
             </Link>
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-slate-900">Exam Mode</h1>
-              <p className="text-slate-500">Timed test with no explanations until the end</p>
+              <h1 className="text-2xl font-bold text-slate-100">Exam Mode</h1>
+              <p className="text-slate-400">Timed test with no explanations until the end</p>
               {user?.plan === 'free' && (
-                <p className="text-xs text-slate-600 mt-1">
+                <p className="text-xs text-slate-500 mt-1">
                   Daily timed exams: {(user.daily_exam_count || 0)}/3 used
                 </p>
               )}
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-6">
+          <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 space-y-6">
             {/* Subject Selection */}
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-3 block">
+              <label className="text-sm font-medium text-slate-300 mb-3 block">
                 Select Subject
               </label>
               <Select value={selectedSubject} onValueChange={handleSubjectChange}>
@@ -524,7 +524,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                 </SelectContent>
               </Select>
               {selectedSubject && currentSubject && (
-                <div className="mt-2 flex items-center gap-2 text-sm text-slate-600">
+                <div className="mt-2 flex items-center gap-2 text-sm text-slate-400">
                   {currentSubject.icon && <span>{currentSubject.icon}</span>}
                   <span>Selected: {currentSubject.name}</span>
                 </div>
@@ -534,7 +534,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
             {/* Unit Selection */}
             {selectedSubject && (
               <div>
-                <label className="text-sm font-medium text-slate-700 mb-3 block">
+                <label className="text-sm font-medium text-slate-300 mb-3 block">
                   Select Units
                 </label>
                 <UnitMultiSelect
@@ -547,7 +547,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
 
             {/* Question Count */}
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-3 block">
+              <label className="text-sm font-medium text-slate-300 mb-3 block">
                 Number of Questions {isStandardizedTest && '(Custom for SAT/ACT)'}
               </label>
               {isStandardizedTest ? (
@@ -561,10 +561,10 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                       const val = Math.min(60, Math.max(1, parseInt(e.target.value) || 1));
                       setQuestionCount(val);
                     }}
-                    className="w-full px-4 py-3 rounded-lg border border-slate-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-slate-900"
+                    className="w-full px-4 py-3 rounded-lg border border-slate-600 bg-slate-900/50 text-slate-100 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500"
                     placeholder="Enter 1-60"
                   />
-                  <p className="text-xs text-slate-500">Max 60 questions for SAT/ACT exams</p>
+                  <p className="text-xs text-slate-400">Max 60 questions for SAT/ACT exams</p>
                 </div>
               ) : (
                 <div className="flex gap-2">
@@ -575,8 +575,8 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                       className={cn(
                         "flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all",
                         questionCount === n
-                          ? "bg-slate-900 text-white"
-                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                          ? "bg-violet-600 text-white"
+                          : "bg-slate-700/50 text-slate-300 hover:bg-slate-700"
                       )}
                     >
                       {n} questions
@@ -588,7 +588,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
 
             {/* Difficulty */}
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-3 block">Difficulty</label>
+              <label className="text-sm font-medium text-slate-300 mb-3 block">Difficulty</label>
               <div className="flex gap-2">
                 {[
                   { id: 'mixed', label: 'Mixed' },
@@ -602,8 +602,8 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                     className={cn(
                       "flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all",
                       selectedDifficulty === d.id
-                        ? "bg-slate-900 text-white"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        ? "bg-violet-600 text-white"
+                        : "bg-slate-700/50 text-slate-300 hover:bg-slate-700"
                     )}
                   >
                     {d.label}
@@ -614,7 +614,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
 
             {/* Time Limit */}
             <div>
-              <label className="text-sm font-medium text-slate-700 mb-3 block">Time Limit</label>
+              <label className="text-sm font-medium text-slate-300 mb-3 block">Time Limit</label>
               <div className="flex gap-2">
                 {[10, 15, 20, 30].map((t) => (
                   <button
@@ -623,8 +623,8 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                     className={cn(
                       "flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all",
                       timeLimit === t
-                        ? "bg-slate-900 text-white"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        ? "bg-violet-600 text-white"
+                        : "bg-slate-700/50 text-slate-300 hover:bg-slate-700"
                     )}
                   >
                     {t} min
@@ -634,9 +634,9 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
             </div>
 
             {/* Warning */}
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex gap-3">
-              <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
-              <div className="text-sm text-amber-800">
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 flex gap-3">
+              <AlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0" />
+              <div className="text-sm text-amber-200">
                 <p className="font-medium">Exam conditions</p>
                 <p className="mt-1">You won't see explanations until you complete the exam. The timer will start immediately.</p>
               </div>
@@ -645,7 +645,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
             <Button
               onClick={startExam}
               disabled={loading || !selectedSubject || selectedUnits.length === 0}
-              className="w-full h-12"
+              className="w-full h-12 bg-violet-600 hover:bg-violet-700"
             >
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -656,7 +656,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
             </Button>
 
             {(!selectedSubject || selectedUnits.length === 0) && (
-              <p className="text-xs text-center text-slate-500">
+              <p className="text-xs text-center text-slate-400">
                 {!selectedSubject 
                   ? 'Please select a subject to continue' 
                   : 'Please select at least one unit to continue'}
@@ -664,7 +664,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
             )}
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -706,8 +706,8 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
           <div className="grid lg:grid-cols-4 gap-6">
             {/* Question Navigator */}
             <div className="order-2 lg:order-1 lg:col-span-1">
-              <div className="bg-white rounded-xl border border-slate-200 p-4 sticky top-20">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">
+              <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 p-4 sticky top-20">
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
                   Questions
                 </p>
                 <div className="grid grid-cols-5 gap-2">
@@ -718,10 +718,10 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                       className={cn(
                         "w-full aspect-square rounded-lg text-sm font-medium transition-all",
                         i === currentIndex
-                          ? "bg-slate-900 text-white"
+                          ? "bg-violet-600 text-white"
                           : answers[q.id]
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                            ? "bg-indigo-500/30 text-indigo-200"
+                            : "bg-slate-700/50 text-slate-300 hover:bg-slate-700"
                       )}
                     >
                       {i + 1}
@@ -799,58 +799,58 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
       .slice(0, 3);
 
     return (
-      <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #e8f1f8, #d9e9f5)', fontFamily: 'Georgia, serif' }}>
-        <div className="max-w-3xl mx-auto px-4 py-8">
+      <>
+        <div className="max-w-3xl mx-auto">
           {/* Score Card */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center mb-6">
-            <div className="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+          <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl border border-slate-700/50 p-8 text-center mb-6">
+            <div className="w-20 h-20 rounded-full bg-slate-700/50 flex items-center justify-center mx-auto mb-4">
               {Number(accuracy) >= 70 ? (
-                <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+                <CheckCircle2 className="w-10 h-10 text-emerald-400" />
               ) : (
-                <XCircle className="w-10 h-10 text-amber-600" />
+                <XCircle className="w-10 h-10 text-amber-400" />
               )}
             </div>
-            <h1 className="text-3xl font-bold text-slate-900 mb-2">
+            <h1 className="text-3xl font-bold text-slate-100 mb-2">
               {accuracy}%
             </h1>
-            <p className="text-slate-500">
+            <p className="text-slate-400">
               You got {correctCount} out of {questions.length} questions correct
             </p>
           </div>
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-4 mb-6">
-            <div className="bg-white rounded-xl border border-slate-200 p-4 text-center">
-              <p className="text-2xl font-bold text-slate-900">{correctCount}</p>
-              <p className="text-sm text-slate-500">Correct</p>
+            <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-4 text-center">
+              <p className="text-2xl font-bold text-slate-100">{correctCount}</p>
+              <p className="text-sm text-slate-400">Correct</p>
             </div>
-            <div className="bg-white rounded-xl border border-slate-200 p-4 text-center">
-              <p className="text-2xl font-bold text-slate-900">{questions.length - correctCount}</p>
-              <p className="text-sm text-slate-500">Incorrect</p>
+            <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-4 text-center">
+              <p className="text-2xl font-bold text-slate-100">{questions.length - correctCount}</p>
+              <p className="text-sm text-slate-400">Incorrect</p>
             </div>
-            <div className="bg-white rounded-xl border border-slate-200 p-4 text-center">
-              <p className="text-2xl font-bold text-slate-900">
+            <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-4 text-center">
+              <p className="text-2xl font-bold text-slate-100">
                 {formatTime((timeLimit * 60) - timeRemaining)}
               </p>
-              <p className="text-sm text-slate-500">Time Used</p>
+              <p className="text-sm text-slate-400">Time Used</p>
             </div>
           </div>
 
           {/* Weak Skills */}
           {weakSkills.length > 0 && (
-            <div className="bg-white rounded-xl border border-slate-200 overflow-hidden mb-6">
-              <div className="px-5 py-4 border-b border-slate-100">
-                <h3 className="font-semibold text-slate-900">Areas to Improve</h3>
+            <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden mb-6">
+              <div className="px-5 py-4 border-b border-slate-700/30">
+                <h3 className="font-semibold text-slate-100">Areas to Improve</h3>
               </div>
-              <div className="divide-y divide-slate-100">
+              <div className="divide-y divide-slate-700/30">
                 {weakSkills.map((skill) => (
                   <div key={skill.name} className="px-5 py-4 flex items-center justify-between">
-                    <span className="font-medium text-slate-900">{skill.name}</span>
+                    <span className="font-medium text-slate-100">{skill.name}</span>
                     <span className={cn(
                       "font-semibold",
-                      skill.accuracy >= 70 ? "text-emerald-600" :
-                      skill.accuracy >= 50 ? "text-amber-600" :
-                      "text-rose-600"
+                      skill.accuracy >= 70 ? "text-emerald-400" :
+                      skill.accuracy >= 50 ? "text-amber-400" :
+                      "text-rose-400"
                     )}>
                       {skill.accuracy.toFixed(0)}% ({skill.correct}/{skill.total})
                     </span>
@@ -861,11 +861,11 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
           )}
 
           {/* Review Questions */}
-          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden mb-6">
-            <div className="px-5 py-4 border-b border-slate-100">
-              <h3 className="font-semibold text-slate-900">Review Questions</h3>
+          <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden mb-6">
+            <div className="px-5 py-4 border-b border-slate-700/30">
+              <h3 className="font-semibold text-slate-100">Review Questions</h3>
             </div>
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-slate-700/30">
               {questions.map((q, i) => {
                 const isCorrect = answers[q.id] === q.correct_answer;
                 return (
@@ -880,15 +880,15 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                         ) : (
                           <XCircle className="w-4 h-4 text-rose-600" />
                         )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-slate-900 line-clamp-2">{q.question_text}</p>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                        <p className="text-sm text-slate-100 line-clamp-2">{q.question_text}</p>
                         {!isCorrect && (
-                          <p className="text-xs text-slate-500 mt-1">
+                          <p className="text-xs text-slate-400 mt-1">
                             Your answer: {answers[q.id] || 'Not answered'} · Correct: {q.correct_answer}
                           </p>
                         )}
-                      </div>
+                        </div>
                     </div>
                   </div>
                 );
@@ -907,14 +907,14 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
               setExamState('setup');
               setAnswers({});
               setCurrentIndex(0);
-            }} className="flex-1">
+            }} className="flex-1 bg-violet-600 hover:bg-violet-700">
               Take Another Exam
             </Button>
           </div>
         </div>
         
         <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
-      </div>
+      </>
     );
   }
 }
