@@ -67,7 +67,7 @@ export default function Layout({ children, currentPageName }) {
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #0a0e1a 0%, #0f1728 50%, #0a0e1a 100%)' }}>
       <GlobalNav />
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main className="max-w-7xl mx-auto px-6 py-8 pt-24">
         {children}
       </main>
       <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
