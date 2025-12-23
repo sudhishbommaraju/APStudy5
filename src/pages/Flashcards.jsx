@@ -29,9 +29,18 @@ export default function Flashcards() {
 
   useEffect(() => {
     const loadUser = async () => {
-      const currentUser = await base44.auth.me();
-      setUser(currentUser);
-      setSelectedExam(currentUser.primary_exam || currentUser.selected_exams?.[0]);
+      try {
+        const isAuth = await base44.auth.isAuthenticated();
+        if (!isAuth) {
+          base44.auth.redirectToLogin(window.location.pathname);
+          return;
+        }
+        const currentUser = await base44.auth.me();
+        setUser(currentUser);
+        setSelectedExam(currentUser.primary_exam || currentUser.selected_exams?.[0]);
+      } catch (e) {
+        base44.auth.redirectToLogin(window.location.pathname);
+      }
     };
     loadUser();
   }, []);
