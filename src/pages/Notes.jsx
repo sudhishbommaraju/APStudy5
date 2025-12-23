@@ -285,8 +285,18 @@ Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
                     <p className="text-sm text-slate-400">{generatedNote.unit_name}</p>
                   </div>
                 </div>
-                <div className="prose prose-sm max-w-none prose-invert">
-                  <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                <div className="prose prose-sm max-w-none prose-invert prose-slate">
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkMath]} 
+                    rehypePlugins={[rehypeKatex]}
+                    components={{
+                      p: ({children}) => <p className="text-slate-100">{children}</p>,
+                      li: ({children}) => <li className="text-slate-100">{children}</li>,
+                      h1: ({children}) => <h1 className="text-slate-100">{children}</h1>,
+                      h2: ({children}) => <h2 className="text-slate-100">{children}</h2>,
+                      h3: ({children}) => <h3 className="text-slate-100">{children}</h3>,
+                    }}
+                  >
                     {generatedNote.content}
                   </ReactMarkdown>
                 </div>
@@ -302,8 +312,18 @@ Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
                     <p className="text-sm text-slate-400">{note.unit_name}</p>
                   </div>
                 </div>
-                <div className="prose prose-sm max-w-none prose-invert">
-                  <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                <div className="prose prose-sm max-w-none prose-invert prose-slate">
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkMath]} 
+                    rehypePlugins={[rehypeKatex]}
+                    components={{
+                      p: ({children}) => <p className="text-slate-100">{children}</p>,
+                      li: ({children}) => <li className="text-slate-100">{children}</li>,
+                      h1: ({children}) => <h1 className="text-slate-100">{children}</h1>,
+                      h2: ({children}) => <h2 className="text-slate-100">{children}</h2>,
+                      h3: ({children}) => <h3 className="text-slate-100">{children}</h3>,
+                    }}
+                  >
                     {note.content}
                   </ReactMarkdown>
                 </div>

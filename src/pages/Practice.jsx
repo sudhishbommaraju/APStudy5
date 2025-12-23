@@ -398,7 +398,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
               whileHover={{ scale: 1.01 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <label className="text-sm font-medium text-slate-200 mb-3 block">
+              <label className="text-sm font-medium text-slate-100 mb-3 block">
                 Select Subject
               </label>
               <Select value={selectedSubject} onValueChange={(value) => {
@@ -452,7 +452,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                   className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg"
                   whileHover={{ scale: 1.01 }}
                 >
-                <label className="text-sm font-medium text-slate-200 mb-3 block">
+                <label className="text-sm font-medium text-slate-100 mb-3 block">
                   Select Unit
                 </label>
                 <Select value={selectedUnit} onValueChange={setSelectedUnit}>
@@ -480,7 +480,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                   exit={{ opacity: 0, height: 0 }}
                   className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg"
                 >
-                <label className="text-sm font-medium text-slate-200 mb-3 block">
+                <label className="text-sm font-medium text-slate-100 mb-3 block">
                   Number of Questions {isStandardizedTest && '(Custom for SAT/ACT)'}
                 </label>
                 {isStandardizedTest ? (
