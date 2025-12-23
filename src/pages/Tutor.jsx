@@ -205,34 +205,34 @@ Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper e
       {/* Messages */}
       <div className="flex-1 overflow-y-auto mb-6 space-y-4">
           {messages.length === 0 ? (
-            <div className="bg-white rounded-xl border border-slate-200 p-8 text-center">
-              <Brain className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-              <h3 className="font-semibold text-slate-900 mb-2">Start a conversation</h3>
-              <p className="text-slate-500 text-sm mb-4">
+            <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-8 text-center">
+              <Brain className="w-12 h-12 text-slate-500 mx-auto mb-4" />
+              <h3 className="font-semibold text-slate-100 mb-2">Start a conversation</h3>
+              <p className="text-slate-400 text-sm mb-4">
                 Ask me anything about your subjects, test strategies, or specific topics
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-left max-w-md mx-auto">
                 <button
                   onClick={() => setInput("Explain the key concepts I should know for AP Calculus")}
-                  className="p-3 rounded-lg bg-slate-50 hover:bg-slate-100 text-sm text-slate-700 transition-colors"
+                  className="p-3 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-sm text-slate-200 transition-colors"
                 >
                   💡 Key concepts for AP Calculus
                 </button>
                 <button
                   onClick={() => setInput("What types of questions appear most on the SAT Math section?")}
-                  className="p-3 rounded-lg bg-slate-50 hover:bg-slate-100 text-sm text-slate-700 transition-colors"
+                  className="p-3 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-sm text-slate-200 transition-colors"
                 >
                   📝 Common SAT Math questions
                 </button>
                 <button
                   onClick={() => setInput("How do I solve quadratic equations?")}
-                  className="p-3 rounded-lg bg-slate-50 hover:bg-slate-100 text-sm text-slate-700 transition-colors"
+                  className="p-3 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-sm text-slate-200 transition-colors"
                 >
                   🔢 Solving quadratic equations
                 </button>
                 <button
                   onClick={() => setInput("Tips for remembering formulas")}
-                  className="p-3 rounded-lg bg-slate-50 hover:bg-slate-100 text-sm text-slate-700 transition-colors"
+                  className="p-3 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-sm text-slate-200 transition-colors"
                 >
                   🧠 Memory tips for formulas
                 </button>
@@ -248,7 +248,7 @@ Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper e
                 )}
               >
                 {message.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center flex-shrink-0">
                     <Brain className="w-4 h-4 text-white" />
                   </div>
                 )}
@@ -256,8 +256,8 @@ Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper e
                   className={cn(
                     "max-w-[85%] rounded-2xl px-4 py-3",
                     message.role === 'user'
-                      ? "bg-slate-900 text-white"
-                      : "bg-white border border-slate-200"
+                      ? "bg-violet-600 text-white"
+                      : "bg-slate-800/60 backdrop-blur-sm border border-slate-700/50"
                   )}
                 >
                   {message.role === 'user' ? (
@@ -333,10 +333,10 @@ Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper e
           )}
           {loading && (
             <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center">
                 <Brain className="w-4 h-4 text-white" />
               </div>
-              <div className="bg-white border border-slate-200 rounded-2xl px-4 py-3">
+              <div className="bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-2xl px-4 py-3">
                 <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
               </div>
             </div>
@@ -345,7 +345,7 @@ Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper e
       </div>
 
       {/* Input */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
+      <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-lg p-4">
           {uploadedFiles.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-3 pb-3 border-b border-slate-100">
               {uploadedFiles.map((file, idx) => (
@@ -355,7 +355,7 @@ Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper e
                       <img 
                         src={file.url} 
                         alt={file.name}
-                        className="max-w-[100px] max-h-[100px] rounded-lg border border-slate-200"
+                        className="max-w-[100px] max-h-[100px] rounded-lg border border-slate-600"
                       />
                       <button
                         onClick={() => removeFile(idx)}
@@ -365,9 +365,9 @@ Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper e
                       </button>
                     </div>
                   ) : (
-                    <div className="relative px-3 py-2 bg-slate-100 rounded-lg flex items-center gap-2">
-                      <Paperclip className="w-4 h-4 text-slate-600" />
-                      <span className="text-xs text-slate-700">{file.name}</span>
+                    <div className="relative px-3 py-2 bg-slate-700/50 rounded-lg flex items-center gap-2">
+                      <Paperclip className="w-4 h-4 text-slate-300" />
+                      <span className="text-xs text-slate-300">{file.name}</span>
                       <button
                         onClick={() => removeFile(idx)}
                         className="ml-1"
@@ -423,7 +423,7 @@ Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper e
               )}
             </Button>
           </div>
-        <p className="text-xs text-slate-400 mt-2">
+        <p className="text-xs text-slate-500 mt-2">
           Press Enter to send, Shift+Enter for new line • Upload images for analysis
         </p>
       </div>

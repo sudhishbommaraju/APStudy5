@@ -173,11 +173,11 @@ Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
       <div className="grid lg:grid-cols-3 gap-6">
           {/* Generator */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl border border-slate-200 p-6 sticky top-6">
-              <h3 className="font-semibold text-slate-900 mb-4">Generate Notes</h3>
+            <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 sticky top-6">
+              <h3 className="font-semibold text-slate-100 mb-4">Generate Notes</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-slate-700 mb-1 block">
+                  <label className="text-sm font-medium text-slate-300 mb-1 block">
                     Unit Name
                   </label>
                   <Input
@@ -187,7 +187,7 @@ Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-700 mb-1 block">
+                  <label className="text-sm font-medium text-slate-300 mb-1 block">
                     Topics to Cover
                   </label>
                   <Textarea
@@ -200,7 +200,7 @@ Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
                 <Button
                   onClick={generateNotes}
                   disabled={generating || !unitName || !topics}
-                  className="w-full"
+                  className="w-full bg-violet-600 hover:bg-violet-700"
                 >
                   {generating ? (
                     <>
@@ -221,14 +221,14 @@ Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
           {/* Notes List */}
           <div className="lg:col-span-2 space-y-4">
             {generatedNote && (
-              <div className="bg-white rounded-xl border-2 border-emerald-200 p-6">
+              <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border-2 border-emerald-500/50 p-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
-                    <Sparkles className="w-4 h-4 text-emerald-600" />
+                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 text-emerald-400" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-900">{generatedNote.title}</h3>
-                    <p className="text-sm text-slate-500">{generatedNote.unit_name}</p>
+                    <h3 className="font-semibold text-slate-100">{generatedNote.title}</h3>
+                    <p className="text-sm text-slate-400">{generatedNote.unit_name}</p>
                   </div>
                 </div>
                 <div className="prose prose-sm max-w-none">
@@ -240,12 +240,12 @@ Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
             )}
 
             {notes.filter(n => n.created_by === user?.email).map((note) => (
-              <div key={note.id} className="bg-white rounded-xl border border-slate-200 p-6">
+              <div key={note.id} className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <FileText className="w-5 h-5 text-slate-400" />
+                  <FileText className="w-5 h-5 text-violet-400" />
                   <div>
-                    <h3 className="font-semibold text-slate-900">{note.title}</h3>
-                    <p className="text-sm text-slate-500">{note.unit_name}</p>
+                    <h3 className="font-semibold text-slate-100">{note.title}</h3>
+                    <p className="text-sm text-slate-400">{note.unit_name}</p>
                   </div>
                 </div>
                 <div className="prose prose-sm max-w-none">
@@ -257,10 +257,10 @@ Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
             ))}
 
             {notes.filter(n => n.created_by === user?.email).length === 0 && !generatedNote && (
-              <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
-                <FileText className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                <h3 className="font-semibold text-slate-900 mb-2">No notes yet</h3>
-                <p className="text-slate-500 text-sm">Generate your first set of study notes</p>
+              <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-12 text-center">
+                <FileText className="w-12 h-12 text-slate-500 mx-auto mb-4" />
+                <h3 className="font-semibold text-slate-100 mb-2">No notes yet</h3>
+                <p className="text-slate-400 text-sm">Generate your first set of study notes</p>
               </div>
             )}
         </div>

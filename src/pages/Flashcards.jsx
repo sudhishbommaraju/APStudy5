@@ -162,7 +162,7 @@ Return an array of flashcard objects.`;
 
   if (studyMode && studyCards.length > 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-2xl">
           <div className="flex items-center justify-between mb-6">
             <Button variant="ghost" onClick={() => setStudyMode(false)}>
@@ -177,17 +177,17 @@ Return an array of flashcard objects.`;
           <div
             onClick={() => setFlipped(!flipped)}
             className={cn(
-              "bg-white rounded-2xl border-2 border-slate-200 p-12 min-h-[400px] flex items-center justify-center cursor-pointer transition-all hover:border-slate-300",
-              flipped && "bg-slate-50"
+              "bg-slate-800/40 backdrop-blur-sm rounded-2xl border-2 border-slate-700/50 p-12 min-h-[400px] flex items-center justify-center cursor-pointer transition-all hover:border-violet-500/50",
+              flipped && "bg-slate-800/60"
             )}
           >
             <div className="text-center">
               {!flipped ? (
                 <>
-                  <p className="text-xs uppercase tracking-wider text-slate-500 mb-4">
+                  <p className="text-xs uppercase tracking-wider text-slate-400 mb-4">
                     Question
                   </p>
-                  <div className="text-xl font-medium text-slate-900 prose prose-slate max-w-none">
+                  <div className="text-xl font-medium text-slate-100 prose prose-slate max-w-none">
                     <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                       {currentCard.front}
                     </ReactMarkdown>
@@ -195,10 +195,10 @@ Return an array of flashcard objects.`;
                 </>
               ) : (
                 <>
-                  <p className="text-xs uppercase tracking-wider text-slate-500 mb-4">
+                  <p className="text-xs uppercase tracking-wider text-slate-400 mb-4">
                     Answer
                   </p>
-                  <div className="text-lg text-slate-700 leading-relaxed prose prose-slate max-w-none">
+                  <div className="text-lg text-slate-300 leading-relaxed prose prose-slate max-w-none">
                     <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
                       {currentCard.back}
                     </ReactMarkdown>
@@ -220,7 +220,7 @@ Return an array of flashcard objects.`;
               </Button>
               <Button
                 onClick={handleKnew}
-                className="flex-1 h-14 bg-emerald-600 hover:bg-emerald-700"
+                className="flex-1 h-14 bg-emerald-500 hover:bg-emerald-600"
               >
                 <Check className="w-5 h-5 mr-2" />
                 Knew It
@@ -244,11 +244,11 @@ Return an array of flashcard objects.`;
 
       <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl border border-slate-200 p-6 sticky top-6">
-              <h3 className="font-semibold text-slate-900 mb-4">Generate Flashcards</h3>
+            <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 sticky top-6">
+              <h3 className="font-semibold text-slate-100 mb-4">Generate Flashcards</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium text-slate-700 mb-1 block">
+                  <label className="text-sm font-medium text-slate-300 mb-1 block">
                     Unit Name
                   </label>
                   <Input
@@ -258,7 +258,7 @@ Return an array of flashcard objects.`;
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-700 mb-1 block">
+                  <label className="text-sm font-medium text-slate-300 mb-1 block">
                     Topics
                   </label>
                   <Textarea
@@ -269,7 +269,7 @@ Return an array of flashcard objects.`;
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-700 mb-1 block">
+                  <label className="text-sm font-medium text-slate-300 mb-1 block">
                     Number of Cards: {cardCount}
                   </label>
                   <input
@@ -284,7 +284,7 @@ Return an array of flashcard objects.`;
                 <Button
                   onClick={generateFlashcards}
                   disabled={generating || !unitName || !topics}
-                  className="w-full"
+                  className="w-full bg-violet-600 hover:bg-violet-700"
                 >
                   {generating ? (
                     <>
@@ -306,10 +306,10 @@ Return an array of flashcard objects.`;
             {flashcards.length > 0 ? (
               <>
                 <div className="flex items-center justify-between mb-4">
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm text-slate-400">
                     {flashcards.length} cards
                   </p>
-                  <Button onClick={startStudySession}>
+                  <Button onClick={startStudySession} className="bg-violet-600 hover:bg-violet-700">
                     <Brain className="w-4 h-4 mr-2" />
                     Start Studying
                   </Button>
@@ -319,27 +319,27 @@ Return an array of flashcard objects.`;
                   {flashcards.map((card) => (
                       <div
                         key={card.id}
-                        className="bg-white rounded-lg border border-slate-200 p-4"
+                        className="bg-slate-800/40 backdrop-blur-sm rounded-lg border border-slate-700/50 p-4"
                       >
                         <div className="flex items-start justify-between mb-2">
-                          <span className="text-xs text-slate-500">{card.unit_name}</span>
+                          <span className="text-xs text-slate-400">{card.unit_name}</span>
                           {card.times_reviewed > 0 && (
-                            <span className="text-xs text-slate-500">
+                            <span className="text-xs text-slate-400">
                               {((card.times_correct / card.times_reviewed) * 100).toFixed(0)}% accuracy
                             </span>
                           )}
                         </div>
-                        <p className="font-medium text-slate-900 mb-2">{card.front}</p>
-                        <p className="text-sm text-slate-600">{card.back}</p>
+                        <p className="font-medium text-slate-100 mb-2">{card.front}</p>
+                        <p className="text-sm text-slate-300">{card.back}</p>
                       </div>
                     ))}
                 </div>
               </>
             ) : (
-              <div className="bg-white rounded-xl border border-slate-200 p-12 text-center">
-                <Brain className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                <h3 className="font-semibold text-slate-900 mb-2">No flashcards yet</h3>
-                <p className="text-slate-500 text-sm">Generate your first set of flashcards</p>
+              <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-12 text-center">
+                <Brain className="w-12 h-12 text-slate-500 mx-auto mb-4" />
+                <h3 className="font-semibold text-slate-100 mb-2">No flashcards yet</h3>
+                <p className="text-slate-400 text-sm">Generate your first set of flashcards</p>
               </div>
             )}
         </div>
