@@ -176,7 +176,7 @@ Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper e
             Ask questions and get detailed explanations
           </p>
           {user?.plan === 'free' && (
-            <p className="text-sm text-slate-500 mt-2">
+            <p className="text-sm text-slate-300 mt-2">
               Daily questions: {(user.daily_tutor_count || 0)}/5 used
             </p>
           )}

@@ -162,7 +162,7 @@ Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
           <h1 className="page-title">Study Notes</h1>
           <p className="page-description">AI-generated notes for each unit</p>
           {user?.plan === 'free' && (
-            <p className="text-sm text-slate-500 mt-2">
+            <p className="text-sm text-slate-300 mt-2">
               Daily note generations: {(user.daily_notes_count || 0)}/5 used
             </p>
           )}

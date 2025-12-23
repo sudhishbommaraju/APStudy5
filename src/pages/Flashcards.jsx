@@ -165,11 +165,11 @@ Return an array of flashcard objects.`;
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-2xl">
           <div className="flex items-center justify-between mb-6">
-            <Button variant="ghost" onClick={() => setStudyMode(false)}>
+            <Button variant="ghost" onClick={() => setStudyMode(false)} className="text-slate-200 hover:text-white">
               <ChevronLeft className="w-4 h-4 mr-1" />
               Exit Study Mode
             </Button>
-            <span className="text-sm text-slate-500">
+            <span className="text-sm text-slate-200">
               {currentCardIndex + 1} / {studyCards.length}
             </span>
           </div>
