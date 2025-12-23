@@ -407,7 +407,7 @@ Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper e
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask me anything about your studies..."
-              className="flex-1 min-h-[60px] max-h-[200px] resize-none"
+              className="flex-1 min-h-[60px] max-h-[200px] resize-none text-white"
               disabled={loading}
             />
             <Button
