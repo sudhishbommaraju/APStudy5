@@ -109,9 +109,11 @@ export default function Layout({ children, currentPageName }) {
                 <Link
                   key={item.page}
                   to={createPageUrl(item.page)}
-                  className="flex items-center gap-1 px-2 py-1.5 text-xs font-medium text-black rounded-lg hover:bg-white/10 transition-all"
+                  className="flex items-center gap-1 px-2 py-1.5 text-xs font-bold rounded-lg hover:bg-white/10 transition-all"
                   style={{ 
-                    fontFamily: 'Georgia, serif'
+                    fontFamily: 'Georgia, serif',
+                    color: '#000',
+                    textShadow: '0 0 8px rgba(168, 85, 247, 0.6), 0 0 15px rgba(168, 85, 247, 0.3)'
                   }}
                 >
                   <item.icon className="w-3 h-3" />
