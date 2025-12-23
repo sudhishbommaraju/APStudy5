@@ -5,9 +5,8 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Target, Brain, TrendingUp, CheckCircle2 } from 'lucide-react';
 
 export default function Home() {
-
   const handleGetStarted = () => {
-    base44.auth.redirectToLogin(createPageUrl('Onboarding'));
+    base44.auth.redirectToLogin(createPageUrl('Dashboard'));
   };
 
   const handleLogin = () => {
@@ -173,12 +172,14 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { icon: Target, title: 'Personalized Plans', desc: 'Study what matters most' },
-              { icon: Brain, title: 'Adaptive Practice', desc: 'Questions that match your level' },
-              { icon: TrendingUp, title: 'Track Progress', desc: 'See your improvement' },
-              { icon: CheckCircle2, title: 'Master Skills', desc: 'Build confidence' },
+              { icon: Target, title: 'Personalized Practice', desc: 'AI-powered questions tailored to your skill level and learning gaps' },
+              { icon: Brain, title: 'AP-Style Exams', desc: 'Full-length practice exams with real-time scoring and feedback' },
+              { icon: TrendingUp, title: 'Skill Mastery Tracking', desc: 'Visual progress reports showing exactly where you stand' },
+              { icon: CheckCircle2, title: 'AI-Generated Notes', desc: 'Comprehensive study materials created for every topic' },
+              { icon: Target, title: 'Flashcards', desc: 'Spaced repetition system for memorization and retention' },
+              { icon: Brain, title: 'AI Tutor Mode', desc: '24/7 personal tutor to answer questions and explain concepts' },
             ].map((feature, i) => (
               <div 
                 key={i}
@@ -189,6 +190,33 @@ export default function Home() {
                 <p className="text-slate-400 text-sm">{feature.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why Proofly Was Built */}
+      <section className="py-20 border-t border-slate-800">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-white mb-4" style={{ fontFamily: 'Georgia, serif' }}>
+              Why Proofly Was Built
+            </h2>
+          </div>
+          <div className="bg-slate-900/50 border border-slate-800 rounded-2xl p-8 lg:p-12">
+            <div className="prose prose-lg prose-invert max-w-none">
+              <p className="text-slate-300 text-lg leading-relaxed mb-6">
+                As a high school student preparing for AP exams, I struggled to find effective study tools that adapted to my learning pace. Generic practice materials didn't target my weak areas, and I spent hours reviewing concepts I already understood.
+              </p>
+              <p className="text-slate-300 text-lg leading-relaxed mb-6">
+                I realized that with AI, we could create a smarter study platform—one that learns from each answer, identifies knowledge gaps, and generates personalized practice exactly where students need it most.
+              </p>
+              <p className="text-slate-300 text-lg leading-relaxed">
+                Proofly was built to give every student the adaptive, intelligent study partner they deserve. Whether you're aiming for a 5 on AP Calculus or mastering SAT Math, Proofly meets you where you are and helps you get where you want to be.
+              </p>
+              <div className="mt-8 pt-6 border-t border-slate-700">
+                <p className="text-slate-400 text-sm">— Proofly Team</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
