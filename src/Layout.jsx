@@ -148,7 +148,7 @@ export default function Layout({ children, currentPageName }) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <div className="px-2 py-1.5">
-                    <p className="text-sm font-medium text-slate-900">{user?.full_name || 'Student'}</p>
+                    <p className="text-sm font-bold text-black">{user?.full_name || 'Student'}</p>
                     <p className="text-xs text-slate-500 truncate">{user?.email}</p>
                   </div>
                   <DropdownMenuSeparator />
