@@ -64,7 +64,6 @@ export default function GlobalNav() {
     { label: 'Flashcards', path: createPageUrl('Flashcards') },
     { label: 'Progress', path: createPageUrl('Progress') },
     { label: 'Pricing', path: createPageUrl('Pricing') },
-    { label: 'Settings', path: createPageUrl('Settings') },
   ];
 
   const navItems = user ? appNavItems : marketingNavItems;
@@ -135,7 +134,7 @@ export default function GlobalNav() {
                         <p className="text-xs text-slate-400">{user?.email}</p>
                       </div>
                       <DropdownMenuItem asChild>
-                        <Link to={createPageUrl('Settings')} className="cursor-pointer">
+                        <Link to={createPageUrl('Settings')} className="cursor-pointer text-slate-100 focus:text-white">
                           <User className="w-4 h-4 mr-2" />
                           Account Settings
                         </Link>
