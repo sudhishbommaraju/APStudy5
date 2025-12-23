@@ -56,6 +56,12 @@ export default function GlobalNav() {
 
   // App pages nav items
   const appNavItems = [
+    { label: 'Practice', path: createPageUrl('Practice') },
+    { label: 'Exam', path: createPageUrl('Exam') },
+    { label: 'Tutor', path: createPageUrl('Tutor') },
+    { label: 'Notes', path: createPageUrl('Notes') },
+    { label: 'Flashcards', path: createPageUrl('Flashcards') },
+    { label: 'Progress', path: createPageUrl('Progress') },
     { label: 'Pricing', path: createPageUrl('Pricing') },
   ];
 
