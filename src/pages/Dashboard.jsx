@@ -122,7 +122,7 @@ export default function Dashboard() {
 
         {/* Hero Section */}
         <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border border-slate-200 p-4 mb-4">
-          <h1 className="text-xl font-bold text-slate-900 mb-1">
+          <h1 className="text-xl font-bold mb-1" style={{ color: '#000', textShadow: '0 0 10px rgba(168, 85, 247, 0.8), 0 0 20px rgba(168, 85, 247, 0.4)' }}>
             {getGreeting()}{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
           </h1>
           <p className="text-slate-600 text-sm mb-3">
