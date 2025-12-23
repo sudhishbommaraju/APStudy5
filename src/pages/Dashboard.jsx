@@ -133,6 +133,63 @@ export default function Dashboard() {
       </div>
 
       <div className="space-y-6">
+  
+        {/* Recommended Study Subject */}
+        {totalQuestions > 10 && (() => {
+          // Find weakest subject based on accuracy
+          const subjectStats = {};
+          userAttempts.forEach(a => {
+            if (!subjectStats[a.subject_id]) {
+              subjectStats[a.subject_id] = { correct: 0, total: 0 };
+            }
+            subjectStats[a.subject_id].total++;
+            if (a.is_correct) subjectStats[a.subject_id].correct++;
+          });
+          
+          const weakestSubject = Object.entries(subjectStats)
+            .filter(([_, stats]) => stats.total >= 5) // Only consider subjects with at least 5 attempts
+            .map(([subject_id, stats]) => ({
+              subject_id,
+              accuracy: (stats.correct / stats.total) * 100,
+              ...stats
+            }))
+            .sort((a, b) => a.accuracy - b.accuracy)[0];
+          
+          if (weakestSubject) {
+            const subjectData = subjects.find(s => s.subject_id === weakestSubject.subject_id);
+            if (subjectData) {
+              return (
+                <div className="bg-gradient-to-br from-rose-500/10 to-orange-500/10 backdrop-blur-sm rounded-xl border border-rose-500/30 p-6 shadow-lg">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="text-sm font-semibold text-rose-200 mb-1">⚠️ Needs Attention</h3>
+                      <p className="text-xs text-rose-300/80">Focus on your weakest area</p>
+                    </div>
+                    <Target className="w-5 h-5 text-rose-400" />
+                  </div>
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-2xl">{subjectData.icon}</span>
+                    <div>
+                      <p className="text-base font-semibold text-slate-100">{subjectData.name}</p>
+                      <p className="text-sm text-rose-300">
+                        {weakestSubject.accuracy.toFixed(0)}% accuracy • {weakestSubject.correct}/{weakestSubject.total} correct
+                      </p>
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={() => navigate(createPageUrl('Practice') + `?subject=${weakestSubject.subject_id}`)}
+                    size="sm"
+                    className="w-full bg-rose-500 hover:bg-rose-600"
+                  >
+                    <BookOpen className="w-4 h-4 mr-2" />
+                    Practice {subjectData.name}
+                  </Button>
+                </div>
+              );
+            }
+          }
+          return null;
+        })()}
 
         {/* Progress Snapshot */}
         <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg">
