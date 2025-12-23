@@ -11,8 +11,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import StudyTimer from '@/components/study/StudyTimer';
-import { checkAndResetCredits, checkCredits, useCredit } from '@/components/monetization/CreditHelper';
-import UpgradeModal from '@/components/monetization/UpgradeModal';
+
 
 export default function Notes() {
   const [user, setUser] = useState(null);
@@ -21,7 +20,6 @@ export default function Notes() {
   const [unitName, setUnitName] = useState('');
   const [topics, setTopics] = useState('');
   const [generatedNote, setGeneratedNote] = useState(null);
-  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -29,9 +27,8 @@ export default function Notes() {
     const loadUser = async () => {
       try {
         const currentUser = await base44.auth.me();
-        const { user: refreshedUser } = await checkAndResetCredits(currentUser);
-        setUser(refreshedUser);
-        setSelectedExam(refreshedUser.primary_exam || refreshedUser.selected_exams?.[0]);
+        setUser(currentUser);
+        setSelectedExam(currentUser.primary_exam || currentUser.selected_exams?.[0]);
       } catch (e) {
         // User not authenticated, continue without user
       }
@@ -47,13 +44,6 @@ export default function Notes() {
 
   const generateNotes = async () => {
     if (!unitName || !topics) return;
-    
-    // Check credits
-    const { allowed, remaining } = await checkCredits(user, 'daily_notes_count');
-    if (!allowed) {
-      setUpgradeModalOpen(true);
-      return;
-    }
     
     setGenerating(true);
     try {
@@ -145,10 +135,6 @@ Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
       queryClient.invalidateQueries({ queryKey: ['notes'] });
       setUnitName('');
       setTopics('');
-      
-      // Use a credit
-      const updatedUser = await useCredit(user, 'daily_notes_count');
-      setUser(updatedUser);
     } catch (e) {
       console.error('Failed to generate notes:', e);
     }
@@ -161,11 +147,6 @@ Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
         <div>
           <h1 className="page-title">Study Notes</h1>
           <p className="page-description">AI-generated notes for each unit</p>
-          {user?.plan === 'free' && (
-            <p className="text-sm text-slate-300 mt-2">
-              Daily note generations: {(user.daily_notes_count || 0)}/5 used
-            </p>
-          )}
         </div>
         <StudyTimer examType={selectedExam} activityType="notes" />
       </div>
@@ -267,8 +248,6 @@ Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
             )}
         </div>
       </div>
-      
-      <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
     </>
   );
 }
