@@ -87,6 +87,26 @@ export default function Home() {
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(180deg, #1e3a5f 0%, #2d5a7b 100%)', fontFamily: 'Georgia, serif' }}>
       
+      {/* Navigation Bar */}
+      <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366F1, #A78BFA)' }}>
+                <span className="text-white font-bold text-sm">P</span>
+              </div>
+              <span className="font-bold text-xl text-slate-900" style={{ fontFamily: 'Georgia, serif' }}>Proofly</span>
+            </div>
+            
+            {/* Sign Up Button */}
+            <Button onClick={handleGetStarted} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+              Sign Up
+            </Button>
+          </div>
+        </div>
+      </nav>
+      
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(99,102,241,0.1),transparent_50%)]" />
