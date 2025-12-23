@@ -255,6 +255,7 @@ Return an array of flashcard objects.`;
                     placeholder="e.g., Unit 2: Cell Structure"
                     value={unitName}
                     onChange={(e) => setUnitName(e.target.value)}
+                    className="text-white"
                   />
                 </div>
                 <div>
@@ -266,6 +267,7 @@ Return an array of flashcard objects.`;
                     value={topics}
                     onChange={(e) => setTopics(e.target.value)}
                     rows={3}
+                    className="text-white"
                   />
                 </div>
                 <div>

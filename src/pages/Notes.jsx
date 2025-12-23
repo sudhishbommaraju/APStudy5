@@ -184,6 +184,7 @@ Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
                     placeholder="e.g., Unit 3: Derivatives"
                     value={unitName}
                     onChange={(e) => setUnitName(e.target.value)}
+                    className="text-white"
                   />
                 </div>
                 <div>
@@ -195,6 +196,7 @@ Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
                     value={topics}
                     onChange={(e) => setTopics(e.target.value)}
                     rows={4}
+                    className="text-white"
                   />
                 </div>
                 <Button
