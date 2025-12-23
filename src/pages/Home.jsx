@@ -5,8 +5,22 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Target, Brain, TrendingUp, CheckCircle2 } from 'lucide-react';
 
 export default function Home() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const isAuth = await base44.auth.isAuthenticated();
+      setIsAuthenticated(isAuth);
+    };
+    checkAuth();
+  }, []);
+
   const handleGetStarted = () => {
-    base44.auth.redirectToLogin(createPageUrl('Dashboard'));
+    if (isAuthenticated) {
+      window.location.href = createPageUrl('Dashboard');
+    } else {
+      base44.auth.redirectToLogin(createPageUrl('Dashboard'));
+    }
   };
 
   const handleLogin = () => {
