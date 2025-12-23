@@ -1,196 +1,133 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { base44 } from '@/api/base44Client';
-import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
+import { Check, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, X, Crown, Zap, ChevronLeft } from 'lucide-react';
-import UpgradeModal from '@/components/monetization/UpgradeModal';
 import StripeCheckout from '@/components/monetization/StripeCheckout';
 
-export default function Pricing() {
-  const [user, setUser] = useState(null);
-  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+const FREE_FEATURES = [
+  'Limited daily practice questions',
+  'Basic skill mastery tracking',
+  'Short diagnostic exams',
+  'Study plan previews',
+];
 
-  useEffect(() => {
+const PRO_FEATURES = [
+  'Unlimited practice questions',
+  'Full adaptive study plans',
+  'Personalized multi-unit exams',
+  'Advanced error tracking',
+  'Focus Mode for exams',
+  'Priority AI tutor access',
+  'AI-generated notes & flashcards',
+  'Detailed progress analytics',
+];
+
+export default function Pricing() {
+  const [user, setUser] = React.useState(null);
+
+  React.useEffect(() => {
     const loadUser = async () => {
-      const currentUser = await base44.auth.me();
-      setUser(currentUser);
+      try {
+        const isAuth = await base44.auth.isAuthenticated();
+        if (isAuth) {
+          const currentUser = await base44.auth.me();
+          setUser(currentUser);
+        }
+      } catch (e) {
+        // Not authenticated
+      }
     };
     loadUser();
   }, []);
 
-  const handleUpgradeSuccess = () => {
-    window.location.reload();
+  const handleGetStarted = () => {
+    base44.auth.redirectToLogin(window.location.href);
   };
 
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-slate-300 border-t-slate-600 rounded-full" />
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #e8f1f8, #d9e9f5)', fontFamily: 'Georgia, serif' }}>
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-6">
-          <Link to={createPageUrl('Dashboard')}>
-            <Button variant="ghost" size="icon">
-              <ChevronLeft className="w-5 h-5" />
+    <>
+      {/* Page Header */}
+      <div className="page-header text-center">
+        <h1 className="page-title">Simple, transparent pricing</h1>
+        <p className="page-description max-w-2xl mx-auto">
+          Choose the plan that works best for your study goals
+        </p>
+      </div>
+
+      {/* Pricing Cards */}
+      <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        {/* Free Plan */}
+        <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+          <h3 className="text-2xl font-bold text-slate-900 mb-2">Free</h3>
+          <p className="text-slate-600 mb-6">Get started with essential tools</p>
+          
+          <div className="mb-6">
+            <p className="text-4xl font-bold text-slate-900">$0</p>
+          </div>
+
+          <div className="space-y-3 mb-8">
+            {FREE_FEATURES.map((feature, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <Check className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5" />
+                <span className="text-slate-700">{feature}</span>
+              </div>
+            ))}
+          </div>
+
+          {!user && (
+            <Button onClick={handleGetStarted} variant="outline" className="w-full">
+              Get started
             </Button>
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Choose Your Plan</h1>
-            <p className="text-slate-500">Unlock your full learning potential</p>
-          </div>
+          )}
         </div>
 
-        {/* Pricing Plans */}
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Free Plan */}
-          <div className="bg-white border-2 border-slate-200 rounded-xl p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h4 className="text-2xl font-bold text-slate-900">Free</h4>
-              <div className="text-3xl font-bold text-slate-900">$0</div>
-            </div>
-            <p className="text-slate-600 text-sm mb-6">Perfect for getting started</p>
-            
-            <ul className="space-y-3 mb-6">
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-700">5 practice exams per day</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-700">3 custom timed exams per day</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-700">5 AI tutor questions per day</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-700">5 note sets per day</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-700">Flashcards</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-700">Progress tracking</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-700">Generate from notes/videos</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-700">All core features</span>
-              </li>
-            </ul>
+        {/* Pro Plan */}
+        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl border-2 border-indigo-200 p-8 shadow-lg relative">
+          <div className="absolute top-0 right-0 bg-indigo-600 text-white px-4 py-1 text-sm font-semibold rounded-tr-2xl rounded-bl-lg">
+            POPULAR
+          </div>
+          
+          <h3 className="text-2xl font-bold text-slate-900 mb-2">Pro</h3>
+          <p className="text-slate-700 mb-6">Study smarter with unlimited access</p>
+          
+          <div className="mb-6">
+            <p className="text-4xl font-bold text-slate-900">
+              $5.99<span className="text-lg font-normal text-slate-600">/month</span>
+            </p>
+          </div>
 
-            {user?.plan === 'free' ? (
-              <div className="text-center py-3 text-sm text-slate-500 font-medium border-2 border-slate-200 rounded-lg">
-                Current Plan
+          <div className="space-y-3 mb-8">
+            {PRO_FEATURES.map((feature, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <Check className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-0.5" />
+                <span className="text-slate-900 font-medium">{feature}</span>
               </div>
-            ) : (
-              <Button variant="outline" className="w-full" disabled>
-                Current: Pro Plan
+            ))}
+          </div>
+
+          {user ? (
+            user.plan === 'pro' ? (
+              <Button disabled className="w-full bg-slate-300">
+                Current Plan
               </Button>
-            )}
-          </div>
-
-          {/* Pro Plan */}
-          <div className="bg-white border-2 border-purple-500 rounded-xl p-6 relative overflow-hidden shadow-lg">
-            <div className="absolute top-0 right-0 bg-gradient-to-br from-purple-500 to-indigo-600 text-white text-xs font-bold px-4 py-1.5 rounded-bl-lg">
-              POPULAR
-            </div>
-            
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <h4 className="text-2xl font-bold text-slate-900">Pro</h4>
-                <Crown className="w-6 h-6 text-purple-600" />
-              </div>
-              <div>
-                <div className="text-3xl font-bold text-slate-900">$5.99</div>
-                <div className="text-xs text-slate-500">/month</div>
-              </div>
-            </div>
-            <p className="text-slate-600 text-sm mb-6">Unlock your full potential</p>
-            
-            <ul className="space-y-3 mb-6">
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-700 font-medium">Unlimited practice exams</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-700 font-medium">Unlimited custom timed exams</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-700 font-medium">Unlimited AI tutor questions</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-700 font-medium">Unlimited note generation</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-700 font-medium">Unlimited flashcards</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-700 font-medium">Advanced analytics</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-700 font-medium">Priority support</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle2 className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
-                <span className="text-sm text-slate-700 font-medium">Export study materials</span>
-              </li>
-            </ul>
-
-            {user?.plan === 'free' ? (
-              <StripeCheckout user={user} onSuccess={handleUpgradeSuccess} />
             ) : (
-              <div className="text-center py-3 text-sm text-purple-600 font-medium border-2 border-purple-200 rounded-lg bg-purple-50">
-                Current Plan
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* FAQ or Additional Info */}
-        <div className="mt-8 bg-white rounded-xl border border-slate-200 p-6">
-          <h3 className="text-lg font-semibold text-slate-900 mb-4">Why upgrade to Pro?</h3>
-          <div className="grid sm:grid-cols-2 gap-4 text-sm text-slate-600">
-            <div>
-              <p className="font-medium text-slate-900 mb-1">🎯 Unlimited Practice</p>
-              <p>Generate as many questions as you need to master every topic</p>
-            </div>
-            <div>
-              <p className="font-medium text-slate-900 mb-1">🤖 AI Tutor</p>
-              <p>Get instant help and explanations whenever you're stuck</p>
-            </div>
-            <div>
-              <p className="font-medium text-slate-900 mb-1">📝 Custom Materials</p>
-              <p>Turn your own notes and videos into practice questions</p>
-            </div>
-            <div>
-              <p className="font-medium text-slate-900 mb-1">📊 Advanced Insights</p>
-              <p>Track your progress with detailed analytics and recommendations</p>
-            </div>
-          </div>
+              <StripeCheckout user={user} onSuccess={() => window.location.reload()} />
+            )
+          ) : (
+            <Button onClick={handleGetStarted} className="w-full bg-indigo-600 hover:bg-indigo-700">
+              <Sparkles className="w-4 h-4 mr-2" />
+              Upgrade to Pro
+            </Button>
+          )}
         </div>
       </div>
 
-      <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
-    </div>
+      {/* FAQ or Additional Info */}
+      <div className="mt-16 text-center">
+        <p className="text-slate-600">
+          Cancel anytime. Student-friendly pricing. Questions? <a href="mailto:partnerships@proofly.com" className="text-indigo-600 hover:underline">Contact us</a>
+        </p>
+      </div>
+    </>
   );
 }

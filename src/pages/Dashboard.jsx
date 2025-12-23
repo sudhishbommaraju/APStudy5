@@ -121,30 +121,22 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#F1F5FB', fontFamily: 'Georgia, serif' }}>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+    <>
+      {/* Page Header */}
+      <div className="page-header">
+        <h1 className="page-title">
+          {getGreeting()}{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
+        </h1>
+        <p className="page-description">
+          Choose a subject and start a personalized study session.
+        </p>
+      </div>
 
-        {/* Hero Section */}
-        <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl border border-slate-200 p-4 mb-4">
-          <h1 className="text-xl font-bold mb-1" style={{ color: '#000', textShadow: '0 0 10px rgba(168, 85, 247, 0.8), 0 0 20px rgba(168, 85, 247, 0.4)' }}>
-            {getGreeting()}{user?.full_name ? `, ${user.full_name.split(' ')[0]}` : ''}
-          </h1>
-          <p className="text-slate-600 text-sm mb-3">
-            Choose a subject and start a personalized study session.
-          </p>
-          <Button 
-            size="sm" 
-            onClick={() => document.getElementById('study-action-card')?.scrollIntoView({ behavior: 'smooth' })}
-            className="bg-indigo-600 hover:bg-indigo-700"
-          >
-            <Play className="w-4 h-4 mr-2" />
-            Start Study Session
-          </Button>
-        </div>
+      <div className="space-y-6">
 
         {/* Study Action Card - PRIMARY */}
-        <div id="study-action-card" className="bg-white rounded-xl border border-slate-200 p-4 mb-4 shadow-sm">
-          <h2 className="text-base font-semibold text-slate-900 mb-3">Start Studying</h2>
+        <div id="study-action-card" className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">Start Studying</h2>
           
           <div className="space-y-3">
             {/* Subject Selector */}
@@ -239,7 +231,7 @@ export default function Dashboard() {
 
         {/* Today's Plan (Contextual) */}
         {recommendedSubject && totalQuestions > 10 && (
-          <div className="bg-white rounded-xl border border-slate-200 p-3 mb-4">
+          <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
             <div className="flex items-start justify-between mb-2">
               <div>
                 <h3 className="text-sm font-semibold text-slate-900">Recommended Session</h3>
@@ -273,8 +265,8 @@ export default function Dashboard() {
         )}
 
         {/* Progress Snapshot */}
-        <div className="bg-white rounded-xl border border-slate-200 p-3 mb-4">
-          <h3 className="text-sm font-semibold text-slate-900 mb-2">Your Progress</h3>
+        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-slate-900 mb-4">Your Progress</h3>
           <div className="grid sm:grid-cols-3 gap-2">
             <div className="text-center p-2 bg-slate-50 rounded-lg">
               <div className="text-xl font-bold text-slate-900">{totalQuestions}</div>
@@ -292,7 +284,7 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <button
             onClick={() => navigate(createPageUrl('Practice'))}
             className="bg-white rounded-lg border border-slate-200 p-3 hover:border-indigo-300 hover:shadow-sm transition-all text-left"
@@ -332,8 +324,7 @@ export default function Dashboard() {
 
         {/* Calendar */}
         <Calendar user={user} />
-
       </div>
-    </div>
+    </>
   );
 }

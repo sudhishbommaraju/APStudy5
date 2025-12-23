@@ -1,67 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
-import { 
-  LayoutDashboard, 
-  BookOpen, 
-  Clock, 
-  Sparkles, 
-  LogOut, 
-  Menu, 
-  X,
-  ChevronDown,
-  User,
-  TrendingUp,
-  FileText,
-  Brain,
-  Zap,
-  Info
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { createPageUrl } from '@/utils';
+import GlobalNav from '@/components/layout/GlobalNav';
 import UpgradeModal from '@/components/monetization/UpgradeModal';
-const NAV_ITEMS = [
-  { name: 'Dashboard', icon: LayoutDashboard, page: 'Dashboard' },
-  { name: 'Practice', icon: BookOpen, page: 'Practice' },
-  { name: 'Exam', icon: Clock, page: 'Exam' },
-  { name: 'Tutor', icon: Brain, page: 'Tutor' },
-  { name: 'Notes', icon: FileText, page: 'Notes' },
-  { name: 'Flashcards', icon: Brain, page: 'Flashcards' },
-  { name: 'Progress', icon: TrendingUp, page: 'Progress' },
-  { name: 'Pricing', icon: Zap, page: 'Pricing' },
-  { name: 'Generate', icon: Sparkles, page: 'Generate', adminOnly: true },
-  { name: 'Admin Users', icon: User, page: 'AdminUsers', adminOnly: true },
-];
-
-const EXAM_NAMES = {
-  ap_calculus: 'AP Calculus',
-  sat_math: 'SAT Math',
-  act_math: 'ACT Math',
-  psat_math: 'PSAT Math',
-};
 
 export default function Layout({ children, currentPageName }) {
-  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
-  // Pages that don't need the full layout
-  const noLayoutPages = ['Home', 'Onboarding'];
+  // Pages that don't need the layout wrapper
+  const noLayoutPages = ['Onboarding'];
   
   // Pages that require authentication
   const protectedPages = ['Dashboard', 'Practice', 'Exam', 'Tutor', 'Notes', 'Flashcards', 'Progress', 'Generate', 'AdminUsers', 'SeedData', 'MistakeReplay', 'Pricing'];
   
-  // Admin-only pages - redirect non-admins
+  // Admin-only pages
   const adminOnlyPages = ['AdminUsers', 'SeedData'];
 
   useEffect(() => {
@@ -83,20 +37,20 @@ export default function Layout({ children, currentPageName }) {
     loadUser();
   }, []);
 
-  // Authentication guard - redirect to login if not authenticated
+  // Authentication guard
   useEffect(() => {
     if (!isLoading && !user && protectedPages.includes(currentPageName)) {
       base44.auth.redirectToLogin(window.location.href);
     }
   }, [isLoading, user, currentPageName]);
   
-  // Check admin access
+  // Admin access check
   if (user && adminOnlyPages.includes(currentPageName) && user.role !== 'admin') {
     window.location.href = createPageUrl('Dashboard');
     return null;
   }
 
-  // Show loading state while checking auth
+  // Loading state for protected pages
   if (isLoading && protectedPages.includes(currentPageName)) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
@@ -105,127 +59,18 @@ export default function Layout({ children, currentPageName }) {
     );
   }
 
+  // No layout for specific pages
   if (noLayoutPages.includes(currentPageName)) {
     return children;
   }
 
-  const handleLogout = () => {
-    base44.auth.logout(createPageUrl('Home'));
-  };
-
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-primary-bg)' }}>
-      {/* Top Navigation */}
-      <header className="sticky top-0 z-50 galaxy-gradient-subtle border-b border-slate-700/30 bg-white shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-                <div className="flex items-center justify-between h-14">
-                  {/* Logo */}
-                  <Link to={createPageUrl('Dashboard')} className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366F1, #A78BFA)' }}>
-                      <span className="text-white font-bold text-sm">P</span>
-                    </div>
-                    <span className="font-bold text-lg text-black hidden sm:block">Proofly</span>
-                  </Link>
-
-            {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center gap-1">
-              {NAV_ITEMS.filter(item => !item.adminOnly || user?.role === 'admin').map((item) => (
-                <Link
-                  key={item.page}
-                  to={createPageUrl(item.page)}
-                  className="flex items-center gap-1 px-2 py-1.5 text-xs font-bold text-black rounded-lg hover:bg-white/10 transition-all"
-                  style={{ 
-                    fontFamily: 'Georgia, serif'
-                  }}
-                >
-                  <item.icon className="w-3 h-3" />
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-
-            {/* User Menu */}
-            <div className="flex items-center gap-2">
-              {/* Upgrade Button for Free Users */}
-              {user?.plan === 'free' && (
-                <button
-                  onClick={() => setUpgradeModalOpen(true)}
-                  className="hidden sm:flex items-center gap-1.5 px-5 py-2.5 rounded-full font-bold text-sm text-white transition-all hover:scale-105 animate-pulse"
-                  style={{ 
-                    background: 'linear-gradient(135deg, #A855F7, #C084FC)',
-                    boxShadow: '0 0 20px rgba(168, 85, 247, 0.6), 0 0 40px rgba(168, 85, 247, 0.3)'
-                  }}
-                >
-                  <Zap className="w-4 h-4" />
-                  Upgrade
-                </button>
-              )}
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white/10 transition-colors">
-                    <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                      <User className="w-4 h-4 text-white" />
-                    </div>
-                    <ChevronDown className="w-4 h-4 text-black hidden sm:block" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <div className="px-2 py-1.5">
-                    <p className="text-sm font-bold text-black">{user?.full_name || 'Student'}</p>
-                    <p className="text-xs text-slate-500 truncate">{user?.email}</p>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="text-rose-600">
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Mobile Menu Toggle */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-lg hover:bg-white/10"
-              >
-                {mobileMenuOpen ? (
-                  <X className="w-5 h-5 text-white" />
-                ) : (
-                  <Menu className="w-5 h-5 text-white" />
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile Nav */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-700/30 bg-slate-900/95 backdrop-blur-lg">
-            <nav className="px-4 py-2 space-y-1">
-              {NAV_ITEMS.filter(item => !item.adminOnly || user?.role === 'admin').map((item) => (
-                <Link
-                  key={item.page}
-                  to={createPageUrl(item.page)}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-white rounded-lg hover:bg-white/10 transition-all"
-                  style={{ 
-                    fontFamily: 'Georgia, serif'
-                  }}
-                >
-                  <item.icon className="w-4 h-4" />
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        )}
-      </header>
-
-      {/* Main Content */}
-      <main>{children}</main>
-
-      {/* Upgrade Modal */}
+    <div className="min-h-screen bg-slate-50">
+      <GlobalNav />
+      <main className="max-w-7xl mx-auto px-6 py-8">
+        {children}
+      </main>
       <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
-      </div>
-      );
-      }
+    </div>
+  );
+}
