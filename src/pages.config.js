@@ -12,6 +12,7 @@ import Pricing from './pages/Pricing';
 import Progress from './pages/Progress';
 import SeedData from './pages/SeedData';
 import Tutor from './pages/Tutor';
+import Settings from './pages/Settings';
 import __Layout from './Layout.jsx';
 
 
@@ -30,6 +31,7 @@ export const PAGES = {
     "Progress": Progress,
     "SeedData": SeedData,
     "Tutor": Tutor,
+    "Settings": Settings,
 }
 
 export const pagesConfig = {

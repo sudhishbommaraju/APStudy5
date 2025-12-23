@@ -64,6 +64,7 @@ export default function GlobalNav() {
     { label: 'Flashcards', path: createPageUrl('Flashcards') },
     { label: 'Progress', path: createPageUrl('Progress') },
     { label: 'Pricing', path: createPageUrl('Pricing') },
+    { label: 'Settings', path: createPageUrl('Settings') },
   ];
 
   const navItems = user ? appNavItems : marketingNavItems;
