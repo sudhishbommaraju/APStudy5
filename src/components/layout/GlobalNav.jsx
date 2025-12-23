@@ -104,28 +104,22 @@ export default function GlobalNav() {
             {!isLoading && (
               <div className="hidden lg:flex items-center gap-3">
                 {user ? (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-full hover:bg-white/5 transition-all duration-300">
-                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500/30 to-indigo-500/30 border border-violet-400/30 flex items-center justify-center shadow-[0_0_10px_rgba(139,92,246,0.3)]">
-                          <span className="text-xs font-semibold text-white">
-                            {user.full_name?.[0] || user.email?.[0] || 'U'}
-                          </span>
-                        </div>
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="bg-slate-900/95 backdrop-blur-xl border-slate-700/50">
-                      <div className="px-2 py-1.5">
-                        <p className="text-sm font-medium text-slate-100">{user?.full_name || 'Student'}</p>
-                        <p className="text-xs text-slate-400 truncate">{user?.email}</p>
+                  <>
+                    <div className="flex items-center gap-2 px-3 py-1.5">
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500/30 to-indigo-500/30 border border-violet-400/30 flex items-center justify-center shadow-[0_0_10px_rgba(139,92,246,0.3)]">
+                        <span className="text-xs font-semibold text-white">
+                          {user.full_name?.[0] || user.email?.[0] || 'U'}
+                        </span>
                       </div>
-                      <DropdownMenuSeparator className="bg-slate-800" />
-                      <DropdownMenuItem onClick={handleLogout} className="text-rose-400 hover:text-rose-300 focus:text-rose-300 hover:bg-slate-800 focus:bg-slate-800">
-                        <LogOut className="w-4 h-4 mr-2" />
-                        Logout
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                      <span className="text-sm font-medium text-slate-300">{user?.full_name || 'Student'}</span>
+                    </div>
+                    <button
+                      onClick={handleLogout}
+                      className="px-4 py-1.5 text-sm font-medium text-slate-300 hover:text-rose-400 rounded-full hover:bg-white/5 transition-all duration-300"
+                    >
+                      Logout
+                    </button>
+                  </>
                 ) : (
                   <>
                     <button
@@ -179,43 +173,41 @@ export default function GlobalNav() {
                     {item.label}
                   </Link>
                 ))}
-                {!isLoading && (
-                  <div className="border-t border-slate-700/50 my-2 pt-2">
-                    {user ? (
+                <div className="border-t border-slate-700/50 my-2 pt-2">
+                  {user ? (
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setMobileMenuOpen(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                    >
+                      Logout
+                    </button>
+                  ) : (
+                    <>
                       <button
                         onClick={() => {
-                          handleLogout();
+                          handleLogin();
                           setMobileMenuOpen(false);
                         }}
-                        className="block w-full text-left px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+                        className="block w-full text-left px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-all mb-2"
                       >
-                        Logout
+                        Login
                       </button>
-                    ) : (
-                      <>
-                        <button
-                          onClick={() => {
-                            handleLogin();
-                            setMobileMenuOpen(false);
-                          }}
-                          className="block w-full text-left px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-all mb-2"
-                        >
-                          Login
-                        </button>
-                        <button
-                          onClick={() => {
-                            handleGetStarted();
-                            setMobileMenuOpen(false);
-                          }}
-                          className="relative w-full px-4 py-2 text-sm font-semibold text-white rounded-lg overflow-hidden"
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600" />
-                          <span className="relative">Get Started</span>
-                        </button>
-                      </>
-                    )}
-                  </div>
-                )}
+                      <button
+                        onClick={() => {
+                          handleGetStarted();
+                          setMobileMenuOpen(false);
+                        }}
+                        className="relative w-full px-4 py-2 text-sm font-semibold text-white rounded-lg overflow-hidden"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600" />
+                        <span className="relative">Get Started</span>
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           )}
