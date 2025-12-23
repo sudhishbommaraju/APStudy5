@@ -118,11 +118,28 @@ export default function Practice() {
 
         CRITICAL FORMATTING REQUIREMENTS - READ CAREFULLY:
 
-        1. NEVER DUPLICATE EQUATIONS OR VALUES
-        2. NEVER show raw LaTeX commands like \\text, \\times, ^ in visible text
-        3. STRICTLY SEPARATE plain text from math blocks
-        4. ALL equations MUST be in $$ display blocks, ONE TIME ONLY
-        5. Units MUST use \\text{} inside math: $9.8 \\text{ m/s}^{2}$
+        1. FORMAT ALL NUMBERS AND FORMULAS IN LaTeX
+        2. In question_text: Use inline math $...$ for ALL numbers, variables, and formulas
+        3. In answer choices (choice_a, choice_b, choice_c, choice_d): Use inline math $...$ for ALL numbers and units
+        4. NEVER DUPLICATE EQUATIONS OR VALUES
+        5. NEVER show raw LaTeX commands like \\text, \\times, ^ in visible text
+        6. STRICTLY SEPARATE plain text from math blocks
+        7. ALL equations MUST be in $$ display blocks, ONE TIME ONLY
+        8. Units MUST use \\text{} inside math: $9.8 \\text{ m/s}^{2}$
+        
+        EXAMPLES OF CORRECT QUESTION/CHOICE FORMATTING:
+        
+        Question: "A ball is thrown with velocity $12 \\text{ m/s}$ at angle $30^\\circ$. What is the maximum height?"
+        Choice A: "$1.8 \\text{ m}$"
+        Choice B: "$3.7 \\text{ m}$"
+        Choice C: "$5.2 \\text{ m}$"
+        Choice D: "$7.1 \\text{ m}$"
+        
+        Question: "If $f(x) = 3x^2 + 5$, what is $f(2)$?"
+        Choice A: "$11$"
+        Choice B: "$17$"
+        Choice C: "$23$"
+        Choice D: "$29$"
 
         CORRECT EXPLANATION FORMAT (FOLLOW THIS EXACTLY):
 
