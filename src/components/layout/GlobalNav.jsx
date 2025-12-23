@@ -117,22 +117,36 @@ export default function GlobalNav() {
             {!isLoading && (
               <div className="hidden lg:flex items-center gap-3">
                 {user ? (
-                  <>
-                    <div className="flex items-center gap-2 px-3 py-1.5">
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500/30 to-indigo-500/30 border border-violet-400/30 flex items-center justify-center shadow-[0_0_10px_rgba(139,92,246,0.3)]">
-                        <span className="text-xs font-semibold text-white">
-                          {user.full_name?.[0] || user.email?.[0] || 'U'}
-                        </span>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-white/5 transition-all duration-300">
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500/30 to-indigo-500/30 border border-violet-400/30 flex items-center justify-center shadow-[0_0_10px_rgba(139,92,246,0.3)]">
+                          <span className="text-xs font-semibold text-white">
+                            {user.full_name?.[0] || user.email?.[0] || 'U'}
+                          </span>
+                        </div>
+                        <span className="text-sm font-medium text-slate-300">{user?.full_name || 'Student'}</span>
+                        <ChevronDown className="w-4 h-4 text-slate-400" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56 bg-slate-900/95 backdrop-blur-xl border-slate-700/50">
+                      <div className="px-3 py-2 border-b border-slate-700/50">
+                        <p className="text-sm font-medium text-slate-100">{user?.full_name || 'Student'}</p>
+                        <p className="text-xs text-slate-400">{user?.email}</p>
                       </div>
-                      <span className="text-sm font-medium text-slate-300">{user?.full_name || 'Student'}</span>
-                    </div>
-                    <button
-                      onClick={handleLogout}
-                      className="px-4 py-1.5 text-sm font-medium text-slate-300 hover:text-rose-400 rounded-full hover:bg-white/5 transition-all duration-300"
-                    >
-                      Logout
-                    </button>
-                  </>
+                      <DropdownMenuItem asChild>
+                        <Link to={createPageUrl('Settings')} className="cursor-pointer">
+                          <User className="w-4 h-4 mr-2" />
+                          Account Settings
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator className="bg-slate-700/50" />
+                      <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-rose-400 focus:text-rose-400">
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Logout
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 ) : (
                   <>
                     <button
@@ -188,15 +202,26 @@ export default function GlobalNav() {
                 ))}
                 <div className="border-t border-slate-700/50 my-2 pt-2">
                   {user ? (
-                    <button
-                      onClick={() => {
-                        handleLogout();
-                        setMobileMenuOpen(false);
-                      }}
-                      className="block w-full text-left px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-all"
-                    >
-                      Logout
-                    </button>
+                    <>
+                      <Link
+                        to={createPageUrl('Settings')}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block w-full text-left px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-all mb-2"
+                      >
+                        <User className="w-4 h-4 inline mr-2" />
+                        Account Settings
+                      </Link>
+                      <button
+                        onClick={() => {
+                          handleLogout();
+                          setMobileMenuOpen(false);
+                        }}
+                        className="block w-full text-left px-4 py-2 text-sm font-medium text-rose-400 hover:text-rose-300 hover:bg-white/5 rounded-lg transition-all"
+                      >
+                        <LogOut className="w-4 h-4 inline mr-2" />
+                        Logout
+                      </button>
+                    </>
                   ) : (
                     <>
                       <button
