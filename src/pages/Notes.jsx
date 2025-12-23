@@ -27,10 +27,19 @@ export default function Notes() {
 
   useEffect(() => {
     const loadUser = async () => {
-      const currentUser = await base44.auth.me();
-      const { user: refreshedUser } = await checkAndResetCredits(currentUser);
-      setUser(refreshedUser);
-      setSelectedExam(refreshedUser.primary_exam || refreshedUser.selected_exams?.[0]);
+      try {
+        const isAuth = await base44.auth.isAuthenticated();
+        if (!isAuth) {
+          base44.auth.redirectToLogin(window.location.pathname);
+          return;
+        }
+        const currentUser = await base44.auth.me();
+        const { user: refreshedUser } = await checkAndResetCredits(currentUser);
+        setUser(refreshedUser);
+        setSelectedExam(refreshedUser.primary_exam || refreshedUser.selected_exams?.[0]);
+      } catch (e) {
+        base44.auth.redirectToLogin(window.location.pathname);
+      }
     };
     loadUser();
   }, []);
