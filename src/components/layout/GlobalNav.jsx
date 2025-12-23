@@ -67,6 +67,14 @@ export default function GlobalNav() {
 
   const navItems = user ? appNavItems : marketingNavItems;
 
+  // Get current page name
+  const getCurrentPageName = () => {
+    const currentItem = navItems.find(item => item.path === location.pathname);
+    return currentItem ? currentItem.label : 'Proofly';
+  };
+
+  const currentPageName = getCurrentPageName();
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-4 px-4">
       {/* Floating Pill Container */}
@@ -77,11 +85,11 @@ export default function GlobalNav() {
         {/* Main Navbar Pill */}
         <div className="relative bg-slate-900/40 backdrop-blur-xl border border-slate-700/50 rounded-full px-6 py-3 shadow-2xl">
           <div className="flex items-center gap-8">
-            {/* Logo */}
-            <Link to={createPageUrl('Home')} className="flex items-center gap-2 text-white font-bold text-base group">
+            {/* Logo / Current Page */}
+            <Link to={createPageUrl(user ? 'Dashboard' : 'Home')} className="flex items-center gap-2 text-white font-bold text-base group">
               <BookOpen className="w-5 h-5 group-hover:text-violet-300 transition-colors duration-300" />
               <span className="bg-gradient-to-r from-white to-slate-200 bg-clip-text text-transparent group-hover:from-violet-200 group-hover:to-indigo-200 transition-all duration-300">
-                Proofly
+                {currentPageName}
               </span>
             </Link>
 
