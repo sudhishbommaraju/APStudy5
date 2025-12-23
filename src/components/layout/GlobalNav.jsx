@@ -63,6 +63,7 @@ export default function GlobalNav() {
     { label: 'Notes', path: createPageUrl('Notes') },
     { label: 'Flashcards', path: createPageUrl('Flashcards') },
     { label: 'Progress', path: createPageUrl('Progress') },
+    { label: 'Pricing', path: createPageUrl('Pricing') },
   ];
 
   const navItems = user ? appNavItems : marketingNavItems;
