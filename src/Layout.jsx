@@ -56,7 +56,7 @@ export default function Layout({ children, currentPageName }) {
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
 
   // Pages that don't need the full layout
-  const noLayoutPages = ['Home', 'Onboarding', 'Login'];
+  const noLayoutPages = ['Home', 'Onboarding'];
   
   // Pages that require authentication
   const protectedPages = ['Dashboard', 'Practice', 'Exam', 'Tutor', 'Notes', 'Flashcards', 'Progress', 'Generate', 'AdminUsers', 'SeedData', 'MistakeReplay', 'Pricing'];
@@ -86,7 +86,7 @@ export default function Layout({ children, currentPageName }) {
   // Authentication guard - redirect to login if not authenticated
   useEffect(() => {
     if (!isLoading && !user && protectedPages.includes(currentPageName)) {
-      window.location.href = createPageUrl('Login');
+      base44.auth.redirectToLogin(window.location.href);
     }
   }, [isLoading, user, currentPageName]);
   

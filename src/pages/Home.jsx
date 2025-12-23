@@ -16,11 +16,11 @@ export default function Home() {
   }, []);
 
   const handleGetStarted = () => {
-    window.location.href = createPageUrl('Login');
+    base44.auth.redirectToLogin(createPageUrl('Dashboard'));
   };
 
   const handleLogin = () => {
-    window.location.href = createPageUrl('Login');
+    base44.auth.redirectToLogin(createPageUrl('Dashboard'));
   };
 
   const steps = [
