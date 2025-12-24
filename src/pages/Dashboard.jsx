@@ -145,6 +145,7 @@ CRITICAL FORMATTING REQUIREMENTS:
 2. Use inline math $...$ for ALL numbers, variables, and formulas
 3. Units MUST use \\text{} inside math: $9.8 \\text{ m/s}^{2}$
 4. PERCENTAGES: Write as plain numbers with % sign: "80%" NOT "$80\\%$" or "$80 \\text{%}$"
+5. COORDINATES: Format as $(x, y)$ with a space after the comma, e.g., $(3, 5)$ NOT $(3,5)$
 
 Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, wrong_answer_explanations (object with A/B/C/D keys), hint`;
 

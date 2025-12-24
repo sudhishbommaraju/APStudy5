@@ -81,6 +81,7 @@ CRITICAL FORMATTING REQUIREMENTS - READ CAREFULLY:
 5. ALL equations in $$ display blocks, ONE TIME ONLY
 6. Units MUST use \\text{} inside math: $9.8 \\text{ m/s}^{2}$
 7. Use inline $ only for variables and formulas, NOT for regular numbers
+8. COORDINATES: Format as $(x, y)$ with a space after the comma for professionalism, e.g., $(3, 5)$ NOT $(3,5)$
 
 NOTES FORMAT (FOLLOW EXACTLY):
 

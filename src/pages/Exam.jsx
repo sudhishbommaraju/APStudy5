@@ -200,6 +200,7 @@ CRITICAL FORMATTING REQUIREMENTS - READ CAREFULLY:
 7. ALL display equations MUST be in $$ blocks, ONE TIME ONLY
 8. Units MUST use \\text{} inside math: $9.8 \\text{ m/s}^{2}$
 9. Use inline $ only for variables and formulas, NOT for regular numbers or percentages
+10. COORDINATES: Format as $(x, y)$ with a space after the comma for professionalism, e.g., $(3, 5)$ NOT $(3,5)$
 
 EXAMPLES OF CORRECT QUESTION/CHOICE FORMATTING:
 
