@@ -36,7 +36,7 @@ export default function UnitMultiSelect({
 
   if (!selectedSubject) {
     return (
-      <div className="text-sm text-slate-500 py-4">
+      <div className="text-sm text-white py-4">
         Select a subject first
       </div>
     );
@@ -44,7 +44,7 @@ export default function UnitMultiSelect({
 
   if (isLoading) {
     return (
-      <div className="text-sm text-slate-500 py-4">
+      <div className="text-sm text-white py-4">
         Loading units...
       </div>
     );
@@ -52,7 +52,7 @@ export default function UnitMultiSelect({
 
   if (units.length === 0) {
     return (
-      <div className="text-sm text-slate-500 py-4">
+      <div className="text-sm text-white py-4">
         No units available for this subject
       </div>
     );
@@ -63,8 +63,8 @@ export default function UnitMultiSelect({
   return (
     <div className="space-y-3">
       {/* Select All Toggle */}
-      <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-        <span className="text-sm font-medium text-slate-700">
+      <div className="flex items-center justify-between pb-2 border-b border-slate-700/50">
+        <span className="text-sm font-medium text-white">
           {selectedUnits.length} of {units.length} units selected
         </span>
         <Button
@@ -114,8 +114,8 @@ export default function UnitMultiSelect({
             className={cn(
               "flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
               selectedUnits.includes(unit.id)
-                ? "border-slate-900 bg-slate-50"
-                : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                ? "border-violet-500 bg-slate-800/40"
+                : "border-slate-700/50 hover:border-slate-600 hover:bg-slate-800/20"
             )}
           >
             <Checkbox
@@ -124,11 +124,11 @@ export default function UnitMultiSelect({
               className="mt-0.5"
             />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-slate-900">
+              <p className="text-sm font-medium text-white">
                 Unit {unit.unit_number}: {unit.unit_name}
               </p>
               {unit.description && (
-                <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">
+                <p className="text-xs text-white mt-0.5 line-clamp-2">
                   {unit.description}
                 </p>
               )}
