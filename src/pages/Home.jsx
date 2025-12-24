@@ -229,15 +229,7 @@ export default function Home() {
                 I built Proofly to combine my passion for technology with my commitment to helping students succeed academically. 
                 This platform reflects my belief that with the right tools, anyone can achieve their academic goals while pursuing their dreams.
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-4 border-t border-slate-700/50">
-                <a 
-                  href="tel:480-670-0737" 
-                  className="flex items-center gap-2 text-slate-300 hover:text-violet-400 transition-colors"
-                >
-                  <span className="text-xl">📞</span>
-                  <span className="text-sm">480-670-0737</span>
-                </a>
-                <span className="hidden sm:inline text-slate-600">•</span>
+              <div className="flex items-center justify-center pt-4 border-t border-slate-700/50">
                 <a 
                   href="mailto:sudhishbommarju@gmail.com" 
                   className="flex items-center gap-2 text-slate-300 hover:text-violet-400 transition-colors"
