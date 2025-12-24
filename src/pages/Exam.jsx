@@ -191,15 +191,15 @@ TABLES AND GRAPHS (For Science/Math):
 
 CRITICAL FORMATTING REQUIREMENTS - READ CAREFULLY:
 
-1. FORMAT ALL NUMBERS AND FORMULAS IN LaTeX
-2. In question_text: Use inline math $...$ for ALL numbers, variables, and formulas
-3. In answer choices (choice_a, choice_b, choice_c, choice_d): Use inline math $...$ for ALL numbers and units
-4. NEVER DUPLICATE EQUATIONS OR VALUES
-5. NEVER show raw LaTeX commands like \\text, \\times in visible text
-6. STRICTLY SEPARATE plain text from math blocks
-7. ALL equations in $$ display blocks, ONE TIME ONLY
+1. FORMAT variables and formulas in LaTeX using $...$ or $$...$$
+2. PERCENTAGES: ALWAYS plain text "80%" NEVER "$80\\%$" or math mode
+3. Simple numbers can be plain text, but use math $...$ for variables like $x$, $y$
+4. In question_text and choices: Numbers with units go in math like $12 \\text{ m}$, but percentages stay plain "80%"
+5. NEVER DUPLICATE EQUATIONS OR VALUES
+6. NEVER show raw LaTeX commands like \\text, \\lim, \\frac outside of $ or $$ delimiters
+7. ALL display equations MUST be in $$ blocks, ONE TIME ONLY
 8. Units MUST use \\text{} inside math: $9.8 \\text{ m/s}^{2}$
-9. PERCENTAGES: Write as plain numbers with % sign: "80%" NOT "$80\\%$" or "$80 \\text{%}$"
+9. Use inline $ only for variables and formulas, NOT for regular numbers or percentages
 
 EXAMPLES OF CORRECT QUESTION/CHOICE FORMATTING:
 
