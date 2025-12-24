@@ -418,7 +418,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                     
                     return Object.entries(grouped).map(([category, categorySubjects]) => (
                       <div key={category}>
-                        <div className="px-2 py-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                        <div className="px-2 py-1.5 text-xs font-semibold text-white uppercase tracking-wider">
                           {category}
                         </div>
                         {categorySubjects.map((subject) => (
