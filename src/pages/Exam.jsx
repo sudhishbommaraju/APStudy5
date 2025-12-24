@@ -492,7 +492,12 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                     </div>
                   ) : (
                     (() => {
-                      const grouped = subjects.reduce((acc, subject) => {
+                      // Remove duplicates by subject_id
+                      const uniqueSubjects = Array.from(
+                        new Map(subjects.map(s => [s.subject_id, s])).values()
+                      );
+                      
+                      const grouped = uniqueSubjects.reduce((acc, subject) => {
                         const category = subject.category;
                         if (!acc[category]) {
                           acc[category] = [];
@@ -500,11 +505,6 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                         acc[category].push(subject);
                         return acc;
                       }, {});
-                      
-                      // Remove duplicates by subject_id
-                      const uniqueSubjects = Array.from(
-                        new Map(subjects.map(s => [s.subject_id, s])).values()
-                      );
                       
                       return Object.entries(grouped).map(([category, categorySubjects]) => (
                         <div key={category}>
