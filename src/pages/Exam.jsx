@@ -482,10 +482,10 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                 Select Subject
               </label>
               <Select value={selectedSubject} onValueChange={handleSubjectChange}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full bg-slate-900/50 border-slate-700/50 text-white">
                   <SelectValue placeholder="Choose a subject" />
                 </SelectTrigger>
-                <SelectContent className="max-h-96">
+                <SelectContent className="max-h-96 bg-slate-900/95 backdrop-blur-xl border-slate-700/50">
                   {subjects.length === 0 ? (
                     <div className="px-2 py-4 text-sm text-slate-500 text-center">
                       No subjects available
@@ -508,11 +508,11 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                       
                       return Object.entries(grouped).map(([category, categorySubjects]) => (
                         <div key={category}>
-                          <div className="px-2 py-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                          <div className="px-2 py-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">
                             {category}
                           </div>
                           {categorySubjects.map((subject) => (
-                            <SelectItem key={subject.subject_id} value={subject.subject_id}>
+                            <SelectItem key={subject.subject_id} value={subject.subject_id} className="text-white focus:bg-slate-800/50 focus:text-white">
                               <div className="flex items-center gap-2">
                                 {subject.icon && <span>{subject.icon}</span>}
                                 <span>{subject.name}</span>
