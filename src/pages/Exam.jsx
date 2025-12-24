@@ -466,7 +466,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
             </Link>
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-slate-100">Exam Mode</h1>
-              <p className="text-slate-400">Timed test with no explanations until the end</p>
+              <p className="text-white">Timed test with no explanations until the end</p>
               {user?.plan === 'free' && (
                 <p className="text-xs text-slate-500 mt-1">
                   Daily timed exams: {(user.daily_exam_count || 0)}/3 used
@@ -686,10 +686,10 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
         <div className="sticky top-0 focus-mode-card border-b z-10">
           <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <span className="text-sm focus-mode-text-secondary">
+              <span className="text-sm text-white">
                 Question {currentIndex + 1} of {questions.length}
               </span>
-              <span className="text-sm focus-mode-text-secondary">
+              <span className="text-sm text-white">
                 {answeredCount} answered
               </span>
             </div>
