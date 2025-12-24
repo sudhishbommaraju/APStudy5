@@ -218,6 +218,39 @@ export default function Home() {
         </div>
       </section>
 
+      {/* About the Creator */}
+      <section className="py-20 relative">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-8 lg:p-12 shadow-2xl">
+            <h2 className="text-3xl font-bold text-slate-100 mb-6 text-center">About the Creator</h2>
+            <div className="space-y-6">
+              <p className="text-slate-300 text-lg leading-relaxed text-center">
+                Hi, I'm <span className="text-white font-semibold">Sudhish Bommaraju</span>, a football player with aspirations to become a tech entrepreneur. 
+                I built Proofly to combine my passion for technology with my commitment to helping students succeed academically. 
+                This platform reflects my belief that with the right tools, anyone can achieve their academic goals while pursuing their dreams.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-4 border-t border-slate-700/50">
+                <a 
+                  href="tel:480-670-0737" 
+                  className="flex items-center gap-2 text-slate-300 hover:text-violet-400 transition-colors"
+                >
+                  <span className="text-xl">📞</span>
+                  <span className="text-sm">480-670-0737</span>
+                </a>
+                <span className="hidden sm:inline text-slate-600">•</span>
+                <a 
+                  href="mailto:sudhishbommarju@gmail.com" 
+                  className="flex items-center gap-2 text-slate-300 hover:text-violet-400 transition-colors"
+                >
+                  <span className="text-xl">✉️</span>
+                  <span className="text-sm">sudhishbommarju@gmail.com</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="border-t border-slate-800/50 py-8">
         <div className="max-w-7xl mx-auto px-6">
