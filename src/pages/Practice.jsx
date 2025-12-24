@@ -455,7 +455,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                   </SelectTrigger>
                   <SelectContent className="max-h-96 bg-slate-900/95 backdrop-blur-xl border-slate-700/50">
                     {units.sort((a, b) => a.unit_number - b.unit_number).map((unit) => (
-                      <SelectItem key={unit.id} value={unit.id} className="text-slate-200 focus:bg-slate-800/50 focus:text-white">
+                      <SelectItem key={unit.id} value={unit.id} className="text-white focus:bg-slate-800/50 focus:text-white">
                         Unit {unit.unit_number}: {unit.unit_name}
                       </SelectItem>
                     ))}

@@ -544,6 +544,11 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                   selectedUnits={selectedUnits}
                   onUnitsChange={setSelectedUnits}
                 />
+                <style>{`
+                  [role="option"] {
+                    color: white !important;
+                  }
+                `}</style>
               </div>
             )}
 
