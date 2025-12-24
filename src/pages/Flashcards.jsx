@@ -166,7 +166,17 @@ Return an array of flashcard objects.`;
         times_reviewed: (card.times_reviewed || 0) + 1,
       },
     });
-    nextCard();
+    
+    // Add card to end of deck for review
+    const newDeck = [...studyCards];
+    const cardToReview = newDeck.splice(currentCardIndex, 1)[0];
+    newDeck.push(cardToReview);
+    setStudyCards(newDeck);
+    
+    setFlipped(false);
+    if (currentCardIndex >= newDeck.length) {
+      setCurrentCardIndex(0);
+    }
   };
 
   const nextCard = () => {
