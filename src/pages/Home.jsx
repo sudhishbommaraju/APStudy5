@@ -267,11 +267,11 @@ export default function Home() {
               </p>
               <div className="flex items-center justify-center pt-4 border-t border-slate-700/50">
                 <a 
-                  href="mailto:sudhishbommarju@gmail.com" 
+                  href="mailto:theproofly.com@gmail.com" 
                   className="flex items-center gap-2 text-slate-300 hover:text-violet-400 transition-colors"
                 >
                   <span className="text-xl">✉️</span>
-                  <span className="text-sm">sudhishbommarju@gmail.com</span>
+                  <span className="text-sm">theproofly.com@gmail.com</span>
                 </a>
               </div>
             </div>
