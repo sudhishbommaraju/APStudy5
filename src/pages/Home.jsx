@@ -289,7 +289,7 @@ export default function Home() {
               </div>
               <span>Proofly © 2024</span>
             </div>
-            <a href="mailto:partnerships@proofly.com" className="hover:text-slate-100 transition-colors">
+            <a href="mailto:theproofly.com@gmail.com" className="hover:text-slate-100 transition-colors">
               Contact
             </a>
           </div>
