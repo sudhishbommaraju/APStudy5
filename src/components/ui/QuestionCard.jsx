@@ -17,12 +17,14 @@ export default function QuestionCard({
   const [localSelected, setLocalSelected] = useState(selectedAnswer);
   const [submitted, setSubmitted] = useState(showFeedback);
   const [showHint, setShowHint] = useState(false);
+  const [eliminatedChoices, setEliminatedChoices] = useState([]);
 
   // Reset state when question changes
   React.useEffect(() => {
     setLocalSelected(selectedAnswer);
     setSubmitted(showFeedback);
     setShowHint(false);
+    setEliminatedChoices([]);
   }, [question?.id, selectedAnswer, showFeedback]);
 
   const choices = [
@@ -44,6 +46,14 @@ export default function QuestionCard({
     if (!localSelected) return;
     setSubmitted(true);
     onAnswer(localSelected);
+  };
+
+  const toggleEliminate = (key, e) => {
+    e.stopPropagation();
+    if (submitted) return;
+    setEliminatedChoices(prev => 
+      prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
+    );
   };
 
   const isCorrect = localSelected === question.correct_answer;
@@ -247,6 +257,7 @@ export default function QuestionCard({
         {choices.map(({ key, text }) => {
           const isSelected = localSelected === key;
           const isCorrectAnswer = key === question.correct_answer;
+          const isEliminated = eliminatedChoices.includes(key);
           
           let choiceStyle = "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50";
           
@@ -263,36 +274,51 @@ export default function QuestionCard({
           }
 
           return (
-            <button
-              key={key}
-              onClick={() => handleSelect(key)}
-              disabled={showResult}
-              className={cn(
-                "w-full flex items-start gap-3 p-4 rounded-lg border-2 text-left transition-all duration-150",
-                choiceStyle
-              )}
-            >
-              <span className={cn(
-                "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-sm font-semibold",
-                showResult && isCorrectAnswer && "bg-emerald-500 text-white",
-                showResult && isSelected && !isCorrectAnswer && "bg-rose-500 text-white",
-                !showResult && isSelected && "bg-white text-slate-900",
-                !showResult && !isSelected && "bg-slate-100 text-slate-600"
-              )}>
-                {showResult && isCorrectAnswer && <Check className="w-4 h-4" />}
-                {showResult && isSelected && !isCorrectAnswer && <X className="w-4 h-4" />}
-                {!showResult && key}
-              </span>
-              <span className="text-sm leading-relaxed pt-0.5">
-                <ReactMarkdown 
-                  remarkPlugins={[remarkMath]} 
-                  rehypePlugins={[rehypeKatex]}
-                  className="prose prose-sm max-w-none [&>p]:m-0"
+            <div key={key} className="relative group">
+              <button
+                onClick={() => handleSelect(key)}
+                disabled={showResult}
+                className={cn(
+                  "w-full flex items-start gap-3 p-4 rounded-lg border-2 text-left transition-all duration-150",
+                  choiceStyle,
+                  isEliminated && !showResult && "opacity-40 line-through"
+                )}
+              >
+                <span className={cn(
+                  "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-sm font-semibold",
+                  showResult && isCorrectAnswer && "bg-emerald-500 text-white",
+                  showResult && isSelected && !isCorrectAnswer && "bg-rose-500 text-white",
+                  !showResult && isSelected && "bg-white text-slate-900",
+                  !showResult && !isSelected && "bg-slate-100 text-slate-600"
+                )}>
+                  {showResult && isCorrectAnswer && <Check className="w-4 h-4" />}
+                  {showResult && isSelected && !isCorrectAnswer && <X className="w-4 h-4" />}
+                  {!showResult && key}
+                </span>
+                <span className="text-sm leading-relaxed pt-0.5">
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkMath]} 
+                    rehypePlugins={[rehypeKatex]}
+                    className="prose prose-sm max-w-none [&>p]:m-0"
+                  >
+                    {text}
+                  </ReactMarkdown>
+                </span>
+              </button>
+              {!showResult && (
+                <button
+                  onClick={(e) => toggleEliminate(key, e)}
+                  className={cn(
+                    "absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all",
+                    "opacity-0 group-hover:opacity-100",
+                    isEliminated ? "bg-rose-500 text-white" : "bg-slate-200 text-slate-600 hover:bg-slate-300"
+                  )}
+                  title={isEliminated ? "Restore" : "Eliminate"}
                 >
-                  {text}
-                </ReactMarkdown>
-              </span>
-            </button>
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           );
         })}
       </div>
