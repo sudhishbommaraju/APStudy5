@@ -129,15 +129,15 @@ export default function Practice() {
 
         CRITICAL FORMATTING REQUIREMENTS - READ CAREFULLY:
 
-        1. FORMAT ALL NUMBERS AND FORMULAS IN LaTeX
-        2. In question_text: Use inline math $...$ for ALL numbers, variables, and formulas
-        3. In answer choices (choice_a, choice_b, choice_c, choice_d): Use inline math $...$ for ALL numbers and units
-        4. NEVER DUPLICATE EQUATIONS OR VALUES
-        5. NEVER show raw LaTeX commands like \\text, \\times, ^ in visible text
-        6. STRICTLY SEPARATE plain text from math blocks
-        7. ALL equations MUST be in $$ display blocks, ONE TIME ONLY
+        1. FORMAT ALL NUMBERS AND FORMULAS IN LaTeX - but use inline math $ sparingly
+        2. PERCENTAGES: ALWAYS write as plain text "80%" NEVER "$80\\%$" or "$80 \\text{%}$"
+        3. In question_text: Use inline math $...$ ONLY for variables (like $x$, $y$) and formulas (like $x^2 + 3$)
+        4. In answer choices: Numbers with units go in math $12 \\text{ m}$, but percentages stay plain "80%"
+        5. NEVER DUPLICATE EQUATIONS OR VALUES
+        6. NEVER show raw LaTeX: \\text, \\times, ^ should only be inside $ or $$
+        7. ALL display equations MUST be in $$ blocks, ONE TIME ONLY
         8. Units MUST use \\text{} inside math: $9.8 \\text{ m/s}^{2}$
-        9. PERCENTAGES: Write as plain numbers with % sign: "80%" NOT "$80\\%$" or "$80 \\text{%}$"
+        9. Plain numbers (like "5" or "80%") can stay as plain text unless they're part of a formula
         
         EXAMPLES OF CORRECT QUESTION/CHOICE FORMATTING:
         
@@ -163,11 +163,9 @@ export default function Practice() {
         [equation here with proper LaTeX]
         $$
 
-        Given values:
-
-        $$
-        [variable] = [value] \\text{ [unit]}
-        $$
+        Given values (use plain text for numbers, math for units):
+        - mass = 2 kg (plain text acceptable)
+        - OR if using math: $m = 2 \\text{ kg}$
 
         Substituting into the formula:
 
@@ -183,7 +181,7 @@ export default function Practice() {
         [final result] = [answer] \\text{ [unit]}
         $$
 
-        Final answer in plain English."
+        Final answer in plain English. If it's a percentage, write '80%' as plain text, NOT in math mode."
 
         EXAMPLES OF CORRECT FORMATTING:
 
@@ -194,19 +192,10 @@ export default function Practice() {
         PE = mgh
         $$
 
-        Given:
-
-        $$
-        m = 2 \\text{ kg}
-        $$
-
-        $$
-        h = 10 \\text{ m}
-        $$
-
-        $$
-        g = 9.8 \\text{ m/s}^{2}
-        $$
+        Given values:
+        - mass: 2 kg
+        - height: 10 m  
+        - gravity: $9.8 \\text{ m/s}^{2}$
 
         Substituting:
 
@@ -228,6 +217,10 @@ export default function Practice() {
         $$
         \\frac{d}{dx}[x^{3}] = 3x^{2}
         $$"
+
+        Percentage example:
+        "The solution is 85% correct. This means 85% of the test-takers selected this answer."
+        (Note: Percentages are PLAIN TEXT, never $85\\%$)
 
         NEVER WRITE:
         - PE = mghPE = mgh (duplicated)
