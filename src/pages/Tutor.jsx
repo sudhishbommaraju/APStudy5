@@ -121,13 +121,15 @@ ${filesToSend.length > 0 ? '5. Analyzes any images provided and addresses questi
 
 Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper escape characters. ALL math must render cleanly.
 - Wrap math: $ for inline, $$ for display blocks
+- PERCENTAGES: ALWAYS plain text "80%" NEVER "$80\\%$" or "$80 \\text{%}$"
 - Examples of CORRECT LaTeX:
   * Fractions: $\\frac{\\sin(30^\\circ)}{\\pi}$ (with backslash before frac)
   * Limits: $\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1$ (backslash before lim and to)
   * Powers: $x^2 + 5x - 3$
   * Roots: $\\sqrt{3}$
   * Trig: $\\sin(45^\\circ)$, $\\cos(x)$, $\\tan(x)$ (backslash before all functions)
-- NEVER write: "ext\\lim", "o" (use \\to for arrows), "frac" without backslash
+- NEVER write raw LaTeX outside $ delimiters: "ext\\lim", "\\text", "\\frac" must be inside $...$
+- Plain numbers can be plain text; use $ only for variables and formulas
 - Test that your LaTeX compiles correctly before using it`;
 
       const response = await base44.integrations.Core.InvokeLLM({

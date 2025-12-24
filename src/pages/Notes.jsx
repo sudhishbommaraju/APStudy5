@@ -75,10 +75,12 @@ Topics to cover: ${topics}
 CRITICAL FORMATTING REQUIREMENTS - READ CAREFULLY:
 
 1. NEVER DUPLICATE EQUATIONS OR VALUES
-2. NEVER show raw LaTeX commands like \\text, \\times in visible text
-3. STRICTLY SEPARATE plain text from math blocks
-4. ALL equations in $$ display blocks, ONE TIME ONLY
-5. Units MUST use \\text{} inside math: $9.8 \\text{ m/s}^{2}$
+2. NEVER show raw LaTeX commands like \\text, \\times, \\lim outside $ or $$
+3. PERCENTAGES: Always plain text "80%" NEVER "$80\\%$"
+4. STRICTLY SEPARATE plain text from math blocks
+5. ALL equations in $$ display blocks, ONE TIME ONLY
+6. Units MUST use \\text{} inside math: $9.8 \\text{ m/s}^{2}$
+7. Use inline $ only for variables and formulas, NOT for regular numbers
 
 NOTES FORMAT (FOLLOW EXACTLY):
 
