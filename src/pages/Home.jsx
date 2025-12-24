@@ -1,15 +1,27 @@
 import React from 'react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Target, Brain, TrendingUp, CheckCircle2 } from 'lucide-react';
 import GalaxyBackground from '@/components/effects/GalaxyBackground';
 import CursorGlow from '@/components/effects/CursorGlow';
+import ReviewCard from '@/components/reviews/ReviewCard';
 
 export default function Home() {
   const handleGetStarted = () => {
     base44.auth.redirectToLogin(createPageUrl('Dashboard'));
   };
+
+  const { data: reviews = [] } = useQuery({
+    queryKey: ['reviews'],
+    queryFn: () => base44.entities.Review.filter({ is_public: true }),
+  });
+
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['allUsers'],
+    queryFn: () => base44.entities.User.list(),
+  });
 
   const steps = [
     {
@@ -197,6 +209,30 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Student Reviews Section */}
+      {reviews.length > 0 && (
+        <section className="py-20 relative">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold text-slate-100 mb-4">
+                What Students Say
+              </h2>
+              <p className="text-xl text-slate-300">
+                Real feedback from students using Proofly
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {reviews.slice(0, 6).map((review) => {
+                const reviewUser = allUsers.find(u => u.email === review.user_id);
+                return (
+                  <ReviewCard key={review.id} review={review} user={reviewUser} />
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* CTA Section */}
       <section className="py-20 relative">
