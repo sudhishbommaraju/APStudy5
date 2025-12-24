@@ -22,9 +22,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { format, subDays, parseISO } from 'date-fns';
+import { format, subDays, parseISO, differenceInDays } from 'date-fns';
 import Calendar from '@/components/dashboard/Calendar';
 import { checkCredits, useCredit } from '@/components/monetization/CreditHelper';
+import ReviewPopup from '@/components/reviews/ReviewPopup';
+import ReviewCard from '@/components/reviews/ReviewCard';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -32,6 +34,7 @@ export default function Dashboard() {
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedUnit, setSelectedUnit] = useState('');
   const [generatingWeakPractice, setGeneratingWeakPractice] = useState(false);
+  const [showReviewPopup, setShowReviewPopup] = useState(false);
   
   useEffect(() => {
     const loadUser = async () => {
@@ -70,6 +73,16 @@ export default function Dashboard() {
     queryKey: ['units', selectedSubject],
     queryFn: () => base44.entities.Unit.filter({ subject_id: selectedSubject }),
     enabled: !!selectedSubject,
+  });
+
+  const { data: reviews = [] } = useQuery({
+    queryKey: ['reviews'],
+    queryFn: () => base44.entities.Review.filter({ is_public: true }),
+  });
+
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['allUsers'],
+    queryFn: () => base44.entities.User.list(),
   });
 
   // Already filtered by user at query level
@@ -114,6 +127,35 @@ export default function Dashboard() {
   userAttempts.forEach(a => {
     studyDays.add(format(parseISO(a.created_date), 'yyyy-MM-dd'));
   });
+
+  // Check if user should see review prompt
+  useEffect(() => {
+    if (!user) return;
+
+    const checkReviewPrompt = async () => {
+      // Condition 1: User has not submitted a review
+      if (user.review_submitted) return;
+
+      // Condition 2: User has not dismissed in last 30 days
+      if (user.last_review_prompt_dismissed) {
+        const daysSinceDismiss = differenceInDays(new Date(), parseISO(user.last_review_prompt_dismissed));
+        if (daysSinceDismiss < 30) return;
+      }
+
+      // Condition 3: User has completed at least 3 sessions OR 1 exam
+      const completedSessions = sessions.filter(s => s.status === 'completed').length;
+      const completedExams = sessions.filter(s => s.status === 'completed' && s.mode === 'exam').length;
+      if (completedSessions < 3 && completedExams < 1) return;
+
+      // Condition 4: User has been active for at least 5 days
+      if (studyDays.size < 5) return;
+
+      // Show popup
+      setShowReviewPopup(true);
+    };
+
+    checkReviewPrompt();
+  }, [user, sessions, studyDays]);
 
   const handleWeakSubjectPractice = async (weakSubject) => {
     // Check credits
@@ -219,6 +261,41 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
     }
     
     setGeneratingWeakPractice(false);
+  };
+
+  const handleReviewSubmit = async (rating, reviewText) => {
+    try {
+      // Get most recent subject
+      const recentSubject = userAttempts[0]?.subject_id;
+      const subjectName = subjects.find(s => s.subject_id === recentSubject)?.name;
+
+      await base44.entities.Review.create({
+        user_id: user.email,
+        star_rating: rating,
+        review_text: reviewText || '',
+        subject_context: subjectName || '',
+        is_public: true,
+      });
+
+      await base44.auth.updateMe({
+        review_submitted: true,
+      });
+
+      setUser({ ...user, review_submitted: true });
+    } catch (e) {
+      console.error('Failed to submit review:', e);
+    }
+  };
+
+  const handleReviewDismiss = async () => {
+    try {
+      await base44.auth.updateMe({
+        last_review_prompt_dismissed: new Date().toISOString(),
+      });
+      setUser({ ...user, last_review_prompt_dismissed: new Date().toISOString() });
+    } catch (e) {
+      console.error('Failed to dismiss review:', e);
+    }
   };
 
   if (!user) {
@@ -370,7 +447,30 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
 
         {/* Calendar */}
         <Calendar user={user} />
+
+        {/* Student Reviews Section */}
+        {reviews.length > 0 && (
+          <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg">
+            <h3 className="text-lg font-semibold text-slate-100 mb-4">Student Reviews</h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              {reviews.slice(0, 4).map((review) => {
+                const reviewUser = allUsers.find(u => u.email === review.user_id);
+                return (
+                  <ReviewCard key={review.id} review={review} user={reviewUser} />
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Review Popup */}
+      <ReviewPopup
+        open={showReviewPopup}
+        onOpenChange={setShowReviewPopup}
+        onSubmit={handleReviewSubmit}
+        onDismiss={handleReviewDismiss}
+      />
     </>
   );
 }
