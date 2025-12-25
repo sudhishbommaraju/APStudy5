@@ -393,11 +393,22 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
           {/* Start Button */}
           <AnimatePresence>
             {selectedUnit && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <motion.div 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }}
+                style={{ pointerEvents: 'auto' }}
+                className="relative z-10"
+              >
                 <Button
-                  onClick={generateQuestions}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Start Practice clicked!');
+                    generateQuestions();
+                  }}
                   disabled={isGenerating}
-                  className="w-full h-12 text-base font-medium bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
+                  className="w-full h-12 text-base font-medium bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 cursor-pointer"
+                  style={{ pointerEvents: 'auto' }}
                 >
                   <Sparkles className="w-5 h-5 mr-2" />
                   Start Practice ({questionCount} questions)
