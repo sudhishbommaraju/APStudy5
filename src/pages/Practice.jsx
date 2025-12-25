@@ -272,14 +272,25 @@ export default function Practice() {
         - Plain English between blocks
         - Units always in \\text{} with proper spacing
 
-        CRITICAL - ANSWER CONSISTENCY:
-        - Calculate the correct answer using the math shown
-        - The choice labeled as correct_answer MUST contain the mathematically correct value
-        - Double-check: if your calculation gives 196 J ≈ 200 J, then correct_answer must point to the choice with 200 J
-        - NEVER have explanation say "200 J is correct" but mark a different choice as correct_answer
-        - Verify the correct_answer letter matches the choice with the right value
+        CRITICAL RULES FOR ANSWER CHOICES:
 
-Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, wrong_answer_explanations (object with A/B/C/D keys), hint`;
+        1. NO DUPLICATION: Each choice contains the value ONCE only
+           - Correct: choice_a: "$H_{2}O$"
+           - Wrong: choice_a: "$H_{2}O$H2O"
+           - Wrong: choice_a: "H₂OH2O"
+
+        2. LaTeX format for all formulas/chemicals, written ONCE:
+           - choice_a: "$H_{2}O$"  NOT "$H_{2}O$H2O" or "H2O" or "H₂OH2O"
+           - choice_b: "$CH_{4}$"  NOT "$CH_{4}$CH4" or "CH4" or "CH₄CH4"
+           - choice_c: "$NaCl$"  NOT "$NaCl$NaCl" or "NaCl" or "NaClNaCl"
+
+        3. ANSWER CONSISTENCY:
+           - Calculate correct answer using the math shown
+           - correct_answer field must match the choice with the right value
+
+Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, wrong_answer_explanations (object with A/B/C/D keys), hint
+
+VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each contain NO duplicated text`;
 
         questionsToGenerate.push(
           base44.integrations.Core.InvokeLLM({
