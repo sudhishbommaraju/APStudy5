@@ -12,8 +12,8 @@ import Pricing from './pages/Pricing';
 import Progress from './pages/Progress';
 import SeedData from './pages/SeedData';
 import Settings from './pages/Settings';
-import Tutor from './pages/Tutor';
 import StudyPlans from './pages/StudyPlans';
+import Tutor from './pages/Tutor';
 import __Layout from './Layout.jsx';
 
 
@@ -32,8 +32,8 @@ export const PAGES = {
     "Progress": Progress,
     "SeedData": SeedData,
     "Settings": Settings,
-    "Tutor": Tutor,
     "StudyPlans": StudyPlans,
+    "Tutor": Tutor,
 }
 
 export const pagesConfig = {
