@@ -221,7 +221,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
       let targetSubjects = [];
       let targetUnits = [];
 
-      if (!selectedSubject) {
+      if (!selectedSubject || selectedSubject === 'all') {
         // All subjects - pick random subjects
         targetSubjects = subjects.slice(0, 3); // Mix from multiple subjects
       } else {
@@ -230,8 +230,9 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
 
       // Fetch units for each subject
       for (const subject of targetSubjects) {
+        if (!subject) continue;
         const subjectUnits = await base44.entities.Unit.filter({ subject_id: subject.subject_id });
-        if (!selectedUnit) {
+        if (!selectedUnit || selectedUnit === 'all') {
           // All units - add all units from this subject
           targetUnits.push(...subjectUnits.map(u => ({ ...u, subject })));
         } else {
@@ -369,7 +370,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
     // Record attempt
     await base44.entities.Attempt.create({
       question_id: question.id,
-      subject_id: selectedSubject,
+      subject_id: question.subject_id || selectedSubject,
       unit_id: question.unit_id,
       skill_id: question.skill_id,
       skill_name: question.skill_name,
