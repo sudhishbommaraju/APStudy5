@@ -72,16 +72,28 @@ export default function Notes() {
 Unit: ${unit?.unit_name || 'General'}
 Topics to cover: ${topics}
 
-CRITICAL FORMATTING REQUIREMENTS - READ CAREFULLY:
+CRITICAL LATEX FORMATTING - NO DUPLICATION:
 
-1. NEVER DUPLICATE EQUATIONS OR VALUES
-2. NEVER show raw LaTeX commands like \\text, \\times, \\lim outside $ or $$
-3. PERCENTAGES: Always plain text "80%" NEVER "$80\\%$"
-4. STRICTLY SEPARATE plain text from math blocks
-5. ALL equations in $$ display blocks, ONE TIME ONLY
-6. Units MUST use \\text{} inside math: $9.8 \\text{ m/s}^{2}$
-7. Use inline $ only for variables and formulas, NOT for regular numbers
-8. COORDINATES: Format as $(x, y)$ with a space after the comma for professionalism, e.g., $(3, 5)$ NOT $(3,5)$
+1. CHEMICAL FORMULAS: Use LaTeX with _ for subscripts, write ONCE
+   ✓ CORRECT: "$CH_{4}$" or "$H_{2}O$" or "$NH_{3}$"
+   ✗ WRONG: "CH₄CH4" or "$CH_{4}$CH4" or "H₂OH2O" or "ext" corruption
+
+2. TEMPERATURE: Use \\text{°C} inside math mode
+   ✓ CORRECT: "$-161.5\\text{°C}$"
+   ✗ WRONG: "-161.5ext°C" or "ext°C"
+
+3. UNITS: Use \\text{} inside math
+   ✓ CORRECT: "$9.8 \\text{ m/s}^{2}$"
+   ✗ WRONG: "9.8ext m/s²"
+
+4. NO DUPLICATION: Write each formula/number ONCE only
+   - NEVER write: "$H_{2}O$H2O" or "CH₄CH4" or "100ext°C100ext°C"
+   - NO unicode subscripts (₂ ₃ ₄)
+   - NO "ext" corruption
+
+5. PERCENTAGES: Plain text - "80%" NOT "$80\\%$"
+
+6. ALL equations in $$ display blocks, ONE TIME ONLY
 
 NOTES FORMAT (FOLLOW EXACTLY):
 
@@ -118,10 +130,15 @@ $$
 PE = (2)(9.8)(10) = 196 \\text{ J}
 $$
 
-NEVER WRITE:
+NEVER WRITE (COMMON MISTAKES):
+- CH₄CH4 or $CH_{4}$CH4 (duplicated - write "$CH_{4}$" ONCE)
+- H₂OH2O or $H_{2}O$H2O (duplicated - write "$H_{2}O$" ONCE)
+- NH₃NH3 or $NH_{3}$NH3 (duplicated - write "$NH_{3}$" ONCE)
+- "-161.5ext°C" or "100ext°C" or ANY "ext" corruption (use "$-161.5\\text{°C}$")
+- "ext" appearing ANYWHERE (this means broken LaTeX)
 - PE = mghPE = mgh (duplicated)
-- 9.8\\textm/s^2 (broken)
-- Inline math mixed with text
+- Unicode subscripts like ₂ ₃ ₄ (use LaTeX: $_{2}$ $_{3}$ $_{4}$)
+- Any duplication of formulas in any form
 
 Create detailed notes including:
 - Key concepts (plain text)

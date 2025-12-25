@@ -81,13 +81,31 @@ export default function Flashcards() {
 Unit: ${unit?.unit_name || 'General'}
 Topics: ${topics}
 
-Create high-quality flashcards that:
-- Test key concepts and terminology
-- Include both factual recall and conceptual understanding
-- Match AP exam difficulty
-- Have clear, concise fronts and detailed backs
+CRITICAL LATEX FORMATTING - NO DUPLICATION:
 
-Return an array of flashcard objects.`;
+1. CHEMICAL FORMULAS: Use LaTeX with _ for subscripts, write ONCE
+   ✓ CORRECT: "$CH_{4}$" or "$H_{2}O$" or "$NH_{3}$"
+   ✗ WRONG: "CH₄CH4" or "$CH_{4}$CH4" or "H₂OH2O" or "ext" corruption
+
+2. TEMPERATURE: Use \\text{°C} inside math mode
+   ✓ CORRECT: "$-161.5\\text{°C}$"
+   ✗ WRONG: "-161.5ext°C" or "ext°C"
+
+3. UNITS: Use \\text{} inside math
+   ✓ CORRECT: "$9.8 \\text{ m/s}^{2}$"
+   ✗ WRONG: "9.8ext m/s²"
+
+4. NO DUPLICATION: Write each formula/number ONCE only
+   - NEVER write: "$H_{2}O$H2O" or "CH₄CH4"
+   - NO unicode subscripts (₂ ₃ ₄)
+   - NO "ext" corruption
+
+5. PERCENTAGES: Plain text - "80%" NOT "$80\\%$"
+
+Create high-quality flashcards with clear fronts and detailed backs.
+Return an array of flashcard objects.
+
+VERIFY: All formulas written ONCE in LaTeX format only`;
 
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
