@@ -127,84 +127,113 @@ export default function Practice() {
         - For graphs, describe the data points as JSON: {"type": "line/bar/scatter", "data": [{"x": 1, "y": 2}, ...], "labels": {"x": "Time (s)", "y": "Distance (m)"}}
         - Only include visual data when it enhances understanding
 
-        CRITICAL FORMATTING REQUIREMENTS - READ CAREFULLY:
+        CRITICAL LATEX FORMATTING RULES:
 
-        1. FORMAT ALL NUMBERS AND FORMULAS IN LaTeX - but use inline math $ sparingly
-        2. PERCENTAGES: ALWAYS write as plain text "80%" NEVER "$80\\%$" or "$80 \\text{%}$"
-        3. In question_text: Use inline math $...$ ONLY for variables (like $x$, $y$) and formulas (like $x^2 + 3$)
-        4. In answer choices: Numbers with units go in math $12 \\text{ m}$, but percentages stay plain "80%"
-        5. NEVER DUPLICATE EQUATIONS OR VALUES
-        6. NEVER show raw LaTeX: \\text, \\times, ^ should only be inside $ or $$
-        7. ALL display equations MUST be in $$ blocks, ONE TIME ONLY
-        8. Units MUST use \\text{} inside math: $9.8 \\text{ m/s}^{2}$
-        9. Plain numbers (like "5" or "80%") can stay as plain text unless they're part of a formula
-        10. COORDINATES: Format as $(x, y)$ with a space after the comma for professionalism, e.g., $(3, 5)$ NOT $(3,5)$
+        1. FRACTIONS: ALWAYS use \\frac{numerator}{denominator} inside $ or $$
+        - Example: $\\frac{v^{2}}{r}$ NOT $v^2/r$ or v²/r
+        - Example: $a = \\frac{F}{m}$ NOT $a = F/m$
+
+        2. EXPONENTS: ALWAYS use proper LaTeX superscript with ^
+        - Example: $x^{2}$ NOT x² or x^2 (without $)
+        - Example: $10^{-3}$ NOT 10⁻³
+        - For complex exponents use curly braces: $x^{2n+1}$
+
+        3. PERCENTAGES: ALWAYS plain text, NEVER in math mode
+        - Example: "80%" NOT "$80\\%$" NOT "$80 \\text{%}$"
+        - Example: "The solution increased by 25%" is correct
+
+        4. UNITS: ALWAYS use \\text{} inside math mode
+        - Example: $9.8 \\text{ m/s}^{2}$ NOT "9.8 m/s²"
+        - Example: $12 \\text{ kg}$ NOT "12 kg"
+
+        5. DISPLAY EQUATIONS: Use $$ for standalone equations, ONE TIME ONLY
+        - Each equation appears ONCE in its own $$ block
+        - No duplicates like "F = maF = ma"
+
+        6. NEVER show raw LaTeX outside delimiters:
+        - NO: \\frac, \\text, \\times appearing as plain text
+        - YES: All LaTeX must be inside $ or $$ delimiters
+
+        7. COORDINATES: $(x, y)$ with space after comma
+        - Example: $(3, 5)$ NOT $(3,5)$
         
-        EXAMPLES OF CORRECT QUESTION/CHOICE FORMATTING:
-        
-        Question: "A ball is thrown with velocity $12 \\text{ m/s}$ at angle $30^\\circ$. What is the maximum height?"
+        EXAMPLES OF CORRECT FORMATTING:
+
+        Question: "A ball is thrown with velocity $12 \\text{ m/s}$ at angle $30^{\\circ}$. What is the maximum height?"
         Choice A: "$1.8 \\text{ m}$"
         Choice B: "$3.7 \\text{ m}$"
         Choice C: "$5.2 \\text{ m}$"
         Choice D: "$7.1 \\text{ m}$"
-        
-        Question: "If $f(x) = 3x^2 + 5$, what is $f(2)$?"
+
+        Question: "If $f(x) = 3x^{2} + 5$, what is $f(2)$?"
         Choice A: "$11$"
         Choice B: "$17$"
         Choice C: "$23$"
         Choice D: "$29$"
 
-        CORRECT EXPLANATION FORMAT (FOLLOW THIS EXACTLY):
+        Question: "The centripetal acceleration is given by $a_{c} = \\frac{v^{2}}{r}$. If $v = 10 \\text{ m/s}$ and $r = 5 \\text{ m}$, what is $a_{c}$?"
+        Choice A: "$15 \\text{ m/s}^{2}$"
+        Choice B: "$20 \\text{ m/s}^{2}$"
+        Choice C: "$25 \\text{ m/s}^{2}$"
+        Choice D: "$30 \\text{ m/s}^{2}$"
 
-        "Concept explanation in plain English.
+        Question: "A survey found that 85% of students prefer online learning. How many?"
+        (Note: "85%" is plain text, NOT in math mode)
+
+        EXPLANATION FORMAT (FOLLOW EXACTLY):
+
+        "Brief concept explanation.
 
         The formula is:
 
         $$
-        [equation here with proper LaTeX]
-        $$
-
-        Given values (use plain text for numbers, math for units):
-        - mass = 2 kg (plain text acceptable)
-        - OR if using math: $m = 2 \\text{ kg}$
-
-        Substituting into the formula:
-
-        $$
-        [calculation step 1]
-        $$
-
-        $$
-        [calculation step 2]
-        $$
-
-        $$
-        [final result] = [answer] \\text{ [unit]}
-        $$
-
-        Final answer in plain English. If it's a percentage, write '80%' as plain text, NOT in math mode."
-
-        EXAMPLES OF CORRECT FORMATTING:
-
-        Physics energy calculation:
-        "The gravitational potential energy formula is:
-
-        $$
-        PE = mgh
+        [equation with \\frac{}{} for fractions, proper exponents]
         $$
 
         Given values:
-        - mass: 2 kg
-        - height: 10 m  
-        - gravity: $9.8 \\text{ m/s}^{2}$
+
+        $$
+        [var] = [value] \\text{ [unit]}
+        $$
 
         Substituting:
 
         $$
-        PE = (2)(9.8)(10) = 196 \\text{ J}
+        [step 1 with \\frac{}{} if needed]
         $$
 
-        The answer is approximately 200 J."
+        $$
+        [step 2]
+        $$
+
+        $$
+        [result] = [answer] \\text{ [unit]}
+        $$
+
+        Final answer in plain text. Percentages like 80% stay as plain text."
+
+        CORRECT EXAMPLES:
+
+        Physics acceleration:
+        "The centripetal acceleration formula is:
+
+        $$
+        a_{c} = \\frac{v^{2}}{r}
+        $$
+
+        Given:
+
+        $$
+        v = 10 \\text{ m/s}, \\quad r = 5 \\text{ m}
+        $$
+
+        Calculate:
+
+        $$
+        a_{c} = \\frac{(10)^{2}}{5} = \\frac{100}{5} = 20 \\text{ m/s}^{2}
+        $$
+
+        The answer is 20 m/s²."
 
         Math derivative:
         "Using the power rule:
@@ -213,20 +242,23 @@ export default function Practice() {
         \\frac{d}{dx}[x^{n}] = nx^{n-1}
         $$
 
-        For this problem:
+        For $x^{3}$:
 
         $$
         \\frac{d}{dx}[x^{3}] = 3x^{2}
         $$"
 
-        Percentage example:
-        "The solution is 85% correct. This means 85% of the test-takers selected this answer."
-        (Note: Percentages are PLAIN TEXT, never $85\\%$)
+        Percentage:
+        "The solution is 85% correct."
+        (Note: Plain text, NOT $85\\%$)
 
         NEVER WRITE:
         - PE = mghPE = mgh (duplicated)
-        - 9.8\\textm/s^2 (broken LaTeX)
-        - m = 2extkg (corrupted)
+        - 9.8\\textm/s^2 or 9.8ext (broken/corrupted)
+        - m = 2extkg or 2ext kg (corrupted)
+        - v^2/r instead of \\frac{v^{2}}{r} (use fraction format)
+        - x² or 10⁻³ (use $x^{2}$ and $10^{-3}$)
+        - $80\\%$ (percentages are plain text: 80%)
         - Mixed inline math with text
 
         For the explanation:
