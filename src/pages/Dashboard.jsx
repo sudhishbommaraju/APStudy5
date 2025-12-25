@@ -182,14 +182,30 @@ export default function Dashboard() {
         
         const prompt = `Generate an exam-style multiple choice question for ${subject?.name || 'general topic'}. Unit: ${randomUnit?.unit_name || 'General'}
 
-CRITICAL FORMATTING REQUIREMENTS:
-1. FORMAT ALL NUMBERS AND FORMULAS IN LaTeX
-2. Use inline math $...$ for ALL numbers, variables, and formulas
-3. Units MUST use \\text{} inside math: $9.8 \\text{ m/s}^{2}$
-4. PERCENTAGES: Write as plain numbers with % sign: "80%" NOT "$80\\%$" or "$80 \\text{%}$"
-5. COORDINATES: Format as $(x, y)$ with a space after the comma, e.g., $(3, 5)$ NOT $(3,5)$
+        CRITICAL LATEX FORMATTING - NO DUPLICATION:
 
-Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, wrong_answer_explanations (object with A/B/C/D keys), hint`;
+        1. CHEMICAL FORMULAS: Use LaTeX with _ for subscripts, write ONCE
+        ✓ CORRECT: "$CH_{4}$" or "$H_{2}O$" or "$NH_{3}$"
+        ✗ WRONG: "CH₄CH4" or "$CH_{4}$CH4" or "H₂OH2O" or "ext" corruption
+
+        2. TEMPERATURE: Use \\text{°C} inside math mode
+        ✓ CORRECT: "$-161.5\\text{°C}$"
+        ✗ WRONG: "-161.5ext°C" or "ext°C"
+
+        3. UNITS: Use \\text{} inside math
+        ✓ CORRECT: "$9.8 \\text{ m/s}^{2}$"
+        ✗ WRONG: "9.8ext m/s²"
+
+        4. NO DUPLICATION: Write each formula/number ONCE only
+        - NEVER write: "$H_{2}O$H2O" or "CH₄CH4" or "100ext°C100ext°C"
+        - NO unicode subscripts (₂ ₃ ₄)
+        - NO "ext" corruption
+
+        5. PERCENTAGES: Plain text only - "80%" NOT "$80\\%$"
+
+        Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, wrong_answer_explanations (object with A/B/C/D keys), hint
+
+        VERIFY: Each choice contains values written ONCE in LaTeX format only`;
 
         questionsToGenerate.push(
           base44.integrations.Core.InvokeLLM({
