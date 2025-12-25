@@ -192,7 +192,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
       console.error('Failed to generate questions:', e);
       setError(e.message);
       setIsGenerating(false);
-      alert(Failed to generate questions: ${e.message});
+      alert(`Failed to generate questions: ${e.message}`);
     }
   };
 
@@ -345,7 +345,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
       console.error('Failed to generate questions:', e);
       setError(e.message);
       setIsGenerating(false);
-      alert(Failed to generate questions: ${e.message});
+      alert(`Failed to generate questions: ${e.message}`);
     }
   };
 
