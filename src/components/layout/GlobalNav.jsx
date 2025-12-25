@@ -62,6 +62,7 @@ export default function GlobalNav() {
     { label: 'Notes', path: createPageUrl('Notes') },
     { label: 'Flashcards', path: createPageUrl('Flashcards') },
     { label: 'Progress', path: createPageUrl('Progress') },
+    { label: 'Study Plans', path: createPageUrl('StudyPlans') },
     { label: 'Pricing', path: createPageUrl('Pricing') },
   ];
 
