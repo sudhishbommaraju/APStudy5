@@ -191,33 +191,33 @@ TABLES AND GRAPHS (For Science/Math):
 
 CRITICAL LATEX FORMATTING RULES:
 
-1. FRACTIONS: ALWAYS use \\frac{numerator}{denominator} inside $ or $$
-   - Example: $\\frac{v^{2}}{r}$ NOT $v^2/r$ or v²/r
-   - Example: $a = \\frac{F}{m}$ NOT $a = F/m$
+1. FRACTIONS: Use \\frac{numerator}{denominator} inside $ or $$
+   - Example: $\\frac{v^{2}}{r}$ NOT v²/r or v^2/r
 
-2. EXPONENTS: ALWAYS use proper LaTeX superscript with ^
-   - Example: $x^{2}$ NOT x² or x^2 (without $)
-   - Example: $10^{-3}$ NOT 10⁻³
-   - For complex exponents use curly braces: $x^{2n+1}$
+2. EXPONENTS/SUBSCRIPTS: Use ^ for superscripts, _ for subscripts
+   - Example: $x^{2}$ NOT x²
+   - Example: $H_{2}O$ NOT H2O
+   - Example: $CO_{2}$ NOT CO2
 
-3. PERCENTAGES: ALWAYS plain text, NEVER in math mode
-   - Example: "80%" NOT "$80\\%$" NOT "$80 \\text{%}$"
-   - Example: "The solution increased by 25%" is correct
+3. PERCENTAGES: Plain text only, NEVER in math mode
+   - Correct: "80%" 
+   - Wrong: "$80\\%$"
 
-4. UNITS: ALWAYS use \\text{} inside math mode
-   - Example: $9.8 \\text{ m/s}^{2}$ NOT "9.8 m/s²"
-   - Example: $12 \\text{ kg}$ NOT "12 kg"
+4. UNITS: Use \\text{} inside math
+   - Example: $9.8 \\text{ m/s}^{2}$
 
-5. DISPLAY EQUATIONS: Use $$ for standalone equations, ONE TIME ONLY
-   - Each equation appears ONCE in its own $$ block
-   - No duplicates like "F = maF = ma"
+5. NO DUPLICATION: Write each formula ONCE, not twice
+   - Correct: "$H_{2}O$"
+   - Wrong: "$H_{2}O$H2O" or "H₂OH2O"
+   - Correct: "$CH_{4}$"
+   - Wrong: "$CH_{4}$CH4" or "CH₄CH4"
 
-6. NEVER show raw LaTeX outside delimiters:
-   - NO: \\frac, \\text, \\times appearing as plain text
-   - YES: All LaTeX must be inside $ or $$ delimiters
+6. CHEMICAL FORMULAS: Use LaTeX subscripts, write ONCE only
+   - $NaCl$ NOT NaClNaCl
+   - $C_{2}H_{5}OH$ NOT C2H5OHC2H5OH
+   - $H_{2}SO_{4}$ NOT H2SO4H2SO4
 
-7. COORDINATES: $(x, y)$ with space after comma
-   - Example: $(3, 5)$ NOT $(3,5)$
+7. Each answer choice contains the value ONCE, never repeated
 
 EXAMPLES OF CORRECT FORMATTING:
 
@@ -314,13 +314,14 @@ Percentage:
 "The solution is 85% correct."
 (Note: Plain text, NOT $85\\%$)
 
-NEVER WRITE:
-- PE = mghPE = mgh (duplicated)
-- 9.8\\textm/s^2 or 9.8ext (broken/corrupted)
-- m = 2extkg or 2ext kg (corrupted)
-- v^2/r instead of \\frac{v^{2}}{r} (use fraction format)
+NEVER WRITE (COMMON MISTAKES):
+- H₂OH2O or $H_{2}O$H2O (duplicated - write ONCE)
+- CH₄CH4 or $CH_{4}$CH4 (duplicated - write ONCE)
+- NaClNaCl (duplicated - write $NaCl$ once)
+- PE = mghPE = mgh (equation duplicated)
+- v^2/r (use $\\frac{v^{2}}{r}$)
 - x² or 10⁻³ (use $x^{2}$ and $10^{-3}$)
-- $80\\%$ (percentages are plain text: 80%)
+- $80\\%$ (use plain text: 80%)
 
 Requirements:
 - Match official exam style
