@@ -197,10 +197,6 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
   };
 
   const generateQuestions = async () => {
-    if (!selectedSubject || !selectedUnit) {
-      alert('Please select both a subject and unit');
-      return;
-    }
     if (!user) {
       alert('Please wait while your account loads...');
       return;
@@ -221,30 +217,56 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
       const updatedUser = await useCredit(user, 'daily_practice_count');
       setUser(updatedUser);
 
-      const subject = subjects.find(s => s.subject_id === selectedSubject);
-      const unit = units.find(u => u.id === selectedUnit);
+      // Determine what to generate
+      let targetSubjects = [];
+      let targetUnits = [];
 
-      if (!subject || !unit) {
-        throw new Error('Subject or Unit not found');
+      if (!selectedSubject) {
+        // All subjects - pick random subjects
+        targetSubjects = subjects.slice(0, 3); // Mix from multiple subjects
+      } else {
+        targetSubjects = [subjects.find(s => s.subject_id === selectedSubject)];
+      }
+
+      // Fetch units for each subject
+      for (const subject of targetSubjects) {
+        const subjectUnits = await base44.entities.Unit.filter({ subject_id: subject.subject_id });
+        if (!selectedUnit) {
+          // All units - add all units from this subject
+          targetUnits.push(...subjectUnits.map(u => ({ ...u, subject })));
+        } else {
+          // Specific unit
+          const unit = subjectUnits.find(u => u.id === selectedUnit);
+          if (unit) targetUnits.push({ ...unit, subject });
+        }
+      }
+
+      if (targetUnits.length === 0) {
+        throw new Error('No units found to generate questions from');
       }
 
       // Generate questions via LLM
       const llmPromises = [];
       for (let i = 0; i < questionCount; i++) {
+        // Pick random unit for variety
+        const randomUnit = targetUnits[Math.floor(Math.random() * targetUnits.length)];
+        const subject = randomUnit.subject;
+        const unit = randomUnit;
+
         let contextInstructions = `Generate an exam-style multiple choice question for ${subject.name}. Unit: ${unit.unit_name}`;
 
         // SAT/ACT specific instructions
-        if (selectedSubject === 'sat' && unit.unit_name === 'Math') {
+        if (subject.subject_id === 'sat' && unit.unit_name === 'Math') {
           contextInstructions = `Generate a SAT Math question. Topics include: algebra, problem-solving, data analysis, advanced math (quadratics, exponentials, functions), geometry, trigonometry. Use real SAT format and difficulty.`;
-        } else if (selectedSubject === 'sat' && unit.unit_name === 'Reading and Writing') {
+        } else if (subject.subject_id === 'sat' && unit.unit_name === 'Reading and Writing') {
           contextInstructions = `Generate a SAT Reading and Writing question. Include a short passage (2-4 sentences) about literature, history, science, or social studies. Ask about grammar, vocabulary in context, rhetorical skills, or comprehension. Use real SAT format.`;
-        } else if (selectedSubject === 'act' && unit.unit_name === 'Math') {
+        } else if (subject.subject_id === 'act' && unit.unit_name === 'Math') {
           contextInstructions = `Generate an ACT Math question. Topics include: pre-algebra, elementary algebra, intermediate algebra, coordinate geometry, plane geometry, trigonometry. Use real ACT format and difficulty.`;
-        } else if (selectedSubject === 'act' && unit.unit_name === 'English') {
+        } else if (subject.subject_id === 'act' && unit.unit_name === 'English') {
           contextInstructions = `Generate an ACT English question. Include a sentence or short passage with grammar, punctuation, sentence structure, strategy, organization, or style issues. Test grammar rules, rhetorical skills, and writing conventions. Use real ACT format.`;
-        } else if (selectedSubject === 'act' && unit.unit_name === 'Reading') {
+        } else if (subject.subject_id === 'act' && unit.unit_name === 'Reading') {
           contextInstructions = `Generate an ACT Reading question. Include a passage excerpt (3-5 sentences) from prose fiction, social science, humanities, or natural science. Ask about main ideas, details, inferences, vocabulary, or author's craft. Use real ACT format.`;
-        } else if (selectedSubject === 'act' && unit.unit_name === 'Science') {
+        } else if (subject.subject_id === 'act' && unit.unit_name === 'Science') {
           contextInstructions = `Generate an ACT Science question. Present data (describe a chart/graph/experiment) about biology, chemistry, physics, or earth science. Ask about data interpretation, scientific investigation, or evaluation of models. Use real ACT format.`;
         }
 
@@ -284,7 +306,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
               },
               required: ['question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'correct_answer', 'explanation'],
             },
-          })
+          }).then(r => ({ ...r, unit, subject }))
         );
       }
 
@@ -292,10 +314,10 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
 
       // Create question entities
       const createdQuestions = await Promise.all(
-        responses.map(r =>
+        responses.map(({ unit, subject, ...r }) =>
           base44.entities.Question.create({
-            subject_id: selectedSubject,
-            unit_id: selectedUnit,
+            subject_id: subject.subject_id,
+            unit_id: unit.id,
             skill_id: '',
             unit_name: unit.unit_name,
             skill_name: 'General',
@@ -418,9 +440,12 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
               setSelectedUnit('');
             }}>
               <SelectTrigger className="w-full bg-slate-900/50 border-slate-700/50 text-slate-200">
-                <SelectValue placeholder="Choose a subject" />
+                <SelectValue placeholder="All subjects or choose specific" />
               </SelectTrigger>
               <SelectContent className="max-h-96 bg-slate-900/95 backdrop-blur-xl border-slate-700/50">
+                <SelectItem value="all" className="text-white font-semibold">
+                  ✨ All Subjects (Mixed Practice)
+                </SelectItem>
                 {Array.from(new Map(subjects.map(s => [s.subject_id, s])).values())
                   .reduce((acc, subject) => {
                     const category = subject.category;
@@ -464,12 +489,15 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                 exit={{ opacity: 0, height: 0 }}
                 className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg"
               >
-                <label className="text-sm font-medium text-slate-100 mb-3 block">Select Unit</label>
+                <label className="text-sm font-medium text-slate-100 mb-3 block">Select Unit (Optional)</label>
                 <Select value={selectedUnit} onValueChange={setSelectedUnit}>
                   <SelectTrigger className="w-full bg-slate-900/50 border-slate-700/50 text-slate-200">
-                    <SelectValue placeholder="Choose a unit" />
+                    <SelectValue placeholder="All units or choose specific" />
                   </SelectTrigger>
                   <SelectContent className="max-h-96 bg-slate-900/95 backdrop-blur-xl border-slate-700/50">
+                    <SelectItem value="all" className="text-white font-semibold">
+                      ✨ All Units (Mixed Practice)
+                    </SelectItem>
                     {units.sort((a, b) => a.unit_number - b.unit_number).map((unit) => (
                       <SelectItem key={unit.id} value={unit.id} className="text-white">
                         Unit {unit.unit_number}: {unit.unit_name}
@@ -482,85 +510,74 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
           </AnimatePresence>
 
           {/* Question Count */}
-          <AnimatePresence>
-            {selectedUnit && (
-              <motion.div 
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg"
-              >
-                <label className="text-sm font-medium text-slate-100 mb-3 block">
-                  Number of Questions {isStandardizedTest && '(Custom for SAT/ACT)'}
-                </label>
-                {isStandardizedTest ? (
-                  <div className="space-y-3">
-                    <input
-                      type="number"
-                      min="1"
-                      max="60"
-                      value={customQuestionCount}
-                      onChange={(e) => {
-                        const val = Math.min(60, Math.max(1, parseInt(e.target.value) || 1));
-                        setCustomQuestionCount(val);
-                        setQuestionCount(val);
-                      }}
-                      className="w-full px-4 py-3 rounded-lg border border-slate-700/50 bg-slate-900/50 text-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/50"
-                      placeholder="Enter 1-60"
-                    />
-                    <p className="text-xs text-slate-400">Max 60 questions for SAT/ACT practice</p>
-                  </div>
-                ) : (
-                  <div className="flex gap-3">
-                    {[5, 10, 15, 20].map((count) => (
-                      <button
-                        key={count}
-                        onClick={() => setQuestionCount(count)}
-                        className={cn(
-                          "flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all",
-                          questionCount === count
-                            ? "bg-violet-600 text-white shadow-[0_0_15px_rgba(139,92,246,0.4)]"
-                            : "bg-slate-900/50 text-slate-300 hover:bg-slate-900/70 border border-slate-700/50"
-                        )}
-                      >
-                        {count}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </motion.div>
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg"
+          >
+            <label className="text-sm font-medium text-slate-100 mb-3 block">
+              Number of Questions {isStandardizedTest && '(Custom for SAT/ACT)'}
+            </label>
+            {isStandardizedTest ? (
+              <div className="space-y-3">
+                <input
+                  type="number"
+                  min="1"
+                  max="60"
+                  value={customQuestionCount}
+                  onChange={(e) => {
+                    const val = Math.min(60, Math.max(1, parseInt(e.target.value) || 1));
+                    setCustomQuestionCount(val);
+                    setQuestionCount(val);
+                  }}
+                  className="w-full px-4 py-3 rounded-lg border border-slate-700/50 bg-slate-900/50 text-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+                  placeholder="Enter 1-60"
+                />
+                <p className="text-xs text-slate-400">Max 60 questions for SAT/ACT practice</p>
+              </div>
+            ) : (
+              <div className="flex gap-3">
+                {[5, 10, 15, 20].map((count) => (
+                  <button
+                    key={count}
+                    onClick={() => setQuestionCount(count)}
+                    className={cn(
+                      "flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all",
+                      questionCount === count
+                        ? "bg-violet-600 text-white shadow-[0_0_15px_rgba(139,92,246,0.4)]"
+                        : "bg-slate-900/50 text-slate-300 hover:bg-slate-900/70 border border-slate-700/50"
+                    )}
+                  >
+                    {count}
+                  </button>
+                ))}
+              </div>
             )}
-          </AnimatePresence>
+          </motion.div>
 
           {/* Start Button */}
-          {selectedUnit && (
-            <div className="mt-6">
-              <button
-                type="button"
-                onClick={() => {
-                  console.log('=== BUTTON CLICKED ===');
-                  console.log('Selected Subject:', selectedSubject);
-                  console.log('Selected Unit:', selectedUnit);
-                  console.log('Question Count:', questionCount);
-                  console.log('User:', user);
-                  generateQuestions();
-                }}
-                disabled={isGenerating}
-                className="w-full h-14 px-6 text-base font-semibold rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {isGenerating ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-5 h-5" />
-                    Start Practice ({questionCount} questions)
-                  </>
-                )}
-              </button>
-            </div>
-          )}
+          <div className="mt-6">
+            <button
+              type="button"
+              onClick={generateQuestions}
+              disabled={isGenerating}
+              className="w-full h-14 px-6 text-base font-semibold rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-5 h-5" />
+                  Start Practice ({questionCount} questions)
+                  {!selectedSubject && ' - All Subjects'}
+                  {selectedSubject && (!selectedUnit || selectedUnit === 'all') && ' - All Units'}
+                </>
+              )}
+            </button>
+          </div>
         </motion.div>
       </>
     );
