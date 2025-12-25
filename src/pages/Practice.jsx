@@ -78,7 +78,15 @@ export default function Practice() {
   });
 
   const startPractice = async () => {
-    if (!selectedSubject || !selectedUnit) return;
+    console.log('=== STARTING PRACTICE ===');
+    console.log('Selected Subject:', selectedSubject);
+    console.log('Selected Unit:', selectedUnit);
+    console.log('Question Count:', questionCount);
+    
+    if (!selectedSubject || !selectedUnit) {
+      alert('Please select both a subject and unit');
+      return;
+    }
     if (!user) {
       alert('Please wait while your account loads...');
       return;
@@ -95,11 +103,21 @@ export default function Practice() {
     setPracticeState('practicing');
     
     try {
-      // Use a credit
+      console.log('Using credit...');
       const updatedUser = await useCredit(user, 'daily_practice_count');
       setUser(updatedUser);
+      
       const subject = subjects.find(s => s.subject_id === selectedSubject);
       const unit = units.find(u => u.id === selectedUnit);
+      
+      console.log('Subject:', subject);
+      console.log('Unit:', unit);
+      
+      if (!subject || !unit) {
+        throw new Error('Subject or Unit not found');
+      }
+      
+      console.log(`Generating ${questionCount} questions...`);
       const questionsToGenerate = [];
 
       for (let i = 0; i < questionCount; i++) {
@@ -334,12 +352,27 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
         );
       }
 
+      console.log('Waiting for LLM responses...');
       const responses = await Promise.all(questionsToGenerate);
-      console.log('LLM Responses:', responses);
+      console.log('✅ LLM Responses received:', responses.length);
       
+      if (!responses || responses.length === 0) {
+        throw new Error('No responses from LLM');
+      }
+      
+      // Validate responses
+      responses.forEach((r, i) => {
+        if (!r.question_text || !r.choice_a || !r.correct_answer) {
+          console.error(`Invalid response at index ${i}:`, r);
+          throw new Error(`Invalid question data at index ${i}`);
+        }
+      });
+      
+      console.log('Creating question entities...');
       const questions = await Promise.all(
-        responses.map(r => 
-          base44.entities.Question.create({
+        responses.map((r, index) => {
+          console.log(`Creating question ${index + 1}/${responses.length}`);
+          return base44.entities.Question.create({
             subject_id: selectedSubject,
             unit_id: selectedUnit,
             skill_id: '',
@@ -358,18 +391,39 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
             wrong_answer_explanations: r.wrong_answer_explanations || {},
             hint: r.hint || '',
             is_ai_generated: true,
-          })
-        )
+          });
+        })
       );
 
-      console.log('Generated questions:', questions);
-      console.log('Setting questions and turning off generating');
+      console.log('✅ Questions created:', questions.length);
+      
+      if (!questions || questions.length === 0) {
+        throw new Error('Failed to create questions in database');
+      }
+      
+      console.log('Setting currentQuestions state...');
       setCurrentQuestions(questions);
+      
+      console.log('Turning off generating flag...');
       setGenerating(false);
-      console.log('State updated - should now show questions');
+      
+      console.log('✅ PRACTICE READY - Questions should now display');
+      console.log('Current state:', { 
+        questionsCount: questions.length, 
+        practiceState: 'practicing',
+        generating: false 
+      });
     } catch (e) {
-      console.error('Failed to start practice:', e);
-      alert(`Failed to generate questions: ${e.message}`);
+      console.error('❌ PRACTICE GENERATION FAILED:', e);
+      console.error('Error details:', {
+        message: e.message,
+        stack: e.stack,
+        selectedSubject,
+        selectedUnit,
+        questionCount
+      });
+      
+      alert(`Failed to generate questions: ${e.message}\n\nPlease try again or contact support if this persists.`);
       setPracticeState('setup');
       setGenerating(false);
     }
@@ -623,21 +677,62 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
 
   // Practicing
   if (practiceState === 'practicing') {
-    console.log('Practicing state:', { generating, questionsCount: currentQuestions.length, currentIndex });
+    console.log('=== RENDER: Practicing State ===');
+    console.log('Generating:', generating);
+    console.log('Questions count:', currentQuestions.length);
+    console.log('Current index:', currentIndex);
+    console.log('Current question:', currentQuestion);
     
-    if (generating || currentQuestions.length === 0) {
+    if (generating) {
       return (
         <div className="min-h-screen focus-mode flex items-center justify-center">
           <div className="text-center">
             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" style={{ color: 'var(--color-focus-accent)' }} />
             <p className="focus-mode-text font-medium">Generating practice questions...</p>
-            <p className="focus-mode-text-secondary text-sm mt-2">Questions: {currentQuestions.length}</p>
+            <p className="focus-mode-text-secondary text-sm mt-2">This may take 10-20 seconds</p>
+          </div>
+        </div>
+      );
+    }
+    
+    if (currentQuestions.length === 0) {
+      console.error('❌ NO QUESTIONS AVAILABLE');
+      return (
+        <div className="min-h-screen focus-mode flex items-center justify-center">
+          <div className="text-center max-w-md">
+            <p className="focus-mode-text font-medium mb-4">No questions available</p>
+            <Button onClick={() => {
+              console.log('Returning to setup...');
+              setPracticeState('setup');
+              setCurrentQuestions([]);
+              setCurrentIndex(0);
+            }}>
+              Back to Setup
+            </Button>
+          </div>
+        </div>
+      );
+    }
+    
+    if (!currentQuestion) {
+      console.error('❌ CURRENT QUESTION IS UNDEFINED');
+      return (
+        <div className="min-h-screen focus-mode flex items-center justify-center">
+          <div className="text-center max-w-md">
+            <p className="focus-mode-text font-medium mb-4">Error loading question</p>
+            <Button onClick={() => {
+              setPracticeState('setup');
+              setCurrentQuestions([]);
+              setCurrentIndex(0);
+            }}>
+              Back to Setup
+            </Button>
           </div>
         </div>
       );
     }
 
-    console.log('Rendering question card for:', currentQuestion);
+    console.log('✅ Rendering question card');
 
     return (
       <div className="min-h-screen focus-mode">
