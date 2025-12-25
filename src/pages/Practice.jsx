@@ -157,28 +157,32 @@ export default function Practice() {
 
         7. Each answer choice contains the value ONCE, never repeated
         
-        EXAMPLES OF CORRECT FORMATTING:
+        EXAMPLES - ANSWER CHOICES (CRITICAL - NO DUPLICATION):
 
-        Question: "A ball is thrown with velocity $12 \\text{ m/s}$ at angle $30^{\\circ}$. What is the maximum height?"
-        Choice A: "$1.8 \\text{ m}$"
-        Choice B: "$3.7 \\text{ m}$"
-        Choice C: "$5.2 \\text{ m}$"
-        Choice D: "$7.1 \\text{ m}$"
+        Physics question:
+        Choice A: "$1.8 \\text{ m}$"  ✓ CORRECT
+        Choice B: "$1.8 \\text{ m}$1.8 m"  ✗ WRONG (duplicated)
 
-        Question: "If $f(x) = 3x^{2} + 5$, what is $f(2)$?"
-        Choice A: "$11$"
-        Choice B: "$17$"
-        Choice C: "$23$"
-        Choice D: "$29$"
+        Math question:
+        Choice A: "$11$"  ✓ CORRECT
+        Choice B: "$11$11"  ✗ WRONG (duplicated)
 
-        Question: "The centripetal acceleration is given by $a_{c} = \\frac{v^{2}}{r}$. If $v = 10 \\text{ m/s}$ and $r = 5 \\text{ m}$, what is $a_{c}$?"
-        Choice A: "$15 \\text{ m/s}^{2}$"
-        Choice B: "$20 \\text{ m/s}^{2}$"
-        Choice C: "$25 \\text{ m/s}^{2}$"
-        Choice D: "$30 \\text{ m/s}^{2}$"
+        Chemistry question - MOST IMPORTANT:
+        Choice A: "$H_{2}O$"  ✓ CORRECT (LaTeX only, once)
+        Choice B: "$H_{2}O$H2O"  ✗ WRONG (LaTeX + plain text)
+        Choice C: "H₂OH2O"  ✗ WRONG (unicode + plain text)
+        Choice D: "H2O"  ✗ WRONG (no LaTeX)
 
-        Question: "A survey found that 85% of students prefer online learning. How many?"
-        (Note: "85%" is plain text, NOT in math mode)
+        Choice A: "$CH_{4}$"  ✓ CORRECT
+        Choice B: "$CH_{4}$CH4"  ✗ WRONG
+
+        Choice A: "$NaCl$"  ✓ CORRECT
+        Choice B: "$NaCl$NaCl"  ✗ WRONG
+
+        Choice A: "$C_{2}H_{5}OH$"  ✓ CORRECT
+        Choice B: "$C_{2}H_{5}OH$C2H5OH"  ✗ WRONG
+
+        RULE: Each choice_a, choice_b, choice_c, choice_d contains the value EXACTLY ONCE in LaTeX format. NO plain text after LaTeX. NO duplication.
 
         EXPLANATION FORMAT (FOLLOW EXACTLY):
 

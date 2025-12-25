@@ -219,28 +219,32 @@ CRITICAL LATEX FORMATTING RULES:
 
 7. Each answer choice contains the value ONCE, never repeated
 
-EXAMPLES OF CORRECT FORMATTING:
+EXAMPLES - ANSWER CHOICES (CRITICAL - NO DUPLICATION):
 
-Question: "A ball is thrown with velocity $12 \\text{ m/s}$ at angle $30^{\\circ}$. What is the maximum height?"
-Choice A: "$1.8 \\text{ m}$"
-Choice B: "$3.7 \\text{ m}$"
-Choice C: "$5.2 \\text{ m}$"
-Choice D: "$7.1 \\text{ m}$"
+Physics question:
+Choice A: "$1.8 \\text{ m}$"  ✓ CORRECT
+Choice B: "$1.8 \\text{ m}$1.8 m"  ✗ WRONG (duplicated)
 
-Question: "If $f(x) = 3x^{2} + 5$, what is $f(2)$?"
-Choice A: "$11$"
-Choice B: "$17$"
-Choice C: "$23$"
-Choice D: "$29$"
+Math question:
+Choice A: "$11$"  ✓ CORRECT
+Choice B: "$11$11"  ✗ WRONG (duplicated)
 
-Question: "The centripetal acceleration is given by $a_{c} = \\frac{v^{2}}{r}$. If $v = 10 \\text{ m/s}$ and $r = 5 \\text{ m}$, what is $a_{c}$?"
-Choice A: "$15 \\text{ m/s}^{2}$"
-Choice B: "$20 \\text{ m/s}^{2}$"
-Choice C: "$25 \\text{ m/s}^{2}$"
-Choice D: "$30 \\text{ m/s}^{2}$"
+Chemistry question - MOST IMPORTANT:
+Choice A: "$H_{2}O$"  ✓ CORRECT (LaTeX only, once)
+Choice B: "$H_{2}O$H2O"  ✗ WRONG (LaTeX + plain text)
+Choice C: "H₂OH2O"  ✗ WRONG (unicode + plain text)
+Choice D: "H2O"  ✗ WRONG (no LaTeX)
 
-Question: "A survey found that 85% of students prefer online learning. How many?"
-(Note: "85%" is plain text, NOT in math mode)
+Choice A: "$CH_{4}$"  ✓ CORRECT
+Choice B: "$CH_{4}$CH4"  ✗ WRONG
+
+Choice A: "$NaCl$"  ✓ CORRECT
+Choice B: "$NaCl$NaCl"  ✗ WRONG
+
+Choice A: "$C_{2}H_{5}OH$"  ✓ CORRECT
+Choice B: "$C_{2}H_{5}OH$C2H5OH"  ✗ WRONG
+
+RULE: Each choice_a, choice_b, choice_c, choice_d contains the value EXACTLY ONCE in LaTeX format. NO plain text after LaTeX. NO duplication.
 
 EXPLANATION FORMAT (FOLLOW EXACTLY):
 
@@ -330,14 +334,25 @@ Requirements:
 - Each equation appears ONCE
 - Units always in \\text{}
 
-CRITICAL - ANSWER CONSISTENCY:
-- Calculate the correct answer using the math shown
-- The correct_answer field MUST point to the choice with the mathematically correct value
-- Double-check: if calculation gives 196 J ≈ 200 J, correct_answer must be the letter for 200 J
-- NEVER have explanation say "200 J is correct" but mark a different value as correct_answer
-- Verify correct_answer letter matches the choice with the right value BEFORE returning
+CRITICAL RULES FOR ANSWER CHOICES:
 
-Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer, explanation, wrong_answer_explanations`;
+1. NO DUPLICATION: Each choice contains the value ONCE only
+   - Correct: choice_a: "$H_{2}O$"
+   - Wrong: choice_a: "$H_{2}O$H2O"
+   - Wrong: choice_a: "H₂OH2O"
+
+2. LaTeX format for all formulas/chemicals, written ONCE:
+   - choice_a: "$H_{2}O$"  NOT "$H_{2}O$H2O" or "H2O" or "H₂OH2O"
+   - choice_b: "$CH_{4}$"  NOT "$CH_{4}$CH4" or "CH4" or "CH₄CH4"
+   - choice_c: "$NaCl$"  NOT "$NaCl$NaCl" or "NaCl" or "NaClNaCl"
+
+3. ANSWER CONSISTENCY:
+   - Calculate correct answer using the math shown
+   - correct_answer field must match the choice with the right value
+
+Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer, explanation, wrong_answer_explanations
+
+VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each contain NO duplicated text`;
 
           questionPromises.push(
             base44.integrations.Core.InvokeLLM({
