@@ -78,15 +78,27 @@ export default function Practice() {
   });
 
   const startPractice = async () => {
-    if (!selectedSubject || !selectedUnit) return;
+    console.log('Start practice clicked', { selectedSubject, selectedUnit, user });
+    if (!selectedSubject || !selectedUnit) {
+      console.log('Missing subject or unit');
+      return;
+    }
+    
+    if (!user) {
+      console.log('No user found, attempting to load...');
+      alert('Please wait while we load your account...');
+      return;
+    }
     
     // Check credits
     const { allowed, remaining } = await checkCredits(user, 'daily_practice_count');
+    console.log('Credit check:', { allowed, remaining });
     if (!allowed) {
       setUpgradeModalOpen(true);
       return;
     }
     
+    console.log('Starting practice generation...');
     setGenerating(true);
     setPracticeState('practicing');
     
