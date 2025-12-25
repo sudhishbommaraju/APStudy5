@@ -37,6 +37,7 @@ export default function Practice() {
   
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [error, setError] = useState(null);
+  const [studyPlanId, setStudyPlanId] = useState(null);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -57,7 +58,14 @@ export default function Practice() {
       setQuestions(location.state.preloadedQuestions);
       setSelectedSubject(location.state.subjectId);
     }
-  }, [location.state]);
+    
+    // Check for study plan in URL
+    const params = new URLSearchParams(location.search);
+    const planId = params.get('studyPlanId');
+    if (planId) {
+      setStudyPlanId(planId);
+    }
+  }, [location.state, location.search]);
 
   const { data: subjects = [] } = useQuery({
     queryKey: ['subjects'],
@@ -236,11 +244,29 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
       error_type: 'none',
     });
 
+    // Update study plan progress if applicable
+    if (studyPlanId) {
+      try {
+        const plan = await base44.entities.StudyPlan.filter({ id: studyPlanId });
+        if (plan && plan[0]) {
+          await base44.entities.StudyPlan.update(studyPlanId, {
+            questions_completed: (plan[0].questions_completed || 0) + 1,
+            practice_sessions_completed: currentIndex === questions.length - 1 
+              ? (plan[0].practice_sessions_completed || 0) + 1 
+              : plan[0].practice_sessions_completed
+          });
+        }
+      } catch (e) {
+        console.error('Failed to update study plan:', e);
+      }
+    }
+
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(prev => prev + 1);
     } else {
       setIsComplete(true);
       queryClient.invalidateQueries({ queryKey: ['attempts'] });
+      queryClient.invalidateQueries({ queryKey: ['studyPlans'] });
     }
   };
 

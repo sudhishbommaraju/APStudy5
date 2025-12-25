@@ -13,6 +13,7 @@ import Progress from './pages/Progress';
 import SeedData from './pages/SeedData';
 import Settings from './pages/Settings';
 import Tutor from './pages/Tutor';
+import StudyPlans from './pages/StudyPlans';
 import __Layout from './Layout.jsx';
 
 
@@ -32,6 +33,7 @@ export const PAGES = {
     "SeedData": SeedData,
     "Settings": Settings,
     "Tutor": Tutor,
+    "StudyPlans": StudyPlans,
 }
 
 export const pagesConfig = {
