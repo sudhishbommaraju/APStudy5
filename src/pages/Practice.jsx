@@ -78,35 +78,25 @@ export default function Practice() {
   });
 
   const startPractice = async () => {
-    console.log('Start practice clicked', { selectedSubject, selectedUnit, user });
-    if (!selectedSubject || !selectedUnit) {
-      console.log('Missing subject or unit');
-      return;
-    }
-    
+    if (!selectedSubject || !selectedUnit) return;
     if (!user) {
-      console.log('No user found, attempting to load...');
-      alert('Please wait while we load your account...');
+      alert('Please wait while your account loads...');
       return;
     }
     
     // Check credits
-    const { allowed, remaining } = await checkCredits(user, 'daily_practice_count');
-    console.log('Credit check:', { allowed, remaining });
+    const { allowed } = await checkCredits(user, 'daily_practice_count');
     if (!allowed) {
       setUpgradeModalOpen(true);
       return;
     }
     
-    console.log('Starting practice generation...');
     setGenerating(true);
-    setPracticeState('practicing');
-    
-    // Use a credit
-    const updatedUser = await useCredit(user, 'daily_practice_count');
-    setUser(updatedUser);
     
     try {
+      // Use a credit
+      const updatedUser = await useCredit(user, 'daily_practice_count');
+      setUser(updatedUser);
       const subject = subjects.find(s => s.subject_id === selectedSubject);
       const unit = units.find(u => u.id === selectedUnit);
       const questionsToGenerate = [];
@@ -371,8 +361,13 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
       );
 
       setCurrentQuestions(questions);
+      setPracticeState('practicing');
     } catch (e) {
       console.error('Failed to start practice:', e);
+      alert('Failed to generate questions. Please try again.');
+      setGenerating(false);
+      setPracticeState('setup');
+      return;
     }
     setGenerating(false);
   };
