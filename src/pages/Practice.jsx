@@ -127,62 +127,67 @@ export default function Practice() {
         - For graphs, describe the data points as JSON: {"type": "line/bar/scatter", "data": [{"x": 1, "y": 2}, ...], "labels": {"x": "Time (s)", "y": "Distance (m)"}}
         - Only include visual data when it enhances understanding
 
-        CRITICAL LATEX FORMATTING RULES:
+        CRITICAL LATEX FORMATTING RULES - FOLLOW EXACTLY:
 
-        1. FRACTIONS: Use \\frac{numerator}{denominator} inside $ or $$
-           - Example: $\\frac{v^{2}}{r}$ NOT v²/r or v^2/r
+        1. CHEMICAL FORMULAS: ALWAYS use LaTeX with _ for subscripts, write ONCE
+           ✓ CORRECT: "$CH_{4}$"
+           ✗ WRONG: "CH₄CH4" or "$CH_{4}$CH4" or "CH4" or "ext" corruption
+           
+           ✓ CORRECT: "$H_{2}O$"
+           ✗ WRONG: "H₂OH2O" or "$H_{2}O$H2O" or "H2O" or "ext" corruption
+           
+           ✓ CORRECT: "$NH_{3}$"
+           ✗ WRONG: "NH₃NH3" or "$NH_{3}$NH3" or "NH3" or "ext" corruption
+           
+           ✓ CORRECT: "$N_{2}$"
+           ✗ WRONG: "N₂N2" or "$N_{2}$N2" or "N2" or "ext" corruption
 
-        2. EXPONENTS/SUBSCRIPTS: Use ^ for superscripts, _ for subscripts
-           - Example: $x^{2}$ NOT x²
-           - Example: $H_{2}O$ NOT H2O
-           - Example: $CO_{2}$ NOT CO2
+        2. TEMPERATURE UNITS: Use \\text{°C} properly inside math mode
+           ✓ CORRECT: "$-161.5\\text{°C}$"
+           ✗ WRONG: "-161.5ext°C" or "ext°C" or any "ext" corruption
 
-        3. PERCENTAGES: Plain text only, NEVER in math mode
-           - Correct: "80%" 
-           - Wrong: "$80\\%$"
+        3. EXPONENTS: Use ^ with curly braces
+           ✓ CORRECT: "$x^{2}$"
+           ✗ WRONG: "x²" or "x^2" (without $)
 
-        4. UNITS: Use \\text{} inside math
-           - Example: $9.8 \\text{ m/s}^{2}$
+        4. FRACTIONS: Use \\frac{}{} inside math mode
+           ✓ CORRECT: "$\\frac{v^{2}}{r}$"
+           ✗ WRONG: "v²/r" or "v^2/r"
 
-        5. NO DUPLICATION: Write each formula ONCE, not twice
-           - Correct: "$H_{2}O$"
-           - Wrong: "$H_{2}O$H2O" or "H₂OH2O"
-           - Correct: "$CH_{4}$"
-           - Wrong: "$CH_{4}$CH4" or "CH₄CH4"
+        5. NO DUPLICATION: Write formula ONCE only in LaTeX
+           - NEVER write both unicode and LaTeX versions
+           - NEVER write formula twice in any form
+           - NEVER have corrupted "ext" text
 
-        6. CHEMICAL FORMULAS: Use LaTeX subscripts, write ONCE only
-           - $NaCl$ NOT NaClNaCl
-           - $C_{2}H_{5}OH$ NOT C2H5OHC2H5OH
-           - $H_{2}SO_{4}$ NOT H2SO4H2SO4
-
-        7. Each answer choice contains the value ONCE, never repeated
+        6. PERCENTAGES: Plain text, not in math mode
+           ✓ CORRECT: "80%"
+           ✗ WRONG: "$80\\%$"
         
-        EXAMPLES - ANSWER CHOICES (CRITICAL - NO DUPLICATION):
+        EXAMPLES - ANSWER CHOICES (FOLLOW EXACTLY):
 
-        Physics question:
-        Choice A: "$1.8 \\text{ m}$"  ✓ CORRECT
-        Choice B: "$1.8 \\text{ m}$1.8 m"  ✗ WRONG (duplicated)
+        Chemistry with boiling points:
+        ✓ CORRECT: "$CH_{4}$ (boiling point: $-161.5\\text{°C}$)"
+        ✗ WRONG: "CH₄CH4 (boiling point: -161.5ext°C-161.5ext°C)"
+        ✗ WRONG: "$CH_{4}$CH4 (boiling point: -161.5ext°C)"
+        
+        ✓ CORRECT: "$H_{2}O$ (boiling point: $100\\text{°C}$)"
+        ✗ WRONG: "H₂OH2O (boiling point: 100ext°C100ext°C)"
+        ✗ WRONG: "$H_{2}O$H2O (boiling point: 100ext°C)"
+        
+        ✓ CORRECT: "$NH_{3}$ (boiling point: $-33.3\\text{°C}$)"
+        ✗ WRONG: "NH₃NH3 (boiling point: -33.3ext°C-33.3ext°C)"
+        
+        ✓ CORRECT: "$N_{2}$ (boiling point: $-195.8\\text{°C}$)"
+        ✗ WRONG: "N₂N2 (boiling point: -195.8ext°C-195.8ext°C)"
 
-        Math question:
-        Choice A: "$11$"  ✓ CORRECT
-        Choice B: "$11$11"  ✗ WRONG (duplicated)
+        Simple chemistry:
+        ✓ CORRECT: "$NaCl$"
+        ✗ WRONG: "NaClNaCl" or "$NaCl$NaCl"
+        
+        ✓ CORRECT: "$CO_{2}$"
+        ✗ WRONG: "CO₂CO2" or "$CO_{2}$CO2"
 
-        Chemistry question - MOST IMPORTANT:
-        Choice A: "$H_{2}O$"  ✓ CORRECT (LaTeX only, once)
-        Choice B: "$H_{2}O$H2O"  ✗ WRONG (LaTeX + plain text)
-        Choice C: "H₂OH2O"  ✗ WRONG (unicode + plain text)
-        Choice D: "H2O"  ✗ WRONG (no LaTeX)
-
-        Choice A: "$CH_{4}$"  ✓ CORRECT
-        Choice B: "$CH_{4}$CH4"  ✗ WRONG
-
-        Choice A: "$NaCl$"  ✓ CORRECT
-        Choice B: "$NaCl$NaCl"  ✗ WRONG
-
-        Choice A: "$C_{2}H_{5}OH$"  ✓ CORRECT
-        Choice B: "$C_{2}H_{5}OH$C2H5OH"  ✗ WRONG
-
-        RULE: Each choice_a, choice_b, choice_c, choice_d contains the value EXACTLY ONCE in LaTeX format. NO plain text after LaTeX. NO duplication.
+        ABSOLUTE RULE: Each choice contains ONLY LaTeX formulas written ONCE. NO unicode subscripts. NO "ext" corruption. NO duplication.
 
         EXPLANATION FORMAT (FOLLOW EXACTLY):
 
@@ -257,14 +262,16 @@ export default function Practice() {
         (Note: Plain text, NOT $85\\%$)
 
         NEVER WRITE (COMMON MISTAKES):
-        - H₂OH2O or $H_{2}O$H2O (duplicated - write ONCE)
-        - CH₄CH4 or $CH_{4}$CH4 (duplicated - write ONCE)
-        - NaClNaCl (duplicated - write $NaCl$ once)
-        - PE = mghPE = mgh (equation duplicated)
-        - v^2/r (use $\\frac{v^{2}}{r}$)
-        - x² or 10⁻³ (use $x^{2}$ and $10^{-3}$)
-        - $80\\%$ (use plain text: 80%)
-        - Mixed inline math with text
+        - CH₄CH4 or $CH_{4}$CH4 (duplicated - write "$CH_{4}$" ONCE)
+        - H₂OH2O or $H_{2}O$H2O (duplicated - write "$H_{2}O$" ONCE)
+        - NH₃NH3 or $NH_{3}$NH3 (duplicated - write "$NH_{3}$" ONCE)
+        - N₂N2 or $N_{2}$N2 (duplicated - write "$N_{2}$" ONCE)
+        - "-161.5ext°C" or "100ext°C" or ANY "ext" corruption (use "$-161.5\\text{°C}$")
+        - "ext" appearing ANYWHERE (this means broken LaTeX)
+        - Unicode subscripts like ₂ ₃ ₄ (use LaTeX: $_{2}$ $_{3}$ $_{4}$)
+        - Unicode superscripts like ² ³ (use LaTeX: $^{2}$ $^{3}$)
+        - Plain text formulas without $ delimiters
+        - Any duplication of formulas in any form
 
         For the explanation:
         - Use the format shown above EXACTLY
