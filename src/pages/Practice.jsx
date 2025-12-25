@@ -197,8 +197,18 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
   };
 
   const generateQuestions = async () => {
+    console.log('🚀 PRACTICE GENERATOR CALLED');
+    console.log('User:', user);
+    console.log('Selected Subject:', selectedSubject);
+    console.log('Selected Unit:', selectedUnit);
+    console.log('Question Count:', questionCount);
+
+    setIsGenerating(true);
+    setError(null);
+
     if (!user) {
-      alert('Please wait while your account loads...');
+      setError('User not loaded');
+      setIsGenerating(false);
       return;
     }
 
@@ -206,16 +216,15 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
     const { allowed } = await checkCredits(user, 'daily_practice_count');
     if (!allowed) {
       setUpgradeModalOpen(true);
+      setIsGenerating(false);
       return;
     }
-
-    setIsGenerating(true);
-    setError(null);
 
     try {
       // Use credit
       const updatedUser = await useCredit(user, 'daily_practice_count');
       setUser(updatedUser);
+      console.log('✅ Credit used successfully');
 
       // Determine what to generate
       let targetSubjects = [];
@@ -242,11 +251,18 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
         }
       }
 
+      console.log('🎯 Target Units:', targetUnits.length);
+      console.log('🎯 Target Subjects:', targetSubjects.map(s => s?.name));
+
       if (targetUnits.length === 0) {
-        throw new Error('No units found to generate questions from');
+        setError('No units found to generate questions from');
+        console.error('❌ No units found');
+        setIsGenerating(false);
+        return;
       }
 
       // Generate questions via LLM
+      console.log('🔄 Starting LLM generation for', questionCount, 'questions');
       const llmPromises = [];
       for (let i = 0; i < questionCount; i++) {
         // Pick random unit for variety
@@ -311,9 +327,12 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
         );
       }
 
+      console.log('⏳ Waiting for LLM responses...');
       const responses = await Promise.all(llmPromises);
+      console.log('✅ LLM responses received:', responses.length);
 
       // Create question entities
+      console.log('💾 Creating question entities in database...');
       const createdQuestions = await Promise.all(
         responses.map(({ unit, subject, ...r }) =>
           base44.entities.Question.create({
@@ -339,8 +358,17 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
         )
       );
 
+      console.log('✅ Questions created:', createdQuestions.length);
+      
+      if (createdQuestions.length === 0) {
+        setError('Questions were created but array is empty - this is a bug');
+        setIsGenerating(false);
+        return;
+      }
+
       setQuestions(createdQuestions);
       setIsGenerating(false);
+      console.log('🎉 Practice mode ready with', createdQuestions.length, 'questions');
     } catch (e) {
       console.error('Failed to generate questions:', e);
       setError(e.message);
@@ -429,6 +457,12 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
             <p className="text-sm text-slate-500 mt-2">
               Daily practice exams: {(user.daily_practice_count || 0)}/5 used
             </p>
+          )}
+          {error && (
+            <div className="mt-4 p-4 bg-rose-500/10 border border-rose-500/30 rounded-lg">
+              <p className="text-rose-400 font-semibold">⚠️ Error: {error}</p>
+              <p className="text-rose-300 text-sm mt-1">Check the browser console for details</p>
+            </div>
           )}
         </div>
 
@@ -590,8 +624,13 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
       <div className="min-h-screen focus-mode flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" style={{ color: 'var(--color-focus-accent)' }} />
-          <p className="focus-mode-text font-medium">Generating practice questions...</p>
-          <p className="focus-mode-text-secondary text-sm mt-2">This may take 10-20 seconds</p>
+          <p className="focus-mode-text font-medium">🔄 Generator is running...</p>
+          <p className="focus-mode-text-secondary text-sm mt-2">Check console for progress</p>
+          {error && (
+            <div className="mt-4 p-4 bg-rose-500/10 border border-rose-500/30 rounded-lg max-w-md mx-auto">
+              <p className="text-rose-400 font-semibold">Error: {error}</p>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -630,6 +669,18 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
   }
 
   // Practicing state
+  if (questions.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center p-8 bg-rose-500/10 border border-rose-500/30 rounded-xl max-w-md">
+          <p className="text-rose-400 font-bold text-xl mb-2">⚠️ NO QUESTIONS</p>
+          <p className="text-rose-300">Questions array is empty - this is a rendering bug</p>
+          <p className="text-rose-200 text-sm mt-2">Check console logs</p>
+        </div>
+      </div>
+    );
+  }
+
   const currentQuestion = questions[currentIndex];
   const answered = answers[currentIndex] !== undefined;
 
