@@ -59,13 +59,31 @@ export default function Practice() {
       setSelectedSubject(location.state.subjectId);
     }
     
-    // Check for study plan in URL
-    const params = new URLSearchParams(location.search);
-    const planId = params.get('studyPlanId');
-    if (planId) {
-      setStudyPlanId(planId);
+    // Auto-generate for study plan
+    if (location.state?.autoGenerate && location.state?.studyPlan) {
+      const plan = location.state.studyPlan;
+      setStudyPlanId(plan.id);
+      setSelectedSubject(plan.subject_id);
+      
+      // Auto-generate after user loads
+      const autoGen = async () => {
+        if (user) {
+          // Select first unit or random unit from plan
+          const unitId = plan.unit_ids?.[0] || '';
+          setSelectedUnit(unitId);
+          
+          // Wait a tick for state to update
+          setTimeout(() => {
+            generateQuestionsForPlan(plan, unitId);
+          }, 100);
+        }
+      };
+      
+      if (user) {
+        autoGen();
+      }
     }
-  }, [location.state, location.search]);
+  }, [location.state, user]);
 
   const { data: subjects = [] } = useQuery({
     queryKey: ['subjects'],
@@ -80,6 +98,107 @@ export default function Practice() {
     queryFn: () => base44.entities.Unit.filter({ subject_id: selectedSubject }),
     enabled: !!selectedSubject,
   });
+
+  const generateQuestionsForPlan = async (plan, unitId) => {
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      const { allowed } = await checkCredits(user, 'daily_practice_count');
+      if (!allowed) {
+        setUpgradeModalOpen(true);
+        setIsGenerating(false);
+        return;
+      }
+
+      const updatedUser = await useCredit(user, 'daily_practice_count');
+      setUser(updatedUser);
+
+      const subject = subjects.find(s => s.subject_id === plan.subject_id);
+      const unit = units.find(u => u.id === unitId);
+
+      if (!subject || !unit) {
+        throw new Error('Subject or Unit not found');
+      }
+
+      const count = 10; // Default for study plans
+
+      // Generate questions
+      const llmPromises = [];
+      for (let i = 0; i < count; i++) {
+        let contextInstructions = `Generate an exam-style multiple choice question for ${subject.name}. Unit: ${unit.unit_name}`;
+
+        const prompt = `${contextInstructions}
+
+CRITICAL LATEX FORMATTING RULES:
+1. Chemical formulas: Use LaTeX with subscripts, write ONCE
+   ✓ CORRECT: "$CH_{4}$"
+   ✗ WRONG: "CH₄CH4" or "$CH_{4}$CH4"
+2. Temperature: Use \\text{°C} inside math mode
+3. NO DUPLICATION: Write each formula ONCE only
+4. PERCENTAGES: Plain text - "80%" NOT "$80\\%$"
+
+Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, hint`;
+
+        llmPromises.push(
+          base44.integrations.Core.InvokeLLM({
+            prompt,
+            response_json_schema: {
+              type: 'object',
+              properties: {
+                question_text: { type: 'string' },
+                table_data: { type: 'string' },
+                graph_data: { type: 'string' },
+                choice_a: { type: 'string' },
+                choice_b: { type: 'string' },
+                choice_c: { type: 'string' },
+                choice_d: { type: 'string' },
+                correct_answer: { type: 'string' },
+                explanation: { type: 'string' },
+                hint: { type: 'string' },
+              },
+              required: ['question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'correct_answer', 'explanation'],
+            },
+          })
+        );
+      }
+
+      const responses = await Promise.all(llmPromises);
+
+      const createdQuestions = await Promise.all(
+        responses.map(r =>
+          base44.entities.Question.create({
+            subject_id: plan.subject_id,
+            unit_id: unitId,
+            skill_id: '',
+            unit_name: unit.unit_name,
+            skill_name: 'General',
+            difficulty: 'medium',
+            question_text: r.question_text,
+            table_data: r.table_data || '',
+            graph_data: r.graph_data || '',
+            choice_a: r.choice_a,
+            choice_b: r.choice_b,
+            choice_c: r.choice_c,
+            choice_d: r.choice_d,
+            correct_answer: r.correct_answer,
+            explanation: r.explanation,
+            wrong_answer_explanations: {},
+            hint: r.hint || '',
+            is_ai_generated: true,
+          })
+        )
+      );
+
+      setQuestions(createdQuestions);
+      setIsGenerating(false);
+    } catch (e) {
+      console.error('Failed to generate questions:', e);
+      setError(e.message);
+      setIsGenerating(false);
+      alert(`Failed to generate questions: ${e.message}`);
+    }
+  };
 
   const generateQuestions = async () => {
     if (!selectedSubject || !selectedUnit) {

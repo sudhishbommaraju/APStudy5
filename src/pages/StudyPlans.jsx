@@ -54,8 +54,13 @@ export default function StudyPlans() {
     },
   });
 
-  const handleStartPractice = (plan) => {
-    navigate(createPageUrl('Practice') + `?subject=${plan.subject_id}&studyPlanId=${plan.id}`);
+  const handleStartPractice = async (plan) => {
+    navigate(createPageUrl('Practice'), {
+      state: {
+        autoGenerate: true,
+        studyPlan: plan
+      }
+    });
   };
 
   const handleCompletePlan = (plan) => {
