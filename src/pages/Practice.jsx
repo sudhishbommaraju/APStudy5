@@ -92,6 +92,7 @@ export default function Practice() {
     }
     
     setGenerating(true);
+    setPracticeState('practicing');
     
     try {
       // Use a credit
@@ -361,15 +362,13 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
       );
 
       setCurrentQuestions(questions);
-      setPracticeState('practicing');
+      setGenerating(false);
     } catch (e) {
       console.error('Failed to start practice:', e);
       alert('Failed to generate questions. Please try again.');
-      setGenerating(false);
       setPracticeState('setup');
-      return;
+      setGenerating(false);
     }
-    setGenerating(false);
   };
 
   const handleAnswer = (answer) => {
