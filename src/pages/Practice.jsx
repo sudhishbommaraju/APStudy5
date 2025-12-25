@@ -580,18 +580,15 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
+                  className="relative z-10"
+                  style={{ pointerEvents: 'auto' }}
                 >
                   <Button
                     onClick={startPractice}
                     disabled={generating}
-                    className="w-full h-12 text-base font-medium relative overflow-hidden group"
+                    className="w-full h-12 text-base font-medium bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 relative z-10"
+                    style={{ pointerEvents: 'auto' }}
                   >
-                    <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600"
-                      initial={{ x: "-100%" }}
-                      whileHover={{ x: 0 }}
-                      transition={{ duration: 0.3 }}
-                    />
                     <span className="relative z-10 flex items-center justify-center">
                       {generating ? (
                         <>
