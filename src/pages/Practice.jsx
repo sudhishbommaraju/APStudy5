@@ -189,10 +189,10 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
       setQuestions(createdQuestions);
       setIsGenerating(false);
     } catch (e) {
-      console.error('Failed to generate questions:', e);
-      setError(e.message);
+      console.error('❌ STUDY PLAN GENERATION FAILED:', e);
+      const errorMsg = e.message || 'Unknown error';
+      setError(`Study plan generation failed: ${errorMsg}`);
       setIsGenerating(false);
-      alert(`Failed to generate questions: ${e.message}`);
     }
   };
 
@@ -370,10 +370,10 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
       setIsGenerating(false);
       console.log('🎉 Practice mode ready with', createdQuestions.length, 'questions');
     } catch (e) {
-      console.error('Failed to generate questions:', e);
-      setError(e.message);
+      console.error('❌ MAIN GENERATION FAILED:', e);
+      const errorMsg = e.message || 'Unknown error';
+      setError(`Generation failed: ${errorMsg}`);
       setIsGenerating(false);
-      alert(`Failed to generate questions: ${e.message}`);
     }
   };
 
