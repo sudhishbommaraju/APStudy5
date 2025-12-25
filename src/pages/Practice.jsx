@@ -60,28 +60,13 @@ export default function Practice() {
     }
     
     // Auto-generate for study plan
-    if (location.state?.autoGenerate && location.state?.studyPlan) {
+    if (location.state?.autoGenerate && location.state?.studyPlan && user) {
       const plan = location.state.studyPlan;
       setStudyPlanId(plan.id);
       setSelectedSubject(plan.subject_id);
       
-      // Auto-generate after user loads
-      const autoGen = async () => {
-        if (user) {
-          // Select first unit or random unit from plan
-          const unitId = plan.unit_ids?.[0] || '';
-          setSelectedUnit(unitId);
-          
-          // Wait a tick for state to update
-          setTimeout(() => {
-            generateQuestionsForPlan(plan, unitId);
-          }, 100);
-        }
-      };
-      
-      if (user) {
-        autoGen();
-      }
+      // Auto-generate immediately
+      generateQuestionsForPlan(plan);
     }
   }, [location.state, user]);
 
@@ -99,7 +84,7 @@ export default function Practice() {
     enabled: !!selectedSubject,
   });
 
-  const generateQuestionsForPlan = async (plan, unitId) => {
+  const generateQuestionsForPlan = async (plan) => {
     setIsGenerating(true);
     setError(null);
 
@@ -115,9 +100,20 @@ export default function Practice() {
       setUser(updatedUser);
 
       const subject = subjects.find(s => s.subject_id === plan.subject_id);
-      const unit = units.find(u => u.id === unitId);
+      
+      // Fetch units for this subject
+      const planUnits = await base44.entities.Unit.filter({ subject_id: plan.subject_id });
+      
+      // Use first unit from plan's unit_ids, or random unit if no specific units
+      let targetUnit;
+      if (plan.unit_ids && plan.unit_ids.length > 0) {
+        targetUnit = planUnits.find(u => u.id === plan.unit_ids[0]);
+      }
+      if (!targetUnit && planUnits.length > 0) {
+        targetUnit = planUnits[0];
+      }
 
-      if (!subject || !unit) {
+      if (!subject || !targetUnit) {
         throw new Error('Subject or Unit not found');
       }
 
@@ -126,7 +122,7 @@ export default function Practice() {
       // Generate questions
       const llmPromises = [];
       for (let i = 0; i < count; i++) {
-        let contextInstructions = `Generate an exam-style multiple choice question for ${subject.name}. Unit: ${unit.unit_name}`;
+        let contextInstructions = `Generate an exam-style multiple choice question for ${subject.name}. Unit: ${targetUnit.unit_name}`;
 
         const prompt = `${contextInstructions}
 
@@ -169,9 +165,9 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
         responses.map(r =>
           base44.entities.Question.create({
             subject_id: plan.subject_id,
-            unit_id: unitId,
+            unit_id: targetUnit.id,
             skill_id: '',
-            unit_name: unit.unit_name,
+            unit_name: targetUnit.unit_name,
             skill_name: 'General',
             difficulty: 'medium',
             question_text: r.question_text,
