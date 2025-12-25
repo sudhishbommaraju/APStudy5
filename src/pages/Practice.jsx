@@ -335,6 +335,7 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
       }
 
       const responses = await Promise.all(questionsToGenerate);
+      console.log('LLM Responses:', responses);
       
       const questions = await Promise.all(
         responses.map(r => 
@@ -361,11 +362,14 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
         )
       );
 
+      console.log('Generated questions:', questions);
+      console.log('Setting questions and turning off generating');
       setCurrentQuestions(questions);
       setGenerating(false);
+      console.log('State updated - should now show questions');
     } catch (e) {
       console.error('Failed to start practice:', e);
-      alert('Failed to generate questions. Please try again.');
+      alert(`Failed to generate questions: ${e.message}`);
       setPracticeState('setup');
       setGenerating(false);
     }
@@ -619,16 +623,21 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
 
   // Practicing
   if (practiceState === 'practicing') {
-    if (generating) {
+    console.log('Practicing state:', { generating, questionsCount: currentQuestions.length, currentIndex });
+    
+    if (generating || currentQuestions.length === 0) {
       return (
         <div className="min-h-screen focus-mode flex items-center justify-center">
           <div className="text-center">
             <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" style={{ color: 'var(--color-focus-accent)' }} />
             <p className="focus-mode-text font-medium">Generating practice questions...</p>
+            <p className="focus-mode-text-secondary text-sm mt-2">Questions: {currentQuestions.length}</p>
           </div>
         </div>
       );
     }
+
+    console.log('Rendering question card for:', currentQuestion);
 
     return (
       <div className="min-h-screen focus-mode">
