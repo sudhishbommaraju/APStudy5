@@ -189,65 +189,37 @@ TABLES AND GRAPHS (For Science/Math):
 - For graphs, describe the data points as JSON: {"type": "line/bar/scatter", "data": [{"x": 1, "y": 2}, ...], "labels": {"x": "Time (s)", "y": "Distance (m)"}}
 - Only include visual data when it enhances understanding
 
-CRITICAL LATEX FORMATTING RULES - FOLLOW EXACTLY:
+CRITICAL FORMATTING - VERIFY EACH CHOICE BEFORE RETURNING:
 
-1. CHEMICAL FORMULAS: ALWAYS use LaTeX with _ for subscripts, write ONCE
-   ✓ CORRECT: "$CH_{4}$"
-   ✗ WRONG: "CH₄CH4" or "$CH_{4}$CH4" or "CH4" or "ext" corruption
-   
-   ✓ CORRECT: "$H_{2}O$"
-   ✗ WRONG: "H₂OH2O" or "$H_{2}O$H2O" or "H2O" or "ext" corruption
-   
-   ✓ CORRECT: "$NH_{3}$"
-   ✗ WRONG: "NH₃NH3" or "$NH_{3}$NH3" or "NH3" or "ext" corruption
-   
-   ✓ CORRECT: "$N_{2}$"
-   ✗ WRONG: "N₂N2" or "$N_{2}$N2" or "N2" or "ext" corruption
+1. TEMPERATURES - Use LaTeX \\text EXACTLY:
+   ✓ "$100\\text{°C}$" or "$-161.5\\text{°C}$"
+   ✗ NEVER: "100ext°C", "100°C100°C", "100ext°C100ext°C", "-161.5ext°C"
 
-2. TEMPERATURE UNITS: Use \\text{°C} properly inside math mode
-   ✓ CORRECT: "$-161.5\\text{°C}$"
-   ✗ WRONG: "-161.5ext°C" or "ext°C" or any "ext" corruption
+2. CHEMICAL FORMULAS - LaTeX subscripts ONCE:
+   ✓ "$CH_{4}$", "$H_{2}O$", "$NH_{3}$", "$N_{2}$"
+   ✗ NEVER: "CH₄CH4", "$CH_{4}$CH4", "H₂OH2O", "$H_{2}O$H2O", "NH₃NH3", "N₂N2"
 
-3. EXPONENTS: Use ^ with curly braces
-   ✓ CORRECT: "$x^{2}$"
-   ✗ WRONG: "x²" or "x^2" (without $)
+3. NO DUPLICATION - Write each value EXACTLY ONCE:
+   ✗ NEVER duplicate ANY value: "100°C100°C", "-161.5°C-161.5°C", "CH4CH4"
 
-4. FRACTIONS: Use \\frac{}{} inside math mode
-   ✓ CORRECT: "$\\frac{v^{2}}{r}$"
-   ✗ WRONG: "v²/r" or "v^2/r"
+4. NO "ext" CORRUPTION:
+   ✗ NEVER use "ext" ANYWHERE: "100ext°C", "-161.5ext°C", "CH4ext"
 
-5. NO DUPLICATION: Write formula ONCE only in LaTeX
-   - NEVER write both unicode and LaTeX versions
-   - NEVER write formula twice in any form
-   - NEVER have corrupted "ext" text
+5. PERCENTAGES - Plain text only:
+   ✓ "80%"
+   ✗ NEVER: "$80\\%$"
 
-6. PERCENTAGES: Plain text, not in math mode
-   ✓ CORRECT: "80%"
-   ✗ WRONG: "$80\\%$"
+CORRECT EXAMPLES:
+✓ "$CH_{4}$ (boiling point: $-161.5\\text{°C}$)"
+✓ "$H_{2}O$ (boiling point: $100\\text{°C}$)"
+✓ "$NH_{3}$ (boiling point: $-33.3\\text{°C}$)"
+✓ "$N_{2}$ (boiling point: $-195.8\\text{°C}$)"
 
-EXAMPLES - ANSWER CHOICES (FOLLOW EXACTLY):
-
-Chemistry with boiling points:
-✓ CORRECT: "$CH_{4}$ (boiling point: $-161.5\\text{°C}$)"
-✗ WRONG: "CH₄CH4 (boiling point: -161.5ext°C-161.5ext°C)"
-✗ WRONG: "$CH_{4}$CH4 (boiling point: -161.5ext°C)"
-
-✓ CORRECT: "$H_{2}O$ (boiling point: $100\\text{°C}$)"
-✗ WRONG: "H₂OH2O (boiling point: 100ext°C100ext°C)"
-✗ WRONG: "$H_{2}O$H2O (boiling point: 100ext°C)"
-
-✓ CORRECT: "$NH_{3}$ (boiling point: $-33.3\\text{°C}$)"
-✗ WRONG: "NH₃NH3 (boiling point: -33.3ext°C-33.3ext°C)"
-
-✓ CORRECT: "$N_{2}$ (boiling point: $-195.8\\text{°C}$)"
-✗ WRONG: "N₂N2 (boiling point: -195.8ext°C-195.8ext°C)"
-
-Simple chemistry:
-✓ CORRECT: "$NaCl$"
-✗ WRONG: "NaClNaCl" or "$NaCl$NaCl"
-
-✓ CORRECT: "$CO_{2}$"
-✗ WRONG: "CO₂CO2" or "$CO_{2}$CO2"
+WRONG EXAMPLES (NEVER DO THIS):
+✗ "CH₄CH4 (boiling point: -161.5ext°C-161.5ext°C)"
+✗ "$CH_{4}$CH4 (boiling point: -161.5ext°C)"
+✗ "H₂OH2O (boiling point: 100ext°C100ext°C)"
+✗ "$H_{2}O$H2O (boiling point: 100ext°C)"
 
 ABSOLUTE RULE: Each choice contains ONLY LaTeX formulas written ONCE. NO unicode subscripts. NO "ext" corruption. NO duplication.
 
