@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { Menu, X, ChevronDown, User, LogOut, BookOpen } from 'lucide-react';
+import { Menu, X, ChevronDown, User, LogOut, BookOpen, BarChart3, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -128,6 +128,19 @@ export default function GlobalNav() {
                         <p className="text-xs text-slate-400">{user?.email}</p>
                       </div>
                       <DropdownMenuItem asChild>
+                        <Link to={createPageUrl('Analytics')} className="cursor-pointer text-slate-100 focus:text-white">
+                          <BarChart3 className="w-4 h-4 mr-2" />
+                          Analytics
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to={createPageUrl('Rewards')} className="cursor-pointer text-slate-100 focus:text-white">
+                          <Award className="w-4 h-4 mr-2" />
+                          Rewards
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator className="bg-slate-700/50" />
+                      <DropdownMenuItem asChild>
                         <Link to={createPageUrl('Settings')} className="cursor-pointer text-slate-100 focus:text-white">
                           <User className="w-4 h-4 mr-2" />
                           Account Settings
@@ -196,6 +209,22 @@ export default function GlobalNav() {
                 <div className="border-t border-slate-700/50 my-2 pt-2">
                   {user ? (
                     <>
+                      <Link
+                        to={createPageUrl('Analytics')}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block w-full text-left px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-all mb-2"
+                      >
+                        <BarChart3 className="w-4 h-4 inline mr-2" />
+                        Analytics
+                      </Link>
+                      <Link
+                        to={createPageUrl('Rewards')}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block w-full text-left px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-all mb-2"
+                      >
+                        <Award className="w-4 h-4 inline mr-2" />
+                        Rewards
+                      </Link>
                       <Link
                         to={createPageUrl('Settings')}
                         onClick={() => setMobileMenuOpen(false)}
