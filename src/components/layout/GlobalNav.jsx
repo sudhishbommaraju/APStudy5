@@ -62,9 +62,8 @@ export default function GlobalNav() {
     { label: 'Flashcards', path: createPageUrl('Flashcards') },
     { label: 'Tutor', path: createPageUrl('Tutor') },
     { label: 'Groups', path: createPageUrl('StudyGroups') },
+    { label: 'Courses', path: createPageUrl('Courses') },
     { label: 'AI Planner', path: createPageUrl('AIStudyPlanner') },
-    { label: 'Analytics', path: createPageUrl('Analytics') },
-    { label: 'Rewards', path: createPageUrl('Rewards') },
   ];
 
   const navItems = user ? appNavItems : marketingNavItems;

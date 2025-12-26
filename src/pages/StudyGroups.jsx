@@ -4,15 +4,18 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Users, Plus, Crown, TrendingUp, Target, MessageCircle } from 'lucide-react';
+import { Users, Plus, Crown, TrendingUp, Target, MessageCircle, Video } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
+import VirtualSessionModal from '@/components/groups/VirtualSessionModal';
 
 export default function StudyGroups() {
   const [user, setUser] = useState(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
   const [newGroupDescription, setNewGroupDescription] = useState('');
+  const [sessionModalOpen, setSessionModalOpen] = useState(false);
+  const [selectedGroupId, setSelectedGroupId] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -168,7 +171,7 @@ export default function StudyGroups() {
                       <p className="text-sm text-slate-400 mt-1">{group.description}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-slate-400">
+                  <div className="flex items-center gap-4 text-sm text-slate-400 mb-3">
                     <span className="flex items-center gap-1">
                       <Users className="w-4 h-4" />
                       {group.member_emails?.length || 0} members
@@ -178,6 +181,19 @@ export default function StudyGroups() {
                       {group.total_points} pts
                     </span>
                   </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedGroupId(group.id);
+                      setSessionModalOpen(true);
+                    }}
+                    className="w-full"
+                  >
+                    <Video className="w-3 h-3 mr-2" />
+                    Schedule Virtual Session
+                  </Button>
                 </motion.div>
               ))}
             </div>
@@ -214,6 +230,14 @@ export default function StudyGroups() {
           </div>
         )}
       </div>
+
+      {/* Virtual Session Modal */}
+      <VirtualSessionModal
+        open={sessionModalOpen}
+        onOpenChange={setSessionModalOpen}
+        groupId={selectedGroupId}
+        user={user}
+      />
     </>
   );
 }

@@ -15,6 +15,7 @@ export default function Tutor() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState('');
+  const [showQuizGenerator, setShowQuizGenerator] = useState(false);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -45,6 +46,12 @@ export default function Tutor() {
     queryFn: () => base44.entities.Skill.list(),
   });
 
+  const { data: attempts = [] } = useQuery({
+    queryKey: ['attempts', user?.email],
+    queryFn: () => base44.entities.Attempt.filter({ created_by: user.email }),
+    enabled: !!user,
+  });
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -52,6 +59,58 @@ export default function Tutor() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  const analyzeWeaknesses = () => {
+    if (attempts.length < 5) return null;
+
+    const skillErrors = {};
+    attempts.filter(a => !a.is_correct).forEach(a => {
+      if (!skillErrors[a.skill_name]) {
+        skillErrors[a.skill_name] = 0;
+      }
+      skillErrors[a.skill_name]++;
+    });
+
+    const weakSkills = Object.entries(skillErrors)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([skill, count]) => ({ skill, count }));
+
+    return weakSkills;
+  };
+
+  const generateCustomQuiz = async (weakSkill) => {
+    setIsLoading(true);
+    try {
+      const prompt = `Generate 5 practice questions specifically for the skill: "${weakSkill.skill}"
+
+This is an area where the student has made mistakes. Create questions that:
+1. Target common misconceptions
+2. Build understanding step-by-step
+3. Include detailed explanations
+4. Use LaTeX for math notation
+
+For each question, provide:
+- Question text
+- 4 multiple choice options (A, B, C, D)
+- Correct answer
+- Detailed explanation
+
+Format as a numbered list.`;
+
+      const response = await base44.integrations.Core.InvokeLLM({ prompt });
+
+      const aiMessage = { 
+        role: 'assistant', 
+        content: `📝 **Custom Practice Quiz for: ${weakSkill.skill}**\n\nYou've had difficulty with this skill (${weakSkill.count} mistakes). Here's a targeted practice quiz:\n\n${response}\n\n---\n\nTake your time and try to answer these questions. Let me know if you need help with any of them!`
+      };
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (e) {
+      console.error('Failed to generate quiz:', e);
+    }
+    setIsLoading(false);
+    setShowQuizGenerator(false);
+  };
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -62,6 +121,23 @@ export default function Tutor() {
     setIsLoading(true);
 
     try {
+      // Analyze user's attempt history for personalization
+      let performanceContext = '';
+      if (attempts.length > 0) {
+        const weakSkills = analyzeWeaknesses();
+        if (weakSkills && weakSkills.length > 0) {
+          performanceContext = `\n\nStudent's weak areas (from recent mistakes): ${weakSkills.map(w => w.skill).join(', ')}. If relevant to the question, provide extra support in these areas.`;
+        }
+
+        const recentErrors = attempts
+          .filter(a => !a.is_correct)
+          .slice(0, 5)
+          .map(a => a.skill_name);
+        if (recentErrors.length > 0) {
+          performanceContext += `\nRecent mistakes in: ${[...new Set(recentErrors)].join(', ')}.`;
+        }
+      }
+
       // Build context about available subjects, units, skills
       let contextInfo = 'Available subjects: ';
       if (subjects.length > 0) {
@@ -85,6 +161,7 @@ export default function Tutor() {
       const prompt = `You are an expert tutor helping students prepare for ${selectedSubject ? subjects.find(s => s.subject_id === selectedSubject)?.name : 'various exams'}. 
 
 ${contextInfo}
+${performanceContext}
 
 The student asks: "${input}"
 
@@ -95,6 +172,7 @@ Provide a clear, educational response that:
 4. Encourages further learning
 5. Uses LaTeX notation ($...$) for mathematical expressions
 6. Provides step-by-step guidance for problem-solving
+7. If the question relates to their weak areas, provide extra practice suggestions
 
 Be encouraging and supportive. If the question relates to a specific unit or skill from the context above, reference it directly.`;
 
@@ -154,6 +232,39 @@ Be encouraging and supportive. If the question relates to a specific unit or ski
             </SelectContent>
           </Select>
         </div>
+
+        {/* Weakness Analysis Banner */}
+        {messages.length === 0 && attempts.length >= 5 && analyzeWeaknesses() && (
+          <div className="p-4 bg-rose-500/10 border-b border-rose-500/30">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <h4 className="text-sm font-semibold text-rose-200 mb-2">🎯 Areas to Focus On</h4>
+                <div className="flex flex-wrap gap-2">
+                  {analyzeWeaknesses().map((weak, i) => (
+                    <button
+                      key={i}
+                      onClick={() => generateCustomQuiz(weak)}
+                      className="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 rounded-full text-xs text-rose-300 transition-all"
+                    >
+                      {weak.skill} ({weak.count} mistakes)
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  const weakSkills = analyzeWeaknesses();
+                  if (weakSkills && weakSkills.length > 0) {
+                    setInput(`Can you help me understand ${weakSkills[0].skill}? I've been making mistakes in this area.`);
+                  }
+                }}
+                className="text-xs text-rose-300 hover:text-rose-200"
+              >
+                Get Help
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Chat Messages */}
         <div className="h-[500px] overflow-y-auto p-6 space-y-4">
