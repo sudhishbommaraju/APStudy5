@@ -126,7 +126,7 @@ export default function Practice() {
 
         const prompt = `${contextInstructions}
 
-CRITICAL FORMATTING - VERIFY EACH CHOICE:
+CRITICAL FORMATTING - NO DUPLICATION ANYWHERE:
 
 1. TEMPERATURES - Use LaTeX \\text:
    ✓ "$100\\text{°C}$" 
@@ -252,6 +252,11 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
         const unit = targetUnits[Math.floor(Math.random() * targetUnits.length)];
 
         let contextInstructions = `Generate an exam-style multiple choice question for ${subject.name}. Unit: ${unit.unit_name}`;
+
+        // AP Government specific instructions
+        if (subject.subject_id === 'ap_gov') {
+          contextInstructions = `Generate an AP U.S. Government and Politics exam-style multiple choice question. Unit: ${unit.unit_name}. Use real AP exam format and difficulty. Test understanding of government institutions, political processes, civil liberties, or political behavior.`;
+        }
 
         // SAT/ACT specific instructions
         if (subject.subject_id === 'sat' && unit.unit_name === 'Math') {
