@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Users, Crown, Target, Trophy, Calendar, Video, BookOpen, Plus, Loader2 } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -14,7 +14,9 @@ import GroupChallengeCard from '@/components/groups/GroupChallengeCard';
 import { format } from 'date-fns';
 
 export default function GroupDetail() {
-  const { groupId } = useParams();
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const groupId = params.get('id');
   const [user, setUser] = useState(null);
   const [sessionModalOpen, setSessionModalOpen] = useState(false);
   const [challengeDialogOpen, setChallengeDialogOpen] = useState(false);
