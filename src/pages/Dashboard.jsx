@@ -27,6 +27,8 @@ import Calendar from '@/components/dashboard/Calendar';
 import { checkCredits, useCredit } from '@/components/monetization/CreditHelper';
 import ReviewPopup from '@/components/reviews/ReviewPopup';
 import ReviewCard from '@/components/reviews/ReviewCard';
+import Leaderboard from '@/components/gamification/Leaderboard';
+import { getUserStats } from '@/components/gamification/GamificationHelper';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -35,6 +37,7 @@ export default function Dashboard() {
   const [selectedUnit, setSelectedUnit] = useState('');
   const [generatingWeakPractice, setGeneratingWeakPractice] = useState(false);
   const [showReviewPopup, setShowReviewPopup] = useState(false);
+  const [userStats, setUserStats] = useState(null);
   
   useEffect(() => {
     const loadUser = async () => {
@@ -45,6 +48,9 @@ export default function Dashboard() {
         if (currentUser && !currentUser.onboarding_complete) {
           window.location.href = createPageUrl('Onboarding');
         }
+        // Load gamification stats
+        const stats = await getUserStats(currentUser.email);
+        setUserStats(stats);
       } catch (e) {
         // User not authenticated, continue without user
       }
@@ -400,23 +406,44 @@ export default function Dashboard() {
           return null;
         })()}
 
-        {/* Progress Snapshot */}
-        <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg">
-          <h3 className="text-lg font-semibold text-slate-100 mb-4">Your Progress</h3>
-          <div className="grid sm:grid-cols-3 gap-2">
-            <div className="text-center p-2 bg-slate-900/50 rounded-lg border border-slate-700/30">
-              <div className="text-xl font-bold text-slate-100">{totalQuestions}</div>
-              <div className="text-xs text-slate-400 mt-0.5">Questions</div>
-            </div>
-            <div className="text-center p-2 bg-slate-900/50 rounded-lg border border-slate-700/30">
-              <div className="text-xl font-bold text-violet-400">{overallAccuracy.toFixed(0)}%</div>
-              <div className="text-xs text-slate-400 mt-0.5">Accuracy</div>
-            </div>
-            <div className="text-center p-2 bg-slate-900/50 rounded-lg border border-slate-700/30">
-              <div className="text-xl font-bold text-slate-100">{studyDays.size}</div>
-              <div className="text-xs text-slate-400 mt-0.5">Study Days</div>
+        {/* Progress Snapshot with Level */}
+        <div className="grid md:grid-cols-2 gap-6 mb-6">
+          <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg">
+            <h3 className="text-lg font-semibold text-slate-100 mb-4">Your Progress</h3>
+            <div className="grid grid-cols-3 gap-2">
+              <div className="text-center p-2 bg-slate-900/50 rounded-lg border border-slate-700/30">
+                <div className="text-xl font-bold text-slate-100">{totalQuestions}</div>
+                <div className="text-xs text-slate-400 mt-0.5">Questions</div>
+              </div>
+              <div className="text-center p-2 bg-slate-900/50 rounded-lg border border-slate-700/30">
+                <div className="text-xl font-bold text-violet-400">{overallAccuracy.toFixed(0)}%</div>
+                <div className="text-xs text-slate-400 mt-0.5">Accuracy</div>
+              </div>
+              <div className="text-center p-2 bg-slate-900/50 rounded-lg border border-slate-700/30">
+                <div className="text-xl font-bold text-slate-100">{studyDays.size}</div>
+                <div className="text-xs text-slate-400 mt-0.5">Study Days</div>
+              </div>
             </div>
           </div>
+
+          {userStats && (
+            <div className="bg-gradient-to-br from-violet-500/20 to-purple-500/20 backdrop-blur-sm rounded-xl border border-violet-500/30 p-6 shadow-lg">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className="text-2xl font-bold text-slate-100">Level {userStats.level}</h3>
+                  <p className="text-sm text-slate-400">{userStats.total_points} points</p>
+                </div>
+                <Trophy className="w-10 h-10 text-violet-400" />
+              </div>
+              <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden mb-2">
+                <div 
+                  className="h-full bg-gradient-to-r from-violet-600 to-purple-600"
+                  style={{ width: `${((userStats.total_points % 100) / 100) * 100}%` }}
+                />
+              </div>
+              <p className="text-xs text-slate-400">{((userStats.level) * 100) - userStats.total_points} points to level {userStats.level + 1}</p>
+            </div>
+          )}
         </div>
 
         {/* Quick Actions */}
@@ -461,6 +488,12 @@ export default function Dashboard() {
         {/* Calendar */}
         <Calendar user={user} />
 
+        {/* Leaderboard */}
+        <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg mb-6">
+          <h3 className="text-lg font-semibold text-slate-100 mb-4">🏆 Top Learners</h3>
+          <Leaderboard />
+        </div>
+
         {/* Student Reviews Section */}
         {reviews.length > 0 && (
           <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg">
@@ -475,7 +508,7 @@ export default function Dashboard() {
             </div>
           </div>
         )}
-      </div>
+        </div>
 
       {/* Review Popup */}
       <ReviewPopup
