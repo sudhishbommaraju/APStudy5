@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Check, X, ChevronRight, Lightbulb } from 'lucide-react';
+import { Check, X, ChevronRight, Lightbulb, Sparkles, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { base44 } from '@/api/base44Client';
 
 export default function QuestionCard({ 
   question, 
@@ -18,6 +19,8 @@ export default function QuestionCard({
   const [submitted, setSubmitted] = useState(showFeedback);
   const [showHint, setShowHint] = useState(false);
   const [eliminatedChoices, setEliminatedChoices] = useState([]);
+  const [aiExplanation, setAiExplanation] = useState(null);
+  const [loadingAiExplanation, setLoadingAiExplanation] = useState(false);
 
   // Reset state when question changes
   React.useEffect(() => {
@@ -25,6 +28,8 @@ export default function QuestionCard({
     setSubmitted(showFeedback);
     setShowHint(false);
     setEliminatedChoices([]);
+    setAiExplanation(null);
+    setLoadingAiExplanation(false);
   }, [question?.id, selectedAnswer, showFeedback]);
 
   const choices = [
@@ -58,6 +63,37 @@ export default function QuestionCard({
 
   const isCorrect = localSelected === question.correct_answer;
   const showResult = submitted && mode === 'practice';
+
+  const requestAiExplanation = async () => {
+    setLoadingAiExplanation(true);
+    try {
+      const prompt = `You are a helpful tutor. A student just answered this question ${isCorrect ? 'correctly' : 'incorrectly'}.
+
+Question: ${question.question_text}
+
+Correct Answer: ${question.correct_answer}. ${choices.find(c => c.key === question.correct_answer)?.text}
+${!isCorrect ? `Student's Answer: ${localSelected}. ${choices.find(c => c.key === localSelected)?.text}` : ''}
+
+Provide a detailed explanation that:
+1. Explains the core concept being tested
+2. Breaks down why the correct answer is right
+${!isCorrect ? `3. Explains the student's misconception that led to choosing ${localSelected}` : ''}
+4. Includes relevant formulas, definitions, or rules
+5. Provides a memory tip or study strategy
+
+Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and pedagogical.`;
+
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt,
+      });
+
+      setAiExplanation(response);
+    } catch (e) {
+      console.error('Failed to get AI explanation:', e);
+      setAiExplanation('Failed to generate explanation. Please try again.');
+    }
+    setLoadingAiExplanation(false);
+  };
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -376,6 +412,43 @@ export default function QuestionCard({
               {question.explanation}
             </ReactMarkdown>
           </div>
+
+          {/* AI Explanation Button for correct answers too */}
+          {!aiExplanation && (
+            <Button
+              onClick={requestAiExplanation}
+              disabled={loadingAiExplanation}
+              variant="outline"
+              className="w-full mt-4 border-emerald-300 text-emerald-700 hover:bg-emerald-100"
+            >
+              {loadingAiExplanation ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Getting AI explanation...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Learn more about this concept
+                </>
+              )}
+            </Button>
+          )}
+
+          {/* AI Explanation Display */}
+          {aiExplanation && (
+            <div className="mt-4 p-4 bg-white rounded-lg border-2 border-emerald-300">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="w-4 h-4 text-emerald-600" />
+                <span className="font-semibold text-emerald-800 text-sm">AI Tutor Explanation</span>
+              </div>
+              <div className="prose prose-sm max-w-none text-slate-700">
+                <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                  {aiExplanation}
+                </ReactMarkdown>
+              </div>
+            </div>
+          )}
         </div>
       )}
       {showResult && !isCorrect && (
@@ -400,6 +473,43 @@ export default function QuestionCard({
               <p className="text-sm text-rose-700">
                 <strong>Why {localSelected} is wrong:</strong> {question.wrong_answer_explanations[localSelected]}
               </p>
+            </div>
+          )}
+
+          {/* AI Explanation Button */}
+          {!aiExplanation && (
+            <Button
+              onClick={requestAiExplanation}
+              disabled={loadingAiExplanation}
+              variant="outline"
+              className="w-full mt-4 border-rose-300 text-rose-700 hover:bg-rose-100"
+            >
+              {loadingAiExplanation ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Getting AI explanation...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Ask AI for deeper explanation
+                </>
+              )}
+            </Button>
+          )}
+
+          {/* AI Explanation Display */}
+          {aiExplanation && (
+            <div className="mt-4 p-4 bg-white rounded-lg border-2 border-rose-300">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="w-4 h-4 text-rose-600" />
+                <span className="font-semibold text-rose-800 text-sm">AI Tutor Explanation</span>
+              </div>
+              <div className="prose prose-sm max-w-none text-slate-700">
+                <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+                  {aiExplanation}
+                </ReactMarkdown>
+              </div>
             </div>
           )}
         </div>
