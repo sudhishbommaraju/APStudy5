@@ -68,7 +68,7 @@ export default function Practice() {
       setSelectedSubject(plan.subject_id);
       
       // Auto-generate immediately
-      generateQuestionsForPlan(plan);
+      generateQuestionsForPlan(plan, subjects);
     }
   }, [location.state?.autoGenerate, user?.email, subjects?.length]);
 
@@ -86,7 +86,7 @@ export default function Practice() {
     enabled: !!selectedSubject,
   });
 
-  const generateQuestionsForPlan = async (plan) => {
+  const generateQuestionsForPlan = async (plan, subjectsData) => {
     setIsGenerating(true);
     setError(null);
 
@@ -101,7 +101,7 @@ export default function Practice() {
       const updatedUser = await useCredit(user, 'daily_practice_count');
       setUser(updatedUser);
 
-      const subject = subjects.find(s => s.subject_id === plan.subject_id);
+      const subject = subjectsData.find(s => s.subject_id === plan.subject_id);
       
       // Fetch units for this subject
       const planUnits = await base44.entities.Unit.filter({ subject_id: plan.subject_id });
