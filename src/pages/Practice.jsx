@@ -128,22 +128,28 @@ export default function Practice() {
 
 CRITICAL FORMATTING - NO DUPLICATION ANYWHERE:
 
-1. TEMPERATURES - Use LaTeX \\text:
-   ✓ "$100\\text{°C}$" 
-   ✗ NEVER: "100ext°C" or "100°C100°C" or "100ext°C100ext°C"
+1. QUESTION TEXT - Write ONCE in LaTeX only:
+   ✓ "What is $4x^{5} - 3x^{3} + 2x^{2} - 7$?"
+   ✗ NEVER: "What is 4x^5 - 3x^3f(x) = 4x^5 - 3x^3?"
+   ✗ NEVER: "What is $4x^{5}$4x5?"
 
-2. CHEMICAL FORMULAS - LaTeX subscripts ONCE:
-   ✓ "$CH_{4}$"
-   ✗ NEVER: "CH₄CH4" or "$CH_{4}$CH4" or "CH4ext"
+2. ANSWER CHOICES - LaTeX ONCE:
+   ✓ "$CH_{4}$ (boiling point: $-161.5\\text{°C}$)"
+   ✗ NEVER: "CH₄CH4" or "$CH_{4}$CH4" or "100ext°C"
 
-3. NO DUPLICATION - Write each value EXACTLY ONCE:
-   ✗ NEVER duplicate: "100°C100°C" or "-161.5°C-161.5°C"
+3. EXPLANATION - LaTeX ONCE:
+   ✓ "The polynomial $4x^{5} - 3x^{3}$ has degree 5"
+   ✗ NEVER: "The polynomial 4x^54x^5 has degree 5"
 
-4. PERCENTAGES - Plain text only:
-   ✓ "80%"
-   ✗ NEVER: "$80\\%$"
+4. ABSOLUTE RULES:
+   - NO unicode subscripts (₂ ₃ ₄) - use LaTeX: $_{2}$ $_{3}$ $_{4}$
+   - NO unicode superscripts (² ³ ⁵) - use LaTeX: $^{2}$ $^{3}$ $^{5}$
+   - NO plain text math - ALWAYS use $ delimiters
+   - NO "ext" corruption anywhere
+   - NO duplication of any value anywhere
+   - Percentages plain text: "80%" NOT "$80\\%$"
 
-VERIFY: Check every choice has NO "ext", NO duplication, proper LaTeX only.
+VERIFY BEFORE RETURNING: Check question_text, all choices, explanation have NO duplication, NO unicode, ONLY LaTeX.
 
 Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, hint`;
 
@@ -275,24 +281,30 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
 
         const prompt = `${contextInstructions}
 
-CRITICAL FORMATTING - VERIFY EACH CHOICE:
+CRITICAL FORMATTING - NO DUPLICATION ANYWHERE:
 
-1. TEMPERATURES - Use LaTeX \\text:
-   ✓ "$100\\text{°C}$" 
-   ✗ NEVER: "100ext°C" or "100°C100°C" or "100ext°C100ext°C"
+1. QUESTION TEXT - Write ONCE in LaTeX only:
+   ✓ "What is $4x^{5} - 3x^{3} + 2x^{2} - 7$?"
+   ✗ NEVER: "What is 4x^5 - 3x^3f(x) = 4x^5 - 3x^3?"
+   ✗ NEVER: "What is $4x^{5}$4x5?"
 
-2. CHEMICAL FORMULAS - LaTeX subscripts ONCE:
-   ✓ "$CH_{4}$"
-   ✗ NEVER: "CH₄CH4" or "$CH_{4}$CH4" or "CH4ext"
+2. ANSWER CHOICES - LaTeX ONCE:
+   ✓ "$CH_{4}$ (boiling point: $-161.5\\text{°C}$)"
+   ✗ NEVER: "CH₄CH4" or "$CH_{4}$CH4" or "100ext°C"
 
-3. NO DUPLICATION - Write each value EXACTLY ONCE:
-   ✗ NEVER duplicate: "100°C100°C" or "-161.5°C-161.5°C"
+3. EXPLANATION - LaTeX ONCE:
+   ✓ "The polynomial $4x^{5} - 3x^{3}$ has degree 5"
+   ✗ NEVER: "The polynomial 4x^54x^5 has degree 5"
 
-4. PERCENTAGES - Plain text only:
-   ✓ "80%"
-   ✗ NEVER: "$80\\%$"
+4. ABSOLUTE RULES:
+   - NO unicode subscripts (₂ ₃ ₄) - use LaTeX: $_{2}$ $_{3}$ $_{4}$
+   - NO unicode superscripts (² ³ ⁵) - use LaTeX: $^{2}$ $^{3}$ $^{5}$
+   - NO plain text math - ALWAYS use $ delimiters
+   - NO "ext" corruption anywhere
+   - NO duplication of any value anywhere
+   - Percentages plain text: "80%" NOT "$80\\%$"
 
-VERIFY: Check every choice has NO "ext", NO duplication, proper LaTeX only.
+VERIFY BEFORE RETURNING: Check question_text, all choices, explanation have NO duplication, NO unicode, ONLY LaTeX.
 
 Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, hint`;
 
