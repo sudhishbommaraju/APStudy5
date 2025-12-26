@@ -12,7 +12,8 @@ import {
   Play,
   FileText,
   Brain,
-  Loader2
+  Loader2,
+  Trophy
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
