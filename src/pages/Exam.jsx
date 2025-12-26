@@ -189,39 +189,32 @@ TABLES AND GRAPHS (For Science/Math):
 - For graphs, describe the data points as JSON: {"type": "line/bar/scatter", "data": [{"x": 1, "y": 2}, ...], "labels": {"x": "Time (s)", "y": "Distance (m)"}}
 - Only include visual data when it enhances understanding
 
-CRITICAL FORMATTING - VERIFY EACH CHOICE BEFORE RETURNING:
+CRITICAL FORMATTING - NO DUPLICATION ANYWHERE:
 
-1. TEMPERATURES - Use LaTeX \\text EXACTLY:
-   ✓ "$100\\text{°C}$" or "$-161.5\\text{°C}$"
-   ✗ NEVER: "100ext°C", "100°C100°C", "100ext°C100ext°C", "-161.5ext°C"
+1. QUESTION TEXT - Write ONCE in LaTeX only:
+   ✓ "What is the degree of $f(x) = 4x^{5} - 3x^{3} + 2x^{2} - 7$?"
+   ✗ NEVER: "What is f(x) = 4x^5 - 3x^3f(x) = 4x^5 - 3x^3?"
+   ✗ NEVER: "What is $4x^{5}$4x5?"
 
-2. CHEMICAL FORMULAS - LaTeX subscripts ONCE:
-   ✓ "$CH_{4}$", "$H_{2}O$", "$NH_{3}$", "$N_{2}$"
-   ✗ NEVER: "CH₄CH4", "$CH_{4}$CH4", "H₂OH2O", "$H_{2}O$H2O", "NH₃NH3", "N₂N2"
+2. ANSWER CHOICES - LaTeX ONCE:
+   ✓ "$CH_{4}$ (boiling point: $-161.5\\text{°C}$)"
+   ✗ NEVER: "CH₄CH4" or "$CH_{4}$CH4" or "-161.5ext°C" or "100°C100°C"
 
-3. NO DUPLICATION - Write each value EXACTLY ONCE:
-   ✗ NEVER duplicate ANY value: "100°C100°C", "-161.5°C-161.5°C", "CH4CH4"
+3. EXPLANATION - LaTeX ONCE:
+   ✓ "The polynomial $4x^{5} - 3x^{3} + 2x^{2} - 7$ has degree 5"
+   ✗ NEVER: "The polynomial 4x^5 - 3x^34x^5 - 3x^3 has degree 5"
 
-4. NO "ext" CORRUPTION:
-   ✗ NEVER use "ext" ANYWHERE: "100ext°C", "-161.5ext°C", "CH4ext"
+4. ABSOLUTE RULES:
+   - NO unicode subscripts (₂ ₃ ₄) - use LaTeX: $_{2}$ $_{3}$ $_{4}$
+   - NO unicode superscripts (² ³ ⁵) - use LaTeX: $^{2}$ $^{3}$ $^{5}$
+   - NO plain text math - ALWAYS use $ delimiters
+   - NO "ext" corruption anywhere
+   - NO duplication of any value in question_text, choices, or explanation
+   - Percentages plain text: "80%" NOT "$80\\%$"
 
-5. PERCENTAGES - Plain text only:
-   ✓ "80%"
-   ✗ NEVER: "$80\\%$"
+VERIFY BEFORE RETURNING: Check question_text, choice_a, choice_b, choice_c, choice_d, explanation have NO duplication, NO unicode, ONLY LaTeX.
 
-CORRECT EXAMPLES:
-✓ "$CH_{4}$ (boiling point: $-161.5\\text{°C}$)"
-✓ "$H_{2}O$ (boiling point: $100\\text{°C}$)"
-✓ "$NH_{3}$ (boiling point: $-33.3\\text{°C}$)"
-✓ "$N_{2}$ (boiling point: $-195.8\\text{°C}$)"
-
-WRONG EXAMPLES (NEVER DO THIS):
-✗ "CH₄CH4 (boiling point: -161.5ext°C-161.5ext°C)"
-✗ "$CH_{4}$CH4 (boiling point: -161.5ext°C)"
-✗ "H₂OH2O (boiling point: 100ext°C100ext°C)"
-✗ "$H_{2}O$H2O (boiling point: 100ext°C)"
-
-ABSOLUTE RULE: Each choice contains ONLY LaTeX formulas written ONCE. NO unicode subscripts. NO "ext" corruption. NO duplication.
+ABSOLUTE RULE: NO duplication anywhere. Each formula/value written EXACTLY ONCE in LaTeX format.
 
 EXPLANATION FORMAT (FOLLOW EXACTLY):
 
