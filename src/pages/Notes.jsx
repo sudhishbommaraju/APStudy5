@@ -72,82 +72,82 @@ export default function Notes() {
 Unit: ${unit?.unit_name || 'General'}
 Topics to cover: ${topics}
 
-CRITICAL LATEX FORMATTING - NO DUPLICATION:
+CRITICAL FORMATTING RULES - NO DUPLICATION ANYWHERE:
 
-1. CHEMICAL FORMULAS: Use LaTeX with _ for subscripts, write ONCE
-   ✓ CORRECT: "$CH_{4}$" or "$H_{2}O$" or "$NH_{3}$"
-   ✗ WRONG: "CH₄CH4" or "$CH_{4}$CH4" or "H₂OH2O" or "ext" corruption
+1. ALL MATH IN LATEX - Write ONCE only:
+   ✓ CORRECT: "$4x^{5} - 3x^{3}$" or "$CH_{4}$" or "$H_{2}O$"
+   ✗ WRONG: "4x^5 - 3x^34x^5 - 3x^3" or "CH₄CH4" or "$CH_{4}$CH4"
+   ✗ NEVER write formulas in both unicode AND LaTeX - ONLY LaTeX
 
-2. TEMPERATURE: Use \\text{°C} inside math mode
-   ✓ CORRECT: "$-161.5\\text{°C}$"
-   ✗ WRONG: "-161.5ext°C" or "ext°C"
+2. NO "ext" CORRUPTION - Use \\text{} properly:
+   ✓ CORRECT: "$100\\text{°C}$" or "$9.8\\text{ m/s}^{2}$"
+   ✗ WRONG: "100ext°C" or "9.8ext m/s²" or ANY "ext" appearing
 
-3. UNITS: Use \\text{} inside math
-   ✓ CORRECT: "$9.8 \\text{ m/s}^{2}$"
-   ✗ WRONG: "9.8ext m/s²"
+3. NO UNICODE MATH - ONLY LaTeX:
+   ✓ CORRECT: "$_{2}$" "$^{3}$" "$^{5}$"
+   ✗ WRONG: "₂" "³" "⁵" or any unicode subscript/superscript
 
-4. NO DUPLICATION: Write each formula/number ONCE only
-   - NEVER write: "$H_{2}O$H2O" or "CH₄CH4" or "100ext°C100ext°C"
-   - NO unicode subscripts (₂ ₃ ₄)
-   - NO "ext" corruption
+4. PERCENTAGES - Plain text:
+   ✓ CORRECT: "80%" or "50%"
+   ✗ WRONG: "$80\\%$"
 
-5. PERCENTAGES: Plain text - "80%" NOT "$80\\%$"
+5. NO DUPLICATION - Each formula ONCE:
+   ✗ NEVER: "$F = ma$F = ma" or "PE = mghPE = mgh"
+   ✗ NEVER: "10 imes 8010 imes 80" or any duplicated calculation
+   ✓ CORRECT: Write formula ONE time in LaTeX form only
 
-6. ALL equations in $$ display blocks, ONE TIME ONLY
+6. DISPLAY MATH - Use $$ blocks for standalone equations:
+   $$
+   F = ma
+   $$
+   NOT: F = maF = ma or $F = ma$$F = ma$
 
-NOTES FORMAT (FOLLOW EXACTLY):
+CORRECT EXAMPLE:
 
-Use markdown headers and bullet points.
+## Centripetal Force
 
-For each concept:
-- Write explanation in plain English
-- Show formula in its own $$ block
-- Provide example with step-by-step math blocks
-- No duplicated equations
-
-CORRECT EXAMPLE STRUCTURE:
-
-## Gravitational Potential Energy
-
-Gravitational potential energy is the energy stored due to position.
+Centripetal force is the net force required to keep an object moving in a circle.
 
 Formula:
 
 $$
-PE = mgh
+F_c = m\\frac{v^2}{r}
 $$
 
 Where:
-- $m$ is mass in kilograms
-- $g$ is gravitational acceleration ($9.8 \\text{ m/s}^{2}$)
-- $h$ is height in meters
+- $F_c$ is centripetal force in Newtons
+- $m$ is mass in kilograms  
+- $v$ is tangential speed in $\\text{m/s}$
+- $r$ is radius in meters
 
 ### Example Calculation
 
-Given a 2 kg object at 10 m height:
+Given a mass of $10\\text{ kg}$ and speed of $20\\text{ m/s}$ in a circle of radius $5\\text{ m}$:
 
 $$
-PE = (2)(9.8)(10) = 196 \\text{ J}
+F_c = (10)\\frac{(20)^2}{5} = (10)\\frac{400}{5} = 800\\text{ N}
 $$
 
-NEVER WRITE (COMMON MISTAKES):
-- CH₄CH4 or $CH_{4}$CH4 (duplicated - write "$CH_{4}$" ONCE)
-- H₂OH2O or $H_{2}O$H2O (duplicated - write "$H_{2}O$" ONCE)
-- NH₃NH3 or $NH_{3}$NH3 (duplicated - write "$NH_{3}$" ONCE)
-- "-161.5ext°C" or "100ext°C" or ANY "ext" corruption (use "$-161.5\\text{°C}$")
-- "ext" appearing ANYWHERE (this means broken LaTeX)
-- PE = mghPE = mgh (duplicated)
-- Unicode subscripts like ₂ ₃ ₄ (use LaTeX: $_{2}$ $_{3}$ $_{4}$)
-- Any duplication of formulas in any form
+WRONG EXAMPLES (NEVER DO):
+- "F_{c} = 10 imes 80F_{c} = 10 imes 80" (duplicated)
+- "$CH_{4}$CH4" or "CH₄CH4" (write "$CH_{4}$" once)
+- "100ext°C" or "-161.5ext°C" (NO "ext" - use "$100\\text{°C}$")
+- "F = maF = ma" (duplicated formula)
+- "4x^54x^5" (write "$4x^{5}$" once)
 
-Create detailed notes including:
-- Key concepts (plain text)
-- Formulas (in $$ blocks)
-- Step-by-step examples
+VERIFY BEFORE RETURNING:
+- NO "ext" corruption anywhere
+- NO duplication of any formula or number
+- NO unicode math symbols (₂ ³ ⁵)
+- ALL math in LaTeX only
+- Each formula written ONCE
+
+Create detailed notes with:
+- Key concepts
+- Formulas in $$ blocks (written once)
+- Step-by-step examples (no duplication)
 - Practice tips
-- Common mistakes
-
-Each equation appears ONCE in proper $$ blocks with units in \\text{}`;
+- Common mistakes`;
 
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
