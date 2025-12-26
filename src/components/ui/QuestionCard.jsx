@@ -116,8 +116,14 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
 
       {/* Question Text */}
       <div className="px-6 py-5">
-        <div className="prose prose-slate prose-sm max-w-none">
-          <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+        <div className="prose prose-slate prose-sm max-w-none [&_.katex]:text-base [&_.katex-display]:my-4 [&_.katex-display]:text-lg">
+          <ReactMarkdown 
+            remarkPlugins={[remarkMath]} 
+            rehypePlugins={[rehypeKatex]}
+            components={{
+              p: ({ children }) => <p className="leading-relaxed my-2">{children}</p>,
+            }}
+          >
             {question.question_text}
           </ReactMarkdown>
         </div>
@@ -335,7 +341,7 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
                   <ReactMarkdown 
                     remarkPlugins={[remarkMath]} 
                     rehypePlugins={[rehypeKatex]}
-                    className="prose prose-sm max-w-none [&>p]:m-0"
+                    className="prose prose-sm max-w-none [&>p]:m-0 [&_.katex]:text-sm [&_.katex]:align-middle"
                   >
                     {text}
                   </ReactMarkdown>
@@ -462,9 +468,15 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
           <div className="mb-3">
             <p className="text-sm font-medium text-slate-700 mb-1">Correct Answer: {question.correct_answer}</p>
           </div>
-          <div className="prose prose-sm max-w-none text-slate-700">
+          <div className="prose prose-sm max-w-none text-slate-700 [&_.katex]:text-sm [&_.katex-display]:my-3 [&_.katex-display]:text-base">
             <p className="font-medium text-slate-900 mb-2">Explanation:</p>
-            <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+            <ReactMarkdown 
+              remarkPlugins={[remarkMath]} 
+              rehypePlugins={[rehypeKatex]}
+              components={{
+                p: ({ children }) => <p className="my-2 leading-relaxed">{children}</p>,
+              }}
+            >
               {question.explanation}
             </ReactMarkdown>
           </div>

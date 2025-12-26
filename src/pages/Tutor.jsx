@@ -3,11 +3,12 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, BookOpen, Sparkles, Loader2 } from 'lucide-react';
+import { Send, BookOpen, Sparkles, Loader2, Users, Video } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import CollaborativeSession from '@/components/tutor/CollaborativeSession';
 
 export default function Tutor() {
   const [user, setUser] = useState(null);
@@ -16,6 +17,8 @@ export default function Tutor() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState('');
   const [showQuizGenerator, setShowQuizGenerator] = useState(false);
+  const [collaborativeModalOpen, setCollaborativeModalOpen] = useState(false);
+  const [currentTopic, setCurrentTopic] = useState('');
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -166,15 +169,25 @@ ${performanceContext}
 The student asks: "${input}"
 
 Provide a clear, educational response that:
-1. Explains concepts in simple terms
-2. Uses relevant examples
+1. Explains concepts in simple, conversational terms
+2. Uses relevant examples and real-world applications
 3. Breaks down complex topics into manageable parts
-4. Encourages further learning
-5. Uses LaTeX notation ($...$) for mathematical expressions
+4. Encourages further learning and curiosity
+5. Uses proper LaTeX notation for math: inline ($...$) and display ($$...$$)
 6. Provides step-by-step guidance for problem-solving
 7. If the question relates to their weak areas, provide extra practice suggestions
+8. Be adaptive - ask follow-up questions to gauge understanding
+9. Offer to generate practice problems, flashcards, or recommend course modules
 
-Be encouraging and supportive. If the question relates to a specific unit or skill from the context above, reference it directly.`;
+CRITICAL - LaTeX Formatting Rules:
+- Inline math: $x^2 + 3x + 5$
+- Display math (centered): $$\\frac{-b \\pm \\sqrt{b^2-4ac}}{2a}$$
+- Use \\frac{}{} for fractions, never plain /
+- Use \\text{} for units: $100\\text{ m/s}$
+- Use proper subscripts: $H_2O$ not H2O
+- Use proper superscripts: $x^2$ not x^2
+
+Be encouraging, conversational, and supportive. Build rapport with the student.`;
 
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
@@ -183,16 +196,20 @@ Be encouraging and supportive. If the question relates to a specific unit or ski
       const aiMessage = { role: 'assistant', content: response };
       setMessages(prev => [...prev, aiMessage]);
 
-      // Suggest follow-up actions based on weak areas
+      // Proactive suggestions and collaborative features
+      const weakSkills = analyzeWeaknesses();
       if (weakSkills && weakSkills.length > 0 && input.toLowerCase().includes(weakSkills[0].skill.toLowerCase())) {
         setTimeout(() => {
           const followUpMessage = {
             role: 'assistant',
-            content: `💡 **Quick Tip:** Since you're working on ${weakSkills[0].skill}, would you like me to:\n\n1. Generate a custom practice quiz on this topic\n2. Recommend flashcard decks to review\n3. Create a micro-lesson breaking down the fundamentals\n\nJust let me know!`
+            content: `💡 **I can help you master ${weakSkills[0].skill}:**\n\n1. 📝 Generate a custom practice quiz\n2. 🎴 Create flashcard sets\n3. 📚 Recommend specific course modules\n4. 🤝 Start a collaborative problem-solving session\n5. 🎯 Create a focused micro-lesson\n\nWhat would be most helpful?`
           };
           setMessages(prev => [...prev, followUpMessage]);
         }, 1000);
       }
+      
+      // Set current topic for collaborative sessions
+      setCurrentTopic(input);
     } catch (e) {
       console.error('Failed to get AI response:', e);
       const errorMessage = { 
@@ -406,12 +423,36 @@ Be encouraging and supportive. If the question relates to a specific unit or ski
 
         {/* Input Area */}
         <div className="p-4 border-t border-slate-700/50">
+          <div className="flex gap-2 mb-2">
+            <Button
+              onClick={() => setCollaborativeModalOpen(true)}
+              variant="outline"
+              size="sm"
+              className="text-xs"
+            >
+              <Users className="w-3 h-3 mr-1" />
+              Collaborate
+            </Button>
+            <Button
+              onClick={() => {
+                const topic = input || 'General problem-solving';
+                setCurrentTopic(topic);
+                setCollaborativeModalOpen(true);
+              }}
+              variant="outline"
+              size="sm"
+              className="text-xs"
+            >
+              <Video className="w-3 h-3 mr-1" />
+              Live Session
+            </Button>
+          </div>
           <div className="flex gap-2">
             <Textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask me anything..."
+              placeholder="Ask me anything... I'm here to help you learn!"
               className="flex-1 min-h-[60px] max-h-[120px] bg-slate-900/50 border-slate-700/50 text-slate-200 resize-none"
               disabled={isLoading}
             />
@@ -429,6 +470,14 @@ Be encouraging and supportive. If the question relates to a specific unit or ski
           </div>
           <p className="text-xs text-slate-500 mt-2">Press Enter to send, Shift+Enter for new line</p>
         </div>
+      </div>
+
+      <CollaborativeSession
+        open={collaborativeModalOpen}
+        onOpenChange={setCollaborativeModalOpen}
+        user={user}
+        currentTopic={currentTopic}
+      />
       </div>
     </>
   );
