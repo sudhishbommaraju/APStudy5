@@ -292,30 +292,39 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
 
         const prompt = `${contextInstructions}
 
-CRITICAL FORMATTING - NO DUPLICATION ANYWHERE:
+ABSOLUTELY CRITICAL - PREVENT DUPLICATION AND CORRUPTION:
 
-1. QUESTION TEXT - Write ONCE in LaTeX only:
-   ✓ "What is $4x^{5} - 3x^{3} + 2x^{2} - 7$?"
-   ✗ NEVER: "What is 4x^5 - 3x^3f(x) = 4x^5 - 3x^3?"
-   ✗ NEVER: "What is $4x^{5}$4x5?"
+STEP 1 - Write content normally with LaTeX:
+- Question: "What is $4x^{5} - 3x^{3}$?"
+- Choice: "$CH_{4}$ (boiling point: $-161.5\\text{°C}$)"
 
-2. ANSWER CHOICES - LaTeX ONCE:
-   ✓ "$CH_{4}$ (boiling point: $-161.5\\text{°C}$)"
-   ✗ NEVER: "CH₄CH4" or "$CH_{4}$CH4" or "100ext°C"
+STEP 2 - Before submitting, CHECK EACH FIELD for these FATAL ERRORS:
+❌ Duplication: "$4x^{5}$4x5" or "NaClNaCl"
+❌ Unicode: "4x⁵" or "H₂O" or "°C" 
+❌ "ext" corruption: "100ext°C" or "−161ext"
+❌ Plain text after LaTeX: "$x^{2}$x2"
 
-3. EXPLANATION - LaTeX ONCE:
-   ✓ "The polynomial $4x^{5} - 3x^{3}$ has degree 5"
-   ✗ NEVER: "The polynomial 4x^54x^5 has degree 5"
+STEP 3 - MANDATORY FIXES:
+✅ Use \\text{} for units: "$100\\text{°C}$" NOT "100ext°C"
+✅ Use LaTeX subscripts: "$H_{2}O$" NOT "H₂O"
+✅ Use LaTeX superscripts: "$x^{5}$" NOT "x⁵"
+✅ Write ONCE: "$4x^{5}$" NOT "$4x^{5}$4x5"
+✅ Degree symbol in \\text{}: "$100\\text{°C}$" NOT "$100°C$"
 
-4. ABSOLUTE RULES:
-   - NO unicode subscripts (₂ ₃ ₄) - use LaTeX: $_{2}$ $_{3}$ $_{4}$
-   - NO unicode superscripts (² ³ ⁵) - use LaTeX: $^{2}$ $^{3}$ $^{5}$
-   - NO plain text math - ALWAYS use $ delimiters
-   - NO "ext" corruption anywhere
-   - NO duplication of any value anywhere
-   - Percentages plain text: "80%" NOT "$80\\%$"
+EXAMPLES OF CORRECT OUTPUT:
+question_text: "What is $4x^{5} - 3x^{3} + 2x^{2} - 7$?"
+choice_a: "$CH_{4}$ (boiling point: $-161.5\\text{°C}$)"
+choice_b: "$NaCl$ (melting point: $801\\text{°C}$)"
+choice_c: "$C_{6}H_{6}$ (melting point: $5.5\\text{°C}$)"
+choice_d: "$H_{2}O$ (boiling point: $100\\text{°C}$)"
 
-VERIFY BEFORE RETURNING: Check question_text, all choices, explanation have NO duplication, NO unicode, ONLY LaTeX.
+FINAL VERIFICATION CHECKLIST (answer YES to all):
+□ No duplication anywhere?
+□ No unicode subscripts/superscripts?
+□ No "ext" corruption?
+□ All degree symbols in \\text{}?
+□ All chemical formulas in LaTeX?
+□ All math expressions in $...$?
 
 Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, hint`;
 
