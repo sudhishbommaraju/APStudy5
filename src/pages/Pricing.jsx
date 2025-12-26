@@ -53,14 +53,33 @@ export default function Pricing() {
       <div className="galaxy-content">
       {/* Page Header */}
       <div className="page-header text-center">
-        <h1 className="page-title">Simple, transparent pricing</h1>
+        <h1 className="page-title">Pricing Coming Soon</h1>
         <p className="page-description max-w-2xl mx-auto">
-          Choose the plan that works best for your study goals
+          All users currently have Pro access! Enjoy unlimited practice, exams, notes, flashcards, and more.
         </p>
       </div>
 
-      {/* Pricing Cards */}
-      <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+      {/* Temporary Pro Access Notice */}
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-gradient-to-br from-violet-500/20 to-indigo-500/20 backdrop-blur-sm rounded-2xl border-2 border-violet-500/50 p-8 shadow-lg text-center">
+          <Sparkles className="w-16 h-16 mx-auto mb-4 text-violet-400" />
+          <h3 className="text-2xl font-bold text-slate-100 mb-3">You Have Pro Access!</h3>
+          <p className="text-slate-200 mb-6">
+            While we finalize our pricing plans, all users have full access to Pro features.
+          </p>
+          <div className="space-y-2 mb-6">
+            {PRO_FEATURES.map((feature, i) => (
+              <div key={i} className="flex items-start gap-3 justify-center">
+                <Check className="w-5 h-5 text-violet-400 flex-shrink-0 mt-0.5" />
+                <span className="text-slate-100">{feature}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Hidden Pricing Cards for Future */}
+      <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto hidden">
         {/* Free Plan */}
         <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl border border-slate-700/50 p-8 shadow-lg">
           <h3 className="text-2xl font-bold text-slate-100 mb-2">Free</h3>
