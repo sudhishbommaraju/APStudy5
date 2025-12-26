@@ -59,6 +59,11 @@ export default function Practice() {
       setSelectedSubject(location.state.subjectId);
     }
   }, [location.state]);
+
+  const { data: subjects = [] } = useQuery({
+    queryKey: ['subjects'],
+    queryFn: () => base44.entities.Subject.list('subject_id'),
+  });
   
   // Auto-generate for study plan - wait for subjects to load
   useEffect(() => {
@@ -71,11 +76,6 @@ export default function Practice() {
       generateQuestionsForPlan(plan, subjects);
     }
   }, [location.state?.autoGenerate, user?.email, subjects?.length]);
-
-  const { data: subjects = [] } = useQuery({
-    queryKey: ['subjects'],
-    queryFn: () => base44.entities.Subject.list('subject_id'),
-  });
 
   const selectedSubjectData = subjects.find(s => s.subject_id === selectedSubject);
   const isStandardizedTest = selectedSubjectData?.category === 'Standardized';
