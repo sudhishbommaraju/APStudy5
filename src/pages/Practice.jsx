@@ -213,10 +213,8 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
       return;
     }
 
-    // Check credits
-    const { allowed } = await checkCredits(user, 'daily_practice_count');
-    if (!allowed) {
-      setUpgradeModalOpen(true);
+    if (!selectedSubject) {
+      alert('Please select a subject first');
       return;
     }
 
@@ -224,33 +222,23 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
     setError(null);
 
     try {
-      // Use credit
-      const updatedUser = await useCredit(user, 'daily_practice_count');
-      setUser(updatedUser);
-
       // Determine what to generate
-      let targetSubjects = [];
-      let targetUnits = [];
-
-      if (!selectedSubject || selectedSubject === 'all') {
-        // All subjects - pick random subjects
-        targetSubjects = subjects.slice(0, 3); // Mix from multiple subjects
-      } else {
-        targetSubjects = [subjects.find(s => s.subject_id === selectedSubject)];
+      const subject = subjects.find(s => s.subject_id === selectedSubject);
+      if (!subject) {
+        throw new Error('Subject not found');
       }
 
-      // Fetch units for each subject
-      for (const subject of targetSubjects) {
-        if (!subject) continue;
-        const subjectUnits = await base44.entities.Unit.filter({ subject_id: subject.subject_id });
-        if (!selectedUnit || selectedUnit === 'all') {
-          // All units - add all units from this subject
-          targetUnits.push(...subjectUnits.map(u => ({ ...u, subject })));
-        } else {
-          // Specific unit
-          const unit = subjectUnits.find(u => u.id === selectedUnit);
-          if (unit) targetUnits.push({ ...unit, subject });
-        }
+      // Fetch units for the subject
+      const subjectUnits = await base44.entities.Unit.filter({ subject_id: selectedSubject });
+      
+      let targetUnits = [];
+      if (!selectedUnit || selectedUnit === 'all') {
+        // All units - add all units from this subject
+        targetUnits = subjectUnits;
+      } else {
+        // Specific unit
+        const unit = subjectUnits.find(u => u.id === selectedUnit);
+        if (unit) targetUnits.push(unit);
       }
 
       if (targetUnits.length === 0) {
@@ -261,9 +249,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
       const llmPromises = [];
       for (let i = 0; i < questionCount; i++) {
         // Pick random unit for variety
-        const randomUnit = targetUnits[Math.floor(Math.random() * targetUnits.length)];
-        const subject = randomUnit.subject;
-        const unit = randomUnit;
+        const unit = targetUnits[Math.floor(Math.random() * targetUnits.length)];
 
         let contextInstructions = `Generate an exam-style multiple choice question for ${subject.name}. Unit: ${unit.unit_name}`;
 
@@ -324,7 +310,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
               },
               required: ['question_text', 'choice_a', 'choice_b', 'choice_c', 'choice_d', 'correct_answer', 'explanation'],
             },
-          }).then(r => ({ ...r, unit, subject }))
+            }).then(r => ({ ...r, unit }))
         );
       }
 
@@ -332,12 +318,12 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
 
       // Create question entities
       const createdQuestions = await Promise.all(
-        responses.map(({ unit, subject, ...r }) =>
+        responses.map(r =>
           base44.entities.Question.create({
-            subject_id: subject.subject_id,
-            unit_id: unit.id,
+            subject_id: selectedSubject,
+            unit_id: r.unit.id,
             skill_id: '',
-            unit_name: unit.unit_name,
+            unit_name: r.unit.unit_name,
             skill_name: 'General',
             difficulty: 'medium',
             question_text: r.question_text,
@@ -461,9 +447,6 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                 <SelectValue placeholder="All subjects or choose specific" />
               </SelectTrigger>
               <SelectContent className="max-h-96 bg-slate-900/95 backdrop-blur-xl border-slate-700/50">
-                <SelectItem value="all" className="text-white font-semibold">
-                  ✨ All Subjects (Mixed Practice)
-                </SelectItem>
                 {Array.from(new Map(subjects.map(s => [s.subject_id, s])).values())
                   .reduce((acc, subject) => {
                     const category = subject.category;
@@ -590,7 +573,6 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
                 <>
                   <Sparkles className="w-5 h-5" />
                   Start Practice ({questionCount} questions)
-                  {!selectedSubject && ' - All Subjects'}
                   {selectedSubject && (!selectedUnit || selectedUnit === 'all') && ' - All Units'}
                 </>
               )}
