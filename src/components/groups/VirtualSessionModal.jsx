@@ -99,13 +99,16 @@ export default function VirtualSessionModal({ open, onOpenChange, groupId, user 
             </div>
           </div>
           <div className="bg-violet-500/10 border border-violet-500/30 rounded-lg p-3 text-sm text-slate-300">
-            <p className="font-semibold mb-1">Features included:</p>
+            <p className="font-semibold mb-1">✨ Features included:</p>
             <ul className="text-xs space-y-1 text-slate-400">
-              <li>• Real-time collaborative whiteboard</li>
-              <li>• Group chat and messaging</li>
-              <li>• Screen sharing capabilities</li>
-              <li>• Session recording (optional)</li>
+              <li>• 🎨 Real-time collaborative whiteboard</li>
+              <li>• 💬 Group chat and messaging</li>
+              <li>• 🖥️ Screen sharing capabilities</li>
+              <li>• 📹 Video/Audio chat integration</li>
+              <li>• 📝 Shared note-taking</li>
+              <li>• 🎥 Session recording (optional)</li>
             </ul>
+            <p className="text-xs text-amber-400 mt-2">💡 Members can join via the group page when session goes live</p>
           </div>
           <Button onClick={handleCreate} disabled={createSessionMutation.isLoading} className="w-full">
             <Video className="w-4 h-4 mr-2" />

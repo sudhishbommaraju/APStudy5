@@ -13,7 +13,16 @@ import { Progress } from '@/components/ui/progress';
 export default function Courses() {
   const [user, setUser] = useState(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [newCourse, setNewCourse] = useState({ title: '', description: '', subject_id: '', difficulty_level: 'intermediate' });
+  const [newCourse, setNewCourse] = useState({ 
+    title: '', 
+    description: '', 
+    subject_id: '', 
+    difficulty_level: 'intermediate',
+    learning_objectives: '',
+    specific_units: [],
+    specific_skills: [],
+    assessment_types: []
+  });
   const [isGenerating, setIsGenerating] = useState(false);
   const queryClient = useQueryClient();
 
@@ -37,6 +46,18 @@ export default function Courses() {
   const { data: subjects = [] } = useQuery({
     queryKey: ['subjects'],
     queryFn: () => base44.entities.Subject.list('subject_id'),
+  });
+
+  const { data: allUnits = [] } = useQuery({
+    queryKey: ['units', newCourse.subject_id],
+    queryFn: () => base44.entities.Unit.filter({ subject_id: newCourse.subject_id }),
+    enabled: !!newCourse.subject_id,
+  });
+
+  const { data: allSkills = [] } = useQuery({
+    queryKey: ['skills', newCourse.subject_id],
+    queryFn: () => base44.entities.Skill.filter({ subject_id: newCourse.subject_id }),
+    enabled: !!newCourse.subject_id,
   });
 
   const { data: myEnrollments = [] } = useQuery({
@@ -82,28 +103,47 @@ export default function Courses() {
       const units = await base44.entities.Unit.filter({ subject_id: newCourse.subject_id });
       const skills = await base44.entities.Skill.filter({ subject_id: newCourse.subject_id });
 
+      const specificUnits = newCourse.specific_units.length > 0 
+        ? units.filter(u => newCourse.specific_units.includes(u.id))
+        : units;
+      
+      const specificSkills = newCourse.specific_skills.length > 0
+        ? skills.filter(s => newCourse.specific_skills.includes(s.id))
+        : skills;
+
+      const assessmentTypes = newCourse.assessment_types.length > 0
+        ? newCourse.assessment_types
+        : ['quiz', 'practice'];
+
       const prompt = `Generate a structured course for: ${newCourse.title}
 Subject: ${subject.name}
 Difficulty: ${newCourse.difficulty_level}
 Description: ${newCourse.description}
 
-Available Units: ${units.map(u => u.unit_name).join(', ')}
-Available Skills: ${skills.slice(0, 20).map(s => s.skill_name).join(', ')}
+${newCourse.learning_objectives ? `Learning Objectives:\n${newCourse.learning_objectives}\n` : ''}
+
+Units to Include: ${specificUnits.map(u => u.unit_name).join(', ')}
+Skills to Cover: ${specificSkills.slice(0, 20).map(s => s.skill_name).join(', ')}
+Assessment Types to Use: ${assessmentTypes.join(', ')}
 
 Create a course with 5-8 modules. Each module should have:
 - Module title
-- Learning objectives (3-5 bullets)
+- Learning objectives (3-5 bullets, aligned with course objectives)
 - Topics to cover
+- Assessment type (${assessmentTypes.join(' or ')})
 - Practice question count
 - Estimated time
+- Badge criteria for completion
 
 Return as JSON array of modules with structure:
 {
   "title": "string",
   "objectives": ["string"],
   "topics": ["string"],
+  "assessment_type": "string",
   "practice_questions": number,
-  "estimated_hours": number
+  "estimated_hours": number,
+  "completion_badge": "string"
 }`;
 
       const response = await base44.integrations.Core.InvokeLLM({
@@ -119,8 +159,10 @@ Return as JSON array of modules with structure:
                   title: { type: 'string' },
                   objectives: { type: 'array', items: { type: 'string' } },
                   topics: { type: 'array', items: { type: 'string' } },
+                  assessment_type: { type: 'string' },
                   practice_questions: { type: 'number' },
                   estimated_hours: { type: 'number' },
+                  completion_badge: { type: 'string' },
                 },
               },
             },
@@ -226,6 +268,85 @@ Return as JSON array of modules with structure:
                     placeholder="What will students learn?"
                     className="bg-slate-900 border-slate-700 text-slate-100"
                   />
+                </div>
+                <div>
+                  <label className="text-sm text-slate-300 mb-2 block">Learning Objectives (Optional)</label>
+                  <Textarea
+                    value={newCourse.learning_objectives}
+                    onChange={(e) => setNewCourse({ ...newCourse, learning_objectives: e.target.value })}
+                    placeholder="Enter specific learning objectives, one per line"
+                    className="bg-slate-900 border-slate-700 text-slate-100 h-24"
+                  />
+                </div>
+                {newCourse.subject_id && allUnits.length > 0 && (
+                  <div>
+                    <label className="text-sm text-slate-300 mb-2 block">Specific Units to Include (Optional)</label>
+                    <div className="max-h-32 overflow-y-auto bg-slate-900/50 rounded-lg p-2 border border-slate-700">
+                      {allUnits.map(unit => (
+                        <label key={unit.id} className="flex items-center gap-2 p-1 hover:bg-slate-800/50 rounded">
+                          <input
+                            type="checkbox"
+                            checked={newCourse.specific_units.includes(unit.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setNewCourse({ ...newCourse, specific_units: [...newCourse.specific_units, unit.id] });
+                              } else {
+                                setNewCourse({ ...newCourse, specific_units: newCourse.specific_units.filter(id => id !== unit.id) });
+                              }
+                            }}
+                            className="w-3 h-3"
+                          />
+                          <span className="text-xs text-slate-300">{unit.unit_name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {newCourse.subject_id && allSkills.length > 0 && (
+                  <div>
+                    <label className="text-sm text-slate-300 mb-2 block">Specific Skills to Include (Optional)</label>
+                    <div className="max-h-32 overflow-y-auto bg-slate-900/50 rounded-lg p-2 border border-slate-700">
+                      {allSkills.slice(0, 30).map(skill => (
+                        <label key={skill.id} className="flex items-center gap-2 p-1 hover:bg-slate-800/50 rounded">
+                          <input
+                            type="checkbox"
+                            checked={newCourse.specific_skills.includes(skill.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setNewCourse({ ...newCourse, specific_skills: [...newCourse.specific_skills, skill.id] });
+                              } else {
+                                setNewCourse({ ...newCourse, specific_skills: newCourse.specific_skills.filter(id => id !== skill.id) });
+                              }
+                            }}
+                            className="w-3 h-3"
+                          />
+                          <span className="text-xs text-slate-300">{skill.skill_name}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <div>
+                  <label className="text-sm text-slate-300 mb-2 block">Assessment Types</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {['quiz', 'practice', 'project', 'coding_challenge'].map(type => (
+                      <label key={type} className="flex items-center gap-2 p-2 bg-slate-900/50 hover:bg-slate-800/50 rounded border border-slate-700 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={newCourse.assessment_types.includes(type)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setNewCourse({ ...newCourse, assessment_types: [...newCourse.assessment_types, type] });
+                            } else {
+                              setNewCourse({ ...newCourse, assessment_types: newCourse.assessment_types.filter(t => t !== type) });
+                            }
+                          }}
+                          className="w-4 h-4"
+                        />
+                        <span className="text-sm text-slate-300 capitalize">{type.replace('_', ' ')}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
                 <Button onClick={handleGenerateCourse} disabled={isGenerating} className="w-full">
                   {isGenerating ? (

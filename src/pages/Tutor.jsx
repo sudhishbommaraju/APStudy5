@@ -182,6 +182,17 @@ Be encouraging and supportive. If the question relates to a specific unit or ski
 
       const aiMessage = { role: 'assistant', content: response };
       setMessages(prev => [...prev, aiMessage]);
+
+      // Suggest follow-up actions based on weak areas
+      if (weakSkills && weakSkills.length > 0 && input.toLowerCase().includes(weakSkills[0].skill.toLowerCase())) {
+        setTimeout(() => {
+          const followUpMessage = {
+            role: 'assistant',
+            content: `💡 **Quick Tip:** Since you're working on ${weakSkills[0].skill}, would you like me to:\n\n1. Generate a custom practice quiz on this topic\n2. Recommend flashcard decks to review\n3. Create a micro-lesson breaking down the fundamentals\n\nJust let me know!`
+          };
+          setMessages(prev => [...prev, followUpMessage]);
+        }, 1000);
+      }
     } catch (e) {
       console.error('Failed to get AI response:', e);
       const errorMessage = { 
@@ -200,6 +211,35 @@ Be encouraging and supportive. If the question relates to a specific unit or ski
       handleSend();
     }
   };
+
+  // Proactive assistance based on recent struggles
+  useEffect(() => {
+    if (!user || attempts.length < 3 || messages.length > 0) return;
+
+    const recentAttempts = attempts.slice(0, 10);
+    const recentIncorrect = recentAttempts.filter(a => !a.is_correct);
+    
+    if (recentIncorrect.length >= 3) {
+      const strugglingSkills = {};
+      recentIncorrect.forEach(a => {
+        if (!strugglingSkills[a.skill_name]) {
+          strugglingSkills[a.skill_name] = 0;
+        }
+        strugglingSkills[a.skill_name]++;
+      });
+
+      const topStruggle = Object.entries(strugglingSkills)
+        .sort((a, b) => b[1] - a[1])[0];
+
+      if (topStruggle && topStruggle[1] >= 2) {
+        const proactiveMessage = {
+          role: 'assistant',
+          content: `👋 Hi! I noticed you've been having some difficulty with **${topStruggle[0]}** (${topStruggle[1]} recent mistakes). I'm here to help!\n\n**I can assist you with:**\n1. 📝 Explain the key concepts step-by-step\n2. 🎯 Generate a custom practice quiz on this topic\n3. 📚 Suggest relevant study materials\n4. 💡 Review common misconceptions\n\nWhat would you like help with?`
+        };
+        setMessages([proactiveMessage]);
+      }
+    }
+  }, [user, attempts.length]);
 
   const starterQuestions = [
     "Explain the concept of derivatives in calculus",
@@ -236,10 +276,10 @@ Be encouraging and supportive. If the question relates to a specific unit or ski
         {/* Weakness Analysis Banner */}
         {messages.length === 0 && attempts.length >= 5 && analyzeWeaknesses() && (
           <div className="p-4 bg-rose-500/10 border-b border-rose-500/30">
-            <div className="flex items-start justify-between">
+            <div className="flex items-start justify-between mb-3">
               <div className="flex-1">
-                <h4 className="text-sm font-semibold text-rose-200 mb-2">🎯 Areas to Focus On</h4>
-                <div className="flex flex-wrap gap-2">
+                <h4 className="text-sm font-semibold text-rose-200 mb-2">🎯 Your Weak Areas</h4>
+                <div className="flex flex-wrap gap-2 mb-2">
                   {analyzeWeaknesses().map((weak, i) => (
                     <button
                       key={i}
@@ -250,18 +290,27 @@ Be encouraging and supportive. If the question relates to a specific unit or ski
                     </button>
                   ))}
                 </div>
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={() => setInput(`Create a micro-lesson on ${analyzeWeaknesses()[0].skill} with examples`)}
+                    className="px-2 py-1 bg-violet-500/20 hover:bg-violet-500/30 rounded text-xs text-violet-300"
+                  >
+                    📚 Micro-lesson
+                  </button>
+                  <button
+                    onClick={() => setInput(`Suggest flashcard deck for ${analyzeWeaknesses()[0].skill}`)}
+                    className="px-2 py-1 bg-blue-500/20 hover:bg-blue-500/30 rounded text-xs text-blue-300"
+                  >
+                    🎴 Flashcards
+                  </button>
+                  <button
+                    onClick={() => generateCustomQuiz(analyzeWeaknesses()[0])}
+                    className="px-2 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 rounded text-xs text-emerald-300"
+                  >
+                    ✏️ Practice Quiz
+                  </button>
+                </div>
               </div>
-              <button
-                onClick={() => {
-                  const weakSkills = analyzeWeaknesses();
-                  if (weakSkills && weakSkills.length > 0) {
-                    setInput(`Can you help me understand ${weakSkills[0].skill}? I've been making mistakes in this area.`);
-                  }
-                }}
-                className="text-xs text-rose-300 hover:text-rose-200"
-              >
-                Get Help
-              </button>
             </div>
           </div>
         )}

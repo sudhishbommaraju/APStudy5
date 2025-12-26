@@ -8,6 +8,7 @@ import { Users, Plus, Crown, TrendingUp, Target, MessageCircle, Video } from 'lu
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
 import VirtualSessionModal from '@/components/groups/VirtualSessionModal';
+import GroupChallengeCard from '@/components/groups/GroupChallengeCard';
 
 export default function StudyGroups() {
   const [user, setUser] = useState(null);
@@ -47,6 +48,12 @@ export default function StudyGroups() {
       const groups = await base44.entities.StudyGroup.list();
       return groups.filter(g => g.is_public && !g.member_emails?.includes(user?.email));
     },
+    enabled: !!user,
+  });
+
+  const { data: groupChallenges = [] } = useQuery({
+    queryKey: ['groupChallenges'],
+    queryFn: () => base44.entities.GroupChallenge.filter({ status: 'active' }),
     enabled: !!user,
   });
 
@@ -140,6 +147,18 @@ export default function StudyGroups() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Active Challenges */}
+        {groupChallenges.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-slate-100 mb-4">🏆 Active Group Challenges</h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              {groupChallenges.map(challenge => (
+                <GroupChallengeCard key={challenge.id} challenge={challenge} />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* My Groups */}
         <div>
