@@ -448,8 +448,14 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
                 <Sparkles className="w-4 h-4 text-emerald-600" />
                 <span className="font-semibold text-emerald-800 text-sm">AI Tutor Explanation</span>
               </div>
-              <div className="prose prose-sm max-w-none text-slate-700">
-                <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+              <div className="prose prose-sm max-w-none text-slate-700 [&_.katex]:text-sm [&_.katex-display]:my-3 [&_.katex-display]:text-base">
+                <ReactMarkdown 
+                  remarkPlugins={[remarkMath]} 
+                  rehypePlugins={[rehypeKatex]}
+                  components={{
+                    p: ({ children }) => <p className="my-2 leading-relaxed">{children}</p>,
+                  }}
+                >
                   {aiExplanation}
                 </ReactMarkdown>
               </div>
@@ -517,8 +523,14 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
                 <Sparkles className="w-4 h-4 text-rose-600" />
                 <span className="font-semibold text-rose-800 text-sm">AI Tutor Explanation</span>
               </div>
-              <div className="prose prose-sm max-w-none text-slate-700">
-                <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
+              <div className="prose prose-sm max-w-none text-slate-700 [&_.katex]:text-sm [&_.katex-display]:my-3 [&_.katex-display]:text-base">
+                <ReactMarkdown 
+                  remarkPlugins={[remarkMath]} 
+                  rehypePlugins={[rehypeKatex]}
+                  components={{
+                    p: ({ children }) => <p className="my-2 leading-relaxed">{children}</p>,
+                  }}
+                >
                   {aiExplanation}
                 </ReactMarkdown>
               </div>
