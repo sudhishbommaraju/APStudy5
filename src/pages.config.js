@@ -14,6 +14,7 @@ import SeedData from './pages/SeedData';
 import Settings from './pages/Settings';
 import StudyPlans from './pages/StudyPlans';
 import Tutor from './pages/Tutor';
+import Analytics from './pages/Analytics';
 import __Layout from './Layout.jsx';
 
 
@@ -34,6 +35,7 @@ export const PAGES = {
     "Settings": Settings,
     "StudyPlans": StudyPlans,
     "Tutor": Tutor,
+    "Analytics": Analytics,
 }
 
 export const pagesConfig = {

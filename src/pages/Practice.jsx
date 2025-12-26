@@ -10,6 +10,7 @@ import UpgradeModal from '@/components/monetization/UpgradeModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { checkAndResetCredits, checkCredits, useCredit } from '@/components/monetization/CreditHelper';
+import { updateStatsForAnswer } from '@/components/gamification/GamificationHelper';
 import {
   Select,
   SelectContent,
@@ -389,23 +390,34 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
     }
   };
 
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [sessionPoints, setSessionPoints] = useState(0);
+  const [newBadges, setNewBadges] = useState([]);
+
   const handleAnswer = (answer) => {
     setAnswers(prev => ({ ...prev, [currentIndex]: answer }));
     
     const question = questions[currentIndex];
-    if (answer === question.correct_answer) {
+    const isCorrect = answer === question.correct_answer;
+    
+    // Update streak
+    if (isCorrect) {
+      setCurrentStreak(prev => prev + 1);
       confetti({
         particleCount: 50,
         spread: 60,
         origin: { y: 0.6 },
         colors: ['#6366F1', '#8B5CF6', '#A78BFA']
       });
+    } else {
+      setCurrentStreak(0);
     }
   };
 
   const handleNext = async () => {
     const question = questions[currentIndex];
     const selectedAnswer = answers[currentIndex];
+    const isCorrect = selectedAnswer === question.correct_answer;
 
     // Record attempt
     await base44.entities.Attempt.create({
@@ -417,10 +429,21 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
       difficulty: question.difficulty,
       selected_answer: selectedAnswer,
       correct_answer: question.correct_answer,
-      is_correct: selectedAnswer === question.correct_answer,
+      is_correct: isCorrect,
       mode: 'practice',
       error_type: 'none',
     });
+
+    // Update gamification stats
+    if (user) {
+      const result = await updateStatsForAnswer(user.email, isCorrect, currentStreak);
+      if (result) {
+        setSessionPoints(prev => prev + result.pointsEarned);
+        if (result.newBadges.length > 0) {
+          setNewBadges(prev => [...prev, ...result.newBadges]);
+        }
+      }
+    }
 
     // Update study plan progress if applicable
     if (studyPlanId) {
@@ -445,6 +468,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
       setIsComplete(true);
       queryClient.invalidateQueries({ queryKey: ['attempts'] });
       queryClient.invalidateQueries({ queryKey: ['studyPlans'] });
+      queryClient.invalidateQueries({ queryKey: ['userStats'] });
     }
   };
 
@@ -456,6 +480,9 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
     setSelectedSubject('');
     setSelectedUnit('');
     setError(null);
+    setCurrentStreak(0);
+    setSessionPoints(0);
+    setNewBadges([]);
   };
 
   // Setup view
@@ -643,13 +670,47 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
         <motion.div 
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="bg-white rounded-2xl border border-slate-200 p-8 text-center mb-6 shadow-lg"
+          className="bg-slate-800/40 backdrop-blur-sm rounded-2xl border border-slate-700/50 p-8 text-center mb-6 shadow-lg"
         >
-          <Target className="w-16 h-16 mx-auto mb-4 text-indigo-600" />
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Practice Complete!</h1>
-          <p className="text-4xl font-bold text-indigo-600 mb-4">{accuracy.toFixed(0)}%</p>
-          <p className="text-slate-500">{correctCount} out of {questions.length} correct</p>
+          <Target className="w-16 h-16 mx-auto mb-4 text-violet-400" />
+          <h1 className="text-3xl font-bold text-slate-100 mb-2">Practice Complete!</h1>
+          <p className="text-4xl font-bold text-violet-400 mb-4">{accuracy.toFixed(0)}%</p>
+          <p className="text-slate-400">{correctCount} out of {questions.length} correct</p>
+          
+          {sessionPoints > 0 && (
+            <div className="mt-6 flex items-center justify-center gap-4">
+              <div className="px-4 py-2 bg-violet-500/20 rounded-lg">
+                <p className="text-2xl font-bold text-violet-400">+{sessionPoints}</p>
+                <p className="text-xs text-slate-400">Points Earned</p>
+              </div>
+              {currentStreak > 0 && (
+                <div className="px-4 py-2 bg-orange-500/20 rounded-lg">
+                  <p className="text-2xl font-bold text-orange-400">{currentStreak}</p>
+                  <p className="text-xs text-slate-400">Max Streak</p>
+                </div>
+              )}
+            </div>
+          )}
         </motion.div>
+
+        {newBadges.length > 0 && (
+          <motion.div 
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-gradient-to-r from-violet-500/20 to-purple-500/20 rounded-2xl border border-violet-500/30 p-6 mb-6"
+          >
+            <h3 className="text-xl font-bold text-slate-100 mb-4 text-center">🎉 New Badges Earned!</h3>
+            <div className="grid grid-cols-2 gap-3">
+              {newBadges.map((badge) => (
+                <div key={badge.id} className="bg-slate-800/60 rounded-lg p-4 text-center">
+                  <div className="text-4xl mb-2">{badge.icon}</div>
+                  <p className="font-semibold text-slate-100">{badge.name}</p>
+                  <p className="text-xs text-slate-400 mt-1">{badge.description}</p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         <div className="flex gap-3">
           <Link to={createPageUrl('Dashboard')} className="flex-1">
@@ -673,9 +734,21 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
     <div className="min-h-screen focus-mode">
       <div className="sticky top-0 focus-mode-card border-b z-10">
         <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-          <span className="text-sm focus-mode-text-secondary">
-            Question {currentIndex + 1} of {questions.length}
-          </span>
+          <div className="flex items-center gap-4">
+            <span className="text-sm focus-mode-text-secondary">
+              Question {currentIndex + 1} of {questions.length}
+            </span>
+            {currentStreak > 0 && (
+              <span className="px-2 py-1 bg-orange-500/20 text-orange-400 text-xs font-semibold rounded-full flex items-center gap-1">
+                🔥 {currentStreak} streak
+              </span>
+            )}
+            {sessionPoints > 0 && (
+              <span className="px-2 py-1 bg-violet-500/20 text-violet-400 text-xs font-semibold rounded-full">
+                +{sessionPoints} pts
+              </span>
+            )}
+          </div>
           <div className="h-2 w-48 bg-slate-800 rounded-full overflow-hidden">
             <div 
               className="h-full transition-all"

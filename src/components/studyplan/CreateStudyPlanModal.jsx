@@ -28,6 +28,7 @@ export default function CreateStudyPlanModal({ open, onOpenChange }) {
   const [description, setDescription] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedUnits, setSelectedUnits] = useState([]);
+  const [selectedSkills, setSelectedSkills] = useState([]);
   const [targetDate, setTargetDate] = useState('');
   const [questionsTarget, setQuestionsTarget] = useState(50);
 
@@ -54,6 +55,13 @@ export default function CreateStudyPlanModal({ open, onOpenChange }) {
     enabled: !!selectedSubject,
   });
 
+  const { data: skills = [] } = useQuery({
+    queryKey: ['skills', selectedSubject, selectedUnits],
+    queryFn: () => base44.entities.Skill.list(),
+    enabled: !!selectedSubject && selectedUnits.length > 0,
+    select: (data) => data.filter(skill => selectedUnits.includes(skill.unit_id)),
+  });
+
   const createPlanMutation = useMutation({
     mutationFn: (planData) => base44.entities.StudyPlan.create(planData),
     onSuccess: () => {
@@ -68,6 +76,7 @@ export default function CreateStudyPlanModal({ open, onOpenChange }) {
     setDescription('');
     setSelectedSubject('');
     setSelectedUnits([]);
+    setSelectedSkills([]);
     setTargetDate('');
     setQuestionsTarget(50);
   };
@@ -88,6 +97,7 @@ export default function CreateStudyPlanModal({ open, onOpenChange }) {
       subject_id: selectedSubject,
       subject_name: subject?.name || '',
       unit_ids: selectedUnits,
+      skill_ids: selectedSkills,
       target_date: targetDate || null,
       total_questions_target: questionsTarget,
       questions_completed: 0,
@@ -97,10 +107,30 @@ export default function CreateStudyPlanModal({ open, onOpenChange }) {
   };
 
   const toggleUnit = (unitId) => {
-    setSelectedUnits(prev => 
-      prev.includes(unitId) 
+    setSelectedUnits(prev => {
+      const newUnits = prev.includes(unitId) 
         ? prev.filter(id => id !== unitId)
-        : [...prev, unitId]
+        : [...prev, unitId];
+      
+      // Clear skills when unit is deselected
+      if (!newUnits.includes(unitId)) {
+        setSelectedSkills(prevSkills => 
+          prevSkills.filter(skillId => {
+            const skill = skills.find(s => s.id === skillId);
+            return skill && newUnits.includes(skill.unit_id);
+          })
+        );
+      }
+      
+      return newUnits;
+    });
+  };
+
+  const toggleSkill = (skillId) => {
+    setSelectedSkills(prev => 
+      prev.includes(skillId) 
+        ? prev.filter(id => id !== skillId)
+        : [...prev, skillId]
     );
   };
 
@@ -161,7 +191,7 @@ export default function CreateStudyPlanModal({ open, onOpenChange }) {
           {/* Units */}
           {selectedSubject && units.length > 0 && (
             <div>
-              <Label className="text-slate-200 mb-2 block">Units to Cover</Label>
+              <Label className="text-slate-200 mb-2 block">Units to Cover (Optional)</Label>
               <div className="space-y-2 max-h-48 overflow-y-auto bg-slate-800/30 rounded-lg p-3 border border-slate-700/30">
                 {units.sort((a, b) => a.unit_number - b.unit_number).map((unit) => (
                   <div key={unit.id} className="flex items-center gap-2">
@@ -179,6 +209,32 @@ export default function CreateStudyPlanModal({ open, onOpenChange }) {
                   </div>
                 ))}
               </div>
+              <p className="text-xs text-slate-400 mt-1">Leave empty to include all units</p>
+            </div>
+          )}
+
+          {/* Skills */}
+          {selectedUnits.length > 0 && skills.length > 0 && (
+            <div>
+              <Label className="text-slate-200 mb-2 block">Specific Skills to Focus On (Optional)</Label>
+              <div className="space-y-2 max-h-48 overflow-y-auto bg-slate-800/30 rounded-lg p-3 border border-slate-700/30">
+                {skills.map((skill) => (
+                  <div key={skill.id} className="flex items-center gap-2">
+                    <Checkbox
+                      id={skill.id}
+                      checked={selectedSkills.includes(skill.id)}
+                      onCheckedChange={() => toggleSkill(skill.id)}
+                    />
+                    <label
+                      htmlFor={skill.id}
+                      className="text-sm text-slate-300 cursor-pointer"
+                    >
+                      {skill.skill_name}
+                    </label>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-slate-400 mt-1">Leave empty to cover all skills in selected units</p>
             </div>
           )}
 
