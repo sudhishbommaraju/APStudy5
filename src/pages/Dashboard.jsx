@@ -489,12 +489,6 @@ export default function Dashboard() {
         {/* Calendar */}
         <Calendar user={user} />
 
-        {/* Leaderboard */}
-        <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg mb-6">
-          <h3 className="text-lg font-semibold text-slate-100 mb-4">🏆 Top Learners</h3>
-          <Leaderboard />
-        </div>
-
         {/* Student Reviews Section */}
         {reviews.length > 0 && (
           <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg">

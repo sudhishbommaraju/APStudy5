@@ -241,9 +241,47 @@ export default function Analytics() {
       skill,
       accuracy: ((stats.correct / stats.total) * 100).toFixed(1),
       total: stats.total,
+      correct: stats.correct,
       byDifficulty: stats.byDifficulty,
     }))
     .sort((a, b) => b.total - a.total);
+
+  // Identify common misconceptions
+  const misconceptions = {};
+  filteredAttempts.filter(a => !a.is_correct).forEach(a => {
+    const key = `${a.skill_name}_${a.difficulty}`;
+    if (!misconceptions[key]) {
+      misconceptions[key] = {
+        skill: a.skill_name,
+        difficulty: a.difficulty,
+        count: 0,
+        examples: [],
+      };
+    }
+    misconceptions[key].count++;
+  });
+
+  const topMisconceptions = Object.values(misconceptions)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  // Skill progression over time (last 30 days)
+  const skillProgressionData = {};
+  const last30Days = subDays(new Date(), 30);
+  
+  filteredAttempts
+    .filter(a => parseISO(a.created_date) >= last30Days)
+    .forEach(a => {
+      const week = format(parseISO(a.created_date), 'MMM d');
+      if (!skillProgressionData[a.skill_name]) {
+        skillProgressionData[a.skill_name] = {};
+      }
+      if (!skillProgressionData[a.skill_name][week]) {
+        skillProgressionData[a.skill_name][week] = { correct: 0, total: 0 };
+      }
+      skillProgressionData[a.skill_name][week].total++;
+      if (a.is_correct) skillProgressionData[a.skill_name][week].correct++;
+    });
 
   const COLORS = ['#8B5CF6', '#6366F1', '#EC4899', '#F59E0B', '#10B981'];
 
@@ -416,49 +454,91 @@ export default function Analytics() {
         </div>
       )}
 
-      {/* Detailed Skill Breakdown */}
+      {/* Skill Mastery Tracking */}
       {skillBreakdownData.length > 0 && (
         <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 mb-6">
-          <h3 className="text-lg font-semibold text-slate-100 mb-4">Detailed Skill Analysis</h3>
+          <h3 className="text-lg font-semibold text-slate-100 mb-4">Skill Mastery Tracker</h3>
           <div className="space-y-4">
-            {skillBreakdownData.slice(0, 10).map((skillData, index) => (
-              <div key={index} className="bg-slate-900/50 rounded-lg p-4 border border-slate-700/30">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-medium text-slate-100">{skillData.skill}</span>
-                  <span className={`font-semibold ${
-                    parseFloat(skillData.accuracy) >= 80 ? 'text-emerald-400' :
-                    parseFloat(skillData.accuracy) >= 60 ? 'text-amber-400' :
-                    'text-rose-400'
-                  }`}>
-                    {skillData.accuracy}%
-                  </span>
+            {skillBreakdownData.slice(0, 10).map((skillData, index) => {
+              const masteryLevel = 
+                parseFloat(skillData.accuracy) >= 90 ? 'mastered' :
+                parseFloat(skillData.accuracy) >= 75 ? 'proficient' :
+                parseFloat(skillData.accuracy) >= 50 ? 'developing' : 'needs_work';
+              
+              const masteryColors = {
+                mastered: 'from-emerald-500/20 to-green-500/20 border-emerald-500/30',
+                proficient: 'from-blue-500/20 to-indigo-500/20 border-blue-500/30',
+                developing: 'from-amber-500/20 to-orange-500/20 border-amber-500/30',
+                needs_work: 'from-rose-500/20 to-red-500/20 border-rose-500/30',
+              };
+
+              const masteryLabels = {
+                mastered: '✨ Mastered',
+                proficient: '💪 Proficient',
+                developing: '📈 Developing',
+                needs_work: '⚠️ Needs Work',
+              };
+
+              return (
+                <div key={index} className={`bg-gradient-to-r ${masteryColors[masteryLevel]} rounded-lg p-4 border`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <span className="font-medium text-slate-100">{skillData.skill}</span>
+                      <span className="ml-2 text-xs text-slate-400">
+                        {skillData.correct}/{skillData.total} correct
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xs text-slate-400 mb-1">{masteryLabels[masteryLevel]}</div>
+                      <div className="text-xl font-bold text-slate-100">{skillData.accuracy}%</div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-xs">
+                    <div className="bg-emerald-500/10 border border-emerald-500/30 rounded p-2 text-center">
+                      <p className="text-emerald-400 font-semibold">Easy</p>
+                      <p className="text-slate-300 mt-1">
+                        {skillData.byDifficulty.easy.total > 0 
+                          ? `${((skillData.byDifficulty.easy.correct / skillData.byDifficulty.easy.total) * 100).toFixed(0)}%`
+                          : 'N/A'}
+                      </p>
+                    </div>
+                    <div className="bg-amber-500/10 border border-amber-500/30 rounded p-2 text-center">
+                      <p className="text-amber-400 font-semibold">Medium</p>
+                      <p className="text-slate-300 mt-1">
+                        {skillData.byDifficulty.medium.total > 0 
+                          ? `${((skillData.byDifficulty.medium.correct / skillData.byDifficulty.medium.total) * 100).toFixed(0)}%`
+                          : 'N/A'}
+                      </p>
+                    </div>
+                    <div className="bg-rose-500/10 border border-rose-500/30 rounded p-2 text-center">
+                      <p className="text-rose-400 font-semibold">Hard</p>
+                      <p className="text-slate-300 mt-1">
+                        {skillData.byDifficulty.hard.total > 0 
+                          ? `${((skillData.byDifficulty.hard.correct / skillData.byDifficulty.hard.total) * 100).toFixed(0)}%`
+                          : 'N/A'}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div className="grid grid-cols-3 gap-2 text-xs">
-                  <div className="bg-emerald-500/10 border border-emerald-500/30 rounded p-2 text-center">
-                    <p className="text-emerald-400 font-semibold">Easy</p>
-                    <p className="text-slate-300 mt-1">
-                      {skillData.byDifficulty.easy.total > 0 
-                        ? `${((skillData.byDifficulty.easy.correct / skillData.byDifficulty.easy.total) * 100).toFixed(0)}%`
-                        : 'N/A'}
-                    </p>
-                  </div>
-                  <div className="bg-amber-500/10 border border-amber-500/30 rounded p-2 text-center">
-                    <p className="text-amber-400 font-semibold">Medium</p>
-                    <p className="text-slate-300 mt-1">
-                      {skillData.byDifficulty.medium.total > 0 
-                        ? `${((skillData.byDifficulty.medium.correct / skillData.byDifficulty.medium.total) * 100).toFixed(0)}%`
-                        : 'N/A'}
-                    </p>
-                  </div>
-                  <div className="bg-rose-500/10 border border-rose-500/30 rounded p-2 text-center">
-                    <p className="text-rose-400 font-semibold">Hard</p>
-                    <p className="text-slate-300 mt-1">
-                      {skillData.byDifficulty.hard.total > 0 
-                        ? `${((skillData.byDifficulty.hard.correct / skillData.byDifficulty.hard.total) * 100).toFixed(0)}%`
-                        : 'N/A'}
-                    </p>
-                  </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Common Misconceptions */}
+      {topMisconceptions.length > 0 && (
+        <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 mb-6">
+          <h3 className="text-lg font-semibold text-slate-100 mb-4">⚠️ Common Misconceptions</h3>
+          <p className="text-sm text-slate-400 mb-4">Topics where you frequently make mistakes</p>
+          <div className="space-y-3">
+            {topMisconceptions.map((item, index) => (
+              <div key={index} className="flex items-center justify-between p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg">
+                <div>
+                  <span className="text-slate-200 font-medium">{item.skill}</span>
+                  <span className="ml-2 text-xs text-slate-400">({item.difficulty})</span>
                 </div>
+                <span className="text-rose-400 font-semibold">{item.count} errors</span>
               </div>
             ))}
           </div>

@@ -16,6 +16,8 @@ import StudyPlans from './pages/StudyPlans';
 import Tutor from './pages/Tutor';
 import Analytics from './pages/Analytics';
 import Rewards from './pages/Rewards';
+import StudyGroups from './pages/StudyGroups';
+import AIStudyPlanner from './pages/AIStudyPlanner';
 import __Layout from './Layout.jsx';
 
 
@@ -38,6 +40,8 @@ export const PAGES = {
     "Tutor": Tutor,
     "Analytics": Analytics,
     "Rewards": Rewards,
+    "StudyGroups": StudyGroups,
+    "AIStudyPlanner": AIStudyPlanner,
 }
 
 export const pagesConfig = {

@@ -12,11 +12,11 @@ export default function Layout({ children, currentPageName }) {
   // Pages that don't need the layout wrapper
   const noLayoutPages = ['Onboarding'];
   
-  // Pages that require authentication
-  const protectedPages = ['Dashboard', 'Practice', 'Exam', 'Tutor', 'Notes', 'Flashcards', 'Progress', 'Generate', 'AdminUsers', 'SeedData', 'MistakeReplay', 'Settings'];
-  
   // Admin-only pages
   const adminOnlyPages = ['AdminUsers', 'SeedData'];
+
+  // Protected pages
+  const protectedPages = ['Dashboard', 'Practice', 'Exam', 'Tutor', 'Notes', 'Flashcards', 'Progress', 'Generate', 'AdminUsers', 'SeedData', 'MistakeReplay', 'Settings', 'StudyGroups', 'AIStudyPlanner', 'Analytics', 'Rewards'];
 
   useEffect(() => {
     const loadUser = async () => {

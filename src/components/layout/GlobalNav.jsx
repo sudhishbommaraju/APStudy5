@@ -61,6 +61,8 @@ export default function GlobalNav() {
     { label: 'Notes', path: createPageUrl('Notes') },
     { label: 'Flashcards', path: createPageUrl('Flashcards') },
     { label: 'Tutor', path: createPageUrl('Tutor') },
+    { label: 'Groups', path: createPageUrl('StudyGroups') },
+    { label: 'AI Planner', path: createPageUrl('AIStudyPlanner') },
     { label: 'Analytics', path: createPageUrl('Analytics') },
     { label: 'Rewards', path: createPageUrl('Rewards') },
   ];
