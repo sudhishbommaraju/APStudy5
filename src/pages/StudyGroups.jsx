@@ -8,6 +8,7 @@ import { Users, Plus, Crown, TrendingUp, Target, MessageCircle, Video } from 'lu
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import VirtualSessionModal from '@/components/groups/VirtualSessionModal';
 import GroupChallengeCard from '@/components/groups/GroupChallengeCard';
 
