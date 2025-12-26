@@ -86,20 +86,29 @@ ABSOLUTE CRITICAL RULES - MUST FOLLOW EXACTLY:
    - $$ should ONLY appear at start/end of display math blocks
    - NEVER append $$ to end of sentences or formulas
 
-3. ALL CHEMICAL FORMULAS - LATEX ONLY:
+3. ALL CHEMICAL FORMULAS - LATEX ONLY, NO DUPLICATION:
    ✓ CORRECT: "$H_{2}O$", "$CO_{2}$", "$NH_{3}$", "$CH_{4}$"
    ✗ NEVER: "H2O", "CO2", "NH3" without $ delimiters
-   ✗ NEVER: "$H_{2}O$H2O" (duplication)
+   ✗ NEVER: "$H_{2}O$H2O" or "H2OH2O" or "$CO_{2}$$CO_{2}$" (ANY duplication)
+   ✗ NEVER: Write any chemical formula more than ONCE
 
-4. ALL NUMBERS WITH UNITS - LATEX:
+4. ALL NUMBERS WITH UNITS - LATEX, NO DUPLICATION:
    ✓ CORRECT: "$25\\text{ g}$", "$100\\text{°C}$", "$9.8\\text{ m/s}^{2}$"
    ✗ NEVER: "25 g", "100°C" (use LaTeX)
+   ✗ NEVER: "$25\\text{ g}$25 g" or "100100" (ANY duplication)
 
-5. INLINE MATH for variables:
+5. INLINE MATH for variables, NO DUPLICATION:
    ✓ CORRECT: "$A = 2$", "$B = 3$", "$x = 5$"
    ✗ NEVER: "A = 2" without $ delimiters
+   ✗ NEVER: "$A = 2$A = 2" or "x = 5x = 5" (ANY duplication)
 
-6. DISPLAY MATH for equations (on separate lines):
+6. ARROWS - Use → and ← symbols:
+   ✓ CORRECT: "$2H_{2} + O_{2} \\rightarrow 2H_{2}O$" (displays as →)
+   ✗ NEVER: Write the word "arrow" or "rightarrow" as plain text
+   - Use \\rightarrow in LaTeX for →
+   - Use \\leftarrow in LaTeX for ←
+
+7. DISPLAY MATH for equations (on separate lines):
    ✓ CORRECT:
    
 $$
@@ -107,6 +116,7 @@ $$
 $$
 
    ✗ NEVER: "ightarrow" or "$formula$$" or inline display
+   ✗ NEVER: Duplicate the equation in any form
 
 7. STRUCTURE - Use clear sections:
    - ## Main Topic
@@ -164,16 +174,20 @@ $$
 
 ABSOLUTELY FORBIDDEN - DO NOT WRITE:
 - "ext" in ANY form
-- "$$ at end of text like "H2O$$"
+- "$$" at end of text like "H2O$$"
 - Formulas without $ delimiters
-- Duplication: "H2OH2O"
+- ANY duplication: "H2OH2O", "$A = 2$A = 2", "100100", "$CO_{2}$$CO_{2}$"
+- The word "arrow" - use \\rightarrow or \\leftarrow in LaTeX
+- Any number, variable, or formula written MORE THAN ONCE
 
 FINAL CHECK BEFORE RETURNING:
 ✓ NO "ext" anywhere
-✓ NO "$$ outside proper blocks
+✓ NO "$$" outside proper blocks
 ✓ ALL formulas in $...$ or $$...$$
 ✓ Clear section structure
-✓ No duplication`;
+✓ ZERO duplication of any kind - each element/number appears ONCE
+✓ NO word "arrow" - use → via \\rightarrow
+✓ Every formula, number, variable written EXACTLY ONE TIME`;
 
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
