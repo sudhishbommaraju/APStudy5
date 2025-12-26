@@ -478,7 +478,6 @@ Be encouraging, conversational, and supportive. Build rapport with the student.`
         user={user}
         currentTopic={currentTopic}
       />
-      </div>
     </>
   );
 }
