@@ -19,6 +19,7 @@ import Rewards from './pages/Rewards';
 import StudyGroups from './pages/StudyGroups';
 import AIStudyPlanner from './pages/AIStudyPlanner';
 import Courses from './pages/Courses';
+import GroupDetail from './pages/GroupDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -44,6 +45,7 @@ export const PAGES = {
     "StudyGroups": StudyGroups,
     "AIStudyPlanner": AIStudyPlanner,
     "Courses": Courses,
+    "GroupDetail": GroupDetail,
 }
 
 export const pagesConfig = {

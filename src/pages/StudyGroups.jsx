@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Users, Plus, Crown, TrendingUp, Target, MessageCircle, Video } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import VirtualSessionModal from '@/components/groups/VirtualSessionModal';
 import GroupChallengeCard from '@/components/groups/GroupChallengeCard';
 
@@ -18,6 +19,7 @@ export default function StudyGroups() {
   const [sessionModalOpen, setSessionModalOpen] = useState(false);
   const [selectedGroupId, setSelectedGroupId] = useState(null);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -176,7 +178,8 @@ export default function StudyGroups() {
                   key={group.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-5 hover:border-violet-500/50 transition-all"
+                  className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-5 hover:border-violet-500/50 transition-all cursor-pointer"
+                  onClick={() => navigate(createPageUrl('GroupDetail').replace('GroupDetail', `GroupDetail/${group.id}`))}
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div>
