@@ -58,9 +58,11 @@ export default function Practice() {
       setQuestions(location.state.preloadedQuestions);
       setSelectedSubject(location.state.subjectId);
     }
-    
-    // Auto-generate for study plan
-    if (location.state?.autoGenerate && location.state?.studyPlan && user) {
+  }, [location.state]);
+  
+  // Auto-generate for study plan
+  useEffect(() => {
+    if (location.state?.autoGenerate && location.state?.studyPlan && user && subjects.length > 0) {
       const plan = location.state.studyPlan;
       setStudyPlanId(plan.id);
       setSelectedSubject(plan.subject_id);
@@ -68,7 +70,7 @@ export default function Practice() {
       // Auto-generate immediately
       generateQuestionsForPlan(plan);
     }
-  }, [location.state, user]);
+  }, [location.state, user, subjects]);
 
   const { data: subjects = [] } = useQuery({
     queryKey: ['subjects'],
