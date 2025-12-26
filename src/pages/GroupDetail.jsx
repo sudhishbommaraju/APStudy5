@@ -324,9 +324,28 @@ export default function GroupDetail() {
                   <span>📅 {format(new Date(session.scheduled_time), 'PPp')}</span>
                   <span>⏱️ {session.duration_minutes}min</span>
                 </div>
+                {session.status === 'live' && session.recording_url && (
+                  <Button
+                    size="sm"
+                    className="w-full mt-3 bg-emerald-600 hover:bg-emerald-700"
+                    onClick={() => window.open(session.recording_url, '_blank')}
+                  >
+                    Join Session Now
+                  </Button>
+                )}
                 {session.status === 'scheduled' && (
-                  <Button size="sm" className="w-full mt-3">
-                    Join Session
+                  <Button size="sm" className="w-full mt-3" disabled>
+                    Session Scheduled
+                  </Button>
+                )}
+                {session.status === 'ended' && session.recording_url && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full mt-3"
+                    onClick={() => window.open(session.recording_url, '_blank')}
+                  >
+                    Watch Replay
                   </Button>
                 )}
               </div>
