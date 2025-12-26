@@ -182,30 +182,27 @@ export default function Dashboard() {
         
         const prompt = `Generate an exam-style multiple choice question for ${subject?.name || 'general topic'}. Unit: ${randomUnit?.unit_name || 'General'}
 
-        CRITICAL LATEX FORMATTING - NO DUPLICATION:
+        CRITICAL RULE - ANSWER CHOICES PURE LATEX (NO PLAIN TEXT AFTER):
 
-        1. CHEMICAL FORMULAS: Use LaTeX with _ for subscripts, write ONCE
-        ✓ CORRECT: "$CH_{4}$" or "$H_{2}O$" or "$NH_{3}$"
-        ✗ WRONG: "CH₄CH4" or "$CH_{4}$CH4" or "H₂OH2O" or "ext" corruption
+        ✓ CORRECT choice_a: "$F = \\frac{Gm^{2}}{r^{2}}$"
+        ✗ WRONG choice_a: "$F = \\frac{Gm^{2}}{r^{2}}$ F = r2Gm2"
 
-        2. TEMPERATURE: Use \\text{°C} inside math mode
-        ✓ CORRECT: "$-161.5\\text{°C}$"
-        ✗ WRONG: "-161.5ext°C" or "ext°C"
+        ✓ CORRECT choice_b: "$CH_{4}$"
+        ✗ WRONG choice_b: "$CH_{4}$CH4"
 
-        3. UNITS: Use \\text{} inside math
-        ✓ CORRECT: "$9.8 \\text{ m/s}^{2}$"
-        ✗ WRONG: "9.8ext m/s²"
+        ABSOLUTE RULES:
+        1. Write formulas ONCE in LaTeX ($...$) only - NO plain text after
+        2. NO unicode (₂ ³) - use LaTeX subscripts/superscripts
+        3. NO "ext" - use \\text{}: "$100\\text{°C}$"
+        4. NO duplication: NOT "$m=5$m=5", NOT "$H_{2}O$H2O"
 
-        4. NO DUPLICATION: Write each formula/number ONCE only
-        - NEVER write: "$H_{2}O$H2O" or "CH₄CH4" or "100ext°C100ext°C"
-        - NO unicode subscripts (₂ ₃ ₄)
-        - NO "ext" corruption
+        VERIFY EACH CHOICE before returning:
+        - choice_a has LaTeX then plain text? DELETE plain text
+        - choice_b has LaTeX then plain text? DELETE plain text
+        - choice_c has LaTeX then plain text? DELETE plain text
+        - choice_d has LaTeX then plain text? DELETE plain text
 
-        5. PERCENTAGES: Plain text only - "80%" NOT "$80\\%$"
-
-        Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, wrong_answer_explanations (object with A/B/C/D keys), hint
-
-        VERIFY: Each choice contains values written ONCE in LaTeX format only`;
+        Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, wrong_answer_explanations (object with A/B/C/D keys), hint`;
 
         questionsToGenerate.push(
           base44.integrations.Core.InvokeLLM({
