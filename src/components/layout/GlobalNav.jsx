@@ -58,12 +58,8 @@ export default function GlobalNav() {
   const appNavItems = [
     { label: 'Practice', path: createPageUrl('Practice') },
     { label: 'Exam', path: createPageUrl('Exam') },
-    { label: 'Tutor', path: createPageUrl('Tutor') },
-    { label: 'Notes', path: createPageUrl('Notes') },
-    { label: 'Flashcards', path: createPageUrl('Flashcards') },
-    { label: 'Progress', path: createPageUrl('Progress') },
-    { label: 'Study Plans', path: createPageUrl('StudyPlans') },
-    { label: 'Pricing', path: createPageUrl('Pricing') },
+    { label: 'Analytics', path: createPageUrl('Analytics') },
+    { label: 'Rewards', path: createPageUrl('Rewards') },
   ];
 
   const navItems = user ? appNavItems : marketingNavItems;
