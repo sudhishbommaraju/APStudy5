@@ -625,11 +625,11 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
   // Loading state
   if (isGenerating) {
     return (
-      <div className="min-h-screen focus-mode flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4" style={{ color: 'var(--color-focus-accent)' }} />
-          <p className="focus-mode-text font-medium">Generating practice questions...</p>
-          <p className="focus-mode-text-secondary text-sm mt-2">This may take 10-20 seconds</p>
+          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-violet-400" />
+          <p className="text-slate-100 font-medium">Generating practice questions...</p>
+          <p className="text-slate-400 text-sm mt-2">This may take 10-20 seconds</p>
         </div>
       </div>
     );
