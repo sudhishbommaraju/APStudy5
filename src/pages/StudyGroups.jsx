@@ -176,8 +176,7 @@ export default function StudyGroups() {
                   key={group.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-5 hover:border-violet-500/50 transition-all cursor-pointer"
-                  onClick={() => window.location.href = `/group/${group.id}`}
+                  className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-5 hover:border-violet-500/50 transition-all"
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div>
