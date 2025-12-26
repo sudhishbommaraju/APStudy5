@@ -189,6 +189,26 @@ TABLES AND GRAPHS (For Science/Math):
 - For graphs, describe the data points as JSON: {"type": "line/bar/scatter", "data": [{"x": 1, "y": 2}, ...], "labels": {"x": "Time (s)", "y": "Distance (m)"}}
 - Only include visual data when it enhances understanding
 
+CRITICAL RULE - ANSWER CHOICES PURE LATEX (NO PLAIN TEXT AFTER):
+
+✓ CORRECT choice_a: "$F = \\frac{Gm^{2}}{r^{2}}$"
+✗ WRONG choice_a: "$F = \\frac{Gm^{2}}{r^{2}}$ F = r2Gm2"
+
+✓ CORRECT choice_b: "$CH_{4}$"
+✗ WRONG choice_b: "$CH_{4}$CH4"
+
+ABSOLUTE RULES:
+1. Write formulas ONCE in LaTeX ($...$) only - NO plain text after
+2. NO unicode (₂ ³) - use LaTeX subscripts/superscripts
+3. NO "ext" - use \\text{}: "$100\\text{°C}$"
+4. NO duplication: NOT "$m=5$m=5", NOT "$H_{2}O$H2O"
+
+VERIFY EACH CHOICE before returning:
+- choice_a has LaTeX then plain text? DELETE plain text
+- choice_b has LaTeX then plain text? DELETE plain text
+- choice_c has LaTeX then plain text? DELETE plain text
+- choice_d has LaTeX then plain text? DELETE plain text
+
 CRITICAL FORMATTING - NO DUPLICATION ANYWHERE:
 
 1. QUESTION TEXT - Write ONCE in LaTeX only:
