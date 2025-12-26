@@ -1,446 +1,275 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Loader2, BookOpen, Brain, Paperclip, X, Image as ImageIcon } from 'lucide-react';
+import { Send, BookOpen, Sparkles, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
-import { cn } from '@/lib/utils';
-import SubjectChangeDialog from '@/components/study/SubjectChangeDialog';
-import { checkAndResetCredits, checkCredits, useCredit } from '@/components/monetization/CreditHelper';
-import UpgradeModal from '@/components/monetization/UpgradeModal';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function Tutor() {
   const [user, setUser] = useState(null);
-  const [selectedSubject, setSelectedSubject] = useState('');
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [showSubjectDialog, setShowSubjectDialog] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState([]);
-  const [uploading, setUploading] = useState(false);
-  const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedSubject, setSelectedSubject] = useState('');
   const messagesEndRef = useRef(null);
-  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const loadUser = async () => {
       try {
         const currentUser = await base44.auth.me();
-        const { user: refreshedUser } = await checkAndResetCredits(currentUser);
-        setUser(refreshedUser);
+        setUser(currentUser);
       } catch (e) {
-        // User not authenticated, continue without user
+        console.error('Failed to load user:', e);
       }
     };
     loadUser();
   }, []);
 
-  useEffect(() => {
+  const { data: subjects = [] } = useQuery({
+    queryKey: ['subjects'],
+    queryFn: () => base44.entities.Subject.list('subject_id'),
+  });
+
+  const { data: units = [] } = useQuery({
+    queryKey: ['units', selectedSubject],
+    queryFn: () => base44.entities.Unit.filter({ subject_id: selectedSubject }),
+    enabled: !!selectedSubject,
+  });
+
+  const { data: skills = [] } = useQuery({
+    queryKey: ['skills'],
+    queryFn: () => base44.entities.Skill.list(),
+  });
+
+  const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
   }, [messages]);
 
-  const handleFileUpload = async (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length === 0) return;
+  const handleSend = async () => {
+    if (!input.trim()) return;
 
-    setUploading(true);
-    try {
-      const uploadPromises = files.map(file => 
-        base44.integrations.Core.UploadFile({ file })
-      );
-      const results = await Promise.all(uploadPromises);
-      const fileUrls = results.map((r, idx) => ({
-        url: r.file_url,
-        name: files[idx].name,
-        type: files[idx].type,
-      }));
-      setUploadedFiles(prev => [...prev, ...fileUrls]);
-    } catch (e) {
-      console.error('Failed to upload files:', e);
-    }
-    setUploading(false);
-    if (fileInputRef.current) fileInputRef.current.value = '';
-  };
-
-  const removeFile = (idx) => {
-    setUploadedFiles(prev => prev.filter((_, i) => i !== idx));
-  };
-
-  const handleSendMessage = async () => {
-    if ((!input.trim() && uploadedFiles.length === 0) || loading) return;
-
-    // Check credits
-    const { allowed, remaining } = await checkCredits(user, 'daily_tutor_count');
-    if (!allowed) {
-      setUpgradeModalOpen(true);
-      return;
-    }
-
-    const userMessage = input.trim();
-    const filesToSend = [...uploadedFiles];
+    const userMessage = { role: 'user', content: input };
+    setMessages(prev => [...prev, userMessage]);
     setInput('');
-    setUploadedFiles([]);
-    
-    const messageContent = {
-      text: userMessage,
-      files: filesToSend,
-    };
-    setMessages(prev => [...prev, { role: 'user', content: messageContent }]);
-    setLoading(true);
+    setIsLoading(true);
 
     try {
-      const subjectContext = selectedSubject 
-        ? `The student is currently studying ${selectedSubject}. ` 
-        : '';
+      // Build context about available subjects, units, skills
+      let contextInfo = 'Available subjects: ';
+      if (subjects.length > 0) {
+        contextInfo += subjects.map(s => s.name).join(', ') + '. ';
+      }
 
-      // Build conversation history for context
-      const conversationHistory = messages.slice(-6).map(msg => {
-        if (msg.role === 'user') {
-          return `Student: ${typeof msg.content === 'string' ? msg.content : msg.content.text}`;
-        } else {
-          return `Tutor: ${msg.content}`;
+      if (selectedSubject) {
+        const subject = subjects.find(s => s.subject_id === selectedSubject);
+        contextInfo += `Current focus: ${subject?.name}. `;
+        
+        if (units.length > 0) {
+          contextInfo += `Units in this subject: ${units.map(u => u.unit_name).join(', ')}. `;
         }
-      }).join('\n\n');
 
-      const contextSection = conversationHistory 
-        ? `\n\nPrevious conversation:\n${conversationHistory}\n\n` 
-        : '';
+        const subjectSkills = skills.filter(sk => sk.subject_id === selectedSubject);
+        if (subjectSkills.length > 0) {
+          contextInfo += `Skills covered: ${subjectSkills.map(sk => sk.skill_name).slice(0, 10).join(', ')}. `;
+        }
+      }
 
-      const prompt = `You are an expert tutor helping students prepare for AP exams and standardized tests. ${subjectContext}${contextSection}
+      const prompt = `You are an expert tutor helping students prepare for ${selectedSubject ? subjects.find(s => s.subject_id === selectedSubject)?.name : 'various exams'}. 
 
-Student question: ${userMessage}${filesToSend.length > 0 ? '\n(The student has provided screenshots/images for you to analyze)' : ''}
+${contextInfo}
 
-Provide a detailed, educational response that:
-1. Explains the concept thoroughly with clear examples
-2. Highlights what types of questions commonly appear on tests about this topic
-3. Provides tips for remembering key information
-4. Uses clear formatting with bullet points and examples where helpful
-${filesToSend.length > 0 ? '5. Analyzes any images provided and addresses questions about them' : ''}
+The student asks: "${input}"
 
-Keep your tone friendly and encouraging. CRITICAL: Use VALID LaTeX with proper escape characters. ALL math must render cleanly.
-- Wrap math: $ for inline, $$ for display blocks
-- PERCENTAGES: ALWAYS plain text "80%" NEVER "$80\\%$" or "$80 \\text{%}$"
-- Examples of CORRECT LaTeX:
-  * Fractions: $\\frac{\\sin(30^\\circ)}{\\pi}$ (with backslash before frac)
-  * Limits: $\\lim_{x \\to 0} \\frac{\\sin x}{x} = 1$ (backslash before lim and to)
-  * Powers: $x^2 + 5x - 3$
-  * Roots: $\\sqrt{3}$
-  * Trig: $\\sin(45^\\circ)$, $\\cos(x)$, $\\tan(x)$ (backslash before all functions)
-- NEVER write raw LaTeX outside $ delimiters: "ext\\lim", "\\text", "\\frac" must be inside $...$
-- Plain numbers can be plain text; use $ only for variables and formulas
-- Test that your LaTeX compiles correctly before using it`;
+Provide a clear, educational response that:
+1. Explains concepts in simple terms
+2. Uses relevant examples
+3. Breaks down complex topics into manageable parts
+4. Encourages further learning
+5. Uses LaTeX notation ($...$) for mathematical expressions
+6. Provides step-by-step guidance for problem-solving
+
+Be encouraging and supportive. If the question relates to a specific unit or skill from the context above, reference it directly.`;
 
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
-        add_context_from_internet: false,
-        file_urls: filesToSend.length > 0 ? filesToSend.map(f => f.url) : undefined,
       });
 
-      setMessages(prev => [...prev, { role: 'assistant', content: response }]);
-      
-      // Use a credit after successful response
-      const updatedUser = await useCredit(user, 'daily_tutor_count');
-      setUser(updatedUser);
+      const aiMessage = { role: 'assistant', content: response };
+      setMessages(prev => [...prev, aiMessage]);
     } catch (e) {
-      console.error('Failed to get tutor response:', e);
-      setMessages(prev => [...prev, { 
+      console.error('Failed to get AI response:', e);
+      const errorMessage = { 
         role: 'assistant', 
-        content: 'Sorry, I had trouble processing that. Could you try asking again?' 
-      }]);
+        content: 'Sorry, I encountered an error. Please try asking your question again.' 
+      };
+      setMessages(prev => [...prev, errorMessage]);
     }
-    setLoading(false);
+
+    setIsLoading(false);
   };
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSendMessage();
+      handleSend();
     }
   };
 
-  const startNewConversation = () => {
-    setMessages([]);
-    setInput('');
-    setUploadedFiles([]);
-  };
+  const starterQuestions = [
+    "Explain the concept of derivatives in calculus",
+    "What's the difference between ionic and covalent bonds?",
+    "How do I solve quadratic equations?",
+    "Explain the causes of the American Revolution",
+  ];
 
   return (
-    <div className="flex flex-col" style={{ height: 'calc(100vh - 200px)' }}>
-      <div className="page-header flex items-center justify-between">
-        <div>
-          <h1 className="page-title flex items-center gap-2">
-            <Brain className="w-8 h-8" />
-            AI Tutor
-          </h1>
-          <p className="page-description">
-            Ask questions and get detailed explanations
-          </p>
-          {user?.plan === 'free' && (
-            <p className="text-sm text-slate-300 mt-2">
-              Daily questions: {(user.daily_tutor_count || 0)}/5 used
-            </p>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowSubjectDialog(true)}
-          >
-            <BookOpen className="w-4 h-4 mr-1" />
-            {selectedSubject || 'Select Subject'}
-          </Button>
-          {messages.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={startNewConversation}
-            >
-              New Chat
-            </Button>
-          )}
-        </div>
+    <>
+      <div className="page-header">
+        <h1 className="page-title">AI Tutor</h1>
+        <p className="page-description">Ask questions and get personalized help</p>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto mb-6 space-y-4">
-          {messages.length === 0 ? (
-            <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-8 text-center">
-              <Brain className="w-12 h-12 text-slate-500 mx-auto mb-4" />
-              <h3 className="font-semibold text-slate-100 mb-2">Start a conversation</h3>
-              <p className="text-slate-400 text-sm mb-4">
-                Ask me anything about your subjects, test strategies, or specific topics
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-left max-w-md mx-auto">
-                <button
-                  onClick={() => setInput("Explain the key concepts I should know for AP Calculus")}
-                  className="p-3 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-sm text-slate-200 transition-colors"
-                >
-                  💡 Key concepts for AP Calculus
-                </button>
-                <button
-                  onClick={() => setInput("What types of questions appear most on the SAT Math section?")}
-                  className="p-3 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-sm text-slate-200 transition-colors"
-                >
-                  📝 Common SAT Math questions
-                </button>
-                <button
-                  onClick={() => setInput("How do I solve quadratic equations?")}
-                  className="p-3 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-sm text-slate-200 transition-colors"
-                >
-                  🔢 Solving quadratic equations
-                </button>
-                <button
-                  onClick={() => setInput("Tips for remembering formulas")}
-                  className="p-3 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-sm text-slate-200 transition-colors"
-                >
-                  🧠 Memory tips for formulas
-                </button>
-              </div>
-            </div>
-          ) : (
-            messages.map((message, idx) => (
-              <div
-                key={idx}
-                className={cn(
-                  "flex gap-3",
-                  message.role === 'user' ? "justify-end" : "justify-start"
-                )}
-              >
-                {message.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center flex-shrink-0">
-                    <Brain className="w-4 h-4 text-white" />
-                  </div>
-                )}
-                <div
-                  className={cn(
-                    "max-w-[85%] rounded-2xl px-4 py-3",
-                    message.role === 'user'
-                      ? "bg-violet-600 text-white"
-                      : "bg-slate-800/60 backdrop-blur-sm border border-slate-700/50"
-                  )}
-                >
-                  {message.role === 'user' ? (
-                    <div>
-                      {typeof message.content === 'string' ? (
-                        <p className="text-sm leading-relaxed">{message.content}</p>
-                      ) : (
-                        <>
-                          {message.content.text && (
-                            <p className="text-sm leading-relaxed mb-2">{message.content.text}</p>
-                          )}
-                          {message.content.files && message.content.files.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-2">
-                              {message.content.files.map((file, i) => (
-                                <div key={i} className="relative group">
-                                  {file.type?.startsWith('image/') ? (
-                                    <img 
-                                      src={file.url} 
-                                      alt={file.name}
-                                      className="max-w-[200px] max-h-[200px] rounded-lg border border-slate-300"
-                                    />
-                                  ) : (
-                                    <div className="px-3 py-2 bg-slate-800 rounded-lg flex items-center gap-2">
-                                      <Paperclip className="w-4 h-4" />
-                                      <span className="text-xs">{file.name}</span>
-                                    </div>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="prose prose-sm prose-slate max-w-none prose-invert [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
-                      <ReactMarkdown
-                        remarkPlugins={[remarkMath]}
-                        rehypePlugins={[rehypeKatex]}
-                        components={{
-                          p: ({ children }) => <p className="my-2 leading-relaxed text-slate-200">{children}</p>,
-                          ul: ({ children }) => <ul className="my-2 ml-4 list-disc text-slate-200">{children}</ul>,
-                          ol: ({ children }) => <ol className="my-2 ml-4 list-decimal text-slate-200">{children}</ol>,
-                          li: ({ children }) => <li className="my-1 text-slate-200">{children}</li>,
-                          h3: ({ children }) => <h3 className="text-base font-semibold my-3 text-slate-100">{children}</h3>,
-                          strong: ({ children }) => <strong className="font-semibold text-slate-100">{children}</strong>,
-                          code: ({ inline, children }) => 
-                            inline ? (
-                              <code className="px-1 py-0.5 rounded bg-slate-700 text-slate-200 text-xs">
-                                {children}
-                              </code>
-                            ) : (
-                              <code className="block bg-slate-900 text-slate-100 rounded-lg p-3 my-2">
-                                {children}
-                              </code>
-                            ),
-                        }}
-                      >
-                        {message.content}
-                      </ReactMarkdown>
-                    </div>
-                  )}
-                </div>
-                {message.role === 'user' && (
-                  <div className="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center flex-shrink-0">
-                    <span className="text-sm font-medium text-slate-600">
-                      {user?.full_name?.[0] || 'U'}
-                    </span>
-                  </div>
-                )}
-              </div>
-            ))
-          )}
-          {loading && (
-            <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center">
-                <Brain className="w-4 h-4 text-white" />
-              </div>
-              <div className="bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-2xl px-4 py-3">
-                <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
-              </div>
-            </div>
-          )}
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input */}
-      <div className="bg-slate-800/60 backdrop-blur-sm rounded-xl border border-slate-700/50 shadow-lg p-4">
-          {uploadedFiles.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-3 pb-3 border-b border-slate-100">
-              {uploadedFiles.map((file, idx) => (
-                <div key={idx} className="relative group">
-                  {file.type?.startsWith('image/') ? (
-                    <div className="relative">
-                      <img 
-                        src={file.url} 
-                        alt={file.name}
-                        className="max-w-[100px] max-h-[100px] rounded-lg border border-slate-600"
-                      />
-                      <button
-                        onClick={() => removeFile(idx)}
-                        className="absolute -top-2 -right-2 w-5 h-5 bg-slate-900 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="relative px-3 py-2 bg-slate-700/50 rounded-lg flex items-center gap-2">
-                      <Paperclip className="w-4 h-4 text-slate-300" />
-                      <span className="text-xs text-slate-300">{file.name}</span>
-                      <button
-                        onClick={() => removeFile(idx)}
-                        className="ml-1"
-                      >
-                        <X className="w-3 h-3 text-slate-500 hover:text-slate-700" />
-                      </button>
-                    </div>
-                  )}
-                </div>
+      <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 overflow-hidden">
+        {/* Subject Selector */}
+        <div className="p-4 border-b border-slate-700/50">
+          <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+            <SelectTrigger className="w-full bg-slate-900/50 border-slate-700/50 text-slate-200">
+              <SelectValue placeholder="Select a subject (optional)" />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-900/95 backdrop-blur-xl border-slate-700/50">
+              <SelectItem value="all" className="text-slate-200">General Questions</SelectItem>
+              {subjects.map((subject) => (
+                <SelectItem key={subject.subject_id} value={subject.subject_id} className="text-slate-200">
+                  {subject.icon} {subject.name}
+                </SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Chat Messages */}
+        <div className="h-[500px] overflow-y-auto p-6 space-y-4">
+          {messages.length === 0 && (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 rounded-full bg-violet-500/20 flex items-center justify-center mx-auto mb-4">
+                <BookOpen className="w-8 h-8 text-violet-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-slate-100 mb-2">Welcome to Your AI Tutor</h3>
+              <p className="text-slate-400 mb-6">Ask me anything about your studies!</p>
+              
+              <div className="grid md:grid-cols-2 gap-3 max-w-2xl mx-auto">
+                {starterQuestions.map((question, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setInput(question)}
+                    className="p-3 bg-slate-900/50 hover:bg-slate-900/70 rounded-lg text-left text-sm text-slate-300 transition-all border border-slate-700/30 hover:border-violet-500/50"
+                  >
+                    {question}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
-          <div className="flex gap-3">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleFileUpload}
-              className="hidden"
-            />
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={loading || uploading}
-              className="self-end"
+
+          {messages.map((message, index) => (
+            <div
+              key={index}
+              className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
-              {uploading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <ImageIcon className="w-4 h-4" />
+              {message.role === 'assistant' && (
+                <div className="w-8 h-8 rounded-full bg-violet-500/20 flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="w-4 h-4 text-violet-400" />
+                </div>
               )}
-            </Button>
+              <div
+                className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                  message.role === 'user'
+                    ? 'bg-violet-600 text-white'
+                    : 'bg-slate-900/50 border border-slate-700/50 text-slate-100'
+                }`}
+              >
+                {message.role === 'user' ? (
+                  <p className="text-sm leading-relaxed">{message.content}</p>
+                ) : (
+                  <ReactMarkdown
+                    remarkPlugins={[remarkMath]}
+                    rehypePlugins={[rehypeKatex]}
+                    className="prose prose-sm prose-invert max-w-none"
+                    components={{
+                      p: ({ children }) => <p className="mb-2 last:mb-0 leading-relaxed">{children}</p>,
+                      ul: ({ children }) => <ul className="list-disc ml-4 mb-2">{children}</ul>,
+                      ol: ({ children }) => <ol className="list-decimal ml-4 mb-2">{children}</ol>,
+                      li: ({ children }) => <li className="mb-1">{children}</li>,
+                      code: ({ inline, children }) => 
+                        inline ? (
+                          <code className="px-1 py-0.5 bg-slate-800 rounded text-violet-300">{children}</code>
+                        ) : (
+                          <code className="block bg-slate-800 p-2 rounded my-2">{children}</code>
+                        ),
+                    }}
+                  >
+                    {message.content}
+                  </ReactMarkdown>
+                )}
+              </div>
+              {message.role === 'user' && (
+                <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center flex-shrink-0">
+                  <span className="text-xs font-semibold text-white">
+                    {user?.full_name?.[0] || 'U'}
+                  </span>
+                </div>
+              )}
+            </div>
+          ))}
+
+          {isLoading && (
+            <div className="flex gap-3">
+              <div className="w-8 h-8 rounded-full bg-violet-500/20 flex items-center justify-center">
+                <Loader2 className="w-4 h-4 text-violet-400 animate-spin" />
+              </div>
+              <div className="bg-slate-900/50 border border-slate-700/50 rounded-2xl px-4 py-3">
+                <p className="text-slate-400 text-sm">Thinking...</p>
+              </div>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input Area */}
+        <div className="p-4 border-t border-slate-700/50">
+          <div className="flex gap-2">
             <Textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask me anything about your studies..."
-              className="flex-1 min-h-[60px] max-h-[200px] resize-none text-white"
-              disabled={loading}
+              placeholder="Ask me anything..."
+              className="flex-1 min-h-[60px] max-h-[120px] bg-slate-900/50 border-slate-700/50 text-slate-200 resize-none"
+              disabled={isLoading}
             />
             <Button
-              onClick={handleSendMessage}
-              disabled={(!input.trim() && uploadedFiles.length === 0) || loading}
-              className="self-end"
-              size="icon"
+              onClick={handleSend}
+              disabled={!input.trim() || isLoading}
+              className="px-4 bg-violet-600 hover:bg-violet-700"
             >
-              {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+              {isLoading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
-                <Send className="w-4 h-4" />
+                <Send className="w-5 h-5" />
               )}
             </Button>
           </div>
-        <p className="text-xs text-slate-400 mt-2">
-          Press Enter to send, Shift+Enter for new line • Upload images for analysis
-        </p>
+          <p className="text-xs text-slate-500 mt-2">Press Enter to send, Shift+Enter for new line</p>
+        </div>
       </div>
-
-      <SubjectChangeDialog
-        open={showSubjectDialog}
-        onOpenChange={setShowSubjectDialog}
-        selectedSubject={selectedSubject}
-        onSelectSubject={(subjectId) => {
-          setSelectedSubject(subjectId);
-          setShowSubjectDialog(false);
-        }}
-      />
-
-      <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
-    </div>
+    </>
   );
 }

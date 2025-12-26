@@ -138,19 +138,112 @@ export default function Analytics() {
     questions: stats.total,
   })).slice(-14); // Last 14 days
 
-  // Common Errors
+  // Common Errors with Error Type Analysis
   const skillErrors = {};
+  const errorTypeStats = {};
   filteredAttempts.filter(a => !a.is_correct).forEach(a => {
     if (!skillErrors[a.skill_name]) {
       skillErrors[a.skill_name] = 0;
     }
     skillErrors[a.skill_name]++;
+    
+    if (a.error_type && a.error_type !== 'none') {
+      if (!errorTypeStats[a.error_type]) {
+        errorTypeStats[a.error_type] = 0;
+      }
+      errorTypeStats[a.error_type]++;
+    }
   });
 
   const commonErrors = Object.entries(skillErrors)
     .map(([skill, count]) => ({ skill, count }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
+
+  // AI-Powered Study Recommendations
+  const generateRecommendations = () => {
+    const recommendations = [];
+    
+    // Recommendation based on accuracy
+    if (overallAccuracy < 70) {
+      recommendations.push({
+        type: 'accuracy',
+        icon: '🎯',
+        title: 'Focus on Understanding',
+        description: 'Your accuracy is below 70%. Review explanations carefully and take more time per question.',
+        action: 'Review weak skills',
+      });
+    }
+    
+    // Recommendation based on weak skills
+    if (commonErrors.length > 0) {
+      recommendations.push({
+        type: 'skills',
+        icon: '📚',
+        title: `Master ${commonErrors[0].skill}`,
+        description: `You've missed ${commonErrors[0].count} questions on this topic. Consider targeted practice.`,
+        action: 'Practice this skill',
+      });
+    }
+    
+    // Recommendation based on consistency
+    if (progressData.length >= 5) {
+      const recentAccuracy = progressData.slice(-5).map(d => parseFloat(d.accuracy));
+      const avgRecent = recentAccuracy.reduce((a, b) => a + b, 0) / recentAccuracy.length;
+      if (avgRecent < overallAccuracy - 10) {
+        recommendations.push({
+          type: 'consistency',
+          icon: '📊',
+          title: 'Recent Performance Dip',
+          description: 'Your recent accuracy is lower than usual. Consider taking a break or reviewing fundamentals.',
+          action: 'Review basics',
+        });
+      }
+    }
+    
+    // Recommendation based on study frequency
+    if (totalSessions < 5 && timeRange === '30') {
+      recommendations.push({
+        type: 'frequency',
+        icon: '⏰',
+        title: 'Study More Consistently',
+        description: 'Regular practice leads to better retention. Aim for at least 3 sessions per week.',
+        action: 'Set study schedule',
+      });
+    }
+    
+    return recommendations;
+  };
+
+  const recommendations = generateRecommendations();
+
+  // Skill-level detailed breakdown
+  const skillDetailedStats = {};
+  filteredAttempts.forEach(a => {
+    if (!skillDetailedStats[a.skill_name]) {
+      skillDetailedStats[a.skill_name] = {
+        correct: 0,
+        total: 0,
+        byDifficulty: { easy: { correct: 0, total: 0 }, medium: { correct: 0, total: 0 }, hard: { correct: 0, total: 0 } },
+      };
+    }
+    skillDetailedStats[a.skill_name].total++;
+    if (a.is_correct) skillDetailedStats[a.skill_name].correct++;
+    
+    if (a.difficulty && skillDetailedStats[a.skill_name].byDifficulty[a.difficulty]) {
+      skillDetailedStats[a.skill_name].byDifficulty[a.difficulty].total++;
+      if (a.is_correct) skillDetailedStats[a.skill_name].byDifficulty[a.difficulty].correct++;
+    }
+  });
+
+  const skillBreakdownData = Object.entries(skillDetailedStats)
+    .map(([skill, stats]) => ({
+      skill,
+      accuracy: ((stats.correct / stats.total) * 100).toFixed(1),
+      total: stats.total,
+      byDifficulty: stats.byDifficulty,
+    }))
+    .sort((a, b) => b.total - a.total);
 
   const COLORS = ['#8B5CF6', '#6366F1', '#EC4899', '#F59E0B', '#10B981'];
 
@@ -300,10 +393,82 @@ export default function Analytics() {
         </div>
       </div>
 
+      {/* AI Recommendations */}
+      {recommendations.length > 0 && (
+        <div className="bg-gradient-to-br from-violet-500/10 to-purple-500/10 backdrop-blur-sm rounded-xl border border-violet-500/30 p-6 mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-2xl">🤖</span>
+            <h3 className="text-lg font-semibold text-slate-100">AI Study Recommendations</h3>
+          </div>
+          <div className="space-y-3">
+            {recommendations.map((rec, index) => (
+              <div key={index} className="bg-slate-800/60 rounded-lg p-4 border border-slate-700/30">
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">{rec.icon}</span>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-slate-100 mb-1">{rec.title}</h4>
+                    <p className="text-sm text-slate-400">{rec.description}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Detailed Skill Breakdown */}
+      {skillBreakdownData.length > 0 && (
+        <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 mb-6">
+          <h3 className="text-lg font-semibold text-slate-100 mb-4">Detailed Skill Analysis</h3>
+          <div className="space-y-4">
+            {skillBreakdownData.slice(0, 10).map((skillData, index) => (
+              <div key={index} className="bg-slate-900/50 rounded-lg p-4 border border-slate-700/30">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="font-medium text-slate-100">{skillData.skill}</span>
+                  <span className={`font-semibold ${
+                    parseFloat(skillData.accuracy) >= 80 ? 'text-emerald-400' :
+                    parseFloat(skillData.accuracy) >= 60 ? 'text-amber-400' :
+                    'text-rose-400'
+                  }`}>
+                    {skillData.accuracy}%
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-xs">
+                  <div className="bg-emerald-500/10 border border-emerald-500/30 rounded p-2 text-center">
+                    <p className="text-emerald-400 font-semibold">Easy</p>
+                    <p className="text-slate-300 mt-1">
+                      {skillData.byDifficulty.easy.total > 0 
+                        ? `${((skillData.byDifficulty.easy.correct / skillData.byDifficulty.easy.total) * 100).toFixed(0)}%`
+                        : 'N/A'}
+                    </p>
+                  </div>
+                  <div className="bg-amber-500/10 border border-amber-500/30 rounded p-2 text-center">
+                    <p className="text-amber-400 font-semibold">Medium</p>
+                    <p className="text-slate-300 mt-1">
+                      {skillData.byDifficulty.medium.total > 0 
+                        ? `${((skillData.byDifficulty.medium.correct / skillData.byDifficulty.medium.total) * 100).toFixed(0)}%`
+                        : 'N/A'}
+                    </p>
+                  </div>
+                  <div className="bg-rose-500/10 border border-rose-500/30 rounded p-2 text-center">
+                    <p className="text-rose-400 font-semibold">Hard</p>
+                    <p className="text-slate-300 mt-1">
+                      {skillData.byDifficulty.hard.total > 0 
+                        ? `${((skillData.byDifficulty.hard.correct / skillData.byDifficulty.hard.total) * 100).toFixed(0)}%`
+                        : 'N/A'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Common Errors */}
       {commonErrors.length > 0 && (
         <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6">
-          <h3 className="text-lg font-semibold text-slate-100 mb-4">Areas Need Attention</h3>
+          <h3 className="text-lg font-semibold text-slate-100 mb-4">Most Common Mistakes</h3>
           <div className="space-y-3">
             {commonErrors.map((error, index) => (
               <div key={index} className="flex items-center justify-between p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg">

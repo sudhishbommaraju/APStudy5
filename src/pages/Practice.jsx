@@ -27,6 +27,7 @@ export default function Practice() {
   const [user, setUser] = useState(null);
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedUnit, setSelectedUnit] = useState('');
+  const [selectedSkills, setSelectedSkills] = useState([]);
   const [questionCount, setQuestionCount] = useState(10);
   const [customQuestionCount, setCustomQuestionCount] = useState(10);
   
@@ -85,6 +86,18 @@ export default function Practice() {
     queryKey: ['units', selectedSubject],
     queryFn: () => base44.entities.Unit.filter({ subject_id: selectedSubject }),
     enabled: !!selectedSubject,
+  });
+
+  const { data: skills = [] } = useQuery({
+    queryKey: ['skills', selectedSubject, selectedUnit],
+    queryFn: () => base44.entities.Skill.list(),
+    enabled: !!selectedSubject,
+    select: (data) => {
+      if (selectedUnit && selectedUnit !== 'all') {
+        return data.filter(skill => skill.unit_id === selectedUnit);
+      }
+      return data.filter(skill => skill.subject_id === selectedSubject);
+    },
   });
 
   const generateQuestionsForPlan = async (plan, subjectsData) => {
@@ -263,13 +276,27 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
         throw new Error('No units found to generate questions from');
       }
 
+      // Get skills to focus on
+      let skillsToUse = [];
+      if (selectedSkills.length > 0) {
+        const allSkills = await base44.entities.Skill.list();
+        skillsToUse = allSkills.filter(s => selectedSkills.includes(s.id));
+      }
+
       // Generate questions via LLM
       const llmPromises = [];
       for (let i = 0; i < questionCount; i++) {
         // Pick random unit for variety
         const unit = targetUnits[Math.floor(Math.random() * targetUnits.length)];
+        
+        // If specific skills selected, use them
+        let skillContext = '';
+        if (skillsToUse.length > 0) {
+          const skill = skillsToUse[i % skillsToUse.length];
+          skillContext = ` Focus specifically on: ${skill.skill_name}.`;
+        }
 
-        let contextInstructions = `Generate an exam-style multiple choice question for ${subject.name}. Unit: ${unit.unit_name}`;
+        let contextInstructions = `Generate an exam-style multiple choice question for ${subject.name}. Unit: ${unit.unit_name}.${skillContext}`;
 
         // AP Government specific instructions
         if (subject.subject_id === 'ap_gov') {
