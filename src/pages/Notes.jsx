@@ -72,82 +72,108 @@ export default function Notes() {
 Unit: ${unit?.unit_name || 'General'}
 Topics to cover: ${topics}
 
-CRITICAL FORMATTING RULES - NO DUPLICATION ANYWHERE:
+ABSOLUTE CRITICAL RULES - MUST FOLLOW EXACTLY:
 
-1. ALL MATH IN LATEX - Write ONCE only:
-   ✓ CORRECT: "$4x^{5} - 3x^{3}$" or "$CH_{4}$" or "$H_{2}O$"
-   ✗ WRONG: "4x^5 - 3x^34x^5 - 3x^3" or "CH₄CH4" or "$CH_{4}$CH4"
-   ✗ NEVER write formulas in both unicode AND LaTeX - ONLY LaTeX
+1. NEVER TYPE "ext" - FORBIDDEN WORD:
+   ✓ CORRECT: Use \\text{} in LaTeX: "$H_{2}O$", "$100\\text{°C}$"
+   ✗ ABSOLUTELY NEVER WRITE: "ext" in any form
+   - NOT "extH2O", NOT "extO2", NOT "ext{H}", NOT "ext(", NOT "ext[", NOT "ext"
+   - If you need text in math, use \\text{word} NEVER "ext"
 
-2. NO "ext" CORRUPTION - Use \\text{} properly:
-   ✓ CORRECT: "$100\\text{°C}$" or "$9.8\\text{ m/s}^{2}$"
-   ✗ WRONG: "100ext°C" or "9.8ext m/s²" or ANY "ext" appearing
+2. NEVER TYPE "$$" OUTSIDE MARKDOWN BLOCKS:
+   ✓ CORRECT: Use $$ on its own lines for display math
+   ✗ ABSOLUTELY NEVER: "formula)$$" or "H2O$$" or "ext{anything}$$"
+   - $$ should ONLY appear at start/end of display math blocks
+   - NEVER append $$ to end of sentences or formulas
 
-3. NO UNICODE MATH - ONLY LaTeX:
-   ✓ CORRECT: "$_{2}$" "$^{3}$" "$^{5}$"
-   ✗ WRONG: "₂" "³" "⁵" or any unicode subscript/superscript
+3. ALL CHEMICAL FORMULAS - LATEX ONLY:
+   ✓ CORRECT: "$H_{2}O$", "$CO_{2}$", "$NH_{3}$", "$CH_{4}$"
+   ✗ NEVER: "H2O", "CO2", "NH3" without $ delimiters
+   ✗ NEVER: "$H_{2}O$H2O" (duplication)
 
-4. PERCENTAGES - Plain text:
-   ✓ CORRECT: "80%" or "50%"
-   ✗ WRONG: "$80\\%$"
+4. ALL NUMBERS WITH UNITS - LATEX:
+   ✓ CORRECT: "$25\\text{ g}$", "$100\\text{°C}$", "$9.8\\text{ m/s}^{2}$"
+   ✗ NEVER: "25 g", "100°C" (use LaTeX)
 
-5. NO DUPLICATION - Each formula ONCE:
-   ✗ NEVER: "$F = ma$F = ma" or "PE = mghPE = mgh"
-   ✗ NEVER: "10 imes 8010 imes 80" or any duplicated calculation
-   ✓ CORRECT: Write formula ONE time in LaTeX form only
+5. INLINE MATH for variables:
+   ✓ CORRECT: "$A = 2$", "$B = 3$", "$x = 5$"
+   ✗ NEVER: "A = 2" without $ delimiters
 
-6. DISPLAY MATH - Use $$ blocks for standalone equations:
-   $$
-   F = ma
-   $$
-   NOT: F = maF = ma or $F = ma$$F = ma$
-
-CORRECT EXAMPLE:
-
-## Centripetal Force
-
-Centripetal force is the net force required to keep an object moving in a circle.
-
-Formula:
-
+6. DISPLAY MATH for equations (on separate lines):
+   ✓ CORRECT:
+   
 $$
-F_c = m\\frac{v^2}{r}
+2H_{2} + O_{2} \\rightarrow 2H_{2}O
 $$
 
-Where:
-- $F_c$ is centripetal force in Newtons
-- $m$ is mass in kilograms  
-- $v$ is tangential speed in $\\text{m/s}$
-- $r$ is radius in meters
+   ✗ NEVER: "ightarrow" or "$formula$$" or inline display
 
-### Example Calculation
+7. STRUCTURE - Use clear sections:
+   - ## Main Topic
+   - Brief explanation in plain English
+   - **Formula:** (then $$ block)
+   - **Variables:**
+     - List with LaTeX: "$m$ is mass"
+   - ### Example
+   - Step by step with $$ blocks
+   - **Key Points:** bullet list
+   - **Common Mistakes:** bullet list
 
-Given a mass of $10\\text{ kg}$ and speed of $20\\text{ m/s}$ in a circle of radius $5\\text{ m}$:
+PERFECT EXAMPLE FORMAT:
+
+## Chemical Reactions
+
+Chemical reactions involve rearranging atoms to form new substances.
+
+**General Form:**
 
 $$
-F_c = (10)\\frac{(20)^2}{5} = (10)\\frac{400}{5} = 800\\text{ N}
+C \\times H + O_{2} \\rightarrow CO_{2} + H_{2}O
 $$
 
-WRONG EXAMPLES (NEVER DO):
-- "F_{c} = 10 imes 80F_{c} = 10 imes 80" (duplicated)
-- "$CH_{4}$CH4" or "CH₄CH4" (write "$CH_{4}$" once)
-- "100ext°C" or "-161.5ext°C" (NO "ext" - use "$100\\text{°C}$")
-- "F = maF = ma" (duplicated formula)
-- "4x^54x^5" (write "$4x^{5}$" once)
+**For stoichiometric calculations:**
 
-VERIFY BEFORE RETURNING:
-- NO "ext" corruption anywhere
-- NO duplication of any formula or number
-- NO unicode math symbols (₂ ³ ⁵)
-- ALL math in LaTeX only
-- Each formula written ONCE
+$$
+\\text{Moles of products} = \\text{Coefficient ratio} \\times \\text{Moles of reactants}
+$$
 
-Create detailed notes with:
-- Key concepts
-- Formulas in $$ blocks (written once)
-- Step-by-step examples (no duplication)
-- Practice tips
-- Common mistakes`;
+### Example: Combination Reaction
+
+**Given:** $A = 2$ and $H_{2}$, $B = O_{2}$
+
+**Reaction:**
+
+$$
+2H_{2} + O_{2} \\rightarrow 2H_{2}O
+$$
+
+**Balancing Steps:**
+1. Count atoms on each side
+   - Left: H=4, O=2
+   - Right: H=4, O=2
+2. The equation is balanced
+
+**Key Points:**
+- Always balance chemical equations
+- Count atoms on both sides
+- Use coefficients, not subscripts
+
+**Common Mistakes:**
+- Forgetting to balance equations
+- Confusing combination with decomposition reactions
+
+ABSOLUTELY FORBIDDEN - DO NOT WRITE:
+- "ext" in ANY form
+- "$$ at end of text like "H2O$$"
+- Formulas without $ delimiters
+- Duplication: "H2OH2O"
+
+FINAL CHECK BEFORE RETURNING:
+✓ NO "ext" anywhere
+✓ NO "$$ outside proper blocks
+✓ ALL formulas in $...$ or $$...$$
+✓ Clear section structure
+✓ No duplication`;
 
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
@@ -305,17 +331,22 @@ Create detailed notes with:
                     <p className="text-sm text-slate-400">{generatedNote.unit_name}</p>
                   </div>
                 </div>
-                <div className="prose prose-sm max-w-none prose-invert prose-slate [&_.katex]:text-slate-100 [&_.katex-error]:text-slate-100">
+                <div className="prose prose-sm max-w-none prose-invert [&_*]:text-white [&_.katex]:text-white [&_.katex-error]:text-white [&_code]:text-white">
                   <ReactMarkdown 
                     remarkPlugins={[remarkMath]} 
                     rehypePlugins={[rehypeKatex]}
                     components={{
-                      p: ({children}) => <p className="text-slate-100">{children}</p>,
-                      li: ({children}) => <li className="text-slate-100">{children}</li>,
-                      h1: ({children}) => <h1 className="text-slate-100 text-2xl font-bold mb-4 mt-6">{children}</h1>,
-                      h2: ({children}) => <h2 className="text-slate-100 text-xl font-bold mb-3 mt-5 border-b border-slate-700/50 pb-2">{children}</h2>,
-                      h3: ({children}) => <h3 className="text-violet-300 text-lg font-bold mb-2 mt-4">{children}</h3>,
-                      h4: ({children}) => <h4 className="text-violet-300 text-base font-semibold mb-2 mt-3">{children}</h4>,
+                      p: ({children}) => <p className="text-white mb-3 leading-relaxed">{children}</p>,
+                      li: ({children}) => <li className="text-white mb-1">{children}</li>,
+                      ul: ({children}) => <ul className="text-white mb-4 ml-4 space-y-1">{children}</ul>,
+                      ol: ({children}) => <ol className="text-white mb-4 ml-4 space-y-1">{children}</ol>,
+                      h1: ({children}) => <h1 className="text-white text-2xl font-bold mb-4 mt-8">{children}</h1>,
+                      h2: ({children}) => <h2 className="text-white text-xl font-bold mb-4 mt-6 pb-2 border-b-2 border-violet-500/30">{children}</h2>,
+                      h3: ({children}) => <h3 className="text-white text-lg font-bold mb-3 mt-5">{children}</h3>,
+                      h4: ({children}) => <h4 className="text-white text-base font-semibold mb-2 mt-4">{children}</h4>,
+                      strong: ({children}) => <strong className="text-white font-bold">{children}</strong>,
+                      em: ({children}) => <em className="text-white italic">{children}</em>,
+                      code: ({children}) => <code className="text-white bg-slate-700/50 px-1 rounded">{children}</code>,
                     }}
                   >
                     {generatedNote.content}
@@ -333,17 +364,22 @@ Create detailed notes with:
                     <p className="text-sm text-slate-400">{note.unit_name}</p>
                   </div>
                 </div>
-                <div className="prose prose-sm max-w-none prose-invert prose-slate [&_.katex]:text-slate-100 [&_.katex-error]:text-slate-100">
+                <div className="prose prose-sm max-w-none prose-invert [&_*]:text-white [&_.katex]:text-white [&_.katex-error]:text-white [&_code]:text-white">
                   <ReactMarkdown 
                     remarkPlugins={[remarkMath]} 
                     rehypePlugins={[rehypeKatex]}
                     components={{
-                      p: ({children}) => <p className="text-slate-100">{children}</p>,
-                      li: ({children}) => <li className="text-slate-100">{children}</li>,
-                      h1: ({children}) => <h1 className="text-slate-100 text-2xl font-bold mb-4 mt-6">{children}</h1>,
-                      h2: ({children}) => <h2 className="text-slate-100 text-xl font-bold mb-3 mt-5 border-b border-slate-700/50 pb-2">{children}</h2>,
-                      h3: ({children}) => <h3 className="text-violet-300 text-lg font-bold mb-2 mt-4">{children}</h3>,
-                      h4: ({children}) => <h4 className="text-violet-300 text-base font-semibold mb-2 mt-3">{children}</h4>,
+                      p: ({children}) => <p className="text-white mb-3 leading-relaxed">{children}</p>,
+                      li: ({children}) => <li className="text-white mb-1">{children}</li>,
+                      ul: ({children}) => <ul className="text-white mb-4 ml-4 space-y-1">{children}</ul>,
+                      ol: ({children}) => <ol className="text-white mb-4 ml-4 space-y-1">{children}</ol>,
+                      h1: ({children}) => <h1 className="text-white text-2xl font-bold mb-4 mt-8">{children}</h1>,
+                      h2: ({children}) => <h2 className="text-white text-xl font-bold mb-4 mt-6 pb-2 border-b-2 border-violet-500/30">{children}</h2>,
+                      h3: ({children}) => <h3 className="text-white text-lg font-bold mb-3 mt-5">{children}</h3>,
+                      h4: ({children}) => <h4 className="text-white text-base font-semibold mb-2 mt-4">{children}</h4>,
+                      strong: ({children}) => <strong className="text-white font-bold">{children}</strong>,
+                      em: ({children}) => <em className="text-white italic">{children}</em>,
+                      code: ({children}) => <code className="text-white bg-slate-700/50 px-1 rounded">{children}</code>,
                     }}
                   >
                     {note.content}
