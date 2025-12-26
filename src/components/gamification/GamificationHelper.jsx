@@ -14,7 +14,7 @@ const BADGES = {
 };
 
 const POINTS_PER_CORRECT = 10;
-const POINTS_PER_STREAK = 5;
+const POINTS_PER_STREAK = 2;
 
 export async function getUserStats(userEmail) {
   try {
