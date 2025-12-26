@@ -126,13 +126,24 @@ export default function Practice() {
 
         const prompt = `${contextInstructions}
 
-CRITICAL LATEX FORMATTING RULES:
-1. Chemical formulas: Use LaTeX with subscripts, write ONCE
-   ✓ CORRECT: "$CH_{4}$"
-   ✗ WRONG: "CH₄CH4" or "$CH_{4}$CH4"
-2. Temperature: Use \\text{°C} inside math mode
-3. NO DUPLICATION: Write each formula ONCE only
-4. PERCENTAGES: Plain text - "80%" NOT "$80\\%$"
+CRITICAL FORMATTING - VERIFY EACH CHOICE:
+
+1. TEMPERATURES - Use LaTeX \\text:
+   ✓ "$100\\text{°C}$" 
+   ✗ NEVER: "100ext°C" or "100°C100°C" or "100ext°C100ext°C"
+
+2. CHEMICAL FORMULAS - LaTeX subscripts ONCE:
+   ✓ "$CH_{4}$"
+   ✗ NEVER: "CH₄CH4" or "$CH_{4}$CH4" or "CH4ext"
+
+3. NO DUPLICATION - Write each value EXACTLY ONCE:
+   ✗ NEVER duplicate: "100°C100°C" or "-161.5°C-161.5°C"
+
+4. PERCENTAGES - Plain text only:
+   ✓ "80%"
+   ✗ NEVER: "$80\\%$"
+
+VERIFY: Check every choice has NO "ext", NO duplication, proper LaTeX only.
 
 Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, hint`;
 
@@ -273,18 +284,24 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
 
         const prompt = `${contextInstructions}
 
-CRITICAL LATEX FORMATTING RULES:
+CRITICAL FORMATTING - VERIFY EACH CHOICE:
 
-1. Chemical formulas: Use LaTeX with subscripts, write ONCE
-   ✓ CORRECT: "$CH_{4}$"
-   ✗ WRONG: "CH₄CH4" or "$CH_{4}$CH4"
+1. TEMPERATURES - Use LaTeX \\text:
+   ✓ "$100\\text{°C}$" 
+   ✗ NEVER: "100ext°C" or "100°C100°C" or "100ext°C100ext°C"
 
-2. Temperature: Use \\text{°C} inside math mode
-   ✓ CORRECT: "$-161.5\\text{°C}$"
-   ✗ WRONG: "-161.5ext°C" or "ext°C"
+2. CHEMICAL FORMULAS - LaTeX subscripts ONCE:
+   ✓ "$CH_{4}$"
+   ✗ NEVER: "CH₄CH4" or "$CH_{4}$CH4" or "CH4ext"
 
-3. NO DUPLICATION: Write each formula ONCE only
-4. PERCENTAGES: Plain text - "80%" NOT "$80\\%$"
+3. NO DUPLICATION - Write each value EXACTLY ONCE:
+   ✗ NEVER duplicate: "100°C100°C" or "-161.5°C-161.5°C"
+
+4. PERCENTAGES - Plain text only:
+   ✓ "80%"
+   ✗ NEVER: "$80\\%$"
+
+VERIFY: Check every choice has NO "ext", NO duplication, proper LaTeX only.
 
 Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct_answer ("A"/"B"/"C"/"D"), explanation, hint`;
 
