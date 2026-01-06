@@ -298,9 +298,27 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
 
         let contextInstructions = `Generate an exam-style multiple choice question for ${subject.name}. Unit: ${unit.unit_name}.${skillContext}`;
 
-        // AP Government specific instructions
-        if (subject.subject_id === 'ap_gov') {
+        // Subject-specific instructions
+        if (subject.subject_id === 'ap_csp') {
+          contextInstructions = `Generate an AP Computer Science Principles multiple choice question. Unit: ${unit.unit_name}. Topics: algorithms, programming, data, internet, impact of computing, cybersecurity. NO MATH. Focus on computational thinking, abstraction, data representation, internet protocols, or societal impacts of technology. Use real AP CSP format.`;
+        } else if (subject.subject_id === 'ap_csa') {
+          contextInstructions = `Generate an AP Computer Science A multiple choice question about Java programming. Unit: ${unit.unit_name}. Topics: object-oriented programming, inheritance, recursion, data structures, algorithms. NO MATH. Focus on Java code analysis, debugging, or design. Use real AP CSA format.`;
+        } else if (subject.subject_id === 'ap_gov') {
           contextInstructions = `Generate an AP U.S. Government and Politics exam-style multiple choice question. Unit: ${unit.unit_name}. Use real AP exam format and difficulty. Test understanding of government institutions, political processes, civil liberties, or political behavior.`;
+        } else if (subject.subject_id.startsWith('ap_calc')) {
+          contextInstructions = `Generate an AP Calculus ${subject.subject_id === 'ap_calc_ab' ? 'AB' : 'BC'} multiple choice question. Unit: ${unit.unit_name}. Focus on calculus concepts: limits, derivatives, integrals, differential equations. Use proper mathematical notation and real AP format.`;
+        } else if (subject.subject_id === 'ap_stats') {
+          contextInstructions = `Generate an AP Statistics multiple choice question. Unit: ${unit.unit_name}. Focus on data analysis, probability, statistical inference, experimental design. Use real AP Statistics format with data scenarios.`;
+        } else if (subject.subject_id.includes('physics')) {
+          contextInstructions = `Generate an AP Physics multiple choice question. Unit: ${unit.unit_name}. Focus on physics concepts: mechanics, electricity, magnetism, waves. Use proper physics notation and real AP format.`;
+        } else if (subject.subject_id.includes('chemistry')) {
+          contextInstructions = `Generate an AP Chemistry multiple choice question. Unit: ${unit.unit_name}. Focus on chemical concepts: reactions, bonding, thermodynamics, equilibrium. Use proper chemical notation and real AP format.`;
+        } else if (subject.subject_id.includes('biology')) {
+          contextInstructions = `Generate an AP Biology multiple choice question. Unit: ${unit.unit_name}. Focus on biological concepts: evolution, genetics, ecology, cell processes. Use real AP format.`;
+        } else if (subject.subject_id.includes('history') || subject.subject_id.includes('world')) {
+          contextInstructions = `Generate an AP History multiple choice question. Unit: ${unit.unit_name}. Focus on historical analysis, causation, contextualization. Use real AP format with historical documents or scenarios.`;
+        } else if (subject.subject_id.includes('english') || subject.subject_id.includes('lang') || subject.subject_id.includes('lit')) {
+          contextInstructions = `Generate an AP English multiple choice question. Unit: ${unit.unit_name}. Include a short passage or excerpt. Focus on rhetorical analysis, literary devices, or argumentation. Use real AP format.`;
         }
 
         // SAT/ACT specific instructions

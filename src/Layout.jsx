@@ -16,7 +16,7 @@ export default function Layout({ children, currentPageName }) {
   const adminOnlyPages = ['AdminUsers', 'SeedData'];
 
   // Protected pages
-  const protectedPages = ['Dashboard', 'Practice', 'Exam', 'Tutor', 'Notes', 'Flashcards', 'Progress', 'Generate', 'AdminUsers', 'SeedData', 'MistakeReplay', 'Settings', 'StudyGroups', 'AIStudyPlanner', 'Analytics', 'Rewards', 'Courses', 'GroupDetail'];
+  const protectedPages = ['Dashboard', 'Practice', 'Exam', 'Tutor', 'Notes', 'Flashcards', 'Progress', 'Generate', 'AdminUsers', 'SeedData', 'MistakeReplay', 'Settings', 'StudyGroups', 'AIStudyPlanner', 'Analytics', 'Rewards', 'Courses', 'GroupDetail', 'CourseBuilder'];
 
   useEffect(() => {
     const loadUser = async () => {
