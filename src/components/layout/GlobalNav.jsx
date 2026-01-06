@@ -51,6 +51,7 @@ export default function GlobalNav() {
   // Marketing pages nav items
   const marketingNavItems = [
     { label: 'Home', path: createPageUrl('Home') },
+    { label: 'About', path: createPageUrl('About') },
     { label: 'Pricing', path: createPageUrl('Pricing') },
   ];
 
@@ -61,6 +62,7 @@ export default function GlobalNav() {
     { label: 'Notes', path: createPageUrl('Notes') },
     { label: 'Flashcards', path: createPageUrl('Flashcards') },
     { label: 'Tutor', path: createPageUrl('Tutor') },
+    { label: 'Course Builder', path: createPageUrl('CourseBuilder') },
     { label: 'Groups', path: createPageUrl('StudyGroups') },
     { label: 'Courses', path: createPageUrl('Courses') },
     { label: 'AI Planner', path: createPageUrl('AIStudyPlanner') },
