@@ -366,52 +366,52 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
 
       const updatedUser = await useCredit(user, 'daily_practice_count');
       setUser(updatedUser);
-      // Determine what to generate
-      const subject = subjects.find(s => s.subject_id === selectedSubject);
-      if (!subject) {
-        throw new Error('Subject not found');
-      }
 
-      // Fetch units for the subject
+      // Fetch units
       const subjectUnits = await base44.entities.Unit.filter({ subject_id: selectedSubject });
       
-      let targetUnits = [];
-      if (!selectedUnit || selectedUnit === 'all') {
-        // All units - add all units from this subject
-        targetUnits = subjectUnits;
-      } else {
-        // Specific unit
-        const unit = subjectUnits.find(u => u.id === selectedUnit);
-        if (unit) targetUnits.push(unit);
+      let targetUnit = null;
+      if (selectedUnit && selectedUnit !== 'all') {
+        targetUnit = subjectUnits.find(u => u.id === selectedUnit);
+      } else if (subjectUnits.length > 0) {
+        targetUnit = subjectUnits[Math.floor(Math.random() * subjectUnits.length)];
+      }
+      
+      if (!targetUnit) {
+        throw new Error('No unit found for generation');
       }
 
-      if (targetUnits.length === 0) {
-        throw new Error('No units found to generate questions from');
+      // USE SAFE GENERATOR - handles validation, retries, and error reporting
+      const result = await SafeQuestionGenerator.generateSafe({
+        subject_id: selectedSubject,
+        unit: targetUnit,
+        skill: null,
+        count: questionCount,
+        difficulty: 'medium',
+        onProgress: setGenerationProgress
+      });
+
+      if (!result.success || result.questions.length === 0) {
+        throw new Error(result.errors[0] || 'Failed to generate valid questions after multiple attempts');
       }
 
-      // Get skills to focus on
-      let skillsToUse = [];
-      if (selectedSkills.length > 0) {
-        const allSkills = await base44.entities.Skill.list();
-        skillsToUse = allSkills.filter(s => selectedSkills.includes(s.id));
-      }
+      setQuestions(result.questions);
+      setGenerationProgress(null);
+      setIsGenerating(false);
+    } catch (e) {
+      console.error('Failed to generate questions:', e);
+      setError(e.message);
+      setGenerationProgress(null);
+      setIsGenerating(false);
+    }
+  };
 
-      // Generate questions via LLM
-      const llmPromises = [];
-      for (let i = 0; i < questionCount; i++) {
-        // Pick random unit for variety
-        const unit = targetUnits[Math.floor(Math.random() * targetUnits.length)];
-        
-        // If specific skills selected, use them
-        let skillContext = '';
-        if (skillsToUse.length > 0) {
-          const skill = skillsToUse[i % skillsToUse.length];
-          skillContext = ` Focus specifically on: ${skill.skill_name}.`;
-        }
-
-        let contextInstructions = `Generate an exam-style multiple choice question for ${subject.name}. Unit: ${unit.unit_name}.${skillContext}`;
-
-        // Subject-specific instructions
+  const generateQuestions_LEGACY = async () => {
+    // LEGACY PATH - DEPRECATED
+    // Keeping for reference but not used
+    
+    const unit = null; // placeholder
+        // DEPRECATED LEGACY CODE - NOT USED
         if (subject.subject_id === 'ap_csp') {
           contextInstructions = `Generate an AP Computer Science Principles multiple choice question. Unit: ${unit.unit_name}. Topics: algorithms, programming, data, internet, impact of computing, cybersecurity. NO MATH. Focus on computational thinking, abstraction, data representation, internet protocols, or societal impacts of technology. Use real AP CSP format.`;
         } else if (subject.subject_id === 'ap_csa') {
@@ -519,14 +519,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
         );
       }
 
-      // DEPRECATED - This path is replaced by Safe Generator below
-      setIsGenerating(false);
-    } catch (e) {
-      console.error('Failed to generate questions:', e);
-      setError(e.message);
-      setIsGenerating(false);
-      alert(`Failed to generate questions: ${e.message}`);
-    }
+      // END LEGACY CODE
   };
 
   const [currentStreak, setCurrentStreak] = useState(0);
