@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { checkAndResetCredits, checkCredits, useCredit } from '@/components/monetization/CreditHelper';
 import { updateStatsForAnswer } from '@/components/gamification/GamificationHelper';
+import { GenerationValidator } from '@/components/validation/GenerationValidator';
 import {
   Select,
   SelectContent,
@@ -420,10 +421,10 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
 
       const responses = await Promise.all(llmPromises);
 
-      // Create question entities
-      const createdQuestions = await Promise.all(
-        responses.map(r =>
-          base44.entities.Question.create({
+      // VALIDATION GATE: Clean and validate before saving
+      const validatedResponses = responses
+        .map(r => {
+          const questionData = {
             subject_id: selectedSubject,
             unit_id: r.unit.id,
             skill_id: '',
@@ -442,7 +443,27 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
             wrong_answer_explanations: {},
             hint: r.hint || '',
             is_ai_generated: true,
-          })
+          };
+
+          const validation = GenerationValidator.validateBeforeSave(questionData);
+          
+          if (!validation.valid) {
+            console.warn('Question failed validation, skipping:', validation.errors);
+            return null;
+          }
+
+          return validation.cleaned;
+        })
+        .filter(Boolean); // Remove invalid questions
+
+      if (validatedResponses.length === 0) {
+        throw new Error('All generated questions failed validation. Please try again.');
+      }
+
+      // Create question entities (only valid ones)
+      const createdQuestions = await Promise.all(
+        validatedResponses.map(questionData =>
+          base44.entities.Question.create(questionData)
         )
       );
 

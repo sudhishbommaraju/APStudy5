@@ -21,8 +21,10 @@ import SeedData from './pages/SeedData';
 import Settings from './pages/Settings';
 import StudyGroups from './pages/StudyGroups';
 import StudyPlans from './pages/StudyPlans';
-import Tutor from './pages/Tutor';
 import TeacherMode from './pages/TeacherMode';
+import Tutor from './pages/Tutor';
+import QuestionValidation from './pages/QuestionValidation';
+import Demo from './pages/Demo';
 import __Layout from './Layout.jsx';
 
 
@@ -50,8 +52,10 @@ export const PAGES = {
     "Settings": Settings,
     "StudyGroups": StudyGroups,
     "StudyPlans": StudyPlans,
-    "Tutor": Tutor,
     "TeacherMode": TeacherMode,
+    "Tutor": Tutor,
+    "QuestionValidation": QuestionValidation,
+    "Demo": Demo,
 }
 
 export const pagesConfig = {

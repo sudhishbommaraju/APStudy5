@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { checkAndResetCredits, checkCredits, useCredit } from '@/components/monetization/CreditHelper';
 import UpgradeModal from '@/components/monetization/UpgradeModal';
 import ExamExporter from '@/components/exam/ExamExporter';
+import { GenerationValidator } from '@/components/validation/GenerationValidator';
 import {
   Select,
   SelectContent,
@@ -374,10 +375,10 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
       // Wait for all questions to generate
       const questionResponses = await Promise.all(questionPromises);
       
-      // Save all questions to database
-      const generatedQuestions = await Promise.all(
-        questionResponses.map(({ response, skill, difficulty }) =>
-          base44.entities.Question.create({
+      // VALIDATION GATE: Clean and validate before saving
+      const validatedResponses = questionResponses
+        .map(({ response, skill, difficulty }) => {
+          const questionData = {
             subject_id: selectedSubject,
             unit_id: skill.unit_id,
             skill_id: skill.id,
@@ -394,7 +395,27 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
             correct_answer: response.correct_answer,
             explanation: response.explanation,
             is_ai_generated: true,
-          })
+          };
+
+          const validation = GenerationValidator.validateBeforeSave(questionData);
+          
+          if (!validation.valid) {
+            console.warn('Question failed validation, skipping:', validation.errors);
+            return null;
+          }
+
+          return validation.cleaned;
+        })
+        .filter(Boolean); // Remove invalid questions
+
+      if (validatedResponses.length === 0) {
+        throw new Error('All generated questions failed validation. Please try again.');
+      }
+
+      // Save all questions to database (only valid ones)
+      const generatedQuestions = await Promise.all(
+        validatedResponses.map(questionData =>
+          base44.entities.Question.create(questionData)
         )
       );
 

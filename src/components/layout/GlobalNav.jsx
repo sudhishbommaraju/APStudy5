@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { Menu, X, ChevronDown, User, LogOut, BookOpen, BarChart3, Award } from 'lucide-react';
+import { Menu, X, ChevronDown, User, LogOut, BookOpen, BarChart3, Award, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -51,6 +51,7 @@ export default function GlobalNav() {
   // Marketing pages nav items
   const marketingNavItems = [
     { label: 'Home', path: createPageUrl('Home') },
+    { label: 'Demo', path: createPageUrl('Demo') },
     { label: 'About', path: createPageUrl('About') },
     { label: 'Pricing', path: createPageUrl('Pricing') },
   ];
@@ -144,6 +145,14 @@ export default function GlobalNav() {
                           Account Settings
                         </Link>
                       </DropdownMenuItem>
+                      {user?.role === 'admin' && (
+                        <DropdownMenuItem asChild>
+                          <Link to={createPageUrl('QuestionValidation')} className="cursor-pointer text-amber-400 focus:text-amber-300">
+                            <AlertTriangle className="w-4 h-4 mr-2" />
+                            Question Validation
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuSeparator className="bg-slate-700/50" />
                       <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-rose-400 focus:text-rose-400">
                         <LogOut className="w-4 h-4 mr-2" />

@@ -7,6 +7,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { base44 } from '@/api/base44Client';
+import QuestionIntegrityGuard from '@/components/validation/QuestionIntegrityGuard';
 
 export default function QuestionCard({ 
   question, 
@@ -96,7 +97,8 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
   };
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <QuestionIntegrityGuard question={question}>
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
       {/* Question Header */}
       <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
         <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
