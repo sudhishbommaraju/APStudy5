@@ -52,11 +52,20 @@ export default function AIStudyPlanner() {
   });
 
   const handleGeneratePlan = async () => {
+    console.log('[AIStudyPlanner] Generate Plan clicked', {
+      selectedSubjects,
+      targetDate,
+      currentLevel,
+      studyGoal
+    });
+
+    // GUARD: Validate inputs - throw instead of silent return
     if (selectedSubjects.length === 0 || !targetDate) {
       alert('Please select subjects and target date');
       return;
     }
 
+    // IMMEDIATE STATE CHANGE
     setIsGenerating(true);
 
     try {
@@ -126,15 +135,21 @@ Format as a detailed, actionable plan that motivates the student.`;
         performance: performanceAnalysis,
       });
     } catch (e) {
-      console.error('Failed to generate plan:', e);
+      console.error('[AIStudyPlanner] Generation failed:', e);
       alert('Failed to generate study plan. Please try again.');
+    } finally {
+      // GUARANTEED STATE RESET
+      setIsGenerating(false);
     }
-
-    setIsGenerating(false);
   };
 
   const handleSavePlan = async () => {
-    if (!generatedPlan) return;
+    console.log('[AIStudyPlanner] Save Plan clicked', { generatedPlan });
+
+    if (!generatedPlan) {
+      console.error('[AIStudyPlanner] No plan to save');
+      return;
+    }
 
     try {
       // Create a study plan for each subject
@@ -246,23 +261,32 @@ Format as a detailed, actionable plan that motivates the student.`;
           </div>
 
           {/* Generate Button */}
-          <Button
-            onClick={handleGeneratePlan}
-            disabled={isGenerating || selectedSubjects.length === 0 || !targetDate}
-            className="w-full h-14 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700"
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Generating Your Plan...
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-5 h-5 mr-2" />
-                Generate AI Study Plan
-              </>
+          <div className="space-y-2">
+            <Button
+              onClick={handleGeneratePlan}
+              disabled={isGenerating || selectedSubjects.length === 0 || !targetDate}
+              className="w-full h-14 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Generating Your Plan...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  Generate AI Study Plan
+                </>
+              )}
+            </Button>
+            {(selectedSubjects.length === 0 || !targetDate) && (
+              <p className="text-xs text-slate-400 text-center">
+                {!selectedSubjects.length && !targetDate && 'Please select subjects and set a target date'}
+                {!selectedSubjects.length && targetDate && 'Please select at least one subject'}
+                {selectedSubjects.length > 0 && !targetDate && 'Please set a target date'}
+              </p>
             )}
-          </Button>
+          </div>
         </motion.div>
       ) : (
         <motion.div

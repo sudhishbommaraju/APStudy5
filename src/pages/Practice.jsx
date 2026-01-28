@@ -180,6 +180,14 @@ export default function Practice() {
   };
 
   const generateQuestions = async () => {
+    console.log('[Practice] Generate Questions clicked', {
+      user: user?.email,
+      selectedSubject,
+      selectedUnit,
+      questionCount
+    });
+
+    // GUARD: Must throw or show error, never silent return
     if (!user) {
       alert('Please wait while your account loads...');
       return;
@@ -190,6 +198,7 @@ export default function Practice() {
       return;
     }
 
+    // IMMEDIATE STATE CHANGE - guarantees user sees something
     setIsGenerating(true);
     setError(null);
     setGenerationProgress({ phase: 'initializing', current: 0, total: questionCount, message: 'Starting generation...' });
@@ -500,11 +509,11 @@ export default function Practice() {
           </motion.div>
 
           {/* Start Button */}
-          <div className="mt-6">
+          <div className="mt-6 space-y-2">
             <button
               type="button"
               onClick={generateQuestions}
-              disabled={isGenerating}
+              disabled={isGenerating || !selectedSubject}
               className="w-full h-14 px-6 text-base font-semibold rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isGenerating ? (
@@ -520,6 +529,11 @@ export default function Practice() {
                 </>
               )}
             </button>
+            {!selectedSubject && (
+              <p className="text-xs text-slate-400 text-center">
+                Please select a subject to start practice
+              </p>
+            )}
           </div>
         </motion.div>
       </>
