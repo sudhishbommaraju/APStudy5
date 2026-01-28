@@ -276,7 +276,7 @@ Format as a detailed, actionable plan that motivates the student.`;
               <div>
                 <h2 className="text-2xl font-bold text-slate-100 mb-2">Your Personalized Study Plan</h2>
                 <p className="text-slate-300">
-                  {generatedPlan.daysUntilTarget} days until {format(parseISO(generatedPlan.targetDate), 'MMM d, yyyy')}
+                  {generatedPlan.daysUntilTarget} days until {format(new Date(generatedPlan.targetDate), 'MMM d, yyyy')}
                 </p>
               </div>
               <Target className="w-10 h-10 text-violet-400" />
