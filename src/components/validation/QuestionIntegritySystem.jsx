@@ -7,6 +7,8 @@
 
 import { CanonicalValidator } from './CanonicalValidator';
 import { MathValidator, PhysicsValidator, ChemistryValidator, CSValidator, ConceptValidator } from './SubjectValidators';
+import { ExplanationValidator } from './ExplanationValidator';
+import { QuestionValidator } from './QuestionValidator';
 
 export class QuestionIntegritySystem {
   
@@ -21,11 +23,29 @@ export class QuestionIntegritySystem {
     const canonicalResult = CanonicalValidator.validate(question);
     allErrors.push(...canonicalResult.errors);
     
-    // Step 2: Subject-specific validation
+    // Step 2: Legacy validator (LaTeX + MCQ checks)
+    const legacyResult = QuestionValidator.validate(question);
+    if (!legacyResult.valid) {
+      legacyResult.errors.forEach(err => {
+        if (err.details) {
+          err.details.forEach(detail => {
+            allErrors.push(`${err.phase}: ${detail.message || detail.type}`);
+          });
+        }
+      });
+    }
+    
+    // Step 3: Subject-specific validation
     const subjectErrors = this.getSubjectValidator(question.subject_id).validate(question);
     allErrors.push(...subjectErrors);
     
-    // Step 3: Derive computed answer
+    // Step 4: Explanation validation
+    const explanationResult = ExplanationValidator.validate(question);
+    if (!explanationResult.valid) {
+      allErrors.push(...explanationResult.errors.map(e => `Explanation: ${e}`));
+    }
+    
+    // Step 5: Derive computed answer
     let computedAnswer = null;
     if (question.canonical_representation) {
       const derivedResult = CanonicalValidator.deriveAnswer(question);
