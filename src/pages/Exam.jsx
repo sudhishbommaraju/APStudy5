@@ -210,6 +210,13 @@ STEP 3 - MANDATORY FIXES:
 ✅ Write ONCE: "$4x^{5}$" NOT "$4x^{5}$4x5"
 ✅ Degree symbol in \\text{}: "$100\\text{°C}$" NOT "$100°C$"
 
+STEP 4 - PREVENT DUPLICATE ANSWERS:
+✅ Each choice (A, B, C, D) must be COMPLETELY DIFFERENT
+✅ NO two choices can say the same thing in different words
+✅ NO two choices can have the same numerical value
+✅ NO two choices can describe the same concept
+✅ Verify all 4 choices are meaningfully distinct
+
 EXAMPLES OF CORRECT OUTPUT:
 question_text: "What is $4x^{5} - 3x^{3} + 2x^{2} - 7$?"
 choice_a: "$CH_{4}$ (boiling point: $-161.5\\text{°C}$)"
@@ -224,6 +231,8 @@ FINAL VERIFICATION CHECKLIST (answer YES to all):
 □ All degree symbols in \\text{}?
 □ All chemical formulas in LaTeX?
 □ All math expressions in $...$?
+□ All 4 answer choices are completely different?
+□ No two choices have the same meaning or value?
 
 ABSOLUTE RULE: NO duplication anywhere. Each formula/value written EXACTLY ONCE in LaTeX format.
 
