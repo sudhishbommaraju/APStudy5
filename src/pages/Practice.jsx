@@ -12,7 +12,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { checkAndResetCredits, checkCredits, useCredit } from '@/components/monetization/CreditHelper';
 import { updateStatsForAnswer } from '@/components/gamification/GamificationHelper';
-import { GenerationValidator } from '@/components/validation/GenerationValidator';
+import { SafeQuestionGenerator } from '@/components/generation/SafeQuestionGenerator';
+import GenerationProgress from '@/components/generation/GenerationProgress';
+import GenerationErrorBoundary from '@/components/generation/GenerationErrorBoundary';
 import {
   Select,
   SelectContent,
@@ -44,6 +46,7 @@ export default function Practice() {
   const [studyPlanId, setStudyPlanId] = useState(null);
   const [showLatexInput, setShowLatexInput] = useState(false);
   const [studentSolution, setStudentSolution] = useState({});
+  const [generationProgress, setGenerationProgress] = useState(null);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -107,12 +110,14 @@ export default function Practice() {
   const generateQuestionsForPlan = async (plan, subjectsData) => {
     setIsGenerating(true);
     setError(null);
+    setGenerationProgress({ phase: 'initializing', current: 0, total: 10, message: 'Preparing to generate questions...' });
 
     try {
       const { allowed } = await checkCredits(user, 'daily_practice_count');
       if (!allowed) {
         setUpgradeModalOpen(true);
         setIsGenerating(false);
+        setGenerationProgress(null);
         return;
       }
 
@@ -137,14 +142,97 @@ export default function Practice() {
         throw new Error('Subject or Unit not found');
       }
 
-      const count = 10; // Default for study plans
+      // USE SAFE GENERATOR
+      const result = await SafeQuestionGenerator.generateSafe({
+        subject_id: plan.subject_id,
+        unit: targetUnit,
+        skill: null,
+        count: 10,
+        difficulty: 'medium',
+        onProgress: (progress) => {
+          setGenerationProgress({
+            ...progress,
+            validCount: result?.questions?.length || 0,
+            errorCount: result?.errors?.length || 0
+          });
+        }
+      });
 
-      // Generate questions
+      if (!result.success || result.questions.length === 0) {
+        throw new Error(result.errors[0] || 'Failed to generate valid questions');
+      }
+
+      setQuestions(result.questions);
+      setGenerationProgress(null);
+      setIsGenerating(false);
+      
+    } catch (e) {
+      console.error('Failed to generate questions:', e);
+      setError(e.message);
+      setGenerationProgress(null);
+      setIsGenerating(false);
+    }
+  };
+
+  const generateQuestions_OLD = async () => {
+    if (!user) {
+      alert('Please wait while your account loads...');
+      return;
+    }
+
+    if (!selectedSubject) {
+      alert('Please select a subject first');
+      return;
+    }
+
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      // Determine what to generate
+      const subject = subjects.find(s => s.subject_id === selectedSubject);
+      if (!subject) {
+        throw new Error('Subject not found');
+      }
+
+      // Fetch units for the subject
+      const subjectUnits = await base44.entities.Unit.filter({ subject_id: selectedSubject });
+      
+      let targetUnits = [];
+      if (!selectedUnit || selectedUnit === 'all') {
+        // All units - add all units from this subject
+        targetUnits = subjectUnits;
+      } else {
+        // Specific unit
+        const unit = subjectUnits.find(u => u.id === selectedUnit);
+        if (unit) targetUnits.push(unit);
+      }
+
+      if (targetUnits.length === 0) {
+        throw new Error('No units found to generate questions from');
+      }
+
+      // Get skills to focus on
+      let skillsToUse = [];
+      if (selectedSkills.length > 0) {
+        const allSkills = await base44.entities.Skill.list();
+        skillsToUse = allSkills.filter(s => selectedSkills.includes(s.id));
+      }
+
+      // Generate questions via LLM
       const llmPromises = [];
-      for (let i = 0; i < count; i++) {
-        let contextInstructions = `Generate an exam-style multiple choice question for ${subject.name}. Unit: ${targetUnit.unit_name}`;
+      for (let i = 0; i < questionCount; i++) {
+        // Pick random unit for variety
+        const unit = targetUnits[Math.floor(Math.random() * targetUnits.length)];
+        
+        // If specific skills selected, use them
+        let skillContext = '';
+        if (skillsToUse.length > 0) {
+          const skill = skillsToUse[i % skillsToUse.length];
+          skillContext = ` Focus specifically on: ${skill.skill_name}.`;
+        }
 
-        const prompt = `${contextInstructions}
+        let contextInstructions = `Generate an exam-style multiple choice question for ${subject.name}. Unit: ${unit.unit_name}.${skillContext}`;
 
 ABSOLUTELY CRITICAL - PREVENT DUPLICATION AND CORRUPTION:
 
@@ -264,8 +352,20 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
 
     setIsGenerating(true);
     setError(null);
+    setGenerationProgress({ phase: 'initializing', current: 0, total: questionCount, message: 'Starting generation...' });
 
     try {
+      // Credit check
+      const { allowed } = await checkCredits(user, 'daily_practice_count');
+      if (!allowed) {
+        setUpgradeModalOpen(true);
+        setIsGenerating(false);
+        setGenerationProgress(null);
+        return;
+      }
+
+      const updatedUser = await useCredit(user, 'daily_practice_count');
+      setUser(updatedUser);
       // Determine what to generate
       const subject = subjects.find(s => s.subject_id === selectedSubject);
       if (!subject) {
@@ -419,55 +519,7 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
         );
       }
 
-      const responses = await Promise.all(llmPromises);
-
-      // VALIDATION GATE: Clean and validate before saving
-      const validatedResponses = responses
-        .map(r => {
-          const questionData = {
-            subject_id: selectedSubject,
-            unit_id: r.unit.id,
-            skill_id: '',
-            unit_name: r.unit.unit_name,
-            skill_name: 'General',
-            difficulty: 'medium',
-            question_text: r.question_text,
-            table_data: r.table_data || '',
-            graph_data: r.graph_data || '',
-            choice_a: r.choice_a,
-            choice_b: r.choice_b,
-            choice_c: r.choice_c,
-            choice_d: r.choice_d,
-            correct_answer: r.correct_answer,
-            explanation: r.explanation,
-            wrong_answer_explanations: {},
-            hint: r.hint || '',
-            is_ai_generated: true,
-          };
-
-          const validation = GenerationValidator.validateBeforeSave(questionData);
-          
-          if (!validation.valid) {
-            console.warn('Question failed validation, skipping:', validation.errors);
-            return null;
-          }
-
-          return validation.cleaned;
-        })
-        .filter(Boolean); // Remove invalid questions
-
-      if (validatedResponses.length === 0) {
-        throw new Error('All generated questions failed validation. Please try again.');
-      }
-
-      // Create question entities (only valid ones)
-      const createdQuestions = await Promise.all(
-        validatedResponses.map(questionData =>
-          base44.entities.Question.create(questionData)
-        )
-      );
-
-      setQuestions(createdQuestions);
+      // DEPRECATED - This path is replaced by Safe Generator below
       setIsGenerating(false);
     } catch (e) {
       console.error('Failed to generate questions:', e);
@@ -739,16 +791,25 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
     );
   }
 
-  // Loading state
-  if (isGenerating) {
+  // Loading state - Show progress
+  if (isGenerating && generationProgress) {
+    return <GenerationProgress progress={generationProgress} />;
+  }
+
+  // Error state - Show retry UI
+  if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-violet-400" />
-          <p className="text-slate-100 font-medium">Generating practice questions...</p>
-          <p className="text-slate-400 text-sm mt-2">This may take 10-20 seconds</p>
-        </div>
-      </div>
+      <GenerationErrorBoundary
+        error={error}
+        onRetry={() => {
+          setError(null);
+          generateQuestions();
+        }}
+        onCancel={() => {
+          setError(null);
+          setQuestions([]);
+        }}
+      />
     );
   }
 
