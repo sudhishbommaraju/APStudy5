@@ -168,14 +168,17 @@ export default function Practice() {
       
     } catch (e) {
       console.error('Failed to generate questions:', e);
-      setError(e.message);
+      
+      if (e instanceof WatchdogTimeout || e.name === 'WatchdogTimeout') {
+        setError('Generation timed out after 60 seconds. Please try again.');
+      } else {
+        setError(e.message || 'Failed to generate questions. Please try again.');
+      }
+      
       setGenerationProgress(null);
       setIsGenerating(false);
     }
   };
-
-
-
 
   const generateQuestions = async () => {
     if (!user) {
@@ -246,13 +249,17 @@ export default function Practice() {
       setIsGenerating(false);
     } catch (e) {
       console.error('Failed to generate questions:', e);
-      setError(e.message);
+      
+      if (e instanceof WatchdogTimeout || e.name === 'WatchdogTimeout') {
+        setError('Generation timed out after 60 seconds. Please try again with fewer questions.');
+      } else {
+        setError(e.message || 'Failed to generate questions. Please try again.');
+      }
+      
       setGenerationProgress(null);
       setIsGenerating(false);
     }
   };
-
-
 
   const [currentStreak, setCurrentStreak] = useState(0);
   const [sessionPoints, setSessionPoints] = useState(0);
