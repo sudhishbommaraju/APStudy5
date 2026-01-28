@@ -25,6 +25,7 @@ import TeacherMode from './pages/TeacherMode';
 import Tutor from './pages/Tutor';
 import QuestionValidation from './pages/QuestionValidation';
 import Demo from './pages/Demo';
+import PracticeWorkspace from './pages/PracticeWorkspace';
 import __Layout from './Layout.jsx';
 
 
@@ -56,6 +57,7 @@ export const PAGES = {
     "Tutor": Tutor,
     "QuestionValidation": QuestionValidation,
     "Demo": Demo,
+    "PracticeWorkspace": PracticeWorkspace,
 }
 
 export const pagesConfig = {

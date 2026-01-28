@@ -59,10 +59,10 @@ export default function GlobalNav() {
   // App pages nav items
   const appNavItems = [
     { label: 'Practice', path: createPageUrl('Practice') },
+    { label: 'Workspace', path: createPageUrl('PracticeWorkspace') },
     { label: 'Exam', path: createPageUrl('Exam') },
     { label: 'Teacher', path: createPageUrl('TeacherMode') },
     { label: 'Tutor', path: createPageUrl('Tutor') },
-    { label: 'Groups', path: createPageUrl('StudyGroups') },
   ];
 
   const navItems = user ? appNavItems : marketingNavItems;

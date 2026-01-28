@@ -63,14 +63,24 @@ export default function Home() {
                 </p>
               </div>
 
-              <Button 
-                size="lg" 
-                onClick={handleGetStarted} 
-                className="h-12 px-8 text-base bg-violet-600 hover:bg-violet-700 text-white rounded-lg shadow-lg shadow-violet-500/20 hover:shadow-xl hover:shadow-violet-500/30 transition-all"
-              >
-                Start studying free
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
+              <div className="flex gap-4">
+                <Button 
+                  size="lg" 
+                  onClick={() => window.location.href = createPageUrl('Demo')} 
+                  variant="outline"
+                  className="h-12 px-8 text-base border-slate-600 hover:bg-slate-800"
+                >
+                  Try Demo (No Login)
+                </Button>
+                <Button 
+                  size="lg" 
+                  onClick={handleGetStarted} 
+                  className="h-12 px-8 text-base bg-violet-600 hover:bg-violet-700 text-white rounded-lg shadow-lg shadow-violet-500/20 hover:shadow-xl hover:shadow-violet-500/30 transition-all"
+                >
+                  Start studying free
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </div>
 
               {/* Steps */}
               <div className="space-y-4 pt-4">
@@ -243,14 +253,24 @@ export default function Home() {
           <p className="text-xl text-slate-300 mb-8">
             Join students who are studying smarter with Proofly
           </p>
-          <Button 
-            size="lg" 
-            onClick={handleGetStarted} 
-            className="h-14 px-10 text-lg bg-violet-600 hover:bg-violet-700 text-white rounded-lg shadow-lg shadow-violet-500/20 hover:shadow-xl hover:shadow-violet-500/30 transition-all"
-          >
-            Get started free
-            <ArrowRight className="w-5 h-5 ml-2" />
-          </Button>
+          <div className="flex gap-4 justify-center">
+            <Button 
+              size="lg" 
+              onClick={() => window.location.href = createPageUrl('Demo')} 
+              variant="outline"
+              className="h-14 px-10 text-lg border-slate-600 hover:bg-slate-800"
+            >
+              Try Demo
+            </Button>
+            <Button 
+              size="lg" 
+              onClick={handleGetStarted} 
+              className="h-14 px-10 text-lg bg-violet-600 hover:bg-violet-700 text-white rounded-lg shadow-lg shadow-violet-500/20 hover:shadow-xl hover:shadow-violet-500/30 transition-all"
+            >
+              Get started free
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+          </div>
         </div>
       </section>
 
