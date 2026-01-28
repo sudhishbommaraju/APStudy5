@@ -1,6 +1,8 @@
 import AIStudyPlanner from './pages/AIStudyPlanner';
+import About from './pages/About';
 import AdminUsers from './pages/AdminUsers';
 import Analytics from './pages/Analytics';
+import CourseBuilder from './pages/CourseBuilder';
 import Courses from './pages/Courses';
 import Dashboard from './pages/Dashboard';
 import Exam from './pages/Exam';
@@ -20,15 +22,16 @@ import Settings from './pages/Settings';
 import StudyGroups from './pages/StudyGroups';
 import StudyPlans from './pages/StudyPlans';
 import Tutor from './pages/Tutor';
-import CourseBuilder from './pages/CourseBuilder';
-import About from './pages/About';
+import TeacherMode from './pages/TeacherMode';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AIStudyPlanner": AIStudyPlanner,
+    "About": About,
     "AdminUsers": AdminUsers,
     "Analytics": Analytics,
+    "CourseBuilder": CourseBuilder,
     "Courses": Courses,
     "Dashboard": Dashboard,
     "Exam": Exam,
@@ -48,8 +51,7 @@ export const PAGES = {
     "StudyGroups": StudyGroups,
     "StudyPlans": StudyPlans,
     "Tutor": Tutor,
-    "CourseBuilder": CourseBuilder,
-    "About": About,
+    "TeacherMode": TeacherMode,
 }
 
 export const pagesConfig = {
