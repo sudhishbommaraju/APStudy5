@@ -540,6 +540,7 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
           )}
         </div>
       )}
-    </div>
+      </div>
+    </QuestionIntegrityGuard>
   );
 }
