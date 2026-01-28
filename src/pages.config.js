@@ -26,6 +26,7 @@ import Tutor from './pages/Tutor';
 import QuestionValidation from './pages/QuestionValidation';
 import Demo from './pages/Demo';
 import PracticeWorkspace from './pages/PracticeWorkspace';
+import ValidationDashboard from './pages/ValidationDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -58,6 +59,7 @@ export const PAGES = {
     "QuestionValidation": QuestionValidation,
     "Demo": Demo,
     "PracticeWorkspace": PracticeWorkspace,
+    "ValidationDashboard": ValidationDashboard,
 }
 
 export const pagesConfig = {
