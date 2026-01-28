@@ -1,42 +1,95 @@
 import React from 'react';
-import { QuestionValidator } from './QuestionValidator';
-import { AlertTriangle } from 'lucide-react';
+import { QuestionIntegritySystem } from './QuestionIntegritySystem';
+import { AlertCircle, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 /**
- * Runtime guard that BLOCKS invalid questions from rendering
- * Never shows broken content to students
+ * QUESTION INTEGRITY GUARD
+ * Runtime protection - blocks invalid questions from reaching students
+ * 
+ * NO QUESTION MAY BE DISPLAYED WITHOUT PASSING VALIDATION
  */
 
-export default function QuestionIntegrityGuard({ question, children, onBlocked }) {
-  const validationResult = QuestionValidator.validate(question);
-
-  if (!validationResult.valid) {
-    // Log to console for debugging
-    console.error('BLOCKED INVALID QUESTION:', {
-      id: question.id,
-      errors: validationResult.errors,
-    });
-
-    // Notify parent component
-    if (onBlocked) {
-      onBlocked(question.id, validationResult);
-    }
-
-    // Show safe fallback UI (admin sees details, students see generic message)
+export default function QuestionIntegrityGuard({ question, children, onRegenerate }) {
+  if (!question) {
     return (
-      <div className="bg-rose-500/10 border border-rose-500/30 rounded-xl p-6 text-center">
-        <AlertTriangle className="w-12 h-12 text-rose-400 mx-auto mb-3" />
-        <h3 className="text-lg font-semibold text-rose-300 mb-2">
-          Question Unavailable
-        </h3>
-        <p className="text-sm text-slate-300">
-          This question has been automatically blocked due to quality issues.
-          A new question will be generated.
-        </p>
+      <div className="bg-rose-50 border border-rose-200 rounded-lg p-6 text-center">
+        <AlertCircle className="w-12 h-12 text-rose-500 mx-auto mb-3" />
+        <h3 className="text-lg font-semibold text-rose-800 mb-2">Question Not Available</h3>
+        <p className="text-sm text-rose-600">This question could not be loaded.</p>
       </div>
     );
   }
 
-  // Question is valid, render normally
+  // VALIDATION GATE - Run full integrity check
+  const validation = QuestionIntegritySystem.validateQuestion(question);
+
+  if (!validation.valid) {
+    // BLOCK - Question failed validation
+    console.error('❌ QUESTION BLOCKED:', {
+      questionId: question.id,
+      subject: question.subject_id,
+      errors: validation.errors,
+      storedAnswer: question.correct_answer,
+      computedAnswer: validation.computedAnswer
+    });
+
+    return (
+      <div className="bg-rose-50 border-2 border-rose-300 rounded-xl p-8 text-center">
+        <AlertCircle className="w-16 h-16 text-rose-500 mx-auto mb-4" />
+        <h3 className="text-xl font-bold text-rose-800 mb-2">Invalid Question Blocked</h3>
+        <p className="text-sm text-rose-700 mb-4">
+          This question failed integrity validation and cannot be displayed.
+        </p>
+        
+        {onRegenerate && (
+          <Button onClick={onRegenerate} variant="outline" className="border-rose-300 text-rose-700">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Generate New Question
+          </Button>
+        )}
+        
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mt-6 text-left bg-white rounded-lg p-4 text-xs font-mono text-slate-700 border border-rose-200">
+            <div className="font-bold mb-2 text-rose-800">🔍 Validation Report:</div>
+            <div className="mb-3">
+              <span className="font-semibold">Question ID:</span> {question.id}
+            </div>
+            <div className="mb-3">
+              <span className="font-semibold">Subject:</span> {question.subject_id}
+            </div>
+            {validation.computedAnswer && (
+              <div className="mb-3">
+                <span className="font-semibold">Computed Answer:</span> {validation.computedAnswer}<br/>
+                <span className="font-semibold">Stored Answer:</span> {question.correct_answer}
+                {validation.computedAnswer !== question.correct_answer && (
+                  <span className="text-rose-600 font-bold ml-2">❌ MISMATCH</span>
+                )}
+              </div>
+            )}
+            <div>
+              <div className="font-bold mb-1 text-rose-800">Errors:</div>
+              <ul className="list-disc pl-4 space-y-1">
+                {validation.errors.map((err, idx) => (
+                  <li key={idx} className="text-rose-700">{err}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // VALIDATION PASSED - Display answer mismatch warning if detected
+  if (validation.computedAnswer && validation.computedAnswer !== question.correct_answer) {
+    console.warn('⚠️ ANSWER MISMATCH (passed validation but flagged):', {
+      questionId: question.id,
+      stored: question.correct_answer,
+      computed: validation.computedAnswer
+    });
+  }
+
+  // PASS - Render question
   return <>{children}</>;
 }
