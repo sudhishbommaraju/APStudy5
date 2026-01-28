@@ -15,6 +15,7 @@ import { updateStatsForAnswer } from '@/components/gamification/GamificationHelp
 import { SafeQuestionGenerator } from '@/components/generation/SafeQuestionGenerator';
 import GenerationProgress from '@/components/generation/GenerationProgress';
 import GenerationErrorBoundary from '@/components/generation/GenerationErrorBoundary';
+import { withWatchdog, WatchdogTimeout } from '@/components/utils/watchdog';
 import {
   Select,
   SelectContent,
@@ -142,21 +143,20 @@ export default function Practice() {
         throw new Error('Subject or Unit not found');
       }
 
-      // USE SAFE GENERATOR
-      const result = await SafeQuestionGenerator.generateSafe({
-        subject_id: plan.subject_id,
-        unit: targetUnit,
-        skill: null,
-        count: 10,
-        difficulty: 'medium',
-        onProgress: (progress) => {
-          setGenerationProgress({
-            ...progress,
-            validCount: result?.questions?.length || 0,
-            errorCount: result?.errors?.length || 0
-          });
-        }
-      });
+      // USE SAFE GENERATOR with WATCHDOG
+      const result = await withWatchdog(
+        SafeQuestionGenerator.generateSafe({
+          subject_id: plan.subject_id,
+          unit: targetUnit,
+          skill: null,
+          count: 10,
+          difficulty: 'medium',
+          onProgress: setGenerationProgress,
+          maxTimeMs: 55000 // 55 second limit for study plan generation
+        }),
+        60000,
+        'Study Plan Practice Generation'
+      );
 
       if (!result.success || result.questions.length === 0) {
         throw new Error(result.errors[0] || 'Failed to generate valid questions');
@@ -192,6 +192,9 @@ export default function Practice() {
     setError(null);
     setGenerationProgress({ phase: 'initializing', current: 0, total: questionCount, message: 'Starting generation...' });
 
+    // HARD TIMEOUT: 60 seconds maximum
+    const GENERATION_TIMEOUT = 60000;
+    
     try {
       // Credit check
       const { allowed } = await checkCredits(user, 'daily_practice_count');
@@ -219,15 +222,20 @@ export default function Practice() {
         throw new Error('No unit found for generation');
       }
 
-      // USE SAFE GENERATOR - handles validation, retries, and error reporting
-      const result = await SafeQuestionGenerator.generateSafe({
-        subject_id: selectedSubject,
-        unit: targetUnit,
-        skill: null,
-        count: questionCount,
-        difficulty: 'medium',
-        onProgress: setGenerationProgress
-      });
+      // USE SAFE GENERATOR with WATCHDOG
+      const result = await withWatchdog(
+        SafeQuestionGenerator.generateSafe({
+          subject_id: selectedSubject,
+          unit: targetUnit,
+          skill: null,
+          count: questionCount,
+          difficulty: 'medium',
+          onProgress: setGenerationProgress,
+          maxTimeMs: GENERATION_TIMEOUT - 5000 // Leave 5s buffer
+        }),
+        GENERATION_TIMEOUT,
+        'Practice Generation'
+      );
 
       if (!result.success || result.questions.length === 0) {
         throw new Error(result.errors[0] || 'Failed to generate valid questions after multiple attempts');

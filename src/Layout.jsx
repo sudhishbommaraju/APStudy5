@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
 import GlobalNav from '@/components/layout/GlobalNav';
 import UpgradeModal from '@/components/monetization/UpgradeModal';
+import GlobalErrorBoundary from '@/components/error/GlobalErrorBoundary';
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
@@ -65,12 +66,14 @@ export default function Layout({ children, currentPageName }) {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #0a0e1a 0%, #0f1728 50%, #0a0e1a 100%)' }}>
-      <GlobalNav />
-      <main className="max-w-7xl mx-auto px-6 py-8 pt-24">
-        {children}
-      </main>
-      <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
-    </div>
+    <GlobalErrorBoundary>
+      <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #0a0e1a 0%, #0f1728 50%, #0a0e1a 100%)' }}>
+        <GlobalNav />
+        <main className="max-w-7xl mx-auto px-6 py-8 pt-24">
+          {children}
+        </main>
+        <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
+      </div>
+    </GlobalErrorBoundary>
   );
 }

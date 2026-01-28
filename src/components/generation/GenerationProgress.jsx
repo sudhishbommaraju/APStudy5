@@ -48,6 +48,14 @@ export default function GenerationProgress({ progress }) {
         </div>
         
         {/* Status Counts */}
+        {attempt && maxAttempts && (
+          <div className="mb-4 p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg">
+            <p className="text-sm text-orange-300">
+              Retry attempt {attempt}/{maxAttempts}
+            </p>
+          </div>
+        )}
+
         {(validCount > 0 || errorCount > 0) && (
           <div className="grid grid-cols-2 gap-3">
             {validCount > 0 && (
