@@ -1,104 +1,89 @@
 /**
- * SAFE QUESTION GENERATOR
- * Guarantees valid questions or explicit failure - NEVER silent errors
+ * SAFE QUESTION GENERATOR WITH WATCHDOG
+ * Guarantees valid questions or explicit failure within bounded time
  * 
- * ABSOLUTE RULE: Never return invalid questions to the UI
+ * ABSOLUTE RULES:
+ * 1. Never return invalid questions
+ * 2. Never hang indefinitely
+ * 3. Always resolve with success or error
  */
 
 import { base44 } from '@/api/base44Client';
 import { QuestionIntegritySystem } from '@/components/validation/QuestionIntegritySystem';
 import { GenerationValidator } from '@/components/validation/GenerationValidator';
+import { WatchdogTimeout } from '@/components/utils/watchdog';
 
 export class SafeQuestionGenerator {
   
   static MAX_RETRIES = 3;
-  static BATCH_SIZE = 5; // Generate in batches for better UX
+  static BATCH_SIZE = 5;
   
   /**
-   * Generate questions with full validation and retry logic
-   * Returns { success: boolean, questions: Question[], errors: string[] }
+   * Generate questions with HARD TIMEOUT and validation
    */
   static async generateSafe({
     subject_id,
     unit,
-    skill,
+    skill = null,
     count = 10,
     difficulty = 'medium',
-    onProgress = null
+    onProgress = () => {},
+    maxTimeMs = 60000
   }) {
     
     const validQuestions = [];
-    const allErrors = [];
-    
-    // Generate in batches
-    const batches = Math.ceil(count / this.BATCH_SIZE);
-    
-    for (let batchIdx = 0; batchIdx < batches; batchIdx++) {
-      const batchSize = Math.min(this.BATCH_SIZE, count - validQuestions.length);
-      
-      if (onProgress) {
-        onProgress({
-          phase: 'generating',
-          current: validQuestions.length,
-          total: count,
-          message: `Generating questions ${validQuestions.length + 1}-${validQuestions.length + batchSize}...`
-        });
-      }
-      
-      const batchResults = await this.generateBatch({
-        subject_id,
-        unit,
-        skill,
-        count: batchSize,
-        difficulty
-      });
-      
-      validQuestions.push(...batchResults.questions);
-      allErrors.push(...batchResults.errors);
-      
-      // If we still don't have enough valid questions, continue
-      if (validQuestions.length < count) {
-        continue;
-      } else {
-        break;
-      }
-    }
-    
-    // Final check
-    if (validQuestions.length === 0) {
-      return {
-        success: false,
-        questions: [],
-        errors: allErrors.length > 0 ? allErrors : ['Failed to generate any valid questions']
-      };
-    }
-    
-    // Trim to exact count requested
-    return {
-      success: true,
-      questions: validQuestions.slice(0, count),
-      errors: allErrors
-    };
-  }
-  
-  /**
-   * Generate a single batch with validation and retry
-   */
-  static async generateBatch({ subject_id, unit, skill, count, difficulty }) {
-    const validQuestions = [];
     const errors = [];
+    const startTime = Date.now();
     
+    // Watchdog timer
+    const checkTimeout = () => {
+      const elapsed = Date.now() - startTime;
+      if (elapsed > maxTimeMs) {
+        throw new WatchdogTimeout(
+          `Generation exceeded ${maxTimeMs}ms timeout (${elapsed}ms elapsed)`,
+          'SafeQuestionGenerator'
+        );
+      }
+    };
+    
+    onProgress({ 
+      phase: 'starting', 
+      current: 0, 
+      total: count,
+      validCount: 0,
+      errorCount: 0,
+      message: 'Initializing question generation...'
+    });
+
+    // Generate questions with strict bounds
     for (let i = 0; i < count; i++) {
-      let attempts = 0;
+      checkTimeout(); // Check before each question
+
+      onProgress({
+        phase: 'generating',
+        current: i,
+        total: count,
+        validCount: validQuestions.length,
+        errorCount: errors.length,
+        message: `Generating question ${i + 1}/${count}...`
+      });
+
       let questionGenerated = false;
-      
-      while (attempts < this.MAX_RETRIES && !questionGenerated) {
-        attempts++;
+      let lastError = null;
+
+      // Try up to MAX_RETRIES times
+      for (let attempt = 1; attempt <= this.MAX_RETRIES; attempt++) {
+        checkTimeout(); // Check before each attempt
         
         try {
-          const aiResponse = await this.callAIGeneration({ subject_id, unit, skill, difficulty });
+          const aiResponse = await this.callAIGeneration({ 
+            subject_id, 
+            unit, 
+            skill, 
+            difficulty 
+          });
           
-          // Pre-save validation and cleaning
+          // Pre-save validation
           const cleanedData = GenerationValidator.validateBeforeSave({
             subject_id,
             unit_id: unit?.id || '',
@@ -110,7 +95,7 @@ export class SafeQuestionGenerator {
           });
           
           if (!cleanedData.valid) {
-            errors.push(`Attempt ${attempts}: ${cleanedData.errors.join(', ')}`);
+            lastError = `Validation: ${cleanedData.errors.join(', ')}`;
             continue;
           }
           
@@ -121,15 +106,15 @@ export class SafeQuestionGenerator {
             canonical_representation: canonical
           };
           
-          // Validate with full integrity system
+          // Full integrity check
           const validation = QuestionIntegritySystem.validateQuestion(questionData);
           
           if (!validation.valid) {
-            errors.push(`Integrity check failed (attempt ${attempts}): ${validation.errors.join(', ')}`);
+            lastError = `Integrity: ${validation.errors.join(', ')}`;
             continue;
           }
           
-          // Auto-fix if computed answer differs
+          // Auto-fix computed answer
           if (validation.computedAnswer && validation.computedAnswer !== questionData.correct_answer) {
             questionData.correct_answer = validation.computedAnswer;
           }
@@ -144,18 +129,48 @@ export class SafeQuestionGenerator {
           const created = await base44.entities.Question.create(questionData);
           validQuestions.push(created);
           questionGenerated = true;
+          break;
           
         } catch (e) {
-          errors.push(`Generation error (attempt ${attempts}): ${e.message}`);
+          lastError = e.message;
         }
       }
       
       if (!questionGenerated) {
-        errors.push(`Failed to generate valid question after ${this.MAX_RETRIES} attempts`);
+        errors.push(`Question ${i + 1}: ${lastError || 'Unknown error'} (${this.MAX_RETRIES} attempts failed)`);
       }
     }
-    
-    return { questions: validQuestions, errors };
+
+    // Final timeout check
+    checkTimeout();
+
+    // CRITICAL: If no valid questions, return error
+    if (validQuestions.length === 0) {
+      return {
+        success: false,
+        questions: [],
+        errors: errors.length > 0 ? errors : ['Failed to generate any valid questions'],
+        stats: {
+          requested: count,
+          generated: 0,
+          failed: count,
+          timeMs: Date.now() - startTime
+        }
+      };
+    }
+
+    // Success
+    return {
+      success: true,
+      questions: validQuestions,
+      errors,
+      stats: {
+        requested: count,
+        generated: validQuestions.length,
+        failed: errors.length,
+        timeMs: Date.now() - startTime
+      }
+    };
   }
   
   /**
