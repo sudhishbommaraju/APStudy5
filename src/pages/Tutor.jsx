@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, BookOpen, Sparkles, Loader2, Users, Video } from 'lucide-react';
+import { Send, BookOpen, Sparkles, Loader2, Users, Video, Upload, Camera } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -19,7 +19,9 @@ export default function Tutor() {
   const [showQuizGenerator, setShowQuizGenerator] = useState(false);
   const [collaborativeModalOpen, setCollaborativeModalOpen] = useState(false);
   const [currentTopic, setCurrentTopic] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
   const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -229,6 +231,57 @@ Be encouraging, conversational, and supportive. Build rapport with the student.`
     }
   };
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+
+    try {
+      // Upload the image
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+
+      // Analyze the worksheet
+      const analysisPrompt = `You are an expert tutor analyzing a student's handwritten work.
+
+Analyze this image of a student's worksheet/problem work. Identify:
+1. What problems they attempted
+2. Where they made mistakes
+3. Common error patterns
+4. Correct approach vs their approach
+5. Specific concepts to review
+
+Provide detailed, encouraging feedback with:
+- Step-by-step corrections
+- Explanations of why errors occurred
+- Hints for similar problems
+- Encouragement
+
+Use LaTeX notation for math: $x^2$, $$\\frac{a}{b}$$`;
+
+      const analysis = await base44.integrations.Core.InvokeLLM({
+        prompt: analysisPrompt,
+        file_urls: [file_url]
+      });
+
+      const aiMessage = {
+        role: 'assistant',
+        content: `📸 **Worksheet Analysis**\n\n${analysis}\n\n---\n\nWould you like me to:\n1. Generate practice problems for the areas where you struggled?\n2. Explain any specific step in more detail?\n3. Create a study plan to master these concepts?`
+      };
+
+      setMessages(prev => [...prev, aiMessage]);
+    } catch (e) {
+      console.error('Failed to analyze image:', e);
+      const errorMessage = {
+        role: 'assistant',
+        content: 'Sorry, I had trouble analyzing that image. Please try again or describe your question in text.'
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    }
+
+    setUploadingImage(false);
+  };
+
   // Proactive assistance based on recent struggles
   useEffect(() => {
     if (!user || attempts.length < 3 || messages.length > 0) return;
@@ -424,6 +477,27 @@ Be encouraging, conversational, and supportive. Build rapport with the student.`
         {/* Input Area */}
         <div className="p-4 border-t border-slate-700/50">
           <div className="flex gap-2 mb-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              variant="outline"
+              size="sm"
+              className="text-xs"
+              disabled={uploadingImage}
+            >
+              {uploadingImage ? (
+                <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+              ) : (
+                <Camera className="w-3 h-3 mr-1" />
+              )}
+              Photo Analysis
+            </Button>
             <Button
               onClick={() => setCollaborativeModalOpen(true)}
               variant="outline"

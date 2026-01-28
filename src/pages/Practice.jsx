@@ -7,6 +7,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import QuestionCard from '@/components/ui/QuestionCard';
 import UpgradeModal from '@/components/monetization/UpgradeModal';
+import LatexStepInput from '@/components/practice/LatexStepInput';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
 import { checkAndResetCredits, checkCredits, useCredit } from '@/components/monetization/CreditHelper';
@@ -40,6 +41,8 @@ export default function Practice() {
   const [upgradeModalOpen, setUpgradeModalOpen] = useState(false);
   const [error, setError] = useState(null);
   const [studyPlanId, setStudyPlanId] = useState(null);
+  const [showLatexInput, setShowLatexInput] = useState(false);
+  const [studentSolution, setStudentSolution] = useState({});
 
   useEffect(() => {
     const loadUser = async () => {
@@ -477,6 +480,11 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
     }
   };
 
+  const handleLatexSubmit = (steps) => {
+    setStudentSolution(prev => ({ ...prev, [currentIndex]: steps }));
+    setShowLatexInput(false);
+  };
+
   const handleNext = async () => {
     const question = questions[currentIndex];
     const selectedAnswer = answers[currentIndex];
@@ -835,6 +843,39 @@ Return JSON with: question_text, choice_a, choice_b, choice_c, choice_d, correct
             mode="practice"
           />
         </motion.div>
+
+        <AnimatePresence>
+          {!answered && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4"
+            >
+              <Button
+                onClick={() => setShowLatexInput(!showLatexInput)}
+                variant="outline"
+                className="w-full"
+              >
+                {showLatexInput ? 'Hide' : 'Show Your Work (LaTeX)'}
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showLatexInput && !answered && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-4"
+            >
+              <LatexStepInput
+                onSubmit={handleLatexSubmit}
+                canonicalSolution={currentQuestion.explanation}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <AnimatePresence>
           {answered && (

@@ -10,6 +10,7 @@ import UnitMultiSelect from '@/components/exam/UnitMultiSelect';
 import { cn } from '@/lib/utils';
 import { checkAndResetCredits, checkCredits, useCredit } from '@/components/monetization/CreditHelper';
 import UpgradeModal from '@/components/monetization/UpgradeModal';
+import ExamExporter from '@/components/exam/ExamExporter';
 import {
   Select,
   SelectContent,
@@ -946,6 +947,20 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
                 );
               })}
             </div>
+          </div>
+
+          {/* Export Options */}
+          <div className="mb-6">
+            <ExamExporter 
+              exam={{
+                subject_name: currentSubject?.name || selectedSubject,
+                time_limit_minutes: timeLimit,
+                total_questions: questions.length
+              }}
+              questions={questions}
+              answers={Object.fromEntries(questions.map((q, i) => [i, answers[q.id]]))}
+              showSolutions={true}
+            />
           </div>
 
           {/* Actions */}
