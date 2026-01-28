@@ -1,19 +1,24 @@
 /**
- * FAST & SAFE QUESTION GENERATOR
- * Generates questions in parallel for speed, validates for safety
+ * BOUNDED QUESTION GENERATOR - LIVENESS GUARANTEED
+ * ABSOLUTE RULES:
+ * 1. MUST terminate within maxTimeMs (default 15s)
+ * 2. Max attempts = questionCount × 3 (hard limit)
+ * 3. CANNOT loop infinitely
+ * 4. MUST return success or throw error
  */
 
 import { base44 } from '@/api/base44Client';
 import { QuestionIntegritySystem } from '@/components/validation/QuestionIntegritySystem';
 import { GenerationValidator } from '@/components/validation/GenerationValidator';
-import { WatchdogTimeout } from '@/components/utils/watchdog';
 
 export class SafeQuestionGenerator {
   
-  static MAX_RETRIES = 2; // Reduced for speed
+  static MAX_ATTEMPTS_PER_QUESTION = 3;
+  static DEFAULT_TIMEOUT_MS = 15000; // 15 seconds HARD LIMIT
   
   /**
-   * Generate questions FAST with parallel generation
+   * Generate questions with GUARANTEED termination
+   * CANNOT hang - WILL throw if time/attempts exceeded
    */
   static async generateSafe({
     subject_id,
@@ -22,106 +27,109 @@ export class SafeQuestionGenerator {
     count = 10,
     difficulty = 'medium',
     onProgress = () => {},
-    maxTimeMs = 60000
+    maxTimeMs = this.DEFAULT_TIMEOUT_MS
   }) {
     
     const startTime = Date.now();
+    const maxAttempts = count * this.MAX_ATTEMPTS_PER_QUESTION;
+    let attempts = 0;
+    const validQuestions = [];
+    const errors = [];
     
-    // Watchdog
-    const checkTimeout = () => {
+    // LIVENESS CHECK - throws if exceeded
+    const checkLiveness = () => {
       const elapsed = Date.now() - startTime;
       if (elapsed > maxTimeMs) {
-        throw new WatchdogTimeout(`Generation timeout after ${elapsed}ms`, 'SafeQuestionGenerator');
+        throw new Error(`TIMEOUT: Generation exceeded ${maxTimeMs}ms limit (${elapsed}ms elapsed)`);
+      }
+      if (attempts >= maxAttempts) {
+        throw new Error(`ATTEMPTS EXHAUSTED: Reached max ${maxAttempts} attempts`);
       }
     };
     
     onProgress({ 
       phase: 'generating', 
-      current: 0, 
+      current: validQuestions.length, 
       total: count,
-      message: 'Generating questions in parallel...'
+      message: `Generating questions...`
     });
 
-    // GENERATE ALL IN PARALLEL FOR SPEED
-    const promises = [];
-    for (let i = 0; i < count; i++) {
-      promises.push(
-        this.generateSingleWithRetry({
+    // BOUNDED LOOP - guaranteed to exit
+    while (validQuestions.length < count && attempts < maxAttempts) {
+      checkLiveness(); // Check before each iteration
+      attempts++;
+      
+      onProgress({
+        phase: 'generating',
+        current: validQuestions.length,
+        total: count,
+        attempt: attempts,
+        maxAttempts: maxAttempts,
+        message: `Generated ${validQuestions.length}/${count} (attempt ${attempts}/${maxAttempts})`
+      });
+
+      try {
+        // Generate single question
+        const question = await this.generateSingle({
           subject_id,
           unit,
           skill,
           difficulty,
-          attempt: 1
-        })
-      );
-    }
-
-    try {
-      checkTimeout();
-      
-      // Wait for all with individual error handling
-      const results = await Promise.allSettled(promises);
-      
-      checkTimeout();
-      
-      // Filter successful questions
-      const validQuestions = results
-        .filter(r => r.status === 'fulfilled' && r.value)
-        .map(r => r.value);
-      
-      const errors = results
-        .filter(r => r.status === 'rejected')
-        .map(r => r.reason?.message || 'Generation failed');
-
-      onProgress({
-        phase: 'complete',
-        current: validQuestions.length,
-        total: count,
-        validCount: validQuestions.length,
-        errorCount: errors.length,
-        message: `Generated ${validQuestions.length}/${count} questions`
-      });
-
-      if (validQuestions.length === 0) {
-        return {
-          success: false,
-          questions: [],
-          errors: ['Failed to generate any valid questions'],
-          stats: {
-            requested: count,
-            generated: 0,
-            failed: count,
-            timeMs: Date.now() - startTime
-          }
-        };
-      }
-
-      return {
-        success: true,
-        questions: validQuestions,
-        errors,
-        stats: {
-          requested: count,
-          generated: validQuestions.length,
-          failed: errors.length,
-          timeMs: Date.now() - startTime
+          timeoutMs: 5000 // 5s per question max
+        });
+        
+        if (question) {
+          validQuestions.push(question);
         }
-      };
-      
-    } catch (e) {
-      throw e;
+        
+      } catch (e) {
+        errors.push(e.message);
+        // Continue to next attempt
+      }
     }
+
+    // MANDATORY TERMINATION
+    const timeElapsed = Date.now() - startTime;
+    
+    // FAILURE: Not enough questions
+    if (validQuestions.length === 0) {
+      throw new Error(`Generation failed: No valid questions generated after ${attempts} attempts in ${timeElapsed}ms`);
+    }
+    
+    // PARTIAL SUCCESS: Some questions generated
+    if (validQuestions.length < count) {
+      console.warn(`Partial generation: ${validQuestions.length}/${count} questions in ${timeElapsed}ms`);
+    }
+
+    // SUCCESS
+    return {
+      success: true,
+      questions: validQuestions,
+      errors,
+      stats: {
+        requested: count,
+        generated: validQuestions.length,
+        attempts: attempts,
+        timeMs: timeElapsed
+      }
+    };
   }
   
   /**
-   * Generate a single question with retry
+   * Generate a single question with timeout
    */
-  static async generateSingleWithRetry({ subject_id, unit, skill, difficulty, attempt = 1 }) {
-    try {
+  static async generateSingle({ subject_id, unit, skill, difficulty, timeoutMs }) {
+    
+    // Race with timeout
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Question generation timeout')), timeoutMs);
+    });
+    
+    const generationPromise = (async () => {
       // Call AI
       const aiResponse = await this.callAIGeneration({ subject_id, unit, skill, difficulty });
       
-      // Basic validation and cleaning
+      // Validate
       const cleanedData = GenerationValidator.validateBeforeSave({
         subject_id,
         unit_id: unit?.id || '',
@@ -132,15 +140,11 @@ export class SafeQuestionGenerator {
         ...aiResponse
       });
       
-      if (!cleanedData.valid && attempt < this.MAX_RETRIES) {
-        return this.generateSingleWithRetry({ subject_id, unit, skill, difficulty, attempt: attempt + 1 });
-      }
-      
       if (!cleanedData.valid) {
-        throw new Error(`Validation failed: ${cleanedData.errors.join(', ')}`);
+        throw new Error(`Validation failed: ${cleanedData.errors[0]}`);
       }
       
-      // Add canonical representation
+      // Add canonical
       const canonical = QuestionIntegritySystem.generateCanonical(aiResponse, subject_id);
       const questionData = {
         ...cleanedData.cleaned,
@@ -150,55 +154,45 @@ export class SafeQuestionGenerator {
         last_validated: new Date().toISOString()
       };
       
-      // Quick integrity check
+      // Integrity check
       const validation = QuestionIntegritySystem.validateQuestion(questionData);
-      
-      if (!validation.valid && attempt < this.MAX_RETRIES) {
-        return this.generateSingleWithRetry({ subject_id, unit, skill, difficulty, attempt: attempt + 1 });
-      }
-      
       if (!validation.valid) {
-        throw new Error(`Integrity check failed: ${validation.errors.join(', ')}`);
+        throw new Error(`Integrity failed: ${validation.errors[0]}`);
       }
       
-      // Auto-fix computed answer if needed
+      // Auto-fix
       if (validation.computedAnswer) {
         questionData.correct_answer = validation.computedAnswer;
         questionData.computed_answer = validation.computedAnswer;
       }
       
-      // Save to database
-      const created = await base44.entities.Question.create(questionData);
-      return created;
-      
-    } catch (e) {
-      if (attempt < this.MAX_RETRIES) {
-        return this.generateSingleWithRetry({ subject_id, unit, skill, difficulty, attempt: attempt + 1 });
-      }
-      throw e;
-    }
+      // Save
+      return await base44.entities.Question.create(questionData);
+    })();
+    
+    return Promise.race([generationPromise, timeoutPromise]);
   }
   
   /**
-   * Call AI - streamlined prompt
+   * Call AI - minimal prompt
    */
   static async callAIGeneration({ subject_id, unit, skill, difficulty }) {
     const subjects = await base44.entities.Subject.list();
     const subject = subjects.find(s => s.subject_id === subject_id);
     
-    let context = `Generate a ${difficulty} difficulty multiple choice question for ${subject?.name || subject_id}.`;
-    if (unit) context += ` Unit: ${unit.unit_name}.`;
-    if (skill) context += ` Focus: ${skill.skill_name}.`;
+    let context = `${difficulty} multiple choice question for ${subject?.name || subject_id}`;
+    if (unit) context += `, Unit: ${unit.unit_name}`;
+    if (skill) context += `, ${skill.skill_name}`;
     
-    const prompt = `${context}
+    const prompt = `Generate a ${context}.
 
 RULES:
-1. Correct answer must be accurate
-2. Use LaTeX for math: $x^{2}$, $CH_{4}$, $100\\text{°C}$
-3. All 4 choices must be different
-4. Explanation must show why answer is correct
+- Correct answer must be accurate
+- Use LaTeX: $x^{2}$, $CH_{4}$
+- All choices different
+- Include explanation
 
-Return JSON:
+JSON format:
 {
   "question_text": "...",
   "choice_a": "...",

@@ -113,9 +113,18 @@ export default function Practice() {
     setError(null);
     setGenerationProgress({ phase: 'initializing', current: 0, total: 10, message: 'Preparing to generate questions...' });
 
+    // FRONTEND WATCHDOG
+    const WATCHDOG_MS = 15000;
+    const timeoutId = setTimeout(() => {
+      setIsGenerating(false);
+      setGenerationProgress(null);
+      setError('Generation timed out. Please try again.');
+    }, WATCHDOG_MS);
+
     try {
       const { allowed } = await checkCredits(user, 'daily_practice_count');
       if (!allowed) {
+        clearTimeout(timeoutId);
         setUpgradeModalOpen(true);
         setIsGenerating(false);
         setGenerationProgress(null);
@@ -126,11 +135,8 @@ export default function Practice() {
       setUser(updatedUser);
 
       const subject = subjectsData.find(s => s.subject_id === plan.subject_id);
-      
-      // Fetch units for this subject
       const planUnits = await base44.entities.Unit.filter({ subject_id: plan.subject_id });
       
-      // Use first unit from plan's unit_ids, or random unit if no specific units
       let targetUnit;
       if (plan.unit_ids && plan.unit_ids.length > 0) {
         targetUnit = planUnits.find(u => u.id === plan.unit_ids[0]);
@@ -143,38 +149,31 @@ export default function Practice() {
         throw new Error('Subject or Unit not found');
       }
 
-      // USE SAFE GENERATOR with WATCHDOG
-      const result = await withWatchdog(
-        SafeQuestionGenerator.generateSafe({
-          subject_id: plan.subject_id,
-          unit: targetUnit,
-          skill: null,
-          count: 10,
-          difficulty: 'medium',
-          onProgress: setGenerationProgress,
-          maxTimeMs: 55000 // 55 second limit for study plan generation
-        }),
-        60000,
-        'Study Plan Practice Generation'
-      );
+      // BOUNDED GENERATION
+      const result = await SafeQuestionGenerator.generateSafe({
+        subject_id: plan.subject_id,
+        unit: targetUnit,
+        skill: null,
+        count: 10,
+        difficulty: 'medium',
+        onProgress: setGenerationProgress,
+        maxTimeMs: 12000
+      });
 
-      if (!result.success || result.questions.length === 0) {
-        throw new Error(result.errors[0] || 'Failed to generate valid questions');
+      // VALIDATE
+      if (!result || !result.questions || result.questions.length === 0) {
+        throw new Error('No valid questions generated');
       }
 
+      clearTimeout(timeoutId);
       setQuestions(result.questions);
       setGenerationProgress(null);
       setIsGenerating(false);
       
     } catch (e) {
-      console.error('Failed to generate questions:', e);
-      
-      if (e instanceof WatchdogTimeout || e.name === 'WatchdogTimeout') {
-        setError('Generation timed out after 60 seconds. Please try again.');
-      } else {
-        setError(e.message || 'Failed to generate questions. Please try again.');
-      }
-      
+      clearTimeout(timeoutId);
+      console.error('Study plan generation failed:', e);
+      setError(e.message || 'Failed to generate questions. Please try again.');
       setGenerationProgress(null);
       setIsGenerating(false);
     }
@@ -195,13 +194,20 @@ export default function Practice() {
     setError(null);
     setGenerationProgress({ phase: 'initializing', current: 0, total: questionCount, message: 'Starting generation...' });
 
-    // HARD TIMEOUT: 60 seconds maximum
-    const GENERATION_TIMEOUT = 60000;
+    // HARD TIMEOUT: 15 seconds maximum (LIVENESS GUARANTEE)
+    const FRONTEND_WATCHDOG_MS = 15000;
+    const timeoutId = setTimeout(() => {
+      // FORCE EXIT LOADING STATE
+      setIsGenerating(false);
+      setGenerationProgress(null);
+      setError('Generation timed out. Please try again with fewer questions or a different subject.');
+    }, FRONTEND_WATCHDOG_MS);
     
     try {
       // Credit check
       const { allowed } = await checkCredits(user, 'daily_practice_count');
       if (!allowed) {
+        clearTimeout(timeoutId);
         setUpgradeModalOpen(true);
         setIsGenerating(false);
         setGenerationProgress(null);
@@ -225,37 +231,34 @@ export default function Practice() {
         throw new Error('No unit found for generation');
       }
 
-      // USE SAFE GENERATOR with WATCHDOG
-      const result = await withWatchdog(
-        SafeQuestionGenerator.generateSafe({
-          subject_id: selectedSubject,
-          unit: targetUnit,
-          skill: null,
-          count: questionCount,
-          difficulty: 'medium',
-          onProgress: setGenerationProgress,
-          maxTimeMs: GENERATION_TIMEOUT - 5000 // Leave 5s buffer
-        }),
-        GENERATION_TIMEOUT,
-        'Practice Generation'
-      );
+      // BOUNDED GENERATION - guaranteed to terminate
+      const result = await SafeQuestionGenerator.generateSafe({
+        subject_id: selectedSubject,
+        unit: targetUnit,
+        skill: null,
+        count: questionCount,
+        difficulty: 'medium',
+        onProgress: setGenerationProgress,
+        maxTimeMs: 12000 // 12s backend limit (3s buffer before frontend watchdog)
+      });
 
-      if (!result.success || result.questions.length === 0) {
-        throw new Error(result.errors[0] || 'Failed to generate valid questions after multiple attempts');
+      // VALIDATE BEFORE SETTING STATE
+      if (!result || !result.questions || result.questions.length === 0) {
+        throw new Error('No valid questions generated');
       }
 
+      // SUCCESS - clear watchdog and set questions
+      clearTimeout(timeoutId);
       setQuestions(result.questions);
       setGenerationProgress(null);
       setIsGenerating(false);
+      
     } catch (e) {
-      console.error('Failed to generate questions:', e);
+      clearTimeout(timeoutId);
+      console.error('Practice generation failed:', e);
       
-      if (e instanceof WatchdogTimeout || e.name === 'WatchdogTimeout') {
-        setError('Generation timed out after 60 seconds. Please try again with fewer questions.');
-      } else {
-        setError(e.message || 'Failed to generate questions. Please try again.');
-      }
-      
+      // MANDATORY ERROR STATE
+      setError(e.message || 'Failed to generate questions. Please try again.');
       setGenerationProgress(null);
       setIsGenerating(false);
     }
