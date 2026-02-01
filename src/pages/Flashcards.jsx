@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { ChevronLeft, Loader2, Brain, Sparkles, RotateCcw, Check, X } from 'lucide-react';
+import { ChevronLeft, Loader2, Brain, Sparkles, RotateCcw, Check, X, Zap, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -19,6 +19,8 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { cn } from '@/lib/utils';
 import StudyTimer from '@/components/study/StudyTimer';
+import EnhancedFlashcardReview from '@/components/flashcards/EnhancedFlashcardReview';
+import { SpacedRepetitionEngine } from '@/components/flashcards/SpacedRepetitionEngine';
 
 export default function Flashcards() {
   const [user, setUser] = useState(null);
@@ -32,6 +34,8 @@ export default function Flashcards() {
   const [flipped, setFlipped] = useState(false);
   const [studyCards, setStudyCards] = useState([]);
   const [generationLock, setGenerationLock] = useState(false);
+  const [reviewMode, setReviewMode] = useState('flip');
+  const [useEnhancedReview, setUseEnhancedReview] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -61,6 +65,15 @@ export default function Flashcards() {
   const { data: flashcards = [] } = useQuery({
     queryKey: ['flashcards', user?.email],
     queryFn: () => base44.entities.Flashcard.filter({ created_by: user.email }),
+    enabled: !!user,
+  });
+
+  const { data: reviewStreak } = useQuery({
+    queryKey: ['reviewStreak', user?.email],
+    queryFn: async () => {
+      const streaks = await base44.entities.ReviewStreak.filter({ created_by: user.email });
+      return streaks[0] || null;
+    },
     enabled: !!user,
   });
 
@@ -161,11 +174,81 @@ VERIFY: All formulas written ONCE in LaTeX format only`;
   };
 
   const startStudySession = () => {
-    // Already filtered by user at query level
     setStudyCards(flashcards);
+    setUseEnhancedReview(true);
     setStudyMode(true);
     setCurrentCardIndex(0);
     setFlipped(false);
+  };
+
+  const handleCardReview = async (card, reviewData) => {
+    const { result, quality, confidence } = reviewData;
+    
+    // Update card stats
+    updateCardMutation.mutate({
+      id: card.id,
+      data: {
+        times_reviewed: (card.times_reviewed || 0) + 1,
+        times_correct: result === 'correct' ? (card.times_correct || 0) + 1 : card.times_correct,
+      },
+    });
+
+    // Create review record with spaced repetition
+    const srData = SpacedRepetitionEngine.calculateNextReview(
+      quality,
+      0,
+      2.5,
+      1
+    );
+
+    await base44.entities.FlashcardReview.create({
+      flashcard_id: card.id,
+      user_email: user.email,
+      review_mode: reviewMode,
+      result,
+      confidence_level: confidence,
+      time_spent_seconds: 0,
+      next_review_date: srData.nextReviewDate,
+      interval_days: srData.interval,
+      ease_factor: srData.easeFactor,
+      repetitions: srData.repetitions,
+    });
+
+    // Update streak
+    const today = new Date().toISOString().split('T')[0];
+    const isNewDay = !reviewStreak || reviewStreak.last_review_date !== today;
+    
+    if (isNewDay && reviewStreak) {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = yesterday.toISOString().split('T')[0];
+      const newStreak = reviewStreak.last_review_date === yesterdayStr 
+        ? reviewStreak.current_streak + 1 
+        : 1;
+
+      await base44.entities.ReviewStreak.update(reviewStreak.id, {
+        current_streak: newStreak,
+        longest_streak: Math.max(newStreak, reviewStreak.longest_streak),
+        total_reviews: reviewStreak.total_reviews + 1,
+        points_earned: reviewStreak.points_earned + SpacedRepetitionEngine.getPointsForReview(quality, newStreak > 1),
+        last_review_date: today,
+      });
+    } else if (!reviewStreak) {
+      await base44.entities.ReviewStreak.create({
+        current_streak: 1,
+        longest_streak: 1,
+        total_reviews: 1,
+        points_earned: SpacedRepetitionEngine.getPointsForReview(quality, false),
+        last_review_date: today,
+      });
+    }
+  };
+
+  const handleReviewComplete = (results) => {
+    setStudyMode(false);
+    setUseEnhancedReview(false);
+    queryClient.invalidateQueries({ queryKey: ['flashcards'] });
+    queryClient.invalidateQueries({ queryKey: ['reviewStreak'] });
   };
 
   const handleKnew = () => {
@@ -212,6 +295,17 @@ VERIFY: All formulas written ONCE in LaTeX format only`;
   };
 
   const currentCard = studyCards[currentCardIndex];
+
+  if (studyMode && studyCards.length > 0 && useEnhancedReview) {
+    return (
+      <EnhancedFlashcardReview
+        cards={studyCards}
+        reviewMode={reviewMode}
+        onComplete={handleReviewComplete}
+        onCardReview={handleCardReview}
+      />
+    );
+  }
 
   if (studyMode && studyCards.length > 0) {
     return (
@@ -411,20 +505,40 @@ VERIFY: All formulas written ONCE in LaTeX format only`;
             {flashcards.length > 0 ? (
               <>
                 <div className="flex items-center justify-between mb-4">
-                  <p className="text-sm text-slate-400">
-                    {flashcards.length} cards
-                  </p>
-                  <Button onClick={startStudySession} className="bg-violet-600 hover:bg-violet-700">
-                    <Brain className="w-4 h-4 mr-2" />
-                    Start Studying
-                  </Button>
+                  <div>
+                    <p className="text-sm text-slate-400">
+                      {flashcards.length} cards
+                    </p>
+                    {reviewStreak && (
+                      <div className="flex items-center gap-4 mt-1 text-xs text-slate-400">
+                        <span>🔥 {reviewStreak.current_streak} day streak</span>
+                        <span>⭐ {reviewStreak.points_earned} points</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Select value={reviewMode} onValueChange={setReviewMode}>
+                      <SelectTrigger className="w-40 bg-slate-900/50 border-slate-700/50 text-slate-200">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-900/95 border-slate-700/50">
+                        <SelectItem value="flip" className="text-slate-200">Flip Cards</SelectItem>
+                        <SelectItem value="multiple_choice" className="text-slate-200">Multiple Choice</SelectItem>
+                        <SelectItem value="type_answer" className="text-slate-200">Type Answer</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button onClick={startStudySession} className="bg-violet-600 hover:bg-violet-700">
+                      <Brain className="w-4 h-4 mr-2" />
+                      Start Studying
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="grid gap-3">
                   {flashcards.map((card) => (
                       <div
                         key={card.id}
-                        className="bg-slate-800/40 backdrop-blur-sm rounded-lg border border-slate-700/50 p-4"
+                        className="bg-slate-800/40 backdrop-blur-sm rounded-lg border border-slate-700/50 p-4 card-smooth"
                       >
                         <div className="flex items-start justify-between mb-2">
                           <span className="text-xs text-slate-400">{card.unit_name}</span>
