@@ -119,16 +119,18 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
       {/* Question Text */}
       <div className="px-6 py-5">
         <div className="prose prose-slate prose-sm max-w-none [&_.katex]:text-base [&_.katex-display]:my-4 [&_.katex-display]:text-lg">
-          <ReactMarkdown 
-            remarkPlugins={[remarkMath]} 
-            rehypePlugins={[rehypeKatex]}
-            components={{
-              p: ({ children }) => <p className="leading-relaxed my-2">{children}</p>,
-            }}
-          >
-            {question.question_text}
-          </ReactMarkdown>
-        </div>
+            <ReactMarkdown 
+              remarkPlugins={[remarkMath]} 
+              rehypePlugins={[rehypeKatex]}
+              components={{
+                p: ({ children }) => <p className="leading-relaxed my-2">{children}</p>,
+                u: ({ children }) => <u className="decoration-2 decoration-slate-600 underline-offset-2">{children}</u>,
+                strong: ({ children }) => <strong className="font-semibold text-slate-900">{children}</strong>,
+              }}
+            >
+              {question.question_text}
+            </ReactMarkdown>
+          </div>
 
         {/* Table Data */}
         {question.table_data && (() => {

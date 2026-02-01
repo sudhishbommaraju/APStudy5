@@ -127,21 +127,36 @@ export default function ACTPractice() {
 ACT ENGLISH RULES (MANDATORY):
 ✓ NO LaTeX allowed (text-only subject)
 ✓ Plain English only
-✓ Underlined text clearly marked
-✓ Grammar rule stated clearly
-✓ Example sentences in quotes
+✓ Use <u>HTML tags</u> for underlined text
+✓ NEVER write the word "UNDERLINED"
+✓ Question stem MUST be bold
 ❌ NO math formatting
 ❌ NO LaTeX blocks
+❌ NO italics instead of underline
+
+UNDERLINE FORMATTING (MANDATORY):
+✓ Use <u>tested phrase</u> HTML tags for underlined text
+✓ NEVER write the word "UNDERLINED" or "[UNDERLINED]"
+✓ Question stem MUST be bold: **Which choice...**
+✓ Choice A MUST be "NO CHANGE" (matches underlined text exactly)
+
+Example (CORRECT):
+Passage: "But one player, Jake, seemed distracted, especially when he saw his friends in the stands, <u>waving signs and cheering for him.</u>"
+Question: **Which choice best maintains the sentence structure?**
+A. NO CHANGE
+B. waving signs and cheering for him
+C. they waved signs and cheered for him
+D. waving signs, and cheering for him
 
 CRITICAL RULES:
-1. Provide a 3-5 sentence passage with ONE underlined portion
+1. Provide a 3-5 sentence passage with EXACTLY ONE <u>underlined portion</u>
 2. Question tests grammar, punctuation, style, or organization
 3. Four answer choices: A (NO CHANGE), B, C, D
 4. All distractors must be plausible but have clear errors
 
 Return JSON with:
-- passage: the text with ONE underlined word/phrase marked as [UNDERLINED]
-- question_text: "Which choice best maintains the sentence structure?" (or similar)
+- passage: the text with ONE underlined portion using <u>tags</u>
+- question_text: the question with **bold** formatting
 - choice_a: "NO CHANGE"
 - choice_b, choice_c, choice_d: alternative versions
 - correct_answer: "A", "B", "C", or "D"

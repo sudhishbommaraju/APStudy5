@@ -140,6 +140,21 @@ SAT READING/WRITING RULES (MANDATORY):
 ❌ NO LaTeX blocks
 ❌ NO symbols or equations
 
+UNDERLINE FORMATTING (GRAMMAR/CONVENTIONS QUESTIONS ONLY):
+✓ Use <u>tested phrase</u> HTML tags for underlined text
+✓ NEVER write the word "UNDERLINED" anywhere
+✓ Question stem MUST be bold: **Which choice best maintains...**
+✓ Choice A MUST be "NO CHANGE"
+✓ Underlined text must match choice A exactly
+
+Example (CORRECT):
+Passage: "The scientist, after years of research, <u>finally made a breakthrough in understanding</u> the complex system."
+Question: **Which choice best maintains the sentence structure and clarity?**
+A. NO CHANGE
+B. finally, made a breakthrough in understanding
+C. made, finally a breakthrough in understanding  
+D. made a breakthrough finally in understanding
+
 CRITICAL RULES:
 1. Question types: Central Idea, Command of Evidence, Words in Context, Grammar/Conventions
 2. Answer choices must be TIGHT distractors - all plausible
@@ -151,8 +166,8 @@ ORIGINAL CONTENT REQUIRED:
 - Passage can be about: science discovery, historical event, literary analysis, social issue
 
 Return JSON with:
-- passage: the 120-180 word reading passage (plain text)
-- question_text: the specific question (plain text)
+- passage: the 120-180 word reading passage (use <u>text</u> for underlined portions in grammar questions)
+- question_text: the specific question (use **bold** for question stems)
 - choice_a, choice_b, choice_c, choice_d: four plausible answers (plain text)
 - correct_answer: "A", "B", "C", or "D"
 - explanation: why correct answer is right (plain text)
