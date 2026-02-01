@@ -59,8 +59,8 @@ export default function GlobalNav() {
   // App pages nav items
   const appNavItems = [
     { label: 'Practice', path: createPageUrl('Practice') },
-    { label: 'SAT', path: createPageUrl('Practice') + '?subject=sat' },
-    { label: 'ACT', path: createPageUrl('Practice') + '?subject=act' },
+    { label: 'SAT', path: createPageUrl('SATPractice') },
+    { label: 'ACT', path: createPageUrl('ACTPractice') },
     { label: 'Notes', path: createPageUrl('Notes') },
     { label: 'Flashcards', path: createPageUrl('Flashcards') },
     { label: 'Workspace', path: createPageUrl('PracticeWorkspace') },
