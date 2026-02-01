@@ -12,9 +12,9 @@ css
   --color-primary-bg: #F8FAFC;
   --color-secondary-bg: #FFFFFF;
   --color-muted-bg: #E5E7EB;
-  --color-text-primary: #0F172A;
-  --color-text-secondary: #334155;
-  --color-text-muted: #64748B;
+  --color-text-primary: #000000;
+  --color-text-secondary: #1a1a1a;
+  --color-text-muted: #404040;
   --color-accent-primary: #1E3A8A;
   --color-success: #16A34A;
   --color-error: #DC2626;

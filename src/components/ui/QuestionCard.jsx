@@ -101,15 +101,15 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
       <div className="bg-white rounded-xl border border-[#CBD5E1] shadow-sm overflow-hidden">
       {/* Question Header */}
       <div className="px-6 py-4 border-b border-[#E5E7EB] bg-[#F1F5F9]">
-        <div className="flex items-center gap-2 text-xs text-[#64748B] mb-1">
-          <span className="px-2 py-0.5 bg-[#E5E7EB] rounded-full font-medium text-[#334155]">
+        <div className="flex items-center gap-2 text-xs text-[#000000] mb-1">
+          <span className="px-2 py-0.5 bg-[#E5E7EB] rounded-full font-medium text-[#000000]">
             {question.skill_name}
           </span>
           <span className={cn(
             "px-2 py-0.5 rounded-full font-medium",
-            question.difficulty === 'easy' && "bg-[#DCFCE7] text-[#16A34A]",
-            question.difficulty === 'medium' && "bg-[#FEF3C7] text-[#D97706]",
-            question.difficulty === 'hard' && "bg-[#FEE2E2] text-[#DC2626]"
+            question.difficulty === 'easy' && "bg-[#DCFCE7] text-[#000000]",
+            question.difficulty === 'medium' && "bg-[#FEF3C7] text-[#000000]",
+            question.difficulty === 'hard' && "bg-[#FEE2E2] text-[#000000]"
           )}>
             {question.difficulty}
           </span>
@@ -125,7 +125,7 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
               components={{
                 p: ({ children }) => <p className="leading-relaxed my-2">{children}</p>,
                 u: ({ children }) => <u className="decoration-2 decoration-[#1E3A8A] underline-offset-2">{children}</u>,
-                strong: ({ children }) => <strong className="font-semibold text-[#0F172A]">{children}</strong>,
+                strong: ({ children }) => <strong className="font-semibold text-[#000000]">{children}</strong>,
               }}
             >
               {question.question_text}
@@ -305,15 +305,15 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
           const isCorrectAnswer = key === question.correct_answer;
           const isEliminated = eliminatedChoices.includes(key);
           
-          let choiceStyle = "bg-white border-[#CBD5E1] hover:border-[#1E3A8A] hover:bg-[#F8FAFC]";
+          let choiceStyle = "bg-white border-[#CBD5E1] hover:border-[#1E3A8A] hover:bg-[#F8FAFC] text-[#000000]";
 
           if (showResult) {
             if (isCorrectAnswer) {
-              choiceStyle = "bg-[#DCFCE7] border-[#16A34A] text-[#0F172A]";
+              choiceStyle = "bg-[#DCFCE7] border-[#16A34A] text-[#000000]";
             } else if (isSelected && !isCorrectAnswer) {
-              choiceStyle = "bg-[#FEE2E2] border-[#DC2626] text-[#0F172A]";
+              choiceStyle = "bg-[#FEE2E2] border-[#DC2626] text-[#000000]";
             } else {
-              choiceStyle = "bg-[#F1F5F9] border-[#CBD5E1] text-[#64748B]";
+              choiceStyle = "bg-[#F1F5F9] border-[#CBD5E1] text-[#404040]";
             }
           } else if (isSelected) {
             choiceStyle = "bg-[#1E3A8A] border-[#1E3A8A] text-white";
@@ -335,7 +335,7 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
                   showResult && isCorrectAnswer && "bg-[#16A34A] text-white",
                   showResult && isSelected && !isCorrectAnswer && "bg-[#DC2626] text-white",
                   !showResult && isSelected && "bg-white text-[#1E3A8A]",
-                  !showResult && !isSelected && "bg-[#E5E7EB] text-[#334155]"
+                  !showResult && !isSelected && "bg-[#E5E7EB] text-[#000000]"
                 )}>
                   {showResult && isCorrectAnswer && <Check className="w-4 h-4" />}
                   {showResult && isSelected && !isCorrectAnswer && <X className="w-4 h-4" />}
@@ -357,7 +357,7 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
                   className={cn(
                     "absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all",
                     "opacity-0 group-hover:opacity-100",
-                    isEliminated ? "bg-[#DC2626] text-white" : "bg-[#E5E7EB] text-[#334155] hover:bg-[#CBD5E1]"
+                    isEliminated ? "bg-[#DC2626] text-white" : "bg-[#E5E7EB] text-[#000000] hover:bg-[#CBD5E1]"
                   )}
                   title={isEliminated ? "Restore" : "Eliminate"}
                 >
@@ -385,9 +385,9 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
             <div className="p-4 bg-[#FEF3C7] border border-[#FDE68A] rounded-lg">
               <div className="flex items-center gap-2 mb-2">
                 <Lightbulb className="w-4 h-4 text-[#D97706]" />
-                <span className="font-semibold text-[#92400E] text-sm">Hint</span>
+                <span className="font-semibold text-[#000000] text-sm">Hint</span>
               </div>
-              <p className="text-sm text-[#78350F]">{question.hint}</p>
+              <p className="text-sm text-[#000000]">{question.hint}</p>
             </div>
           )}
         </div>
@@ -414,9 +414,9 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
             <div className="w-6 h-6 rounded-full bg-[#16A34A] flex items-center justify-center">
               <Check className="w-4 h-4 text-white" />
             </div>
-            <span className="font-semibold text-[#15803D]">Correct!</span>
+            <span className="font-semibold text-[#000000]">Correct!</span>
           </div>
-          <div className="prose prose-sm max-w-none text-[#334155]">
+          <div className="prose prose-sm max-w-none text-[#000000]">
             <p className="font-medium text-slate-900 mb-2">Explanation:</p>
             <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
               {question.explanation}
@@ -473,7 +473,7 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
             <div className="w-6 h-6 rounded-full bg-[#DC2626] flex items-center justify-center">
               <X className="w-4 h-4 text-white" />
             </div>
-            <span className="font-semibold text-[#991B1B]">Incorrect</span>
+            <span className="font-semibold text-[#000000]">Incorrect</span>
           </div>
           <div className="mb-3">
             <p className="text-sm font-medium text-slate-700 mb-1">Correct Answer: {question.correct_answer}</p>
