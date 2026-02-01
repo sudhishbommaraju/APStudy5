@@ -61,6 +61,8 @@ export default function GlobalNav() {
     { label: 'Practice', path: createPageUrl('Practice') },
     { label: 'SAT', path: createPageUrl('Practice') + '?subject=sat' },
     { label: 'ACT', path: createPageUrl('Practice') + '?subject=act' },
+    { label: 'Notes', path: createPageUrl('Notes') },
+    { label: 'Flashcards', path: createPageUrl('Flashcards') },
     { label: 'Workspace', path: createPageUrl('PracticeWorkspace') },
     { label: 'Exam', path: createPageUrl('Exam') },
     { label: 'Teacher', path: createPageUrl('TeacherMode') },
