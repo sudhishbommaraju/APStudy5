@@ -340,14 +340,24 @@ FINAL CHECK BEFORE RETURNING:
           <div className="lg:col-span-2 space-y-4">
             {generatedNote && (
               <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border-2 border-emerald-500/50 p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                    <Sparkles className="w-4 h-4 text-emerald-400" />
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                      <Sparkles className="w-4 h-4 text-emerald-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-slate-100">{generatedNote.title}</h3>
+                      <p className="text-sm text-slate-400">{generatedNote.unit_name}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-slate-100">{generatedNote.title}</h3>
-                    <p className="text-sm text-slate-400">{generatedNote.unit_name}</p>
-                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setGeneratedNote(null)}
+                    className="text-slate-400 hover:text-white"
+                  >
+                    View All Notes
+                  </Button>
                 </div>
                 <div className="prose prose-sm max-w-none prose-invert [&_*]:text-white [&_.katex]:text-white [&_.katex-error]:text-white [&_code]:text-white">
                   <ReactMarkdown 
@@ -373,7 +383,7 @@ FINAL CHECK BEFORE RETURNING:
               </div>
             )}
 
-            {notes.filter(n => n.created_by === user?.email).map((note) => (
+            {!generatedNote && notes.filter(n => n.created_by === user?.email).map((note) => (
               <div key={note.id} className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <FileText className="w-5 h-5 text-violet-400" />
@@ -406,7 +416,7 @@ FINAL CHECK BEFORE RETURNING:
               </div>
             ))}
 
-            {notes.filter(n => n.created_by === user?.email).length === 0 && !generatedNote && (
+            {!generatedNote && notes.filter(n => n.created_by === user?.email).length === 0 && (
               <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-12 text-center">
                 <FileText className="w-12 h-12 text-slate-500 mx-auto mb-4" />
                 <h3 className="font-semibold text-slate-100 mb-2">No notes yet</h3>
