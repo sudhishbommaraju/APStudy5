@@ -76,6 +76,8 @@ import StudyPlans from './pages/StudyPlans';
 import TeacherMode from './pages/TeacherMode';
 import Tutor from './pages/Tutor';
 import ValidationDashboard from './pages/ValidationDashboard';
+import SATPractice from './pages/SATPractice';
+import ACTPractice from './pages/ACTPractice';
 import __Layout from './Layout.jsx';
 
 
@@ -109,6 +111,8 @@ export const PAGES = {
     "TeacherMode": TeacherMode,
     "Tutor": Tutor,
     "ValidationDashboard": ValidationDashboard,
+    "SATPractice": SATPractice,
+    "ACTPractice": ACTPractice,
 }
 
 export const pagesConfig = {
