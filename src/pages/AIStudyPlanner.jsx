@@ -189,13 +189,13 @@ Format as a detailed, actionable plan that motivates the student.`;
           className="space-y-6"
         >
           {/* Subject Selection */}
-          <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6">
-            <label className="text-sm font-medium text-slate-100 mb-3 block">
+          <div className="bg-white rounded-xl border border-[#CBD5E1] p-6">
+            <label className="text-sm font-medium text-[#0F172A] mb-3 block">
               What subjects do you want to study?
             </label>
-            <div className="space-y-2 max-h-64 overflow-y-auto bg-slate-900/30 rounded-lg p-3 border border-slate-700/30">
+            <div className="space-y-2 max-h-64 overflow-y-auto bg-[#F8FAFC] rounded-lg p-3 border border-[#E5E7EB]">
               {subjects.map((subject) => (
-                <label key={subject.subject_id} className="flex items-center gap-2 cursor-pointer hover:bg-slate-800/50 p-2 rounded">
+                <label key={subject.subject_id} className="flex items-center gap-2 cursor-pointer hover:bg-[#E5E7EB] p-2 rounded">
                   <input
                     type="checkbox"
                     checked={selectedSubjects.includes(subject.subject_id)}
@@ -206,9 +206,9 @@ Format as a detailed, actionable plan that motivates the student.`;
                         setSelectedSubjects(prev => prev.filter(id => id !== subject.subject_id));
                       }
                     }}
-                    className="w-4 h-4 rounded border-slate-600 text-violet-600"
+                    className="w-4 h-4 rounded border-[#CBD5E1] text-[#1E3A8A]"
                   />
-                  <span className="text-sm text-slate-300">
+                  <span className="text-sm text-[#334155]">
                     {typeof subject.icon === 'string' ? subject.icon : ''} {subject.name}
                   </span>
                 </label>
@@ -217,8 +217,8 @@ Format as a detailed, actionable plan that motivates the student.`;
           </div>
 
           {/* Target Date */}
-          <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6">
-            <label className="text-sm font-medium text-slate-100 mb-3 block">
+          <div className="bg-white rounded-xl border border-[#CBD5E1] p-6">
+            <label className="text-sm font-medium text-[#0F172A] mb-3 block">
               When is your target date?
             </label>
             <Input
@@ -226,37 +226,37 @@ Format as a detailed, actionable plan that motivates the student.`;
               value={targetDate}
               onChange={(e) => setTargetDate(e.target.value)}
               min={format(new Date(), 'yyyy-MM-dd')}
-              className="bg-slate-900/50 border-slate-700/50 text-slate-200"
+              className="bg-white border-[#CBD5E1] text-[#0F172A]"
             />
           </div>
 
           {/* Current Level */}
-          <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6">
-            <label className="text-sm font-medium text-slate-100 mb-3 block">
+          <div className="bg-white rounded-xl border border-[#CBD5E1] p-6">
+            <label className="text-sm font-medium text-[#0F172A] mb-3 block">
               What's your current level?
             </label>
             <Select value={currentLevel} onValueChange={setCurrentLevel}>
-              <SelectTrigger className="bg-slate-900/50 border-slate-700/50 text-slate-200">
+              <SelectTrigger className="bg-white border-[#CBD5E1] text-[#0F172A]">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-slate-900/95 border-slate-700/50">
-                <SelectItem value="beginner" className="text-slate-200">Beginner - Just starting</SelectItem>
-                <SelectItem value="intermediate" className="text-slate-200">Intermediate - Some practice done</SelectItem>
-                <SelectItem value="advanced" className="text-slate-200">Advanced - Almost ready</SelectItem>
+              <SelectContent className="bg-white border-[#CBD5E1]">
+                <SelectItem value="beginner" className="text-[#0F172A]">Beginner - Just starting</SelectItem>
+                <SelectItem value="intermediate" className="text-[#0F172A]">Intermediate - Some practice done</SelectItem>
+                <SelectItem value="advanced" className="text-[#0F172A]">Advanced - Almost ready</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Study Goal */}
-          <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6">
-            <label className="text-sm font-medium text-slate-100 mb-3 block">
+          <div className="bg-white rounded-xl border border-[#CBD5E1] p-6">
+            <label className="text-sm font-medium text-[#0F172A] mb-3 block">
               What's your study goal? (Optional)
             </label>
             <Textarea
               value={studyGoal}
               onChange={(e) => setStudyGoal(e.target.value)}
               placeholder="e.g., Score 5 on AP Calc, Master all units, Improve weak areas..."
-              className="bg-slate-900/50 border-slate-700/50 text-slate-200"
+              className="bg-white border-[#CBD5E1] text-[#0F172A]"
             />
           </div>
 
@@ -265,7 +265,7 @@ Format as a detailed, actionable plan that motivates the student.`;
             <Button
               onClick={handleGeneratePlan}
               disabled={isGenerating || selectedSubjects.length === 0 || !targetDate}
-              className="w-full h-14 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-14 bg-[#1E3A8A] hover:bg-[#1e40af] disabled:opacity-50 disabled:cursor-not-allowed text-white"
             >
               {isGenerating ? (
                 <>
@@ -280,7 +280,7 @@ Format as a detailed, actionable plan that motivates the student.`;
               )}
             </Button>
             {(selectedSubjects.length === 0 || !targetDate) && (
-              <p className="text-xs text-slate-400 text-center">
+              <p className="text-xs text-[#64748B] text-center">
                 {!selectedSubjects.length && !targetDate && 'Please select subjects and set a target date'}
                 {!selectedSubjects.length && targetDate && 'Please select at least one subject'}
                 {selectedSubjects.length > 0 && !targetDate && 'Please set a target date'}
@@ -295,19 +295,19 @@ Format as a detailed, actionable plan that motivates the student.`;
           className="space-y-6"
         >
           {/* Plan Header */}
-          <div className="bg-gradient-to-br from-violet-500/20 to-purple-500/20 backdrop-blur-sm rounded-xl border border-violet-500/30 p-6">
+          <div className="bg-[#EFF6FF] rounded-xl border border-[#BFDBFE] p-6">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h2 className="text-2xl font-bold text-slate-100 mb-2">Your Personalized Study Plan</h2>
-                <p className="text-slate-300">
+                <h2 className="text-2xl font-bold text-[#0F172A] mb-2">Your Personalized Study Plan</h2>
+                <p className="text-[#334155]">
                   {generatedPlan.daysUntilTarget} days until {format(new Date(generatedPlan.targetDate), 'MMM d, yyyy')}
                 </p>
               </div>
-              <Target className="w-10 h-10 text-violet-400" />
+              <Target className="w-10 h-10 text-[#1E3A8A]" />
             </div>
             <div className="flex gap-2">
               {generatedPlan.subjects.map(s => (
-                <span key={s.subject_id} className="px-3 py-1 bg-slate-800/60 rounded-full text-sm text-slate-200">
+                <span key={s.subject_id} className="px-3 py-1 bg-white border border-[#CBD5E1] rounded-full text-sm text-[#334155]">
                   {typeof s.icon === 'string' ? s.icon : ''} {s.name}
                 </span>
               ))}
@@ -315,9 +315,9 @@ Format as a detailed, actionable plan that motivates the student.`;
           </div>
 
           {/* Plan Content */}
-          <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6">
-            <div className="prose prose-invert max-w-none">
-              <div className="whitespace-pre-wrap text-slate-200 leading-relaxed">
+          <div className="bg-white rounded-xl border border-[#CBD5E1] p-6">
+            <div className="prose max-w-none">
+              <div className="whitespace-pre-wrap text-[#334155] leading-relaxed">
                 {generatedPlan.planContent}
               </div>
             </div>
@@ -334,7 +334,7 @@ Format as a detailed, actionable plan that motivates the student.`;
             </Button>
             <Button
               onClick={handleSavePlan}
-              className="flex-1 bg-violet-600 hover:bg-violet-700"
+              className="flex-1 bg-[#1E3A8A] hover:bg-[#1e40af] text-white"
             >
               Save & Start Plan
             </Button>

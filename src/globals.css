@@ -8,15 +8,19 @@ css
 
 /* Global Design System */
 :root {
-  /* Galaxy Dark Theme Colors */
-  --color-primary-bg: #0a0e1a;
-  --color-card-bg: #141827;
-  --color-border: #1e2538;
-  --color-text-primary: #e8edf5;
-  --color-text-secondary: #94a3b8;
-  --color-text-tertiary: #64748b;
-  --color-accent-primary: #8b5cf6;
-  --color-accent-secondary: #6366f1;
+  /* Academic Light Theme Colors */
+  --color-primary-bg: #F8FAFC;
+  --color-secondary-bg: #FFFFFF;
+  --color-muted-bg: #E5E7EB;
+  --color-text-primary: #0F172A;
+  --color-text-secondary: #334155;
+  --color-text-muted: #64748B;
+  --color-accent-primary: #1E3A8A;
+  --color-success: #16A34A;
+  --color-error: #DC2626;
+  --color-warning: #D97706;
+  --color-border: #CBD5E1;
+  --color-border-focus: #1E3A8A;
   
   /* Typography */
   --font-primary: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
@@ -70,17 +74,17 @@ h3 {
 
 p {
   line-height: 1.6;
-  color: #ffffff;
+  color: var(--color-text-primary);
 }
 
-/* Galaxy Marketing Pages */
-.galaxy-page {
+/* Academic Pages */
+.academic-page {
   position: relative;
   min-height: 100vh;
-  background: linear-gradient(135deg, #0a0e1a 0%, #0f1728 50%, #0a0e1a 100%);
+  background: var(--color-primary-bg);
 }
 
-.galaxy-content {
+.academic-content {
   position: relative;
   z-index: 10;
 }
@@ -99,7 +103,7 @@ p {
 
 .page-description {
   font-size: 1.125rem;
-  color: #ffffff;
+  color: var(--color-text-secondary);
 }
 
 .section {
@@ -113,102 +117,27 @@ p {
   margin-bottom: var(--spacing-md);
 }
 
-/* Dark theme text overrides */
-.text-slate-900,
-.text-slate-800,
-.text-slate-700,
-.text-slate-600,
-.text-slate-500,
-.text-slate-400,
-.text-slate-300,
-.text-slate-200,
-.text-slate-100 {
-  color: #ffffff !important;
-}
+/* Academic light theme - removed forced dark overrides */
 
-/* Keep specific UI elements with intended colors */
-.text-violet-400,
-.text-violet-300,
-.text-emerald-400,
-.text-rose-400,
-.text-amber-400,
-.text-indigo-400 {
-  /* Keep these colors as-is */
-}
+/* Academic Clean - No Gradients */
 
-/* Dark theme background overrides */
-.bg-white {
-  background-color: var(--color-card-bg) !important;
-}
-
-.bg-slate-50 {
-  background-color: #0f1420 !important;
-}
-
-.bg-slate-100 {
-  background-color: #1a1f2e !important;
-}
-
-.bg-slate-200 {
-  background-color: #1e2538 !important;
-}
-
-.bg-gray-50 {
-  background-color: #0f1420 !important;
-}
-
-.bg-gray-100 {
-  background-color: #1a1f2e !important;
-}
-
-/* Border colors */
-.border-slate-200 {
-  border-color: var(--color-border) !important;
-}
-
-.border-slate-300 {
-  border-color: #2a3448 !important;
-}
-
-/* Hover states */
-.hover\:bg-slate-50:hover {
-  background-color: #1a1f2e !important;
-}
-
-.hover\:bg-slate-100:hover {
-  background-color: #1e2538 !important;
-}
-
-.hover\:bg-white:hover {
-  background-color: var(--color-card-bg) !important;
-}
-
-/* Galaxy Gradient - Limited Use */
-.galaxy-gradient {
-  background: linear-gradient(135deg, #0B1020 0%, #1E1B4B 100%);
-}
-
-.galaxy-gradient-subtle {
-  background: linear-gradient(180deg, #1E1B4B 0%, #0F172A 100%);
-}
-
-/* Focus Mode - Exams & Practice */
+/* Focus Mode - Clean Academic */
 .focus-mode {
-  background-color: var(--color-focus-bg);
-  color: var(--color-focus-text);
+  background-color: var(--color-primary-bg);
+  color: var(--color-text-primary);
 }
 
 .focus-mode-card {
-  background-color: var(--color-focus-card);
-  border-color: #1E293B;
+  background-color: var(--color-secondary-bg);
+  border-color: var(--color-border);
 }
 
 .focus-mode-text {
-  color: var(--color-focus-text);
+  color: var(--color-text-primary);
 }
 
 .focus-mode-text-secondary {
-  color: var(--color-focus-text-secondary);
+  color: var(--color-text-secondary);
 }
 
 /* Component Enhancements */
@@ -224,7 +153,7 @@ p {
 }
 
 .card-premium {
-  background: white;
+  background: var(--color-secondary-bg);
   border: 1px solid var(--color-border);
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -237,7 +166,7 @@ p {
 
 .card-selected {
   border-color: var(--color-accent-primary);
-  background: rgba(99, 102, 241, 0.05);
+  background: rgba(30, 58, 138, 0.05);
 }
 
 /* Custom scrollbar */
@@ -247,17 +176,17 @@ p {
 }
 
 ::-webkit-scrollbar-track {
-  background: #1a1f2e;
+  background: var(--color-muted-bg);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2a3448;
+  background: var(--color-border);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3a4558;
+  background: var(--color-text-muted);
 }
 
 /* Smooth animations */
@@ -271,7 +200,7 @@ a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid var(--color-border-focus);
   outline-offset: 2px;
 }
 

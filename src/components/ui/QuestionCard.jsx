@@ -98,18 +98,18 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
 
   return (
     <QuestionIntegrityGuard question={question}>
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-[#CBD5E1] shadow-sm overflow-hidden">
       {/* Question Header */}
-      <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-        <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
-          <span className="px-2 py-0.5 bg-slate-200 rounded-full font-medium">
+      <div className="px-6 py-4 border-b border-[#E5E7EB] bg-[#F1F5F9]">
+        <div className="flex items-center gap-2 text-xs text-[#64748B] mb-1">
+          <span className="px-2 py-0.5 bg-[#E5E7EB] rounded-full font-medium text-[#334155]">
             {question.skill_name}
           </span>
           <span className={cn(
             "px-2 py-0.5 rounded-full font-medium",
-            question.difficulty === 'easy' && "bg-emerald-100 text-emerald-700",
-            question.difficulty === 'medium' && "bg-amber-100 text-amber-700",
-            question.difficulty === 'hard' && "bg-rose-100 text-rose-700"
+            question.difficulty === 'easy' && "bg-[#DCFCE7] text-[#16A34A]",
+            question.difficulty === 'medium' && "bg-[#FEF3C7] text-[#D97706]",
+            question.difficulty === 'hard' && "bg-[#FEE2E2] text-[#DC2626]"
           )}>
             {question.difficulty}
           </span>
@@ -124,8 +124,8 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
               rehypePlugins={[rehypeKatex]}
               components={{
                 p: ({ children }) => <p className="leading-relaxed my-2">{children}</p>,
-                u: ({ children }) => <u className="decoration-2 decoration-slate-600 underline-offset-2">{children}</u>,
-                strong: ({ children }) => <strong className="font-semibold text-slate-900">{children}</strong>,
+                u: ({ children }) => <u className="decoration-2 decoration-[#1E3A8A] underline-offset-2">{children}</u>,
+                strong: ({ children }) => <strong className="font-semibold text-[#0F172A]">{children}</strong>,
               }}
             >
               {question.question_text}
@@ -305,18 +305,18 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
           const isCorrectAnswer = key === question.correct_answer;
           const isEliminated = eliminatedChoices.includes(key);
           
-          let choiceStyle = "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50";
-          
+          let choiceStyle = "bg-white border-[#CBD5E1] hover:border-[#1E3A8A] hover:bg-[#F8FAFC]";
+
           if (showResult) {
             if (isCorrectAnswer) {
-              choiceStyle = "bg-emerald-50 border-emerald-500 text-emerald-900";
+              choiceStyle = "bg-[#DCFCE7] border-[#16A34A] text-[#0F172A]";
             } else if (isSelected && !isCorrectAnswer) {
-              choiceStyle = "bg-rose-50 border-rose-500 text-rose-900";
+              choiceStyle = "bg-[#FEE2E2] border-[#DC2626] text-[#0F172A]";
             } else {
-              choiceStyle = "bg-slate-50 border-slate-200 text-slate-400";
+              choiceStyle = "bg-[#F1F5F9] border-[#CBD5E1] text-[#64748B]";
             }
           } else if (isSelected) {
-            choiceStyle = "bg-slate-900 border-slate-900 text-white";
+            choiceStyle = "bg-[#1E3A8A] border-[#1E3A8A] text-white";
           }
 
           return (
@@ -332,10 +332,10 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
               >
                 <span className={cn(
                   "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-sm font-semibold",
-                  showResult && isCorrectAnswer && "bg-emerald-500 text-white",
-                  showResult && isSelected && !isCorrectAnswer && "bg-rose-500 text-white",
-                  !showResult && isSelected && "bg-white text-slate-900",
-                  !showResult && !isSelected && "bg-slate-100 text-slate-600"
+                  showResult && isCorrectAnswer && "bg-[#16A34A] text-white",
+                  showResult && isSelected && !isCorrectAnswer && "bg-[#DC2626] text-white",
+                  !showResult && isSelected && "bg-white text-[#1E3A8A]",
+                  !showResult && !isSelected && "bg-[#E5E7EB] text-[#334155]"
                 )}>
                   {showResult && isCorrectAnswer && <Check className="w-4 h-4" />}
                   {showResult && isSelected && !isCorrectAnswer && <X className="w-4 h-4" />}
@@ -357,7 +357,7 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
                   className={cn(
                     "absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all",
                     "opacity-0 group-hover:opacity-100",
-                    isEliminated ? "bg-rose-500 text-white" : "bg-slate-200 text-slate-600 hover:bg-slate-300"
+                    isEliminated ? "bg-[#DC2626] text-white" : "bg-[#E5E7EB] text-[#334155] hover:bg-[#CBD5E1]"
                   )}
                   title={isEliminated ? "Restore" : "Eliminate"}
                 >
@@ -382,12 +382,12 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
               Show Hint
             </Button>
           ) : (
-            <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="p-4 bg-[#FEF3C7] border border-[#FDE68A] rounded-lg">
               <div className="flex items-center gap-2 mb-2">
-                <Lightbulb className="w-4 h-4 text-amber-600" />
-                <span className="font-semibold text-amber-800 text-sm">Hint</span>
+                <Lightbulb className="w-4 h-4 text-[#D97706]" />
+                <span className="font-semibold text-[#92400E] text-sm">Hint</span>
               </div>
-              <p className="text-sm text-amber-900">{question.hint}</p>
+              <p className="text-sm text-[#78350F]">{question.hint}</p>
             </div>
           )}
         </div>
@@ -409,14 +409,14 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
 
       {/* Feedback (Practice Mode) - Show for all answers */}
       {showResult && isCorrect && (
-        <div className="px-6 py-5 border-t bg-emerald-50 border-emerald-100">
+        <div className="px-6 py-5 border-t bg-[#DCFCE7] border-[#86EFAC]">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
+            <div className="w-6 h-6 rounded-full bg-[#16A34A] flex items-center justify-center">
               <Check className="w-4 h-4 text-white" />
             </div>
-            <span className="font-semibold text-emerald-800">Correct!</span>
+            <span className="font-semibold text-[#15803D]">Correct!</span>
           </div>
-          <div className="prose prose-sm max-w-none text-slate-700">
+          <div className="prose prose-sm max-w-none text-[#334155]">
             <p className="font-medium text-slate-900 mb-2">Explanation:</p>
             <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
               {question.explanation}
@@ -468,12 +468,12 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
         </div>
       )}
       {showResult && !isCorrect && (
-        <div className="px-6 py-5 border-t bg-rose-50 border-rose-100">
+        <div className="px-6 py-5 border-t bg-[#FEE2E2] border-[#FECACA]">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-6 h-6 rounded-full bg-rose-500 flex items-center justify-center">
+            <div className="w-6 h-6 rounded-full bg-[#DC2626] flex items-center justify-center">
               <X className="w-4 h-4 text-white" />
             </div>
-            <span className="font-semibold text-rose-800">Incorrect</span>
+            <span className="font-semibold text-[#991B1B]">Incorrect</span>
           </div>
           <div className="mb-3">
             <p className="text-sm font-medium text-slate-700 mb-1">Correct Answer: {question.correct_answer}</p>
