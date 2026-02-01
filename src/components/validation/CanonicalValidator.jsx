@@ -39,13 +39,17 @@ export class CanonicalValidator {
     const isMathSubject = mathSubjects.some(s => question.subject_id?.includes(s) || question.subject_id?.includes('calc') || question.subject_id?.includes('physics') || question.subject_id?.includes('chem'));
     
     if (isMathSubject) {
-      const latexErrors = LatexValidator.validate(question);
-      errors.push(...latexErrors);
+      const latexResult = LatexValidator.validate(question);
+      if (latexResult && !latexResult.valid && latexResult.errors) {
+        errors.push(...latexResult.errors.flatMap(e => e.errors || []));
+      }
     }
     
     // Step 4: Answer uniqueness validation
-    const answerErrors = AnswerValidator.validate(question);
-    errors.push(...answerErrors);
+    const answerResult = AnswerValidator.validate(question);
+    if (answerResult && !answerResult.valid && Array.isArray(answerResult.errors)) {
+      errors.push(...answerResult.errors);
+    }
     
     // Step 5: Canonical answer derivation (if canonical_representation exists)
     if (question.canonical_representation) {
