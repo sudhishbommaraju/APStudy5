@@ -183,4 +183,9 @@ export class LatexValidator {
       errors: allErrors
     };
   }
+
+  // Alias for compatibility
+  static validate(question) {
+    return this.validateAllFields(question);
+  }
 }
