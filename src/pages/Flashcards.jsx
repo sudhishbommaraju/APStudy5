@@ -31,6 +31,7 @@ export default function Flashcards() {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [studyCards, setStudyCards] = useState([]);
+  const [generationLock, setGenerationLock] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -69,8 +70,9 @@ export default function Flashcards() {
   });
 
   const generateFlashcards = async () => {
-    if (!selectedUnit || !topics) return;
+    if (!selectedUnit || !topics || generationLock) return;
     
+    setGenerationLock(true);
     setGenerating(true);
     try {
       const subject = subjects.find(s => s.subject_id === selectedSubject);
@@ -152,8 +154,10 @@ VERIFY: All formulas written ONCE in LaTeX format only`;
       setTopics('');
     } catch (e) {
       console.error('Failed to generate flashcards:', e);
+    } finally {
+      setGenerating(false);
+      setGenerationLock(false);
     }
-    setGenerating(false);
   };
 
   const startStudySession = () => {
@@ -384,7 +388,7 @@ VERIFY: All formulas written ONCE in LaTeX format only`;
                 </div>
                 <Button
                   onClick={generateFlashcards}
-                  disabled={generating || !selectedUnit || !topics}
+                  disabled={generating || generationLock || !selectedUnit || !topics}
                   className="w-full bg-violet-600 hover:bg-violet-700"
                 >
                   {generating ? (

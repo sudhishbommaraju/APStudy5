@@ -27,6 +27,7 @@ export default function Notes() {
   const [generating, setGenerating] = useState(false);
   const [topics, setTopics] = useState('');
   const [generatedNote, setGeneratedNote] = useState(null);
+  const [generationLock, setGenerationLock] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -60,8 +61,9 @@ export default function Notes() {
   });
 
   const generateNotes = async () => {
-    if (!selectedUnit || !topics) return;
+    if (!selectedUnit || !topics || generationLock) return;
     
+    setGenerationLock(true);
     setGenerating(true);
     try {
       const subject = subjects.find(s => s.subject_id === selectedSubject);
@@ -218,8 +220,10 @@ FINAL CHECK BEFORE RETURNING:
       setTopics('');
     } catch (e) {
       console.error('Failed to generate notes:', e);
+    } finally {
+      setGenerating(false);
+      setGenerationLock(false);
     }
-    setGenerating(false);
   };
 
   return (
@@ -313,7 +317,7 @@ FINAL CHECK BEFORE RETURNING:
                 </div>
                 <Button
                   onClick={generateNotes}
-                  disabled={generating || !selectedUnit || !topics}
+                  disabled={generating || generationLock || !selectedUnit || !topics}
                   className="w-full bg-violet-600 hover:bg-violet-700"
                 >
                   {generating ? (
