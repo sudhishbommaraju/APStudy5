@@ -122,17 +122,18 @@ export default function Practice() {
     }, WATCHDOG_MS);
 
     try {
-      const { allowed } = await checkCredits(user, 'daily_practice_count');
-      if (!allowed) {
-        clearTimeout(timeoutId);
-        setUpgradeModalOpen(true);
-        setIsGenerating(false);
-        setGenerationProgress(null);
-        return;
-      }
+      // Skip credit check - allow unlimited generation
+      // const { allowed } = await checkCredits(user, 'daily_practice_count');
+      // if (!allowed) {
+      //   clearTimeout(timeoutId);
+      //   setUpgradeModalOpen(true);
+      //   setIsGenerating(false);
+      //   setGenerationProgress(null);
+      //   return;
+      // }
 
-      const updatedUser = await useCredit(user, 'daily_practice_count');
-      setUser(updatedUser);
+      // const updatedUser = await useCredit(user, 'daily_practice_count');
+      // setUser(updatedUser);
 
       const subject = subjectsData.find(s => s.subject_id === plan.subject_id);
       const planUnits = await base44.entities.Unit.filter({ subject_id: plan.subject_id });
@@ -213,18 +214,18 @@ export default function Practice() {
     }, FRONTEND_WATCHDOG_MS);
     
     try {
-      // Credit check
-      const { allowed } = await checkCredits(user, 'daily_practice_count');
-      if (!allowed) {
-        clearTimeout(timeoutId);
-        setUpgradeModalOpen(true);
-        setIsGenerating(false);
-        setGenerationProgress(null);
-        return;
-      }
+      // Skip credit check - allow unlimited generation
+      // const { allowed } = await checkCredits(user, 'daily_practice_count');
+      // if (!allowed) {
+      //   clearTimeout(timeoutId);
+      //   setUpgradeModalOpen(true);
+      //   setIsGenerating(false);
+      //   setGenerationProgress(null);
+      //   return;
+      // }
 
-      const updatedUser = await useCredit(user, 'daily_practice_count');
-      setUser(updatedUser);
+      // const updatedUser = await useCredit(user, 'daily_practice_count');
+      // setUser(updatedUser);
 
       // Fetch units
       const subjectUnits = await base44.entities.Unit.filter({ subject_id: selectedSubject });
@@ -540,9 +541,19 @@ export default function Practice() {
     );
   }
 
-  // Loading state - Show progress
-  if (isGenerating && generationProgress) {
-    return <GenerationProgress progress={generationProgress} />;
+  // Loading state - Simple generating text
+  if (isGenerating) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center px-4">
+        <Loader2 className="w-16 h-16 text-violet-500 animate-spin mb-6" />
+        <h2 className="text-2xl font-bold text-slate-100 mb-2">Generating Practice Questions</h2>
+        <p className="text-slate-400">
+          {generationProgress ? 
+            `${generationProgress.current} of ${generationProgress.total} questions generated...` :
+            'Setting up your practice session...'}
+        </p>
+      </div>
+    );
   }
 
   // Error state - Show retry UI

@@ -130,32 +130,28 @@ export class SafeQuestionGenerator {
       // Call AI
       const aiResponse = await this.callAIGeneration({ subject_id, unit, skill, difficulty });
       
-      // Basic validation only
-      const cleanedData = GenerationValidator.validateBeforeSave({
+      // Create question data directly without heavy validation
+      const questionData = {
         subject_id,
         unit_id: unit?.id || '',
         skill_id: skill?.id || '',
         unit_name: unit?.unit_name || '',
         skill_name: skill?.skill_name || 'General',
         difficulty,
-        ...aiResponse
-      });
-      
-      if (!cleanedData.valid) {
-        console.warn(`[SafeQuestionGenerator] Validation warning:`, cleanedData.errors);
-      }
-      
-      // Use cleaned or original data
-      const questionData = cleanedData.valid ? cleanedData.cleaned : {
-        subject_id,
-        unit_id: unit?.id || '',
-        skill_id: skill?.id || '',
-        unit_name: unit?.unit_name || '',
-        skill_name: skill?.skill_name || 'General',
-        difficulty,
-        ...aiResponse,
+        question_text: aiResponse.question_text,
+        choice_a: aiResponse.choice_a,
+        choice_b: aiResponse.choice_b,
+        choice_c: aiResponse.choice_c,
+        choice_d: aiResponse.choice_d,
+        correct_answer: aiResponse.correct_answer,
+        explanation: aiResponse.explanation,
+        hint: aiResponse.hint || '',
+        wrong_answer_explanations: aiResponse.wrong_answer_explanations || {},
+        table_data: '',
+        graph_data: '',
+        is_ai_generated: true,
         validation_status: 'unvalidated',
-        validation_errors: cleanedData.errors || []
+        validation_errors: []
       };
       
       // Save
