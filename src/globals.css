@@ -189,9 +189,57 @@ p {
   background: var(--color-text-muted);
 }
 
-/* Smooth animations */
+/* Ultra-smooth animations and scrolling */
 * {
   scroll-behavior: smooth;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  overflow-x: hidden;
+  will-change: scroll-position;
+}
+
+/* Smooth scroll with momentum */
+* {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hardware acceleration for smooth transitions */
+.smooth-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Page transitions */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth card animations */
+.card-smooth {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.card-smooth:hover {
+  transform: translateY(-2px) translateZ(0);
 }
 
 /* Better focus states */
