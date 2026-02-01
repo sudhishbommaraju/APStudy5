@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { Loader2, Check } from 'lucide-react';
+import { Loader2, Check, Sparkles } from 'lucide-react';
+import { SATACTGenerator } from '@/components/generation/SATACTGenerator';
 
 const SUBJECTS_DATA = [
   { subject_id: 'ap_calculus_ab', name: 'AP Calculus AB', category: 'Math', icon: '∫' },
@@ -292,6 +293,10 @@ export default function SeedData() {
   const [user, setUser] = useState(null);
   const [seeding, setSeeding] = useState(false);
   const [done, setDone] = useState(false);
+  const [generatingSAT, setGeneratingSAT] = useState(false);
+  const [generatingACT, setGeneratingACT] = useState(false);
+  const [satDone, setSatDone] = useState(false);
+  const [actDone, setActDone] = useState(false);
   
   useEffect(() => {
     const loadUser = async () => {
@@ -334,22 +339,101 @@ export default function SeedData() {
     setSeeding(false);
   };
 
+  const generateSATQuestions = async () => {
+    setGeneratingSAT(true);
+    try {
+      await SATACTGenerator.batchGenerate({
+        test: 'SAT',
+        sections: ['reading_writing', 'math'],
+        questionsPerSection: 20
+      });
+      setSatDone(true);
+    } catch (e) {
+      console.error('SAT generation failed:', e);
+      alert('Failed to generate SAT questions');
+    }
+    setGeneratingSAT(false);
+  };
+
+  const generateACTQuestions = async () => {
+    setGeneratingACT(true);
+    try {
+      await SATACTGenerator.batchGenerate({
+        test: 'ACT',
+        sections: ['english', 'math', 'reading', 'science'],
+        questionsPerSection: 15
+      });
+      setActDone(true);
+    } catch (e) {
+      console.error('ACT generation failed:', e);
+      alert('Failed to generate ACT questions');
+    }
+    setGeneratingACT(false);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl border border-slate-200 p-8 max-w-md text-center">
-        <h1 className="text-2xl font-bold text-slate-900 mb-4">Seed Database</h1>
-        <p className="text-slate-600 mb-6">
-          Click below to populate the database with all AP subjects and units.
-        </p>
-        <Button 
-          onClick={seedDatabase} 
-          disabled={seeding || done}
-          className="w-full"
-        >
-          {seeding && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-          {done && <Check className="w-4 h-4 mr-2" />}
-          {done ? 'Database Seeded!' : seeding ? 'Seeding...' : 'Seed Database'}
-        </Button>
+      <div className="bg-white rounded-xl border border-slate-200 p-8 max-w-2xl">
+        <h1 className="text-2xl font-bold text-slate-900 mb-4">Database Seeding</h1>
+        
+        {/* Seed Subjects & Units */}
+        <div className="mb-8 p-6 bg-slate-50 rounded-lg">
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">Step 1: Seed Subjects & Units</h2>
+          <p className="text-slate-600 mb-4">
+            Populate database with all AP subjects, SAT, ACT, and their units.
+          </p>
+          <Button 
+            onClick={seedDatabase} 
+            disabled={seeding || done}
+            className="w-full"
+          >
+            {seeding && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            {done && <Check className="w-4 h-4 mr-2" />}
+            {done ? 'Database Seeded!' : seeding ? 'Seeding...' : 'Seed Database'}
+          </Button>
+        </div>
+
+        {/* Generate SAT Questions */}
+        <div className="mb-8 p-6 bg-blue-50 rounded-lg">
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">Step 2: Generate SAT Questions</h2>
+          <p className="text-slate-600 mb-4">
+            Generate 40 SAT questions (20 Reading/Writing + 20 Math) with flashcards and notes.
+          </p>
+          <Button 
+            onClick={generateSATQuestions} 
+            disabled={generatingSAT || satDone || !done}
+            className="w-full bg-blue-600 hover:bg-blue-700"
+          >
+            {generatingSAT && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            {satDone && <Check className="w-4 h-4 mr-2" />}
+            {!done && !satDone && <Sparkles className="w-4 h-4 mr-2" />}
+            {satDone ? 'SAT Questions Generated!' : generatingSAT ? 'Generating SAT...' : 'Generate SAT Questions'}
+          </Button>
+        </div>
+
+        {/* Generate ACT Questions */}
+        <div className="p-6 bg-green-50 rounded-lg">
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">Step 3: Generate ACT Questions</h2>
+          <p className="text-slate-600 mb-4">
+            Generate 60 ACT questions (15 per section) with flashcards and notes.
+          </p>
+          <Button 
+            onClick={generateACTQuestions} 
+            disabled={generatingACT || actDone || !done}
+            className="w-full bg-green-600 hover:bg-green-700"
+          >
+            {generatingACT && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+            {actDone && <Check className="w-4 h-4 mr-2" />}
+            {!done && !actDone && <Sparkles className="w-4 h-4 mr-2" />}
+            {actDone ? 'ACT Questions Generated!' : generatingACT ? 'Generating ACT...' : 'Generate ACT Questions'}
+          </Button>
+        </div>
+
+        {satDone && actDone && (
+          <div className="mt-6 p-4 bg-violet-50 border border-violet-200 rounded-lg text-center">
+            <p className="text-violet-900 font-semibold">✨ All Done! 100+ SAT/ACT questions with notes and flashcards generated.</p>
+          </div>
+        )}
       </div>
     </div>
   );
