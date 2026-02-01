@@ -130,35 +130,55 @@ export default function SATPractice() {
   const generateReadingWritingPrompt = () => {
     return `Generate an ORIGINAL SAT Reading & Writing question in the style of College Board Progress Checks.
 
+SAT READING/WRITING RULES (MANDATORY):
+✓ NO LaTeX allowed (text-only subject)
+✓ Passage: 120-180 words ONLY
+✓ Short paragraphs, clear structure
+✓ Quoted text in italics
+✓ Professional academic tone
+❌ NO math formatting
+❌ NO LaTeX blocks
+❌ NO symbols or equations
+
 CRITICAL RULES:
-1. Passage: 120-180 words ONLY
-2. Question types: Central Idea, Command of Evidence, Words in Context, Grammar/Conventions
-3. Answer choices must be TIGHT distractors - all plausible
-4. ONE passage → ONE question
-5. Use LaTeX for any math symbols: $x^2$, not x²
+1. Question types: Central Idea, Command of Evidence, Words in Context, Grammar/Conventions
+2. Answer choices must be TIGHT distractors - all plausible
+3. ONE passage → ONE question
+4. Plain English only
 
 ORIGINAL CONTENT REQUIRED:
 - Create your own passage - do NOT copy existing SAT passages
 - Passage can be about: science discovery, historical event, literary analysis, social issue
-- Professional academic tone
 
 Return JSON with:
-- passage: the 120-180 word reading passage
-- question_text: the specific question
-- choice_a, choice_b, choice_c, choice_d: four plausible answers
+- passage: the 120-180 word reading passage (plain text)
+- question_text: the specific question (plain text)
+- choice_a, choice_b, choice_c, choice_d: four plausible answers (plain text)
 - correct_answer: "A", "B", "C", or "D"
-- explanation: why correct answer is right
+- explanation: why correct answer is right (plain text)
 - wrong_answer_explanations: object with A, B, C, D keys explaining why each wrong answer is wrong`;
   };
 
   const generateMathPrompt = () => {
     return `Generate an ORIGINAL SAT Math question (Heart of Algebra, Problem Solving & Data Analysis, or Passport to Advanced Math).
 
+SAT MATH FORMATTING RULES (MANDATORY):
+✓ ALL math in LaTeX: $x^2 + 3x - 4 = 0$
+✓ Units with \\text{}: $20\\,\\text{m/s}$
+✓ Block equations when needed:
+$$
+x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}
+$$
+✓ Write each formula ONCE only
+❌ NEVER write "ext" without \\text{}
+❌ NEVER duplicate formulas: "$x=5$x=5"
+❌ NEVER use malformed units: "m/s2", "extm"
+❌ NO raw unicode: x², use $x^2$
+
 CRITICAL RULES:
 1. Multiple choice (A-D) format
-2. MUST use LaTeX for ALL math: $x^2 + 3x + 2 = 0$, not x² + 3x + 2 = 0
-3. Realistic SAT difficulty - not too easy, not impossibly hard
-4. Include brief context if needed (word problem)
+2. Realistic SAT difficulty - not too easy, not impossibly hard
+3. Include brief context if needed (word problem)
 
 Domains to rotate:
 - Heart of Algebra: linear equations, inequalities, systems
@@ -166,11 +186,17 @@ Domains to rotate:
 - Passport to Advanced Math: quadratics, exponentials, functions
 
 Return JSON with:
-- question_text: the problem (use LaTeX for math)
-- choice_a, choice_b, choice_c, choice_d: numerical or algebraic answers (use LaTeX)
+- question_text: the problem (LaTeX for all math)
+- choice_a, choice_b, choice_c, choice_d: numerical or algebraic answers (LaTeX)
 - correct_answer: "A", "B", "C", or "D"
-- explanation: step-by-step solution (use LaTeX)
-- wrong_answer_explanations: why each wrong answer is wrong`;
+- explanation: step-by-step solution (LaTeX)
+- wrong_answer_explanations: why each wrong answer is wrong
+
+FINAL CHECK:
+✓ ALL math in proper LaTeX
+✓ NO "ext" corruption
+✓ NO duplication
+✓ Units properly formatted`;
   };
 
   const generateNotesAndFlashcards = async (section, questions) => {

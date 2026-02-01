@@ -124,6 +124,15 @@ export default function ACTPractice() {
     const prompts = {
       english: `Generate an ORIGINAL ACT English question (passage-based editing).
 
+ACT ENGLISH RULES (MANDATORY):
+✓ NO LaTeX allowed (text-only subject)
+✓ Plain English only
+✓ Underlined text clearly marked
+✓ Grammar rule stated clearly
+✓ Example sentences in quotes
+❌ NO math formatting
+❌ NO LaTeX blocks
+
 CRITICAL RULES:
 1. Provide a 3-5 sentence passage with ONE underlined portion
 2. Question tests grammar, punctuation, style, or organization
@@ -136,22 +145,39 @@ Return JSON with:
 - choice_a: "NO CHANGE"
 - choice_b, choice_c, choice_d: alternative versions
 - correct_answer: "A", "B", "C", or "D"
-- explanation: grammar rule or style principle
+- explanation: grammar rule or style principle (plain text)
 - wrong_answer_explanations: why each wrong choice is incorrect`,
 
       math: `Generate an ORIGINAL ACT Math question (algebra, geometry, or trigonometry).
 
+ACT MATH FORMATTING RULES (MANDATORY):
+✓ ALL math in LaTeX: $x^2 + 5x - 6 = 0$
+✓ Units with \\text{}: $15\\,\\text{cm}$
+✓ Write each formula ONCE only
+✓ Block equations for complex math:
+$$
+\\sin^2(x) + \\cos^2(x) = 1
+$$
+❌ NEVER write "ext" without \\text{}
+❌ NEVER duplicate: "$x=3$x=3"
+❌ NEVER use malformed units
+❌ NO raw unicode: x², use $x^2$
+
 CRITICAL RULES:
-1. MUST use LaTeX for ALL math: $x^2 + 5x - 6 = 0$, not x² + 5x - 6 = 0
-2. ACT style: straightforward, tests concept directly
-3. Domains: Pre-Algebra, Elementary Algebra, Intermediate Algebra, Coordinate Geometry, Plane Geometry, Trigonometry
+1. ACT style: straightforward, tests concept directly
+2. Domains: Pre-Algebra, Elementary Algebra, Intermediate Algebra, Coordinate Geometry, Plane Geometry, Trigonometry
 
 Return JSON with:
-- question_text: the problem (use LaTeX)
-- choice_a, choice_b, choice_c, choice_d: answer options (use LaTeX)
+- question_text: the problem (LaTeX for all math)
+- choice_a, choice_b, choice_c, choice_d: answer options (LaTeX)
 - correct_answer: "A", "B", "C", or "D"
-- explanation: solution steps (use LaTeX)
-- wrong_answer_explanations: common mistakes leading to wrong answers`,
+- explanation: solution steps (LaTeX)
+- wrong_answer_explanations: common mistakes
+
+FINAL CHECK:
+✓ ALL math in proper LaTeX
+✓ NO "ext" corruption  
+✓ NO duplication`,
 
       reading: `Generate an ORIGINAL ACT Reading passage and question.
 
@@ -170,19 +196,34 @@ Return JSON with:
 
       science: `Generate an ORIGINAL ACT Science question (data interpretation).
 
+ACT SCIENCE RULES (MANDATORY):
+✓ Text descriptions first (plain English)
+✓ LaTeX for calculations: $\\Delta T = T_2 - T_1$
+✓ Units with \\text{}: $25\\,\\text{°C}$
+✓ Data interpretation in plain English
+✓ Write calculations ONCE only
+❌ NEVER write "ext" without \\text{}
+❌ NEVER duplicate formulas
+❌ NO malformed units
+
 CRITICAL RULES:
 1. Provide a DATA TABLE or describe a simple experiment
 2. Question tests: reading graphs, interpreting trends, or drawing conclusions
 3. Science REASONING first, science KNOWLEDGE second
-4. Use LaTeX for any formulas: $\\frac{distance}{time}$
+4. Hybrid format: text + LaTeX only when needed
 
 Return JSON with:
-- passage: describe the table/experiment (can include markdown table)
+- passage: describe the table/experiment (plain text + markdown table if needed)
 - question_text: data interpretation question
 - choice_a, choice_b, choice_c, choice_d: answer options
 - correct_answer: "A", "B", "C", or "D"
-- explanation: how to read the data
-- wrong_answer_explanations: common misinterpretations`
+- explanation: how to read the data (use LaTeX only for calculations)
+- wrong_answer_explanations: common misinterpretations
+
+FINAL CHECK:
+✓ Text-first approach
+✓ LaTeX only for math
+✓ NO corruption patterns`
     };
 
     return prompts[section] || prompts.english;
