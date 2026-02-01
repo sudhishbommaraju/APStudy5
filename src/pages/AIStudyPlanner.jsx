@@ -190,7 +190,7 @@ Format as a detailed, actionable plan that motivates the student.`;
         >
           {/* Subject Selection */}
           <div className="bg-white rounded-xl border border-[#CBD5E1] p-6">
-            <label className="text-sm font-medium text-[#0F172A] mb-3 block">
+            <label className="text-sm font-medium text-[#000000] mb-3 block">
               What subjects do you want to study?
             </label>
             <div className="space-y-2 max-h-64 overflow-y-auto bg-[#F8FAFC] rounded-lg p-3 border border-[#E5E7EB]">
@@ -218,7 +218,7 @@ Format as a detailed, actionable plan that motivates the student.`;
 
           {/* Target Date */}
           <div className="bg-white rounded-xl border border-[#CBD5E1] p-6">
-            <label className="text-sm font-medium text-[#0F172A] mb-3 block">
+            <label className="text-sm font-medium text-[#000000] mb-3 block">
               When is your target date?
             </label>
             <Input
@@ -226,13 +226,13 @@ Format as a detailed, actionable plan that motivates the student.`;
               value={targetDate}
               onChange={(e) => setTargetDate(e.target.value)}
               min={format(new Date(), 'yyyy-MM-dd')}
-              className="bg-white border-[#CBD5E1] text-[#0F172A]"
+              className="bg-white border-[#CBD5E1] text-[#000000]"
             />
           </div>
 
           {/* Current Level */}
           <div className="bg-white rounded-xl border border-[#CBD5E1] p-6">
-            <label className="text-sm font-medium text-[#0F172A] mb-3 block">
+            <label className="text-sm font-medium text-[#000000] mb-3 block">
               What's your current level?
             </label>
             <Select value={currentLevel} onValueChange={setCurrentLevel}>
@@ -249,7 +249,7 @@ Format as a detailed, actionable plan that motivates the student.`;
 
           {/* Study Goal */}
           <div className="bg-white rounded-xl border border-[#CBD5E1] p-6">
-            <label className="text-sm font-medium text-[#0F172A] mb-3 block">
+            <label className="text-sm font-medium text-[#000000] mb-3 block">
               What's your study goal? (Optional)
             </label>
             <Textarea
