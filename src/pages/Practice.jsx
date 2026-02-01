@@ -114,7 +114,7 @@ export default function Practice() {
     setGenerationProgress({ phase: 'initializing', current: 0, total: 10, message: 'Preparing to generate questions...' });
 
     // FRONTEND WATCHDOG
-    const WATCHDOG_MS = 15000;
+    const WATCHDOG_MS = 25000;
     const timeoutId = setTimeout(() => {
       setIsGenerating(false);
       setGenerationProgress(null);
@@ -157,7 +157,7 @@ export default function Practice() {
         count: 10,
         difficulty: 'medium',
         onProgress: setGenerationProgress,
-        maxTimeMs: 12000
+        maxTimeMs: 20000
       });
 
       // VALIDATE
@@ -203,8 +203,8 @@ export default function Practice() {
     setError(null);
     setGenerationProgress({ phase: 'initializing', current: 0, total: questionCount, message: 'Starting generation...' });
 
-    // HARD TIMEOUT: 15 seconds maximum (LIVENESS GUARANTEE)
-    const FRONTEND_WATCHDOG_MS = 15000;
+    // HARD TIMEOUT: 25 seconds maximum (LIVENESS GUARANTEE)
+    const FRONTEND_WATCHDOG_MS = 25000;
     const timeoutId = setTimeout(() => {
       // FORCE EXIT LOADING STATE
       setIsGenerating(false);
@@ -248,7 +248,7 @@ export default function Practice() {
         count: questionCount,
         difficulty: 'medium',
         onProgress: setGenerationProgress,
-        maxTimeMs: 12000 // 12s backend limit (3s buffer before frontend watchdog)
+        maxTimeMs: 20000 // 20s backend limit
       });
 
       // VALIDATE BEFORE SETTING STATE
