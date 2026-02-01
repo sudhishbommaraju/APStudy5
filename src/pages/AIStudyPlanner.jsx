@@ -209,7 +209,7 @@ Format as a detailed, actionable plan that motivates the student.`;
                     className="w-4 h-4 rounded border-slate-600 text-violet-600"
                   />
                   <span className="text-sm text-slate-300">
-                    {subject.icon} {subject.name}
+                    {typeof subject.icon === 'string' ? subject.icon : ''} {subject.name}
                   </span>
                 </label>
               ))}
@@ -308,7 +308,7 @@ Format as a detailed, actionable plan that motivates the student.`;
             <div className="flex gap-2">
               {generatedPlan.subjects.map(s => (
                 <span key={s.subject_id} className="px-3 py-1 bg-slate-800/60 rounded-full text-sm text-slate-200">
-                  {s.icon} {s.name}
+                  {typeof s.icon === 'string' ? s.icon : ''} {s.name}
                 </span>
               ))}
             </div>
