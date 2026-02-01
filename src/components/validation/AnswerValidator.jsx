@@ -163,4 +163,22 @@ export class AnswerValidator {
       errors,
     };
   }
+
+  // Alias for compatibility
+  static validate(question) {
+    const mcqResult = this.validateMCQ(question);
+    const explanationResult = this.validateExplanation(question);
+    const wrongExplResult = this.validateWrongAnswerExplanations(question);
+
+    const allErrors = [
+      ...mcqResult.errors,
+      ...explanationResult.errors,
+      ...wrongExplResult.errors
+    ];
+
+    return {
+      valid: allErrors.length === 0,
+      errors: allErrors
+    };
+  }
 }
