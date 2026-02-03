@@ -6,12 +6,13 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { Eye, Edit3 } from 'lucide-react';
 
-export default function LatexStepInput({ onSubmit, canonicalSolution }) {
+export default function LatexStepInput({ onSubmit, canonicalSolution = '' }) {
   const [studentSteps, setStudentSteps] = useState('');
   const [showPreview, setShowPreview] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = () => {
+    if (!studentSteps.trim()) return;
     setSubmitted(true);
     onSubmit(studentSteps);
   };
