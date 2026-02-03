@@ -68,7 +68,7 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <GlobalErrorBoundary FallbackComponent={RouteErrorFallback}>
-      <div className="min-h-screen bg-[#F8FAFC]">
+      <div className="min-h-screen bg-[#0C0C0C]">
         <GlobalNav />
         <main className="max-w-7xl mx-auto px-6 py-8 pt-24">
           {children}
