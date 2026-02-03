@@ -47,6 +47,7 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import ACTPractice from './pages/ACTPractice';
 import AIStudyPlanner from './pages/AIStudyPlanner';
 import About from './pages/About';
 import AdminUsers from './pages/AdminUsers';
@@ -69,6 +70,7 @@ import Pricing from './pages/Pricing';
 import Progress from './pages/Progress';
 import QuestionValidation from './pages/QuestionValidation';
 import Rewards from './pages/Rewards';
+import SATPractice from './pages/SATPractice';
 import SeedData from './pages/SeedData';
 import Settings from './pages/Settings';
 import StudyGroups from './pages/StudyGroups';
@@ -76,12 +78,11 @@ import StudyPlans from './pages/StudyPlans';
 import TeacherMode from './pages/TeacherMode';
 import Tutor from './pages/Tutor';
 import ValidationDashboard from './pages/ValidationDashboard';
-import SATPractice from './pages/SATPractice';
-import ACTPractice from './pages/ACTPractice';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "ACTPractice": ACTPractice,
     "AIStudyPlanner": AIStudyPlanner,
     "About": About,
     "AdminUsers": AdminUsers,
@@ -104,6 +105,7 @@ export const PAGES = {
     "Progress": Progress,
     "QuestionValidation": QuestionValidation,
     "Rewards": Rewards,
+    "SATPractice": SATPractice,
     "SeedData": SeedData,
     "Settings": Settings,
     "StudyGroups": StudyGroups,
@@ -111,8 +113,6 @@ export const PAGES = {
     "TeacherMode": TeacherMode,
     "Tutor": Tutor,
     "ValidationDashboard": ValidationDashboard,
-    "SATPractice": SATPractice,
-    "ACTPractice": ACTPractice,
 }
 
 export const pagesConfig = {

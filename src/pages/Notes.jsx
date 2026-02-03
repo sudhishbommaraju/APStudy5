@@ -18,6 +18,8 @@ import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import StudyTimer from '@/components/study/StudyTimer';
+import AITutorWidget from '@/components/tutor/AITutorWidget';
+import { MessageSquare } from 'lucide-react';
 
 
 export default function Notes() {
@@ -28,6 +30,8 @@ export default function Notes() {
   const [topics, setTopics] = useState('');
   const [generatedNote, setGeneratedNote] = useState(null);
   const [generationLock, setGenerationLock] = useState(false);
+  const [showTutor, setShowTutor] = useState(false);
+  const [tutorContext, setTutorContext] = useState({});
 
   const queryClient = useQueryClient();
 

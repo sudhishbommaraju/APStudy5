@@ -21,6 +21,8 @@ import { cn } from '@/lib/utils';
 import StudyTimer from '@/components/study/StudyTimer';
 import EnhancedFlashcardReview from '@/components/flashcards/EnhancedFlashcardReview';
 import { SpacedRepetitionEngine } from '@/components/flashcards/SpacedRepetitionEngine';
+import AITutorWidget from '@/components/tutor/AITutorWidget';
+import { MessageSquare } from 'lucide-react';
 
 export default function Flashcards() {
   const [user, setUser] = useState(null);
@@ -36,6 +38,8 @@ export default function Flashcards() {
   const [generationLock, setGenerationLock] = useState(false);
   const [reviewMode, setReviewMode] = useState('flip');
   const [useEnhancedReview, setUseEnhancedReview] = useState(false);
+  const [showTutor, setShowTutor] = useState(false);
+  const [tutorContext, setTutorContext] = useState({});
 
   const queryClient = useQueryClient();
 
@@ -530,6 +534,21 @@ VERIFY: All formulas written ONCE in LaTeX format only`;
                     <Button onClick={startStudySession} className="bg-violet-600 hover:bg-violet-700">
                       <Brain className="w-4 h-4 mr-2" />
                       Start Studying
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setTutorContext({
+                          type: 'flashcards',
+                          topic: selectedSubject,
+                          initialPrompt: `I'm studying flashcards. Can you help explain concepts I'm struggling with?`
+                        });
+                        setShowTutor(true);
+                      }}
+                      className="border-[#CBD5E1] text-[#1E3A8A] hover:bg-[#EFF6FF]"
+                    >
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      Ask AI Tutor
                     </Button>
                   </div>
                 </div>
