@@ -561,7 +561,7 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Choose a subject" />
                 </SelectTrigger>
-                <SelectContent className="max-h-96">
+                <SelectContent className="max-h-96 z-[1000]">
                   {subjects.length === 0 ? (
                     <div className="px-2 py-4 text-sm text-[#8A8A8A] text-center">
                       No subjects available

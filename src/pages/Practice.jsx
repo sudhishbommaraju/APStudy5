@@ -77,7 +77,7 @@ export default function Practice() {
     }
   }, [location.state]);
 
-  const { data: subjects = [] } = useQuery({
+  const { data: subjects = [], isLoading: subjectsLoading } = useQuery({
     queryKey: ['subjects'],
     queryFn: () => base44.entities.Subject.list('subject_id'),
   });
@@ -444,49 +444,69 @@ export default function Practice() {
         </div>
 
         <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          {/* Subject Selector */}
+          {/* Subject Selector - ALWAYS VISIBLE */}
           <div className="bg-[#1E1E1E] rounded-xl border border-[#2A2A2A] p-6 shadow-lg">
             <label className="text-sm font-medium text-[#F5F5F5] mb-3 block">Select Subject</label>
-            <Select value={selectedSubject} onValueChange={(value) => {
-              setSelectedSubject(value);
-              setSelectedUnit('');
-            }}>
+            <Select 
+              value={selectedSubject} 
+              onValueChange={(value) => {
+                console.log('[Practice] Subject selected:', value);
+                setSelectedSubject(value);
+                setSelectedUnit('');
+              }}
+              disabled={subjectsLoading}
+            >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="All subjects or choose specific" />
+                <SelectValue placeholder={subjectsLoading ? "Loading subjects..." : "Choose a subject"} />
               </SelectTrigger>
-              <SelectContent className="max-h-96">
-                {Array.from(new Map(subjects.map(s => [s.subject_id, s])).values())
-                  .reduce((acc, subject) => {
-                    const category = subject.category;
-                    if (!acc[category]) acc[category] = [];
-                    acc[category].push(subject);
-                    return acc;
-                  }, {})
-                  && Object.entries(
-                    Array.from(new Map(subjects.map(s => [s.subject_id, s])).values())
-                      .reduce((acc, subject) => {
-                        const category = subject.category;
-                        if (!acc[category]) acc[category] = [];
-                        acc[category].push(subject);
-                        return acc;
-                      }, {})
-                  ).map(([category, categorySubjects]) => (
-                    <div key={category}>
-                      <div className="px-2 py-1.5 text-xs font-semibold text-[#D6B98C] uppercase tracking-wider">
-                        {category}
+              <SelectContent className="max-h-96 z-[1000]">
+                {subjectsLoading ? (
+                  <div className="px-4 py-8 text-center text-[#8A8A8A]">
+                    <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2" />
+                    <p className="text-sm">Loading subjects...</p>
+                  </div>
+                ) : subjects.length === 0 ? (
+                  <div className="px-4 py-8 text-center text-[#8A8A8A]">
+                    <p className="text-sm">No subjects available</p>
+                  </div>
+                ) : (
+                  (() => {
+                    const uniqueSubjects = Array.from(
+                      new Map(subjects.map(s => [s.subject_id, s])).values()
+                    );
+                    
+                    const grouped = uniqueSubjects.reduce((acc, subject) => {
+                      const category = subject.category || 'Other';
+                      if (!acc[category]) acc[category] = [];
+                      acc[category].push(subject);
+                      return acc;
+                    }, {});
+                    
+                    return Object.entries(grouped).map(([category, categorySubjects]) => (
+                      <div key={category}>
+                        <div className="px-2 py-1.5 text-xs font-semibold text-[#D6B98C] uppercase tracking-wider">
+                          {category}
+                        </div>
+                        {categorySubjects.map((subject) => (
+                          <SelectItem key={subject.subject_id} value={subject.subject_id}>
+                            <div className="flex items-center gap-2">
+                              {subject.icon && <span>{subject.icon}</span>}
+                              <span>{subject.name}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
                       </div>
-                      {categorySubjects.map((subject) => (
-                        <SelectItem key={subject.subject_id} value={subject.subject_id}>
-                          <div className="flex items-center gap-2">
-                            {subject.icon && <span>{subject.icon}</span>}
-                            <span>{subject.name}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </div>
-                  ))}
+                    ));
+                  })()
+                )}
               </SelectContent>
             </Select>
+            {subjectsLoading && (
+              <p className="text-xs text-[#8A8A8A] mt-2">Fetching available subjects...</p>
+            )}
+            {!subjectsLoading && subjects.length === 0 && (
+              <p className="text-xs text-[#DC2626] mt-2">⚠️ No subjects found. Please contact support.</p>
+            )}
           </div>
 
           {/* Unit Selector */}
@@ -503,7 +523,7 @@ export default function Practice() {
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="All units or choose specific" />
                   </SelectTrigger>
-                  <SelectContent className="max-h-96">
+                  <SelectContent className="max-h-96 z-[1000]">
                     <SelectItem value="all" className="font-semibold">
                       ✨ All Units (Mixed Practice)
                     </SelectItem>
