@@ -30,13 +30,21 @@ import { PracticeState, PracticeStateManager } from '@/components/practice/Pract
 import { validatePracticeData } from '@/components/practice/PracticeSchema';
 import { getFallbackPractice } from '@/components/practice/FallbackPractice';
 
-// DEFAULT SUBJECTS - ALWAYS AVAILABLE
+// BASE SUBJECTS - REQUIRED AND ALWAYS AVAILABLE (NON-NEGOTIABLE)
+const BASE_SUBJECTS = [
+  { subject_id: 'reading_writing', name: 'Reading & Writing', category: 'English', icon: '📖' },
+  { subject_id: 'math', name: 'Math', category: 'Math', icon: '🔢' },
+  { subject_id: 'science', name: 'Science', category: 'Science', icon: '🔬' },
+];
+
+// ADDITIONAL DEFAULT SUBJECTS
 const DEFAULT_SUBJECTS = [
+  ...BASE_SUBJECTS,
   { subject_id: 'sat', name: 'SAT', category: 'Standardized', icon: '📝' },
   { subject_id: 'act', name: 'ACT', category: 'Standardized', icon: '📋' },
   { subject_id: 'ap_calculus_ab', name: 'AP Calculus AB', category: 'Math', icon: '📐' },
-  { subject_id: 'ap_physics_1', name: 'AP Physics 1', category: 'Science', icon: '🔬' },
-  { subject_id: 'ap_biology', name: 'AP Biology', category: 'Science', icon: '🧬' },
+  { subject_id: 'ap_physics_1', name: 'AP Physics 1', category: 'Science', icon: '🧬' },
+  { subject_id: 'ap_biology', name: 'AP Biology', category: 'Science', icon: '🧪' },
   { subject_id: 'ap_chemistry', name: 'AP Chemistry', category: 'Science', icon: '⚗️' },
   { subject_id: 'ap_english_lit', name: 'AP English Literature', category: 'English', icon: '📚' },
   { subject_id: 'ap_us_history', name: 'AP US History', category: 'History', icon: '🏛️' },
@@ -105,13 +113,49 @@ export default function Practice() {
   const subjects = React.useMemo(() => {
     const subjectMap = new Map();
     
-    // Add defaults first
+    // CRITICAL: Add base subjects first (Reading & Writing, Math, Science)
+    BASE_SUBJECTS.forEach(s => subjectMap.set(s.subject_id, s));
+    
+    // Add additional defaults
     DEFAULT_SUBJECTS.forEach(s => subjectMap.set(s.subject_id, s));
     
-    // Override/add backend subjects
-    backendSubjects.forEach(s => subjectMap.set(s.subject_id, s));
+    // Merge backend subjects (deduplicate by lowercase name)
+    backendSubjects.forEach(s => {
+      const normalizedName = s.name.toLowerCase().trim();
+      const existingKeys = Array.from(subjectMap.keys());
+      const isDuplicate = existingKeys.some(key => 
+        subjectMap.get(key).name.toLowerCase().trim() === normalizedName
+      );
+      
+      if (!isDuplicate) {
+        subjectMap.set(s.subject_id, s);
+      }
+    });
     
-    return Array.from(subjectMap.values());
+    const finalSubjects = Array.from(subjectMap.values());
+    
+    // DEBUG: Verify base subjects are present
+    const hasReadingWriting = finalSubjects.some(s => s.name.toLowerCase().includes('reading'));
+    const hasMath = finalSubjects.some(s => s.name.toLowerCase().includes('math'));
+    const hasScience = finalSubjects.some(s => s.name.toLowerCase().includes('science'));
+    
+    console.log('[Practice] Subject validation:', {
+      total: finalSubjects.length,
+      hasReadingWriting,
+      hasMath,
+      hasScience,
+      subjects: finalSubjects.map(s => s.name)
+    });
+    
+    if (!hasReadingWriting || !hasMath || !hasScience) {
+      console.error('⚠️ CRITICAL: Missing base subjects!', {
+        hasReadingWriting,
+        hasMath,
+        hasScience
+      });
+    }
+    
+    return finalSubjects;
   }, [backendSubjects]);
   
   // Auto-generate for study plan - wait for subjects to load
