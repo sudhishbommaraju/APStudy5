@@ -40,7 +40,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-[#0C0C0C]">
       <div className="relative">
       
       {/* Hero Section */}
@@ -51,10 +51,10 @@ export default function Home() {
             {/* Left Side - Content */}
             <div className="space-y-8">
               <div>
-                <h1 className="text-5xl lg:text-6xl font-bold mb-6 leading-tight text-[#000000]">
+                <h1 className="text-5xl lg:text-6xl font-semibold mb-6 leading-tight text-[#F5F5F5]">
                   Your AI study partner for exam success
                 </h1>
-                <p className="text-xl text-[#334155] leading-relaxed">
+                <p className="text-xl text-[#B5B5B5] leading-relaxed">
                   Ace your exams with personalized practice, adaptive learning, and instant feedback.
                 </p>
               </div>
@@ -64,14 +64,14 @@ export default function Home() {
                   size="lg" 
                   onClick={() => window.location.href = createPageUrl('Demo')} 
                   variant="outline"
-                  className="h-12 px-8 text-base border-[#CBD5E1] text-[#000000] hover:bg-[#E5E7EB]"
+                  className="h-12 px-8 text-base border-[#2A2A2A] text-[#F5F5F5] hover:bg-[#171717]"
                 >
                   Try Demo (No Login)
                 </Button>
                 <Button 
                   size="lg" 
                   onClick={handleGetStarted} 
-                  className="h-12 px-8 text-base bg-[#1E3A8A] hover:bg-[#1e40af] text-white"
+                  className="h-12 px-8 text-base bg-[#D6B98C] hover:bg-[#C9A96A] text-[#0C0C0C] font-medium"
                 >
                   Start studying free
                   <ArrowRight className="w-5 h-5 ml-2" />
@@ -82,12 +82,12 @@ export default function Home() {
               <div className="space-y-4 pt-4">
                 {steps.map((step, i) => (
                   <div key={i} className="flex gap-4 group">
-                    <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-[#EFF6FF] flex items-center justify-center text-[#1E3A8A] font-semibold border border-[#BFDBFE]">
+                    <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-[#1E1E1E] flex items-center justify-center text-[#D6B98C] font-semibold border border-[#2A2A2A]">
                       {step.number}
                     </div>
                     <div>
-                      <h3 className="text-[#000000] font-semibold mb-1">{step.title}</h3>
-                      <p className="text-[#64748B] text-sm">{step.description}</p>
+                      <h3 className="text-[#F5F5F5] font-medium mb-1">{step.title}</h3>
+                      <p className="text-[#8A8A8A] text-sm">{step.description}</p>
                     </div>
                   </div>
                 ))}
@@ -96,14 +96,14 @@ export default function Home() {
 
             {/* Right Side - Actual Question Preview */}
             <div className="relative">
-              <div className="bg-white rounded-xl border border-[#CBD5E1] p-6 shadow-lg">
+              <div className="bg-[#1E1E1E] rounded-xl border border-[#2A2A2A] p-6 shadow-lg">
                 {/* Question Header */}
-                <div className="border-b border-[#E5E7EB] pb-4 mb-6">
+                <div className="border-b border-[#2A2A2A] pb-4 mb-6">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-[#E5E7EB] rounded-full text-xs font-medium text-[#000000]">
+                    <span className="px-2 py-1 bg-[#171717] rounded-full text-xs font-medium text-[#B5B5B5]">
                       SAT Math
                     </span>
-                    <span className="px-2 py-1 bg-[#FEF3C7] rounded-full text-xs font-medium text-[#000000]">
+                    <span className="px-2 py-1 bg-[#D6B98C]/10 rounded-full text-xs font-medium text-[#D6B98C]">
                       medium
                     </span>
                   </div>
@@ -111,11 +111,11 @@ export default function Home() {
 
                 {/* Question Text */}
                 <div className="mb-6">
-                  <p className="text-base text-[#000000] leading-relaxed mb-1">
-                    If <u className="decoration-2 decoration-[#1E3A8A] underline-offset-2">the function f(x) = 2x + 3</u>, what is f(5)?
+                  <p className="text-base text-[#F5F5F5] leading-relaxed mb-1">
+                    If <u className="decoration-2 decoration-[#D6B98C] underline-offset-2">the function f(x) = 2x + 3</u>, what is f(5)?
                   </p>
-                  <p className="text-sm text-[#000000] font-semibold mt-4">
-                    **Which choice best represents the value?**
+                  <p className="text-sm text-[#F5F5F5] font-medium mt-4">
+                    Which choice best represents the value?
                   </p>
                 </div>
 
@@ -124,19 +124,19 @@ export default function Home() {
                   {['A. 8', 'B. 10', 'C. 13', 'D. 15'].map((choice, i) => (
                     <button
                       key={i}
-                      className="w-full flex items-center gap-3 p-3 rounded-lg border-2 border-[#CBD5E1] hover:border-[#1E3A8A] bg-white text-left transition-all"
+                      className="w-full flex items-center gap-3 p-3 rounded-lg border border-[#2A2A2A] hover:border-[#D6B98C] bg-[#171717] text-left transition-all"
                     >
-                      <span className="w-7 h-7 rounded-full bg-[#E5E7EB] flex items-center justify-center text-sm font-semibold text-[#000000]">
+                      <span className="w-7 h-7 rounded-full bg-[#1E1E1E] flex items-center justify-center text-sm font-medium text-[#B5B5B5]">
                         {choice[0]}
                       </span>
-                      <span className="text-sm text-[#000000]">{choice.slice(3)}</span>
+                      <span className="text-sm text-[#F5F5F5]">{choice.slice(3)}</span>
                     </button>
                   ))}
                 </div>
 
                 {/* Bottom note */}
-                <div className="mt-6 pt-4 border-t border-[#E5E7EB]">
-                  <p className="text-xs text-[#64748B] text-center">
+                <div className="mt-6 pt-4 border-t border-[#2A2A2A]">
+                  <p className="text-xs text-[#8A8A8A] text-center">
                     Instant feedback • Step-by-step explanations • Track your progress
                   </p>
                 </div>
@@ -151,10 +151,10 @@ export default function Home() {
       <section className="py-20 relative">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-[#000000] mb-4">
+            <h2 className="text-4xl font-semibold text-[#F5F5F5] mb-4">
               Everything you need to succeed
             </h2>
-            <p className="text-xl text-[#334155] max-w-2xl mx-auto">
+            <p className="text-xl text-[#B5B5B5] max-w-2xl mx-auto">
               Built for students who want to study smarter, not harder
             </p>
           </div>
@@ -170,11 +170,11 @@ export default function Home() {
             ].map((feature, i) => (
               <div 
                 key={i}
-                className="bg-white border border-[#CBD5E1] rounded-xl p-6 hover:border-[#1E3A8A] transition-all card-smooth"
+                className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-xl p-6 hover:border-[#D6B98C]/30 transition-all card-smooth"
               >
-                <feature.icon className="w-8 h-8 text-[#1E3A8A] mb-4" />
-                <h3 className="text-[#000000] font-semibold mb-2">{feature.title}</h3>
-                <p className="text-[#64748B] text-sm">{feature.desc}</p>
+                <feature.icon className="w-8 h-8 text-[#D6B98C] mb-4" />
+                <h3 className="text-[#F5F5F5] font-medium mb-2">{feature.title}</h3>
+                <p className="text-[#8A8A8A] text-sm">{feature.desc}</p>
               </div>
             ))}
           </div>
