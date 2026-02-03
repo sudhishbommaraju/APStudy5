@@ -321,7 +321,7 @@ export default function Dashboard() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-slate-700 border-t-violet-500 rounded-full" />
+        <div className="animate-spin w-8 h-8 border-2 border-[#2A2A2A] border-t-[#D6B98C] rounded-full" />
       </div>
     );
   }
@@ -365,19 +365,19 @@ export default function Dashboard() {
             const subjectData = subjects.find(s => s.subject_id === weakestSubject.subject_id);
             if (subjectData) {
               return (
-                <div className="bg-gradient-to-br from-rose-500/10 to-orange-500/10 backdrop-blur-sm rounded-xl border border-rose-500/30 p-6 shadow-lg">
+                <div className="bg-[#1E1E1E] rounded-xl border border-[#DC2626]/30 p-6 shadow-lg">
                   <div className="flex items-start justify-between mb-3">
                     <div>
-                      <h3 className="text-sm font-semibold text-rose-200 mb-1">⚠️ Needs Attention</h3>
-                      <p className="text-xs text-rose-300/80">Focus on your weakest area</p>
+                      <h3 className="text-sm font-semibold text-[#FCA5A5] mb-1">⚠️ Needs Attention</h3>
+                      <p className="text-xs text-[#8A8A8A]">Focus on your weakest area</p>
                     </div>
-                    <Target className="w-5 h-5 text-rose-400" />
+                    <Target className="w-5 h-5 text-[#DC2626]" />
                   </div>
                   <div className="flex items-center gap-3 mb-3">
                     <span className="text-2xl">{subjectData.icon}</span>
                     <div>
-                      <p className="text-base font-semibold text-slate-100">{subjectData.name}</p>
-                      <p className="text-sm text-rose-300">
+                      <p className="text-base font-semibold text-[#F5F5F5]">{subjectData.name}</p>
+                      <p className="text-sm text-[#B5B5B5]">
                         {weakestSubject.accuracy.toFixed(0)}% accuracy • {weakestSubject.correct}/{weakestSubject.total} correct
                       </p>
                     </div>
@@ -385,7 +385,7 @@ export default function Dashboard() {
                   <Button 
                     onClick={() => handleWeakSubjectPractice(weakestSubject)}
                     size="sm"
-                    className="w-full bg-rose-500 hover:bg-rose-600"
+                    className="w-full bg-[#DC2626] hover:bg-[#DC2626]/90 text-white"
                     disabled={generatingWeakPractice}
                   >
                     {generatingWeakPractice ? (
@@ -409,40 +409,40 @@ export default function Dashboard() {
 
         {/* Progress Snapshot with Level */}
         <div className="grid md:grid-cols-2 gap-6 mb-6">
-          <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg">
-            <h3 className="text-lg font-semibold text-slate-100 mb-4">Your Progress</h3>
+          <div className="bg-[#1E1E1E] rounded-xl border border-[#2A2A2A] p-6 shadow-lg">
+            <h3 className="text-lg font-semibold text-[#F5F5F5] mb-4">Your Progress</h3>
             <div className="grid grid-cols-3 gap-2">
-              <div className="text-center p-2 bg-slate-900/50 rounded-lg border border-slate-700/30">
-                <div className="text-xl font-bold text-slate-100">{totalQuestions}</div>
-                <div className="text-xs text-slate-400 mt-0.5">Questions</div>
+              <div className="text-center p-2 bg-[#171717] rounded-lg border border-[#2A2A2A]">
+                <div className="text-xl font-bold text-[#F5F5F5]">{totalQuestions}</div>
+                <div className="text-xs text-[#8A8A8A] mt-0.5">Questions</div>
               </div>
-              <div className="text-center p-2 bg-slate-900/50 rounded-lg border border-slate-700/30">
-                <div className="text-xl font-bold text-violet-400">{overallAccuracy.toFixed(0)}%</div>
-                <div className="text-xs text-slate-400 mt-0.5">Accuracy</div>
+              <div className="text-center p-2 bg-[#171717] rounded-lg border border-[#2A2A2A]">
+                <div className="text-xl font-bold text-[#D6B98C]">{overallAccuracy.toFixed(0)}%</div>
+                <div className="text-xs text-[#8A8A8A] mt-0.5">Accuracy</div>
               </div>
-              <div className="text-center p-2 bg-slate-900/50 rounded-lg border border-slate-700/30">
-                <div className="text-xl font-bold text-slate-100">{studyDays.size}</div>
-                <div className="text-xs text-slate-400 mt-0.5">Study Days</div>
+              <div className="text-center p-2 bg-[#171717] rounded-lg border border-[#2A2A2A]">
+                <div className="text-xl font-bold text-[#F5F5F5]">{studyDays.size}</div>
+                <div className="text-xs text-[#8A8A8A] mt-0.5">Study Days</div>
               </div>
             </div>
           </div>
 
           {userStats && (
-            <div className="bg-gradient-to-br from-violet-500/20 to-purple-500/20 backdrop-blur-sm rounded-xl border border-violet-500/30 p-6 shadow-lg">
+            <div className="bg-[#1E1E1E] rounded-xl border border-[#2A2A2A] p-6 shadow-lg">
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <h3 className="text-2xl font-bold text-slate-100">Level {userStats.level}</h3>
-                  <p className="text-sm text-slate-400">{userStats.total_points} points</p>
+                  <h3 className="text-2xl font-bold text-[#F5F5F5]">Level {userStats.level}</h3>
+                  <p className="text-sm text-[#8A8A8A]">{userStats.total_points} points</p>
                 </div>
-                <Trophy className="w-10 h-10 text-violet-400" />
+                <Trophy className="w-10 h-10 text-[#D6B98C]" />
               </div>
-              <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden mb-2">
+              <div className="w-full h-2 bg-[#171717] rounded-full overflow-hidden mb-2">
                 <div 
-                  className="h-full bg-gradient-to-r from-violet-600 to-purple-600"
+                  className="h-full bg-[#D6B98C]"
                   style={{ width: `${((userStats.total_points % 100) / 100) * 100}%` }}
                 />
               </div>
-              <p className="text-xs text-slate-400">{((userStats.level) * 100) - userStats.total_points} points to level {userStats.level + 1}</p>
+              <p className="text-xs text-[#8A8A8A]">{((userStats.level) * 100) - userStats.total_points} points to level {userStats.level + 1}</p>
             </div>
           )}
         </div>
@@ -451,38 +451,38 @@ export default function Dashboard() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <button
             onClick={() => navigate(createPageUrl('Practice'))}
-            className="bg-slate-800/40 backdrop-blur-sm rounded-lg border border-slate-700/50 p-3 hover:border-violet-500/50 hover:bg-slate-800/60 transition-all text-left"
+            className="bg-[#1E1E1E] rounded-lg border border-[#2A2A2A] p-4 hover:border-[#D6B98C]/30 transition-all text-left card-smooth"
           >
-            <BookOpen className="w-5 h-5 text-violet-400 mb-2" />
-            <div className="text-sm font-medium text-slate-100">Practice</div>
-            <div className="text-xs text-slate-400 mt-0.5">Master topics</div>
+            <BookOpen className="w-5 h-5 text-[#D6B98C] mb-2" />
+            <div className="text-sm font-medium text-[#F5F5F5]">Practice</div>
+            <div className="text-xs text-[#8A8A8A] mt-0.5">Master topics</div>
           </button>
 
           <button
             onClick={() => navigate(createPageUrl('Exam'))}
-            className="bg-slate-800/40 backdrop-blur-sm rounded-lg border border-slate-700/50 p-3 hover:border-violet-500/50 hover:bg-slate-800/60 transition-all text-left"
+            className="bg-[#1E1E1E] rounded-lg border border-[#2A2A2A] p-4 hover:border-[#D6B98C]/30 transition-all text-left card-smooth"
           >
-            <Clock className="w-5 h-5 text-violet-400 mb-2" />
-            <div className="text-sm font-medium text-slate-100">Exam</div>
-            <div className="text-xs text-slate-400 mt-0.5">Timed test</div>
+            <Clock className="w-5 h-5 text-[#D6B98C] mb-2" />
+            <div className="text-sm font-medium text-[#F5F5F5]">Exam</div>
+            <div className="text-xs text-[#8A8A8A] mt-0.5">Timed test</div>
           </button>
 
           <button
             onClick={() => navigate(createPageUrl('Notes'))}
-            className="bg-slate-800/40 backdrop-blur-sm rounded-lg border border-slate-700/50 p-3 hover:border-violet-500/50 hover:bg-slate-800/60 transition-all text-left"
+            className="bg-[#1E1E1E] rounded-lg border border-[#2A2A2A] p-4 hover:border-[#D6B98C]/30 transition-all text-left card-smooth"
           >
-            <FileText className="w-5 h-5 text-violet-400 mb-2" />
-            <div className="text-sm font-medium text-slate-100">Notes</div>
-            <div className="text-xs text-slate-400 mt-0.5">Key concepts</div>
+            <FileText className="w-5 h-5 text-[#D6B98C] mb-2" />
+            <div className="text-sm font-medium text-[#F5F5F5]">Notes</div>
+            <div className="text-xs text-[#8A8A8A] mt-0.5">Key concepts</div>
           </button>
 
           <button
             onClick={() => navigate(createPageUrl('Progress'))}
-            className="bg-slate-800/40 backdrop-blur-sm rounded-lg border border-slate-700/50 p-3 hover:border-violet-500/50 hover:bg-slate-800/60 transition-all text-left"
+            className="bg-[#1E1E1E] rounded-lg border border-[#2A2A2A] p-4 hover:border-[#D6B98C]/30 transition-all text-left card-smooth"
           >
-            <TrendingUp className="w-5 h-5 text-violet-400 mb-2" />
-            <div className="text-sm font-medium text-slate-100">Progress</div>
-            <div className="text-xs text-slate-400 mt-0.5">Track growth</div>
+            <TrendingUp className="w-5 h-5 text-[#D6B98C] mb-2" />
+            <div className="text-sm font-medium text-[#F5F5F5]">Progress</div>
+            <div className="text-xs text-[#8A8A8A] mt-0.5">Track growth</div>
           </button>
         </div>
 
@@ -491,8 +491,8 @@ export default function Dashboard() {
 
         {/* Student Reviews Section */}
         {reviews.length > 0 && (
-          <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg">
-            <h3 className="text-lg font-semibold text-slate-100 mb-4">Student Reviews</h3>
+          <div className="bg-[#1E1E1E] rounded-xl border border-[#2A2A2A] p-6 shadow-lg">
+            <h3 className="text-lg font-semibold text-[#F5F5F5] mb-4">Student Reviews</h3>
             <div className="grid md:grid-cols-2 gap-4">
               {reviews.slice(0, 4).map((review) => {
                 const reviewUser = allUsers.find(u => u.email === review.user_id);

@@ -98,18 +98,18 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
 
   return (
     <QuestionIntegrityGuard question={question}>
-      <div className="bg-white rounded-xl border border-[#CBD5E1] shadow-sm overflow-hidden">
+      <div className="bg-[#1E1E1E] rounded-xl border border-[#2A2A2A] shadow-lg overflow-hidden">
       {/* Question Header */}
-      <div className="px-6 py-4 border-b border-[#E5E7EB] bg-[#F1F5F9]">
-        <div className="flex items-center gap-2 text-xs text-[#000000] mb-1">
-          <span className="px-2 py-0.5 bg-[#E5E7EB] rounded-full font-medium text-[#000000]">
+      <div className="px-6 py-4 border-b border-[#2A2A2A] bg-[#171717]">
+        <div className="flex items-center gap-2 text-xs mb-1">
+          <span className="px-2 py-0.5 bg-[#1E1E1E] rounded-full font-medium text-[#B5B5B5]">
             {question.skill_name}
           </span>
           <span className={cn(
             "px-2 py-0.5 rounded-full font-medium",
-            question.difficulty === 'easy' && "bg-[#DCFCE7] text-[#000000]",
-            question.difficulty === 'medium' && "bg-[#FEF3C7] text-[#000000]",
-            question.difficulty === 'hard' && "bg-[#FEE2E2] text-[#000000]"
+            question.difficulty === 'easy' && "bg-[#16A34A]/20 text-[#86EFAC]",
+            question.difficulty === 'medium' && "bg-[#D6B98C]/20 text-[#D6B98C]",
+            question.difficulty === 'hard' && "bg-[#DC2626]/20 text-[#FCA5A5]"
           )}>
             {question.difficulty}
           </span>
@@ -118,14 +118,14 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
 
       {/* Question Text */}
       <div className="px-6 py-5">
-        <div className="prose prose-slate prose-sm max-w-none [&_.katex]:text-base [&_.katex-display]:my-4 [&_.katex-display]:text-lg">
+        <div className="prose prose-invert prose-sm max-w-none [&_.katex]:text-base [&_.katex-display]:my-4 [&_.katex-display]:text-lg [&_p]:text-[#F5F5F5]">
             <ReactMarkdown 
               remarkPlugins={[remarkMath]} 
               rehypePlugins={[rehypeKatex]}
               components={{
-                p: ({ children }) => <p className="leading-relaxed my-2">{children}</p>,
-                u: ({ children }) => <u className="decoration-2 decoration-[#1E3A8A] underline-offset-2">{children}</u>,
-                strong: ({ children }) => <strong className="font-semibold text-[#000000]">{children}</strong>,
+                p: ({ children }) => <p className="leading-relaxed my-2 text-[#F5F5F5]">{children}</p>,
+                u: ({ children }) => <u className="decoration-2 decoration-[#D6B98C] underline-offset-2">{children}</u>,
+                strong: ({ children }) => <strong className="font-semibold text-[#F5F5F5]">{children}</strong>,
               }}
             >
               {question.question_text}
@@ -305,18 +305,18 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
           const isCorrectAnswer = key === question.correct_answer;
           const isEliminated = eliminatedChoices.includes(key);
           
-          let choiceStyle = "bg-white border-[#CBD5E1] hover:border-[#1E3A8A] hover:bg-[#F8FAFC] text-[#000000]";
+          let choiceStyle = "bg-[#171717] border-[#2A2A2A] hover:border-[#D6B98C] hover:bg-[#1E1E1E] text-[#F5F5F5]";
 
           if (showResult) {
             if (isCorrectAnswer) {
-              choiceStyle = "bg-[#DCFCE7] border-[#16A34A] text-[#000000]";
+              choiceStyle = "bg-[#16A34A]/20 border-[#16A34A] text-[#F5F5F5]";
             } else if (isSelected && !isCorrectAnswer) {
-              choiceStyle = "bg-[#FEE2E2] border-[#DC2626] text-[#000000]";
+              choiceStyle = "bg-[#DC2626]/20 border-[#DC2626] text-[#F5F5F5]";
             } else {
-              choiceStyle = "bg-[#F1F5F9] border-[#CBD5E1] text-[#404040]";
+              choiceStyle = "bg-[#171717] border-[#2A2A2A] text-[#8A8A8A]";
             }
           } else if (isSelected) {
-            choiceStyle = "bg-[#1E3A8A] border-[#1E3A8A] text-white";
+            choiceStyle = "bg-[#D6B98C] border-[#D6B98C] text-[#0C0C0C]";
           }
 
           return (
@@ -334,8 +334,8 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
                   "flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-sm font-semibold",
                   showResult && isCorrectAnswer && "bg-[#16A34A] text-white",
                   showResult && isSelected && !isCorrectAnswer && "bg-[#DC2626] text-white",
-                  !showResult && isSelected && "bg-white text-[#1E3A8A]",
-                  !showResult && !isSelected && "bg-[#E5E7EB] text-[#000000]"
+                  !showResult && isSelected && "bg-[#0C0C0C] text-[#D6B98C]",
+                  !showResult && !isSelected && "bg-[#1E1E1E] text-[#B5B5B5]"
                 )}>
                   {showResult && isCorrectAnswer && <Check className="w-4 h-4" />}
                   {showResult && isSelected && !isCorrectAnswer && <X className="w-4 h-4" />}
@@ -345,7 +345,7 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
                   <ReactMarkdown 
                     remarkPlugins={[remarkMath]} 
                     rehypePlugins={[rehypeKatex]}
-                    className="prose prose-sm max-w-none [&>p]:m-0 [&_.katex]:text-sm [&_.katex]:align-middle"
+                    className="prose prose-invert prose-sm max-w-none [&>p]:m-0 [&>p]:text-[#F5F5F5] [&_.katex]:text-sm [&_.katex]:align-middle"
                   >
                     {text}
                   </ReactMarkdown>
@@ -357,7 +357,7 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
                   className={cn(
                     "absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center transition-all",
                     "opacity-0 group-hover:opacity-100",
-                    isEliminated ? "bg-[#DC2626] text-white" : "bg-[#E5E7EB] text-[#000000] hover:bg-[#CBD5E1]"
+                    isEliminated ? "bg-[#DC2626] text-white" : "bg-[#1E1E1E] text-[#B5B5B5] hover:bg-[#171717]"
                   )}
                   title={isEliminated ? "Restore" : "Eliminate"}
                 >
@@ -382,12 +382,12 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
               Show Hint
             </Button>
           ) : (
-            <div className="p-4 bg-[#FEF3C7] border border-[#FDE68A] rounded-lg">
+            <div className="p-4 bg-[#D6B98C]/10 border border-[#D6B98C]/30 rounded-lg">
               <div className="flex items-center gap-2 mb-2">
-                <Lightbulb className="w-4 h-4 text-[#D97706]" />
-                <span className="font-semibold text-[#000000] text-sm">Hint</span>
+                <Lightbulb className="w-4 h-4 text-[#D6B98C]" />
+                <span className="font-semibold text-[#F5F5F5] text-sm">Hint</span>
               </div>
-              <p className="text-sm text-[#000000]">{question.hint}</p>
+              <p className="text-sm text-[#B5B5B5]">{question.hint}</p>
             </div>
           )}
         </div>
@@ -409,15 +409,15 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
 
       {/* Feedback (Practice Mode) - Show for all answers */}
       {showResult && isCorrect && (
-        <div className="px-6 py-5 border-t bg-[#DCFCE7] border-[#86EFAC]">
+        <div className="px-6 py-5 border-t bg-[#16A34A]/10 border-[#16A34A]/30">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-6 h-6 rounded-full bg-[#16A34A] flex items-center justify-center">
               <Check className="w-4 h-4 text-white" />
             </div>
-            <span className="font-semibold text-[#000000]">Correct!</span>
+            <span className="font-semibold text-[#F5F5F5]">Correct!</span>
           </div>
-          <div className="prose prose-sm max-w-none text-[#000000]">
-            <p className="font-medium text-slate-900 mb-2">Explanation:</p>
+          <div className="prose prose-invert prose-sm max-w-none [&_p]:text-[#B5B5B5]">
+            <p className="font-medium text-[#F5F5F5] mb-2">Explanation:</p>
             <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>
               {question.explanation}
             </ReactMarkdown>
@@ -429,7 +429,7 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
               onClick={requestAiExplanation}
               disabled={loadingAiExplanation}
               variant="outline"
-              className="w-full mt-4 border-emerald-300 text-emerald-700 hover:bg-emerald-100"
+              className="w-full mt-4 border-[#16A34A]/30 text-[#86EFAC] hover:bg-[#16A34A]/10"
             >
               {loadingAiExplanation ? (
                 <>
@@ -447,17 +447,17 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
 
           {/* AI Explanation Display */}
           {aiExplanation && (
-            <div className="mt-4 p-4 bg-white rounded-lg border-2 border-emerald-300">
+            <div className="mt-4 p-4 bg-[#171717] rounded-lg border border-[#16A34A]/30">
               <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="w-4 h-4 text-emerald-600" />
-                <span className="font-semibold text-emerald-800 text-sm">AI Tutor Explanation</span>
+                <Sparkles className="w-4 h-4 text-[#86EFAC]" />
+                <span className="font-semibold text-[#86EFAC] text-sm">AI Tutor Explanation</span>
               </div>
-              <div className="prose prose-sm max-w-none text-slate-700 [&_.katex]:text-sm [&_.katex-display]:my-3 [&_.katex-display]:text-base">
+              <div className="prose prose-invert prose-sm max-w-none [&_p]:text-[#B5B5B5] [&_.katex]:text-sm [&_.katex-display]:my-3 [&_.katex-display]:text-base">
                 <ReactMarkdown 
                   remarkPlugins={[remarkMath]} 
                   rehypePlugins={[rehypeKatex]}
                   components={{
-                    p: ({ children }) => <p className="my-2 leading-relaxed">{children}</p>,
+                    p: ({ children }) => <p className="my-2 leading-relaxed text-[#B5B5B5]">{children}</p>,
                   }}
                 >
                   {aiExplanation}
@@ -468,35 +468,35 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
         </div>
       )}
       {showResult && !isCorrect && (
-        <div className="px-6 py-5 border-t bg-[#FEE2E2] border-[#FECACA]">
+        <div className="px-6 py-5 border-t bg-[#DC2626]/10 border-[#DC2626]/30">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-6 h-6 rounded-full bg-[#DC2626] flex items-center justify-center">
               <X className="w-4 h-4 text-white" />
             </div>
-            <span className="font-semibold text-[#000000]">Incorrect</span>
+            <span className="font-semibold text-[#F5F5F5]">Incorrect</span>
           </div>
           <div className="mb-3">
-            <p className="text-sm font-medium text-slate-700 mb-1">Correct Answer: {question.correct_answer}</p>
+            <p className="text-sm font-medium text-[#B5B5B5] mb-1">Correct Answer: {question.correct_answer}</p>
           </div>
-          <div className="prose prose-sm max-w-none text-slate-700 [&_.katex]:text-sm [&_.katex-display]:my-3 [&_.katex-display]:text-base">
-            <p className="font-medium text-slate-900 mb-2">Explanation:</p>
+          <div className="prose prose-invert prose-sm max-w-none [&_p]:text-[#B5B5B5] [&_.katex]:text-sm [&_.katex-display]:my-3 [&_.katex-display]:text-base">
+            <p className="font-medium text-[#F5F5F5] mb-2">Explanation:</p>
             <ReactMarkdown 
               remarkPlugins={[remarkMath]} 
               rehypePlugins={[rehypeKatex]}
               components={{
-                p: ({ children }) => <p className="my-2 leading-relaxed">{children}</p>,
+                p: ({ children }) => <p className="my-2 leading-relaxed text-[#B5B5B5]">{children}</p>,
               }}
-            >
+              >
               {question.explanation}
-            </ReactMarkdown>
-          </div>
-          {question.wrong_answer_explanations?.[localSelected] && (
-            <div className="mt-3 pt-3 border-t border-rose-200">
-              <p className="text-sm text-rose-700">
+              </ReactMarkdown>
+              </div>
+              {question.wrong_answer_explanations?.[localSelected] && (
+              <div className="mt-3 pt-3 border-t border-[#DC2626]/30">
+              <p className="text-sm text-[#FCA5A5]">
                 <strong>Why {localSelected} is wrong:</strong> {question.wrong_answer_explanations[localSelected]}
               </p>
-            </div>
-          )}
+              </div>
+              )}
 
           {/* AI Explanation Button */}
           {!aiExplanation && (
@@ -504,7 +504,7 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
               onClick={requestAiExplanation}
               disabled={loadingAiExplanation}
               variant="outline"
-              className="w-full mt-4 border-rose-300 text-rose-700 hover:bg-rose-100"
+              className="w-full mt-4 border-[#DC2626]/30 text-[#FCA5A5] hover:bg-[#DC2626]/10"
             >
               {loadingAiExplanation ? (
                 <>
@@ -522,17 +522,17 @@ Use LaTeX notation ($...$) for any mathematical expressions. Be encouraging and 
 
           {/* AI Explanation Display */}
           {aiExplanation && (
-            <div className="mt-4 p-4 bg-white rounded-lg border-2 border-rose-300">
+            <div className="mt-4 p-4 bg-[#171717] rounded-lg border border-[#DC2626]/30">
               <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="w-4 h-4 text-rose-600" />
-                <span className="font-semibold text-rose-800 text-sm">AI Tutor Explanation</span>
+                <Sparkles className="w-4 h-4 text-[#FCA5A5]" />
+                <span className="font-semibold text-[#FCA5A5] text-sm">AI Tutor Explanation</span>
               </div>
-              <div className="prose prose-sm max-w-none text-slate-700 [&_.katex]:text-sm [&_.katex-display]:my-3 [&_.katex-display]:text-base">
+              <div className="prose prose-invert prose-sm max-w-none [&_p]:text-[#B5B5B5] [&_.katex]:text-sm [&_.katex-display]:my-3 [&_.katex-display]:text-base">
                 <ReactMarkdown 
                   remarkPlugins={[remarkMath]} 
                   rehypePlugins={[rehypeKatex]}
                   components={{
-                    p: ({ children }) => <p className="my-2 leading-relaxed">{children}</p>,
+                    p: ({ children }) => <p className="my-2 leading-relaxed text-[#B5B5B5]">{children}</p>,
                   }}
                 >
                   {aiExplanation}

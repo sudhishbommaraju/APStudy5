@@ -194,14 +194,14 @@ export default function Home() {
               <p className="text-[#334155] text-lg leading-relaxed mb-6">
                 As a high school student preparing for AP exams, I struggled to find effective study tools that adapted to my learning pace. Generic practice materials didn't target my weak areas, and I spent hours reviewing concepts I already understood.
               </p>
-              <p className="text-[#334155] text-lg leading-relaxed mb-6">
+              <p className="text-[#B5B5B5] text-lg leading-relaxed mb-6">
                 I realized that with AI, we could create a smarter study platform—one that learns from each answer, identifies knowledge gaps, and generates personalized practice exactly where students need it most.
               </p>
-              <p className="text-[#334155] text-lg leading-relaxed">
+              <p className="text-[#B5B5B5] text-lg leading-relaxed">
                 Proofly was built to give every student the adaptive, intelligent study partner they deserve. Whether you're aiming for a 5 on AP Calculus or mastering SAT Math, Proofly meets you where you are and helps you get where you want to be.
               </p>
-              <div className="mt-8 pt-6 border-t border-[#E5E7EB]">
-                <p className="text-[#64748B] text-sm">— Proofly Team</p>
+              <div className="mt-8 pt-6 border-t border-[#2A2A2A]">
+                <p className="text-[#8A8A8A] text-sm">— Proofly Team</p>
               </div>
             </div>
           </div>
@@ -235,10 +235,10 @@ export default function Home() {
       {/* CTA Section */}
       <section className="py-20 relative">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-bold text-[#000000] mb-4">
+          <h2 className="text-4xl font-semibold text-[#F5F5F5] mb-4">
             Ready to ace your exams?
           </h2>
-          <p className="text-xl text-[#334155] mb-8">
+          <p className="text-xl text-[#B5B5B5] mb-8">
             Join students who are studying smarter with Proofly
           </p>
           <div className="flex gap-4 justify-center">
@@ -246,14 +246,14 @@ export default function Home() {
               size="lg" 
               onClick={() => window.location.href = createPageUrl('Demo')} 
               variant="outline"
-              className="h-14 px-10 text-lg border-[#CBD5E1] text-[#000000] hover:bg-[#E5E7EB]"
+              className="h-14 px-10 text-lg border-[#2A2A2A] text-[#F5F5F5] hover:bg-[#171717]"
             >
               Try Demo
             </Button>
             <Button 
               size="lg" 
               onClick={handleGetStarted} 
-              className="h-14 px-10 text-lg bg-[#1E3A8A] hover:bg-[#1e40af] text-white"
+              className="h-14 px-10 text-lg bg-[#D6B98C] hover:bg-[#C9A96A] text-[#0C0C0C] font-medium"
             >
               Get started free
               <ArrowRight className="w-5 h-5 ml-2" />
@@ -265,18 +265,18 @@ export default function Home() {
       {/* About the Creator */}
       <section className="py-20 relative">
         <div className="max-w-4xl mx-auto px-6">
-          <div className="bg-white border border-[#CBD5E1] rounded-2xl p-8 lg:p-12 shadow-lg">
-            <h2 className="text-3xl font-bold text-[#000000] mb-6 text-center">About the Creator</h2>
+          <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-2xl p-8 lg:p-12 shadow-lg">
+            <h2 className="text-3xl font-semibold text-[#F5F5F5] mb-6 text-center">About the Creator</h2>
             <div className="space-y-6">
-              <p className="text-[#334155] text-lg leading-relaxed text-center">
-                Hi, I'm <span className="text-[#000000] font-semibold">Sudhish Bommaraju</span>, a football player with aspirations to become a tech entrepreneur. 
+              <p className="text-[#B5B5B5] text-lg leading-relaxed text-center">
+                Hi, I'm <span className="text-[#D6B98C] font-medium">Sudhish Bommaraju</span>, a football player with aspirations to become a tech entrepreneur. 
                 I built Proofly to combine my passion for technology with my commitment to helping students succeed academically. 
                 This platform reflects my belief that with the right tools, anyone can achieve their academic goals while pursuing their dreams.
               </p>
-              <div className="flex items-center justify-center pt-4 border-t border-[#E5E7EB]">
+              <div className="flex items-center justify-center pt-4 border-t border-[#2A2A2A]">
                 <a 
                   href="mailto:theproofly.com@gmail.com" 
-                  className="flex items-center gap-2 text-[#334155] hover:text-[#1E3A8A] transition-colors"
+                  className="flex items-center gap-2 text-[#B5B5B5] hover:text-[#D6B98C] transition-colors"
                 >
                   <span className="text-xl">✉️</span>
                   <span className="text-sm">theproofly.com@gmail.com</span>
@@ -288,16 +288,16 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[#E5E7EB] py-8">
+      <footer className="border-t border-[#2A2A2A] py-8">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-between text-[#64748B] text-sm">
+          <div className="flex items-center justify-between text-[#8A8A8A] text-sm">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded flex items-center justify-center bg-[#1E3A8A]">
-                <span className="text-white font-bold text-xs">P</span>
+              <div className="w-6 h-6 rounded flex items-center justify-center bg-[#D6B98C]">
+                <span className="text-[#0C0C0C] font-bold text-xs">P</span>
               </div>
-              <span>Proofly © 2024</span>
+              <span>Proofly © 2026</span>
             </div>
-            <a href="mailto:theproofly.com@gmail.com" className="hover:text-[#000000] transition-colors">
+            <a href="mailto:theproofly.com@gmail.com" className="hover:text-[#D6B98C] transition-colors">
               Contact
             </a>
           </div>

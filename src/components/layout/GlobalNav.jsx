@@ -77,16 +77,13 @@ export default function GlobalNav() {
     <header className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-4 px-4">
       {/* Floating Pill Container */}
       <nav className="relative">
-        {/* Cosmic Glow Effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-violet-500/20 via-indigo-500/20 to-violet-500/20 rounded-full blur-xl" />
-        
         {/* Main Navbar Pill */}
-        <div className="relative bg-slate-900/40 backdrop-blur-xl border border-slate-700/50 rounded-full px-6 py-3 shadow-2xl">
+        <div className="relative bg-[#171717] backdrop-blur-xl border border-[#2A2A2A] rounded-full px-6 py-3 shadow-2xl">
           <div className="flex items-center gap-8">
             {/* Logo / Current Page */}
-            <Link to={createPageUrl(user ? 'Dashboard' : 'Home')} className="flex items-center gap-2 text-white font-bold text-base group">
-              <BookOpen className="w-5 h-5 group-hover:text-violet-300 transition-colors duration-300" />
-              <span className="bg-gradient-to-r from-white to-slate-200 bg-clip-text text-transparent group-hover:from-violet-200 group-hover:to-indigo-200 transition-all duration-300">
+            <Link to={createPageUrl(user ? 'Dashboard' : 'Home')} className="flex items-center gap-2 font-semibold text-base group">
+              <BookOpen className="w-5 h-5 text-[#D6B98C] group-hover:text-[#C9A96A] transition-colors duration-300" />
+              <span className="text-[#F5F5F5] group-hover:text-[#D6B98C] transition-all duration-300">
                 {currentPageName}
               </span>
             </Link>
@@ -100,8 +97,8 @@ export default function GlobalNav() {
                   className={cn(
                     "px-4 py-1.5 text-sm font-medium rounded-full transition-all duration-300",
                     location.pathname === item.path
-                      ? "text-white bg-white/10 shadow-[0_0_15px_rgba(139,92,246,0.3)]"
-                      : "text-slate-300 hover:text-white hover:bg-white/5 hover:shadow-[0_0_10px_rgba(139,92,246,0.2)]"
+                      ? "text-[#0C0C0C] bg-[#D6B98C]"
+                      : "text-[#B5B5B5] hover:text-[#F5F5F5] hover:bg-[#1E1E1E]"
                   )}
                 >
                   {item.label}
@@ -115,50 +112,50 @@ export default function GlobalNav() {
                 {user ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-white/5 transition-all duration-300">
-                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500/30 to-indigo-500/30 border border-violet-400/30 flex items-center justify-center shadow-[0_0_10px_rgba(139,92,246,0.3)]">
-                          <span className="text-xs font-semibold text-white">
+                      <button className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-[#1E1E1E] transition-all duration-300">
+                        <div className="w-7 h-7 rounded-full bg-[#D6B98C] flex items-center justify-center">
+                          <span className="text-xs font-semibold text-[#0C0C0C]">
                             {user.full_name?.[0] || user.email?.[0] || 'U'}
                           </span>
                         </div>
-                        <span className="text-sm font-medium text-slate-300">{user?.full_name || 'Student'}</span>
-                        <ChevronDown className="w-4 h-4 text-slate-400" />
+                        <span className="text-sm font-medium text-[#F5F5F5]">{user?.full_name || 'Student'}</span>
+                        <ChevronDown className="w-4 h-4 text-[#8A8A8A]" />
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56 bg-slate-900/95 backdrop-blur-xl border-slate-700/50">
-                      <div className="px-3 py-2 border-b border-slate-700/50">
-                        <p className="text-sm font-medium text-slate-100">{user?.full_name || 'Student'}</p>
-                        <p className="text-xs text-slate-400">{user?.email}</p>
+                    <DropdownMenuContent align="end" className="w-56 bg-[#171717] backdrop-blur-xl border-[#2A2A2A]">
+                      <div className="px-3 py-2 border-b border-[#2A2A2A]">
+                        <p className="text-sm font-medium text-[#F5F5F5]">{user?.full_name || 'Student'}</p>
+                        <p className="text-xs text-[#8A8A8A]">{user?.email}</p>
                       </div>
                       <DropdownMenuItem asChild>
-                        <Link to={createPageUrl('Analytics')} className="cursor-pointer text-slate-100 focus:text-white">
+                        <Link to={createPageUrl('Analytics')} className="cursor-pointer text-[#F5F5F5] focus:text-[#D6B98C]">
                           <BarChart3 className="w-4 h-4 mr-2" />
                           Analytics
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link to={createPageUrl('Rewards')} className="cursor-pointer text-slate-100 focus:text-white">
+                        <Link to={createPageUrl('Rewards')} className="cursor-pointer text-[#F5F5F5] focus:text-[#D6B98C]">
                           <Award className="w-4 h-4 mr-2" />
                           Rewards
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuSeparator className="bg-slate-700/50" />
+                      <DropdownMenuSeparator className="bg-[#2A2A2A]" />
                       <DropdownMenuItem asChild>
-                        <Link to={createPageUrl('Settings')} className="cursor-pointer text-slate-100 focus:text-white">
+                        <Link to={createPageUrl('Settings')} className="cursor-pointer text-[#F5F5F5] focus:text-[#D6B98C]">
                           <User className="w-4 h-4 mr-2" />
                           Account Settings
                         </Link>
                       </DropdownMenuItem>
                       {user?.role === 'admin' && (
                         <DropdownMenuItem asChild>
-                          <Link to={createPageUrl('QuestionValidation')} className="cursor-pointer text-amber-400 focus:text-amber-300">
+                          <Link to={createPageUrl('QuestionValidation')} className="cursor-pointer text-[#D6B98C] focus:text-[#C9A96A]">
                             <AlertTriangle className="w-4 h-4 mr-2" />
                             Question Validation
                           </Link>
                         </DropdownMenuItem>
                       )}
-                      <DropdownMenuSeparator className="bg-slate-700/50" />
-                      <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-rose-400 focus:text-rose-400">
+                      <DropdownMenuSeparator className="bg-[#2A2A2A]" />
+                      <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-[#DC2626] focus:text-[#DC2626]">
                         <LogOut className="w-4 h-4 mr-2" />
                         Logout
                       </DropdownMenuItem>
@@ -168,21 +165,15 @@ export default function GlobalNav() {
                   <>
                     <button
                       onClick={handleLogin}
-                      className="px-4 py-1.5 text-sm font-medium text-slate-300 hover:text-white rounded-full hover:bg-white/5 transition-all duration-300"
+                      className="px-4 py-1.5 text-sm font-medium text-[#B5B5B5] hover:text-[#F5F5F5] rounded-full hover:bg-[#1E1E1E] transition-all duration-300"
                     >
                       Login
                     </button>
                     <button
                       onClick={handleGetStarted}
-                      className="relative px-5 py-1.5 text-sm font-semibold text-white rounded-full overflow-hidden group"
+                      className="px-5 py-1.5 text-sm font-semibold bg-[#D6B98C] hover:bg-[#C9A96A] text-[#0C0C0C] rounded-full transition-all duration-300"
                     >
-                      {/* Celestial Gradient Background */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600 group-hover:from-indigo-500 group-hover:via-violet-500 group-hover:to-indigo-500 transition-all duration-300" />
-                      {/* Inner Luminous Glow */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-violet-400/0 via-violet-400/20 to-violet-400/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      {/* Outer Cosmic Glow */}
-                      <div className="absolute inset-0 shadow-[0_0_20px_rgba(139,92,246,0.4)] group-hover:shadow-[0_0_25px_rgba(139,92,246,0.6)] transition-all duration-300 rounded-full" />
-                      <span className="relative">Get Started</span>
+                      Get Started
                     </button>
                   </>
                 )}
@@ -192,7 +183,7 @@ export default function GlobalNav() {
             {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden text-slate-300 hover:text-white transition-colors ml-4"
+              className="lg:hidden text-[#B5B5B5] hover:text-[#F5F5F5] transition-colors ml-4"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -200,7 +191,7 @@ export default function GlobalNav() {
 
           {/* Mobile Menu Dropdown */}
           {mobileMenuOpen && (
-            <div className="lg:hidden absolute top-full mt-2 left-0 right-0 bg-slate-900/95 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="lg:hidden absolute top-full mt-2 left-0 right-0 bg-[#171717] backdrop-blur-xl border border-[#2A2A2A] rounded-2xl shadow-2xl overflow-hidden">
               <div className="px-4 py-3 space-y-1">
                 {navItems.map((item) => (
                   <Link
@@ -210,20 +201,20 @@ export default function GlobalNav() {
                     className={cn(
                       "block px-4 py-2 text-sm font-medium rounded-lg transition-all",
                       location.pathname === item.path
-                        ? "text-white bg-white/10"
-                        : "text-slate-300 hover:text-white hover:bg-white/5"
+                        ? "text-[#0C0C0C] bg-[#D6B98C]"
+                        : "text-[#B5B5B5] hover:text-[#F5F5F5] hover:bg-[#1E1E1E]"
                     )}
                   >
                     {item.label}
                   </Link>
                 ))}
-                <div className="border-t border-slate-700/50 my-2 pt-2">
+                <div className="border-t border-[#2A2A2A] my-2 pt-2">
                   {user ? (
                     <>
                       <Link
                         to={createPageUrl('Analytics')}
                         onClick={() => setMobileMenuOpen(false)}
-                        className="block w-full text-left px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-all mb-2"
+                        className="block w-full text-left px-4 py-2 text-sm font-medium text-[#B5B5B5] hover:text-[#F5F5F5] hover:bg-[#1E1E1E] rounded-lg transition-all mb-2"
                       >
                         <BarChart3 className="w-4 h-4 inline mr-2" />
                         Analytics
@@ -231,7 +222,7 @@ export default function GlobalNav() {
                       <Link
                         to={createPageUrl('Rewards')}
                         onClick={() => setMobileMenuOpen(false)}
-                        className="block w-full text-left px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-all mb-2"
+                        className="block w-full text-left px-4 py-2 text-sm font-medium text-[#B5B5B5] hover:text-[#F5F5F5] hover:bg-[#1E1E1E] rounded-lg transition-all mb-2"
                       >
                         <Award className="w-4 h-4 inline mr-2" />
                         Rewards
@@ -239,7 +230,7 @@ export default function GlobalNav() {
                       <Link
                         to={createPageUrl('Settings')}
                         onClick={() => setMobileMenuOpen(false)}
-                        className="block w-full text-left px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-all mb-2"
+                        className="block w-full text-left px-4 py-2 text-sm font-medium text-[#B5B5B5] hover:text-[#F5F5F5] hover:bg-[#1E1E1E] rounded-lg transition-all mb-2"
                       >
                         <User className="w-4 h-4 inline mr-2" />
                         Account Settings
@@ -249,7 +240,7 @@ export default function GlobalNav() {
                           handleLogout();
                           setMobileMenuOpen(false);
                         }}
-                        className="block w-full text-left px-4 py-2 text-sm font-medium text-rose-400 hover:text-rose-300 hover:bg-white/5 rounded-lg transition-all"
+                        className="block w-full text-left px-4 py-2 text-sm font-medium text-[#DC2626] hover:text-[#DC2626] hover:bg-[#1E1E1E] rounded-lg transition-all"
                       >
                         <LogOut className="w-4 h-4 inline mr-2" />
                         Logout
@@ -262,7 +253,7 @@ export default function GlobalNav() {
                           handleLogin();
                           setMobileMenuOpen(false);
                         }}
-                        className="block w-full text-left px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-all mb-2"
+                        className="block w-full text-left px-4 py-2 text-sm font-medium text-[#B5B5B5] hover:text-[#F5F5F5] hover:bg-[#1E1E1E] rounded-lg transition-all mb-2"
                       >
                         Login
                       </button>
@@ -271,10 +262,9 @@ export default function GlobalNav() {
                           handleGetStarted();
                           setMobileMenuOpen(false);
                         }}
-                        className="relative w-full px-4 py-2 text-sm font-semibold text-white rounded-lg overflow-hidden"
+                        className="w-full px-4 py-2 text-sm font-semibold bg-[#D6B98C] hover:bg-[#C9A96A] text-[#0C0C0C] rounded-lg"
                       >
-                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-violet-600 to-indigo-600" />
-                        <span className="relative">Get Started</span>
+                        Get Started
                       </button>
                     </>
                   )}
