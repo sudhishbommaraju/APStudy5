@@ -37,17 +37,65 @@ const BASE_SUBJECTS = [
   { subject_id: 'science', name: 'Science', category: 'Science', icon: '🔬' },
 ];
 
-// ADDITIONAL DEFAULT SUBJECTS
+// COMPREHENSIVE AP CLASS LIST
 const DEFAULT_SUBJECTS = [
   ...BASE_SUBJECTS,
+  
+  // Standardized Tests
   { subject_id: 'sat', name: 'SAT', category: 'Standardized', icon: '📝' },
   { subject_id: 'act', name: 'ACT', category: 'Standardized', icon: '📋' },
+  
+  // AP Math & Computer Science
   { subject_id: 'ap_calculus_ab', name: 'AP Calculus AB', category: 'Math', icon: '📐' },
-  { subject_id: 'ap_physics_1', name: 'AP Physics 1', category: 'Science', icon: '🧬' },
-  { subject_id: 'ap_biology', name: 'AP Biology', category: 'Science', icon: '🧪' },
+  { subject_id: 'ap_calculus_bc', name: 'AP Calculus BC', category: 'Math', icon: '📊' },
+  { subject_id: 'ap_statistics', name: 'AP Statistics', category: 'Math', icon: '📈' },
+  { subject_id: 'ap_computer_science_a', name: 'AP Computer Science A', category: 'Computer Science', icon: '💻' },
+  { subject_id: 'ap_computer_science_principles', name: 'AP Computer Science Principles', category: 'Computer Science', icon: '🖥️' },
+  
+  // AP Sciences
+  { subject_id: 'ap_biology', name: 'AP Biology', category: 'Science', icon: '🧬' },
   { subject_id: 'ap_chemistry', name: 'AP Chemistry', category: 'Science', icon: '⚗️' },
-  { subject_id: 'ap_english_lit', name: 'AP English Literature', category: 'English', icon: '📚' },
+  { subject_id: 'ap_physics_1', name: 'AP Physics 1', category: 'Science', icon: '🔬' },
+  { subject_id: 'ap_physics_2', name: 'AP Physics 2', category: 'Science', icon: '⚛️' },
+  { subject_id: 'ap_physics_c_mechanics', name: 'AP Physics C: Mechanics', category: 'Science', icon: '🎢' },
+  { subject_id: 'ap_physics_c_em', name: 'AP Physics C: E&M', category: 'Science', icon: '⚡' },
+  { subject_id: 'ap_environmental_science', name: 'AP Environmental Science', category: 'Science', icon: '🌍' },
+  
+  // AP English
+  { subject_id: 'ap_english_language', name: 'AP English Language', category: 'English', icon: '✍️' },
+  { subject_id: 'ap_english_literature', name: 'AP English Literature', category: 'English', icon: '📚' },
+  
+  // AP History & Social Studies
   { subject_id: 'ap_us_history', name: 'AP US History', category: 'History', icon: '🏛️' },
+  { subject_id: 'ap_world_history', name: 'AP World History: Modern', category: 'History', icon: '🌎' },
+  { subject_id: 'ap_european_history', name: 'AP European History', category: 'History', icon: '🏰' },
+  { subject_id: 'ap_us_government', name: 'AP US Government & Politics', category: 'Social Science', icon: '⚖️' },
+  { subject_id: 'ap_comparative_government', name: 'AP Comparative Government', category: 'Social Science', icon: '🗳️' },
+  { subject_id: 'ap_human_geography', name: 'AP Human Geography', category: 'Social Science', icon: '🗺️' },
+  { subject_id: 'ap_psychology', name: 'AP Psychology', category: 'Social Science', icon: '🧠' },
+  { subject_id: 'ap_macroeconomics', name: 'AP Macroeconomics', category: 'Social Science', icon: '💰' },
+  { subject_id: 'ap_microeconomics', name: 'AP Microeconomics', category: 'Social Science', icon: '💵' },
+  
+  // AP World Languages & Cultures
+  { subject_id: 'ap_spanish_language', name: 'AP Spanish Language & Culture', category: 'Language', icon: '🇪🇸' },
+  { subject_id: 'ap_spanish_literature', name: 'AP Spanish Literature', category: 'Language', icon: '📖' },
+  { subject_id: 'ap_french_language', name: 'AP French Language & Culture', category: 'Language', icon: '🇫🇷' },
+  { subject_id: 'ap_german_language', name: 'AP German Language & Culture', category: 'Language', icon: '🇩🇪' },
+  { subject_id: 'ap_italian_language', name: 'AP Italian Language & Culture', category: 'Language', icon: '🇮🇹' },
+  { subject_id: 'ap_chinese_language', name: 'AP Chinese Language & Culture', category: 'Language', icon: '🇨🇳' },
+  { subject_id: 'ap_japanese_language', name: 'AP Japanese Language & Culture', category: 'Language', icon: '🇯🇵' },
+  { subject_id: 'ap_latin', name: 'AP Latin', category: 'Language', icon: '🏺' },
+  
+  // AP Arts
+  { subject_id: 'ap_art_history', name: 'AP Art History', category: 'Arts', icon: '🎨' },
+  { subject_id: 'ap_music_theory', name: 'AP Music Theory', category: 'Arts', icon: '🎵' },
+  { subject_id: 'ap_studio_art_2d', name: 'AP Studio Art: 2-D Design', category: 'Arts', icon: '🖼️' },
+  { subject_id: 'ap_studio_art_3d', name: 'AP Studio Art: 3-D Design', category: 'Arts', icon: '🗿' },
+  { subject_id: 'ap_studio_art_drawing', name: 'AP Studio Art: Drawing', category: 'Arts', icon: '✏️' },
+  
+  // AP Capstone
+  { subject_id: 'ap_seminar', name: 'AP Seminar', category: 'Capstone', icon: '💡' },
+  { subject_id: 'ap_research', name: 'AP Research', category: 'Capstone', icon: '🔍' },
 ];
 
 export default function Practice() {
