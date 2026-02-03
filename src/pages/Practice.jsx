@@ -24,6 +24,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import AITutorWidget from '@/components/tutor/AITutorWidget';
+import { MessageSquare } from 'lucide-react';
+import { PracticeState, PracticeStateManager } from '@/components/practice/PracticeStateMachine';
+import { validatePracticeData } from '@/components/practice/PracticeSchema';
+import { getFallbackPractice } from '@/components/practice/FallbackPractice';
 
 export default function Practice() {
   const location = useLocation();
@@ -48,6 +53,8 @@ export default function Practice() {
   const [showLatexInput, setShowLatexInput] = useState(false);
   const [studentSolution, setStudentSolution] = useState({});
   const [generationProgress, setGenerationProgress] = useState(null);
+  const [practiceState, setPracticeState] = useState({ state: PracticeState.IDLE });
+  const [showTutor, setShowTutor] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -188,18 +195,30 @@ export default function Practice() {
       questionCount
     });
 
-    // GUARD: Must throw or show error, never silent return
-    if (!user) {
-      alert('Please wait while your account loads...');
+    // AUTH GUARDRAIL - Check session before proceeding
+    if (!user?.email) {
+      console.error('[Practice] Auth check failed - no user session');
+      setPracticeState({ 
+        state: PracticeState.ERROR, 
+        error: 'Please log in to start practice' 
+      });
+      base44.auth.redirectToLogin(window.location.href);
       return;
     }
 
     if (!selectedSubject) {
-      alert('Please select a subject first');
+      console.error('[Practice] No subject selected');
+      setPracticeState({ 
+        state: PracticeState.ERROR, 
+        error: 'Please select a subject first' 
+      });
       return;
     }
 
-    // IMMEDIATE STATE CHANGE - guarantees user sees something
+    // TRANSITION TO LOADING STATE
+    const stateManager = new PracticeStateManager(setPracticeState);
+    stateManager.transition(PracticeState.LOADING, { questionCount });
+    
     setIsGenerating(true);
     setError(null);
     setGenerationProgress({ phase: 'initializing', current: 0, total: questionCount, message: 'Starting generation...' });
@@ -252,25 +271,51 @@ export default function Practice() {
         maxTimeMs: 20000 // 20s backend limit
       });
 
-      // VALIDATE BEFORE SETTING STATE
+      // STRICT SCHEMA VALIDATION
       if (!result || !result.questions || result.questions.length === 0) {
         throw new Error('No valid questions generated');
       }
 
+      const validation = validatePracticeData(result.questions);
+      if (!validation.valid) {
+        console.error('[Practice] Schema validation failed:', validation.error);
+        throw new Error(`Invalid question data: ${validation.error}`);
+      }
+
       // SUCCESS - clear watchdog and set questions
       clearTimeout(timeoutId);
+      console.log('[Practice] Generation successful:', result.questions.length, 'questions');
+      
+      const stateManager = new PracticeStateManager(setPracticeState);
+      stateManager.transition(PracticeState.GENERATED, { 
+        questions: result.questions 
+      });
+      
       setQuestions(result.questions);
       setGenerationProgress(null);
       setIsGenerating(false);
       
     } catch (e) {
       clearTimeout(timeoutId);
-      console.error('Practice generation failed:', e);
+      console.error('[Practice] Generation failed:', e);
       
-      // MANDATORY ERROR STATE
-      setError(e.message || 'Failed to generate questions. Please try again.');
+      // FAILSAFE: Load fallback practice
+      console.log('[Practice] Loading fallback practice');
+      const fallbackQuestions = getFallbackPractice(selectedSubject);
+      
+      const stateManager = new PracticeStateManager(setPracticeState);
+      stateManager.transition(PracticeState.GENERATED, { 
+        questions: fallbackQuestions,
+        isFallback: true
+      });
+      
+      setQuestions(fallbackQuestions);
+      setError(null);
       setGenerationProgress(null);
       setIsGenerating(false);
+      
+      // Show toast notification
+      console.warn('[Practice] Using fallback questions due to generation error');
     }
   };
 
@@ -362,6 +407,10 @@ export default function Practice() {
   };
 
   const resetPractice = () => {
+    console.log('[Practice] Reset to idle state');
+    const stateManager = new PracticeStateManager(setPracticeState);
+    stateManager.transition(PracticeState.IDLE);
+    
     setQuestions([]);
     setCurrentIndex(0);
     setAnswers({});
@@ -374,13 +423,19 @@ export default function Practice() {
     setNewBadges([]);
   };
 
-  // Setup view
-  if (questions.length === 0 && !isGenerating) {
+  // RENDER GUARANTEE: Always show UI based on state
+  // State: IDLE or ERROR with no questions
+  if ((practiceState.state === PracticeState.IDLE || practiceState.state === PracticeState.ERROR) && questions.length === 0 && !isGenerating) {
     return (
       <>
         <div className="page-header">
           <h1 className="page-title">Practice Mode</h1>
           <p className="page-description">Choose what to practice</p>
+          {practiceState.state === PracticeState.ERROR && practiceState.error && (
+            <div className="mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
+              <p className="text-red-400 font-medium">⚠️ {practiceState.error}</p>
+            </div>
+          )}
           {user?.plan === 'free' && (
             <p className="text-sm text-slate-500 mt-2">
               Daily practice exams: {(user.daily_practice_count || 0)}/5 used
@@ -541,8 +596,8 @@ export default function Practice() {
     );
   }
 
-  // Loading state - Simple generating text
-  if (isGenerating) {
+  // LOADING STATE - Must be visible
+  if (practiceState.state === PracticeState.LOADING || isGenerating) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center px-4">
         <Loader2 className="w-16 h-16 text-violet-500 animate-spin mb-6" />
@@ -556,17 +611,19 @@ export default function Practice() {
     );
   }
 
-  // Error state - Show retry UI
-  if (error) {
+  // ERROR STATE - Must show error UI (backup if state machine fails)
+  if (error && questions.length === 0) {
     return (
       <GenerationErrorBoundary
         error={error}
         onRetry={() => {
           setError(null);
+          setPracticeState({ state: PracticeState.IDLE });
           generateQuestions();
         }}
         onCancel={() => {
           setError(null);
+          setPracticeState({ state: PracticeState.IDLE });
           setQuestions([]);
         }}
       />
@@ -639,9 +696,25 @@ export default function Practice() {
     );
   }
 
-  // Practicing state
+  // ACTIVE PRACTICE STATE - Only render if we have questions
+  if (practiceState.state !== PracticeState.GENERATED && questions.length === 0) {
+    console.error('[Practice] Invalid state: trying to render practice without questions');
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center p-8 bg-red-500/10 border border-red-500/30 rounded-xl">
+          <h2 className="text-2xl font-bold text-red-400 mb-4">⚠️ Practice Error</h2>
+          <p className="text-slate-300 mb-4">Something went wrong. No questions available.</p>
+          <Button onClick={resetPractice}>Start Over</Button>
+        </div>
+      </div>
+    );
+  }
+
   const currentQuestion = questions[currentIndex];
   const answered = answers[currentIndex] !== undefined;
+
+  // Show fallback notification if applicable
+  const isFallback = practiceState.isFallback;
 
   return (
     <div className="min-h-screen focus-mode">
@@ -651,6 +724,15 @@ export default function Practice() {
             <span className="text-sm focus-mode-text-secondary">
               Question {currentIndex + 1} of {questions.length}
             </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowTutor(true)}
+              className="ml-auto"
+            >
+              <MessageSquare className="w-4 h-4 mr-1" />
+              Ask AI
+            </Button>
             {currentStreak > 0 && (
               <span className="px-2 py-1 bg-orange-500/20 text-orange-400 text-xs font-semibold rounded-full flex items-center gap-1">
                 🔥 {currentStreak} streak
@@ -672,6 +754,14 @@ export default function Practice() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-6">
+        {isFallback && (
+          <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+            <p className="text-yellow-400 text-sm">
+              ℹ️ Using practice questions while custom generation loads
+            </p>
+          </div>
+        )}
+        
         <motion.div
           key={currentIndex}
           initial={{ opacity: 0, x: 50 }}
@@ -734,6 +824,20 @@ export default function Practice() {
           )}
         </AnimatePresence>
       </div>
+
+      {/* AI Tutor Widget */}
+      {showTutor && (
+        <AITutorWidget
+          context={{
+            type: 'practice',
+            subject: selectedSubject,
+            currentQuestion: questions[currentIndex],
+            initialPrompt: `I'm practicing ${selectedSubject}. Can you help explain this concept?`
+          }}
+          userEmail={user?.email}
+          onClose={() => setShowTutor(false)}
+        />
+      )}
     </div>
   );
 }
