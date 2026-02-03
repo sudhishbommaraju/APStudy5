@@ -348,7 +348,7 @@ Format as markdown.`;
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#D6B98C]" />
       </div>
     );
   }
@@ -362,12 +362,12 @@ Format as markdown.`;
         <motion.div 
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="bg-slate-800/40 backdrop-blur-sm rounded-2xl border border-slate-700/50 p-8 text-center mb-6"
+          className="bg-[#1E1E1E] rounded-2xl border border-[#2A2A2A] p-8 text-center mb-6"
         >
-          <Target className="w-16 h-16 mx-auto mb-4 text-violet-400" />
-          <h1 className="text-3xl font-bold text-slate-100 mb-2">Practice Complete!</h1>
-          <p className="text-4xl font-bold text-violet-400 mb-4">{accuracy.toFixed(0)}%</p>
-          <p className="text-slate-400">{correctCount} out of {questions.length} correct</p>
+          <Target className="w-16 h-16 mx-auto mb-4 text-[#D6B98C]" />
+          <h1 className="text-3xl font-bold text-[#F5F5F5] mb-2">Practice Complete!</h1>
+          <p className="text-4xl font-bold text-[#D6B98C] mb-4">{accuracy.toFixed(0)}%</p>
+          <p className="text-[#B5B5B5]">{correctCount} out of {questions.length} correct</p>
         </motion.div>
         <Button onClick={resetPractice} className="w-full">New Practice</Button>
       </div>
@@ -421,7 +421,7 @@ Format as markdown.`;
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6 bg-slate-800/40 border border-slate-700/50">
+        <TabsList className="grid w-full grid-cols-6 bg-[#1E1E1E] border border-[#2A2A2A]">
           <TabsTrigger value="english">
             <FileText className="w-4 h-4 mr-2" />
             English
@@ -449,9 +449,9 @@ Format as markdown.`;
         </TabsList>
 
         <TabsContent value="english">
-          <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-8">
-            <h2 className="text-2xl font-bold text-slate-100 mb-4">ACT English</h2>
-            <p className="text-slate-400 mb-6">
+          <div className="bg-[#1E1E1E] rounded-xl border border-[#2A2A2A] p-8">
+            <h2 className="text-2xl font-semibold text-[#F5F5F5] mb-4">ACT English</h2>
+            <p className="text-[#B5B5B5] mb-6">
               Passage-based editing questions testing grammar, punctuation, style, and organization.
             </p>
             <div className="flex gap-3">

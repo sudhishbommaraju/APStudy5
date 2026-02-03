@@ -522,9 +522,9 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
   if (loading && examState === 'setup') {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin mb-4 text-violet-400" />
-        <p className="text-slate-100 font-medium">Generating your exam questions...</p>
-        <p className="text-slate-400 text-sm mt-1">This may take a moment</p>
+        <Loader2 className="w-8 h-8 animate-spin mb-4 text-[#D6B98C]" />
+        <p className="text-[#F5F5F5] font-medium">Generating your exam questions...</p>
+        <p className="text-[#B5B5B5] text-sm mt-1">This may take a moment</p>
       </div>
     );
   }
@@ -541,29 +541,29 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
               </Button>
             </Link>
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-slate-100">Exam Mode</h1>
-              <p className="text-white">Timed test with no explanations until the end</p>
+              <h1 className="text-2xl font-bold text-[#F5F5F5]">Exam Mode</h1>
+              <p className="text-[#B5B5B5]">Timed test with no explanations until the end</p>
               {user?.plan === 'free' && (
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-[#8A8A8A] mt-1">
                   Daily timed exams: {(user.daily_exam_count || 0)}/3 used
                 </p>
               )}
             </div>
           </div>
 
-          <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 space-y-6">
+          <div className="bg-[#1E1E1E] rounded-xl border border-[#2A2A2A] p-6 space-y-6">
             {/* Subject Selection */}
             <div>
-              <label className="text-sm font-medium text-slate-100 mb-3 block">
+              <label className="text-sm font-medium text-[#F5F5F5] mb-3 block">
                 Select Subject
               </label>
               <Select value={selectedSubject} onValueChange={handleSubjectChange}>
-                <SelectTrigger className="w-full bg-slate-900/50 border-slate-700/50 text-white">
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Choose a subject" />
                 </SelectTrigger>
-                <SelectContent className="max-h-96 bg-slate-900/95 backdrop-blur-xl border-slate-700/50">
+                <SelectContent className="max-h-96">
                   {subjects.length === 0 ? (
-                    <div className="px-2 py-4 text-sm text-slate-500 text-center">
+                    <div className="px-2 py-4 text-sm text-[#8A8A8A] text-center">
                       No subjects available
                     </div>
                   ) : (
@@ -584,11 +584,11 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
                       
                       return Object.entries(grouped).map(([category, categorySubjects]) => (
                         <div key={category}>
-                          <div className="px-2 py-1.5 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                          <div className="px-2 py-1.5 text-xs font-semibold text-[#D6B98C] uppercase tracking-wider">
                             {category}
                           </div>
                           {categorySubjects.map((subject) => (
-                            <SelectItem key={subject.subject_id} value={subject.subject_id} className="text-white focus:bg-slate-800/50 focus:text-white">
+                            <SelectItem key={subject.subject_id} value={subject.subject_id}>
                               <div className="flex items-center gap-2">
                                 {subject.icon && <span>{subject.icon}</span>}
                                 <span>{subject.name}</span>
@@ -602,7 +602,7 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
                 </SelectContent>
               </Select>
               {selectedSubject && currentSubject && (
-                <div className="mt-2 flex items-center gap-2 text-sm text-slate-400">
+                <div className="mt-2 flex items-center gap-2 text-sm text-[#8A8A8A]">
                   {currentSubject.icon && <span>{currentSubject.icon}</span>}
                   <span>Selected: {currentSubject.name}</span>
                 </div>
@@ -612,7 +612,7 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
             {/* Unit Selection */}
             {selectedSubject && (
               <div>
-                <label className="text-sm font-medium text-slate-100 mb-3 block">
+                <label className="text-sm font-medium text-[#F5F5F5] mb-3 block">
                   Select Units
                 </label>
                 <UnitMultiSelect
@@ -630,7 +630,7 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
 
             {/* Question Count */}
             <div>
-              <label className="text-sm font-medium text-slate-100 mb-3 block">
+              <label className="text-sm font-medium text-[#F5F5F5] mb-3 block">
                 Number of Questions {isStandardizedTest && '(Custom for SAT/ACT)'}
               </label>
               {isStandardizedTest ? (
@@ -644,10 +644,10 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
                       const val = Math.min(60, Math.max(1, parseInt(e.target.value) || 1));
                       setQuestionCount(val);
                     }}
-                    className="w-full px-4 py-3 rounded-lg border border-slate-600 bg-slate-900/50 text-slate-100 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className="w-full px-4 py-3 rounded-lg border border-[#2A2A2A] bg-[#171717] text-[#F5F5F5] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#D6B98C]/50"
                     placeholder="Enter 1-60"
                   />
-                  <p className="text-xs text-slate-400">Max 60 questions for SAT/ACT exams</p>
+                  <p className="text-xs text-[#8A8A8A]">Max 60 questions for SAT/ACT exams</p>
                 </div>
               ) : (
                 <div className="flex gap-2">
@@ -658,8 +658,8 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
                       className={cn(
                         "flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all",
                         questionCount === n
-                          ? "bg-violet-600 text-white"
-                          : "bg-slate-700/50 text-slate-300 hover:bg-slate-700"
+                          ? "bg-[#D6B98C] text-[#0C0C0C]"
+                          : "bg-[#171717] text-[#B5B5B5] hover:bg-[#1E1E1E] border border-[#2A2A2A]"
                       )}
                     >
                       {n} questions
@@ -671,7 +671,7 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
 
             {/* Difficulty */}
             <div>
-              <label className="text-sm font-medium text-slate-100 mb-3 block">Difficulty</label>
+              <label className="text-sm font-medium text-[#F5F5F5] mb-3 block">Difficulty</label>
               <div className="flex gap-2">
                 {[
                   { id: 'mixed', label: 'Mixed' },
@@ -685,8 +685,8 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
                     className={cn(
                       "flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all",
                       selectedDifficulty === d.id
-                        ? "bg-violet-600 text-white"
-                        : "bg-slate-700/50 text-slate-300 hover:bg-slate-700"
+                        ? "bg-[#D6B98C] text-[#0C0C0C]"
+                        : "bg-[#171717] text-[#B5B5B5] hover:bg-[#1E1E1E] border border-[#2A2A2A]"
                     )}
                   >
                     {d.label}
@@ -697,7 +697,7 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
 
             {/* Time Limit */}
             <div>
-              <label className="text-sm font-medium text-slate-100 mb-3 block">Time Limit</label>
+              <label className="text-sm font-medium text-[#F5F5F5] mb-3 block">Time Limit</label>
               <div className="flex gap-2">
                 {[10, 15, 20, 30].map((t) => (
                   <button
@@ -706,8 +706,8 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
                     className={cn(
                       "flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all",
                       timeLimit === t
-                        ? "bg-violet-600 text-white"
-                        : "bg-slate-700/50 text-slate-300 hover:bg-slate-700"
+                        ? "bg-[#D6B98C] text-[#0C0C0C]"
+                        : "bg-[#171717] text-[#B5B5B5] hover:bg-[#1E1E1E] border border-[#2A2A2A]"
                     )}
                   >
                     {t} min
@@ -728,7 +728,7 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
             <Button
               onClick={startExam}
               disabled={loading || !selectedSubject || selectedUnits.length === 0}
-              className="w-full h-12 bg-violet-600 hover:bg-violet-700"
+              className="w-full h-12"
             >
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -739,7 +739,7 @@ VERIFY BEFORE RETURNING: Check that choice_a, choice_b, choice_c, choice_d each 
             </Button>
 
             {(!selectedSubject || selectedUnits.length === 0) && (
-              <p className="text-xs text-center text-slate-400">
+              <p className="text-xs text-center text-[#8A8A8A]">
                 {!selectedSubject 
                   ? 'Please select a subject to continue' 
                   : 'Please select at least one unit to continue'}
