@@ -30,6 +30,18 @@ import { PracticeState, PracticeStateManager } from '@/components/practice/Pract
 import { validatePracticeData } from '@/components/practice/PracticeSchema';
 import { getFallbackPractice } from '@/components/practice/FallbackPractice';
 
+// DEFAULT SUBJECTS - ALWAYS AVAILABLE
+const DEFAULT_SUBJECTS = [
+  { subject_id: 'sat', name: 'SAT', category: 'Standardized', icon: '📝' },
+  { subject_id: 'act', name: 'ACT', category: 'Standardized', icon: '📋' },
+  { subject_id: 'ap_calculus_ab', name: 'AP Calculus AB', category: 'Math', icon: '📐' },
+  { subject_id: 'ap_physics_1', name: 'AP Physics 1', category: 'Science', icon: '🔬' },
+  { subject_id: 'ap_biology', name: 'AP Biology', category: 'Science', icon: '🧬' },
+  { subject_id: 'ap_chemistry', name: 'AP Chemistry', category: 'Science', icon: '⚗️' },
+  { subject_id: 'ap_english_lit', name: 'AP English Literature', category: 'English', icon: '📚' },
+  { subject_id: 'ap_us_history', name: 'AP US History', category: 'History', icon: '🏛️' },
+];
+
 export default function Practice() {
   const location = useLocation();
   const queryClient = useQueryClient();
@@ -77,10 +89,30 @@ export default function Practice() {
     }
   }, [location.state]);
 
-  const { data: subjects = [], isLoading: subjectsLoading } = useQuery({
+  const { data: backendSubjects = [], isLoading: subjectsLoading } = useQuery({
     queryKey: ['subjects'],
-    queryFn: () => base44.entities.Subject.list('subject_id'),
+    queryFn: async () => {
+      try {
+        return await base44.entities.Subject.list('subject_id');
+      } catch (e) {
+        console.warn('[Practice] Failed to fetch backend subjects, using defaults');
+        return [];
+      }
+    },
   });
+
+  // MERGE BACKEND SUBJECTS WITH DEFAULTS - ALWAYS HAVE SUBJECTS
+  const subjects = React.useMemo(() => {
+    const subjectMap = new Map();
+    
+    // Add defaults first
+    DEFAULT_SUBJECTS.forEach(s => subjectMap.set(s.subject_id, s));
+    
+    // Override/add backend subjects
+    backendSubjects.forEach(s => subjectMap.set(s.subject_id, s));
+    
+    return Array.from(subjectMap.values());
+  }, [backendSubjects]);
   
   // Auto-generate for study plan - wait for subjects to load
   useEffect(() => {
@@ -457,19 +489,10 @@ export default function Practice() {
               disabled={subjectsLoading}
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder={subjectsLoading ? "Loading subjects..." : "Choose a subject"} />
+                <SelectValue placeholder="Choose a subject" />
               </SelectTrigger>
               <SelectContent className="max-h-96 z-[1000]">
-                {subjectsLoading ? (
-                  <div className="px-4 py-8 text-center text-[#8A8A8A]">
-                    <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2" />
-                    <p className="text-sm">Loading subjects...</p>
-                  </div>
-                ) : subjects.length === 0 ? (
-                  <div className="px-4 py-8 text-center text-[#8A8A8A]">
-                    <p className="text-sm">No subjects available</p>
-                  </div>
-                ) : (
+                {(
                   (() => {
                     const uniqueSubjects = Array.from(
                       new Map(subjects.map(s => [s.subject_id, s])).values()
@@ -501,12 +524,6 @@ export default function Practice() {
                 )}
               </SelectContent>
             </Select>
-            {subjectsLoading && (
-              <p className="text-xs text-[#8A8A8A] mt-2">Fetching available subjects...</p>
-            )}
-            {!subjectsLoading && subjects.length === 0 && (
-              <p className="text-xs text-[#DC2626] mt-2">⚠️ No subjects found. Please contact support.</p>
-            )}
           </div>
 
           {/* Unit Selector */}
