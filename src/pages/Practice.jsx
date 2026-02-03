@@ -445,16 +445,16 @@ export default function Practice() {
 
         <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           {/* Subject Selector */}
-          <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg">
-            <label className="text-sm font-medium text-slate-100 mb-3 block">Select Subject</label>
+          <div className="bg-[#1E1E1E] rounded-xl border border-[#2A2A2A] p-6 shadow-lg">
+            <label className="text-sm font-medium text-[#F5F5F5] mb-3 block">Select Subject</label>
             <Select value={selectedSubject} onValueChange={(value) => {
               setSelectedSubject(value);
               setSelectedUnit('');
             }}>
-              <SelectTrigger className="w-full bg-slate-900/50 border-slate-700/50 text-slate-200">
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="All subjects or choose specific" />
               </SelectTrigger>
-              <SelectContent className="max-h-96 bg-slate-900/95 backdrop-blur-xl border-slate-700/50">
+              <SelectContent className="max-h-96">
                 {Array.from(new Map(subjects.map(s => [s.subject_id, s])).values())
                   .reduce((acc, subject) => {
                     const category = subject.category;
@@ -472,11 +472,11 @@ export default function Practice() {
                       }, {})
                   ).map(([category, categorySubjects]) => (
                     <div key={category}>
-                      <div className="px-2 py-1.5 text-xs font-semibold text-white uppercase tracking-wider">
+                      <div className="px-2 py-1.5 text-xs font-semibold text-[#D6B98C] uppercase tracking-wider">
                         {category}
                       </div>
                       {categorySubjects.map((subject) => (
-                        <SelectItem key={subject.subject_id} value={subject.subject_id} className="text-slate-200">
+                        <SelectItem key={subject.subject_id} value={subject.subject_id}>
                           <div className="flex items-center gap-2">
                             {subject.icon && <span>{subject.icon}</span>}
                             <span>{subject.name}</span>
@@ -496,19 +496,19 @@ export default function Practice() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg"
+                className="bg-[#1E1E1E] rounded-xl border border-[#2A2A2A] p-6 shadow-lg"
               >
-                <label className="text-sm font-medium text-slate-100 mb-3 block">Select Unit (Optional)</label>
+                <label className="text-sm font-medium text-[#F5F5F5] mb-3 block">Select Unit (Optional)</label>
                 <Select value={selectedUnit} onValueChange={setSelectedUnit}>
-                  <SelectTrigger className="w-full bg-slate-900/50 border-slate-700/50 text-slate-200">
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="All units or choose specific" />
                   </SelectTrigger>
-                  <SelectContent className="max-h-96 bg-slate-900/95 backdrop-blur-xl border-slate-700/50">
-                    <SelectItem value="all" className="text-white font-semibold">
+                  <SelectContent className="max-h-96">
+                    <SelectItem value="all" className="font-semibold">
                       ✨ All Units (Mixed Practice)
                     </SelectItem>
                     {units.sort((a, b) => a.unit_number - b.unit_number).map((unit) => (
-                      <SelectItem key={unit.id} value={unit.id} className="text-white">
+                      <SelectItem key={unit.id} value={unit.id}>
                         Unit {unit.unit_number}: {unit.unit_name}
                       </SelectItem>
                     ))}
@@ -522,9 +522,9 @@ export default function Practice() {
           <motion.div 
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
-            className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg"
+            className="bg-[#1E1E1E] rounded-xl border border-[#2A2A2A] p-6 shadow-lg"
           >
-            <label className="text-sm font-medium text-slate-100 mb-3 block">
+            <label className="text-sm font-medium text-[#F5F5F5] mb-3 block">
               Number of Questions {isStandardizedTest && '(Custom for SAT/ACT)'}
             </label>
             {isStandardizedTest ? (
@@ -539,10 +539,10 @@ export default function Practice() {
                     setCustomQuestionCount(val);
                     setQuestionCount(val);
                   }}
-                  className="w-full px-4 py-3 rounded-lg border border-slate-700/50 bg-slate-900/50 text-slate-200 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+                  className="w-full px-4 py-3 rounded-lg border border-[#2A2A2A] bg-[#171717] text-[#F5F5F5] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#D6B98C]/50"
                   placeholder="Enter 1-60"
                 />
-                <p className="text-xs text-slate-400">Max 60 questions for SAT/ACT practice</p>
+                <p className="text-xs text-[#8A8A8A]">Max 60 questions for SAT/ACT practice</p>
               </div>
             ) : (
               <div className="flex gap-3">
@@ -553,8 +553,8 @@ export default function Practice() {
                     className={cn(
                       "flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all",
                       questionCount === count
-                        ? "bg-violet-600 text-white shadow-[0_0_15px_rgba(139,92,246,0.4)]"
-                        : "bg-slate-900/50 text-slate-300 hover:bg-slate-900/70 border border-slate-700/50"
+                        ? "bg-[#D6B98C] text-[#0C0C0C]"
+                        : "bg-[#171717] text-[#B5B5B5] hover:bg-[#1E1E1E] border border-[#2A2A2A]"
                     )}
                   >
                     {count}
@@ -570,7 +570,7 @@ export default function Practice() {
               type="button"
               onClick={generateQuestions}
               disabled={isGenerating || !selectedSubject}
-              className="w-full h-14 px-6 text-base font-semibold rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full h-14 px-6 text-base font-semibold rounded-xl bg-[#D6B98C] hover:bg-[#C9A96A] text-[#0C0C0C] shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isGenerating ? (
                 <>
@@ -586,7 +586,7 @@ export default function Practice() {
               )}
             </button>
             {!selectedSubject && (
-              <p className="text-xs text-slate-400 text-center">
+              <p className="text-xs text-[#8A8A8A] text-center">
                 Please select a subject to start practice
               </p>
             )}
@@ -600,9 +600,9 @@ export default function Practice() {
   if (practiceState.state === PracticeState.LOADING || isGenerating) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center px-4">
-        <Loader2 className="w-16 h-16 text-violet-500 animate-spin mb-6" />
-        <h2 className="text-2xl font-bold text-slate-100 mb-2">Generating Practice Questions</h2>
-        <p className="text-slate-400">
+        <Loader2 className="w-16 h-16 text-[#D6B98C] animate-spin mb-6" />
+        <h2 className="text-2xl font-bold text-[#F5F5F5] mb-2">Generating Practice Questions</h2>
+        <p className="text-[#B5B5B5]">
           {generationProgress ? 
             `${generationProgress.current} of ${generationProgress.total} questions generated...` :
             'Setting up your practice session...'}
@@ -640,23 +640,23 @@ export default function Practice() {
         <motion.div 
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="bg-slate-800/40 backdrop-blur-sm rounded-2xl border border-slate-700/50 p-8 text-center mb-6 shadow-lg"
+          className="bg-[#1E1E1E] rounded-2xl border border-[#2A2A2A] p-8 text-center mb-6 shadow-lg"
         >
-          <Target className="w-16 h-16 mx-auto mb-4 text-violet-400" />
-          <h1 className="text-3xl font-bold text-slate-100 mb-2">Practice Complete!</h1>
-          <p className="text-4xl font-bold text-violet-400 mb-4">{accuracy.toFixed(0)}%</p>
-          <p className="text-slate-400">{correctCount} out of {questions.length} correct</p>
+          <Target className="w-16 h-16 mx-auto mb-4 text-[#D6B98C]" />
+          <h1 className="text-3xl font-bold text-[#F5F5F5] mb-2">Practice Complete!</h1>
+          <p className="text-4xl font-bold text-[#D6B98C] mb-4">{accuracy.toFixed(0)}%</p>
+          <p className="text-[#B5B5B5]">{correctCount} out of {questions.length} correct</p>
           
           {sessionPoints > 0 && (
             <div className="mt-6 flex items-center justify-center gap-4">
-              <div className="px-4 py-2 bg-violet-500/20 rounded-lg">
-                <p className="text-2xl font-bold text-violet-400">+{sessionPoints}</p>
-                <p className="text-xs text-slate-400">Points Earned</p>
+              <div className="px-4 py-2 bg-[#D6B98C]/20 rounded-lg">
+                <p className="text-2xl font-bold text-[#D6B98C]">+{sessionPoints}</p>
+                <p className="text-xs text-[#8A8A8A]">Points Earned</p>
               </div>
               {currentStreak > 0 && (
                 <div className="px-4 py-2 bg-orange-500/20 rounded-lg">
                   <p className="text-2xl font-bold text-orange-400">{currentStreak}</p>
-                  <p className="text-xs text-slate-400">Max Streak</p>
+                  <p className="text-xs text-[#8A8A8A]">Max Streak</p>
                 </div>
               )}
             </div>
@@ -667,15 +667,15 @@ export default function Practice() {
           <motion.div 
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="bg-gradient-to-r from-violet-500/20 to-purple-500/20 rounded-2xl border border-violet-500/30 p-6 mb-6"
+            className="bg-[#1E1E1E] rounded-2xl border border-[#D6B98C]/30 p-6 mb-6"
           >
-            <h3 className="text-xl font-bold text-slate-100 mb-4 text-center">🎉 New Badges Earned!</h3>
+            <h3 className="text-xl font-bold text-[#F5F5F5] mb-4 text-center">🎉 New Badges Earned!</h3>
             <div className="grid grid-cols-2 gap-3">
               {newBadges.map((badge) => (
-                <div key={badge.id} className="bg-slate-800/60 rounded-lg p-4 text-center">
+                <div key={badge.id} className="bg-[#171717] rounded-lg p-4 text-center">
                   <div className="text-4xl mb-2">{badge.icon}</div>
-                  <p className="font-semibold text-slate-100">{badge.name}</p>
-                  <p className="text-xs text-slate-400 mt-1">{badge.description}</p>
+                  <p className="font-semibold text-[#F5F5F5]">{badge.name}</p>
+                  <p className="text-xs text-[#8A8A8A] mt-1">{badge.description}</p>
                 </div>
               ))}
             </div>
@@ -703,7 +703,7 @@ export default function Practice() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center p-8 bg-red-500/10 border border-red-500/30 rounded-xl">
           <h2 className="text-2xl font-bold text-red-400 mb-4">⚠️ Practice Error</h2>
-          <p className="text-slate-300 mb-4">Something went wrong. No questions available.</p>
+          <p className="text-[#B5B5B5] mb-4">Something went wrong. No questions available.</p>
           <Button onClick={resetPractice}>Start Over</Button>
         </div>
       </div>
