@@ -35,11 +35,12 @@ export default function QuestionIntegrityGuard({ question, children, onRegenerat
     });
 
     // Only block if critical errors (answer mismatch or missing required fields)
-    const hasCriticalError = validation.errors.some(err => 
-      err.includes('Answer mismatch') || 
-      err.includes('Missing required') ||
-      err.includes('No valid choices')
-    );
+    const hasCriticalError = validation.errors.some(err => {
+      const errStr = typeof err === 'string' ? err : String(err);
+      return errStr.includes('Answer mismatch') || 
+             errStr.includes('Missing required') ||
+             errStr.includes('No valid choices');
+    });
 
     if (hasCriticalError) {
       return (
