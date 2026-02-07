@@ -107,7 +107,6 @@ export default function Practice() {
   const [selectedUnit, setSelectedUnit] = useState('');
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [questionCount, setQuestionCount] = useState(10);
-  const [customQuestionCount, setCustomQuestionCount] = useState(10);
   
   const [isGenerating, setIsGenerating] = useState(false);
   const [questions, setQuestions] = useState([]);
@@ -281,13 +280,13 @@ export default function Practice() {
         throw new Error('Subject or Unit not found');
       }
 
-      // BOUNDED GENERATION
+      // BOUNDED GENERATION - College Board level
       const result = await SafeQuestionGenerator.generateSafe({
         subject_id: plan.subject_id,
         unit: targetUnit,
         skill: null,
         count: 10,
-        difficulty: 'medium',
+        difficulty: 'hard',
         onProgress: setGenerationProgress,
         maxTimeMs: 20000
       });
@@ -384,13 +383,13 @@ export default function Practice() {
         throw new Error('No unit found for generation');
       }
 
-      // BOUNDED GENERATION - guaranteed to terminate
+      // BOUNDED GENERATION - College Board level difficulty
       const result = await SafeQuestionGenerator.generateSafe({
         subject_id: selectedSubject,
         unit: targetUnit,
         skill: null,
         count: questionCount,
-        difficulty: 'medium',
+        difficulty: 'hard',
         onProgress: setGenerationProgress,
         maxTimeMs: 20000 // 20s backend limit
       });
@@ -654,43 +653,21 @@ export default function Practice() {
             className="bg-[#1E1E1E] rounded-xl border border-[#2A2A2A] p-6 shadow-lg"
           >
             <label className="text-sm font-medium text-[#F5F5F5] mb-3 block">
-              Number of Questions {isStandardizedTest && '(Custom for SAT/ACT)'}
+              Number of Questions
             </label>
-            {isStandardizedTest ? (
-              <div className="space-y-3">
-                <input
-                  type="number"
-                  min="1"
-                  max="60"
-                  value={customQuestionCount}
-                  onChange={(e) => {
-                    const val = Math.min(60, Math.max(1, parseInt(e.target.value) || 1));
-                    setCustomQuestionCount(val);
-                    setQuestionCount(val);
-                  }}
-                  className="w-full px-4 py-3 rounded-lg border border-[#2A2A2A] bg-[#171717] text-[#F5F5F5] text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#D6B98C]/50"
-                  placeholder="Enter 1-60"
-                />
-                <p className="text-xs text-[#8A8A8A]">Max 60 questions for SAT/ACT practice</p>
-              </div>
-            ) : (
-              <div className="flex gap-3">
-                {[5, 10, 15, 20].map((count) => (
-                  <button
-                    key={count}
-                    onClick={() => setQuestionCount(count)}
-                    className={cn(
-                      "flex-1 px-4 py-3 rounded-lg text-sm font-medium transition-all",
-                      questionCount === count
-                        ? "bg-[#D6B98C] text-[#0C0C0C]"
-                        : "bg-[#171717] text-[#B5B5B5] hover:bg-[#1E1E1E] border border-[#2A2A2A]"
-                    )}
-                  >
-                    {count}
-                  </button>
-                ))}
-              </div>
-            )}
+            <input
+              type="number"
+              min="1"
+              max="100"
+              value={questionCount}
+              onChange={(e) => {
+                const val = Math.min(100, Math.max(1, parseInt(e.target.value) || 10));
+                setQuestionCount(val);
+              }}
+              className="w-full px-4 py-3 rounded-lg border border-[#2A2A2A] bg-[#171717] text-[#F5F5F5] text-base font-medium focus:outline-none focus:ring-2 focus:ring-[#D6B98C]/50"
+              placeholder="Enter number (1-100)"
+            />
+            <p className="text-xs text-[#8A8A8A] mt-2">Choose as many questions as you want (up to 100)</p>
           </motion.div>
 
           {/* Start Button */}

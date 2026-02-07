@@ -404,33 +404,34 @@ export function buildPrompt(subjectId, unit, skill, difficulty) {
   if (unit) context += ` - ${unit.unit_name}`;
   if (skill) context += ` - ${skill.skill_name}`;
   
-  return `Generate a high-quality ${subjectConfig.style} multiple-choice question for: ${context}
+  return `Generate a COLLEGE BOARD LEVEL ${subjectConfig.style} multiple-choice question for: ${context}
 
-Difficulty: ${difficulty}
+CRITICAL: This must be AP exam quality - challenging, rigorous, and testing deep understanding.
 
 SUBJECT-SPECIFIC REQUIREMENTS:
 ${subjectConfig.requirements}
 
-RELEVANT TOPICS:
+RELEVANT TOPICS FOR THIS SUBJECT:
 ${subjectConfig.topics}
 
-GENERAL REQUIREMENTS:
-- Create a realistic ${difficulty}-level question matching College Board AP exam style
-- Question must test deep conceptual understanding, not just memorization
-- All 4 answer choices MUST be plausible distractors (common student misconceptions)
-- Use proper notation (LaTeX for math/science: $x^2$, $\\frac{a}{b}$, etc.)
-- Explanation must provide complete step-by-step reasoning
-- Include a helpful hint that guides without revealing the answer
+MANDATORY REQUIREMENTS:
+- Create a RIGOROUS College Board AP exam-level question (no easy questions)
+- Question MUST test deep conceptual understanding and application, NOT simple recall
+- All 4 answer choices MUST be highly plausible with sophisticated distractors
+- Wrong answers should reflect common AP-level student misconceptions
+- Use proper notation (LaTeX for math/science: $x^2$, $\\frac{a}{b}$, $\\int$, $\\sum$, etc.)
+- Explanation must be comprehensive with complete College Board-level reasoning
+- Match the exact style and rigor of actual AP exams for this subject
 
 Return JSON:
 {
-  "question_text": "Clear, specific question testing understanding",
-  "choice_a": "Plausible answer option",
-  "choice_b": "Plausible answer option", 
-  "choice_c": "Plausible answer option",
-  "choice_d": "Plausible answer option",
+  "question_text": "Rigorous College Board-level question",
+  "choice_a": "Sophisticated plausible option",
+  "choice_b": "Sophisticated plausible option", 
+  "choice_c": "Sophisticated plausible option",
+  "choice_d": "Sophisticated plausible option",
   "correct_answer": "A" or "B" or "C" or "D",
-  "explanation": "Detailed step-by-step solution explaining why the answer is correct and addressing why wrong answers are incorrect",
-  "hint": "Strategic hint without giving away answer"
+  "explanation": "Complete AP-level explanation with step-by-step reasoning",
+  "hint": "Strategic hint appropriate for AP-level students"
 }`;
 }
