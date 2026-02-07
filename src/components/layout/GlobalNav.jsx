@@ -96,7 +96,7 @@ export default function GlobalNav() {
                   to={item.path}
                   className={cn(
                     "px-4 py-1.5 text-sm font-medium rounded-full transition-all duration-300",
-                    location.pathname === item.path
+                    location.pathname === item.path || new URL(location.pathname, 'http://localhost').pathname === new URL(item.path, 'http://localhost').pathname
                       ? "text-[#0C0C0C] bg-[#D6B98C]"
                       : "text-[#B5B5B5] hover:text-[#F5F5F5] hover:bg-[#1E1E1E]"
                   )}
