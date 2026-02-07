@@ -162,39 +162,11 @@ export class SafeQuestionGenerator {
   }
   
   /**
-   * Call AI - comprehensive AP-style prompt
+   * Call AI - subject-specific College Board style prompts
    */
   static async callAIGeneration({ subject_id, unit, skill, difficulty }) {
-    const subjects = await base44.entities.Subject.list();
-    const subject = subjects.find(s => s.subject_id === subject_id);
-    
-    let context = `${subject?.name || subject_id}`;
-    if (unit) context += ` - ${unit.unit_name}`;
-    if (skill) context += ` - ${skill.skill_name}`;
-    
-    const prompt = `Generate a high-quality AP-style multiple choice question for: ${context}
-
-Difficulty: ${difficulty}
-
-REQUIREMENTS:
-- Create a realistic ${difficulty}-level question similar to AP exams
-- Question should test conceptual understanding and application
-- All 4 answer choices must be plausible but only one correct
-- Use proper LaTeX for math: $x^{2}$, $\\frac{a}{b}$, $CH_{4}$, etc.
-- Explanation must show complete reasoning
-- Include a helpful hint for students
-
-Return JSON with:
-{
-  "question_text": "Clear, specific question",
-  "choice_a": "First answer option",
-  "choice_b": "Second answer option", 
-  "choice_c": "Third answer option",
-  "choice_d": "Fourth answer option",
-  "correct_answer": "A" or "B" or "C" or "D",
-  "explanation": "Step-by-step solution showing why the answer is correct",
-  "hint": "Helpful tip without giving away the answer"
-}`;
+    const { buildPrompt } = await import('./SubjectPrompts');
+    const prompt = buildPrompt(subject_id, unit, skill, difficulty);
 
     return await base44.integrations.Core.InvokeLLM({
       prompt,
