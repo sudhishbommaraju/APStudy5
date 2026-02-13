@@ -63,6 +63,7 @@ export default function GlobalNav() {
     { label: 'ACT', path: createPageUrl('ACTPractice') },
     { label: 'Notes', path: createPageUrl('Notes') },
     { label: 'Flashcards', path: createPageUrl('Flashcards') },
+    { label: 'Documents', path: createPageUrl('DocumentAssistant') },
     { label: 'Workspace', path: createPageUrl('PracticeWorkspace') },
     { label: 'Exam', path: createPageUrl('Exam') },
     { label: 'Teacher', path: createPageUrl('TeacherMode') },
