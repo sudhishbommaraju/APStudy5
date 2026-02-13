@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import AITutorWidget from '@/components/tutor/AITutorWidget';
+import EnhancedAITutor from '@/components/tutor/EnhancedAITutor';
 import { MessageSquare } from 'lucide-react';
 import { PracticeState, PracticeStateManager } from '@/components/practice/PracticeStateMachine';
 import { validatePracticeData } from '@/components/practice/PracticeSchema';
@@ -977,7 +977,7 @@ export default function Practice() {
                   Close
                 </Button>
               </div>
-              <AITutorWidget
+              <EnhancedAITutor
                 context={{
                   type: 'practice',
                   subject: selectedSubject,
