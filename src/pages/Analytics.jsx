@@ -437,7 +437,6 @@ export default function Analytics() {
           </div>
         </div>
       </div>
-      </div>
 
       {/* Charts */}
       <div className="grid lg:grid-cols-2 gap-6 mb-6">
