@@ -8,6 +8,9 @@ import { format, parseISO, subDays, differenceInMinutes } from 'date-fns';
 export default function Analytics() {
   const [user, setUser] = useState(null);
   const [timeRange, setTimeRange] = useState('30'); // days
+  const [selectedSubject, setSelectedSubject] = useState('all');
+  const [selectedUnit, setSelectedUnit] = useState('all');
+  const [sortBy, setSortBy] = useState('date'); // date, accuracy, time
 
   useEffect(() => {
     const loadUser = async () => {
@@ -38,6 +41,11 @@ export default function Analytics() {
     queryFn: () => base44.entities.Subject.list('subject_id'),
   });
 
+  const { data: units = [] } = useQuery({
+    queryKey: ['units'],
+    queryFn: () => base44.entities.Unit.list(),
+  });
+
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -46,14 +54,23 @@ export default function Analytics() {
     );
   }
 
-  // Filter by time range
+  // Filter by time range, subject, and unit
   const cutoffDate = subDays(new Date(), parseInt(timeRange));
-  const filteredAttempts = attempts.filter(a => 
+  let filteredAttempts = attempts.filter(a => 
     new Date(a.created_date) >= cutoffDate
   );
-  const filteredSessions = sessions.filter(s => 
+  let filteredSessions = sessions.filter(s => 
     new Date(s.created_date) >= cutoffDate
   );
+
+  if (selectedSubject !== 'all') {
+    filteredAttempts = filteredAttempts.filter(a => a.subject_id === selectedSubject);
+    filteredSessions = filteredSessions.filter(s => s.subject_id === selectedSubject);
+  }
+
+  if (selectedUnit !== 'all') {
+    filteredAttempts = filteredAttempts.filter(a => a.unit_id === selectedUnit);
+  }
 
   // Overall Stats
   const totalQuestions = filteredAttempts.length;
@@ -285,6 +302,21 @@ export default function Analytics() {
 
   const COLORS = ['#8B5CF6', '#6366F1', '#EC4899', '#F59E0B', '#10B981'];
 
+  // Average time per question
+  const avgTimePerQuestion = filteredAttempts.length > 0 
+    ? (filteredAttempts.reduce((sum, a) => sum + (a.time_spent_seconds || 30), 0) / filteredAttempts.length).toFixed(0)
+    : 0;
+
+  // Calculate current streak
+  const sortedAttempts = [...filteredAttempts].sort((a, b) => 
+    new Date(b.created_date) - new Date(a.created_date)
+  );
+  let currentStreak = 0;
+  for (const attempt of sortedAttempts) {
+    if (attempt.is_correct) currentStreak++;
+    else break;
+  }
+
   return (
     <>
       <div className="page-header">
@@ -292,8 +324,10 @@ export default function Analytics() {
         <p className="page-description">Deep insights into your learning journey</p>
       </div>
 
-      {/* Time Range Selector */}
-      <div className="flex gap-2 mb-6">
+      {/* Filters */}
+      <div className="space-y-4 mb-6">
+        {/* Time Range Selector */}
+        <div className="flex gap-2">
         {[7, 30, 90, 365].map(days => (
           <button
             key={days}
@@ -307,6 +341,47 @@ export default function Analytics() {
             {days === 365 ? 'All Time' : `${days} Days`}
           </button>
         ))}
+        </div>
+
+        {/* Subject and Unit Filters */}
+        <div className="flex gap-3 flex-wrap">
+          <select 
+            value={selectedSubject}
+            onChange={(e) => {
+              setSelectedSubject(e.target.value);
+              setSelectedUnit('all');
+            }}
+            className="px-4 py-2 rounded-lg bg-slate-800/40 text-slate-300 border border-slate-700/50 text-sm"
+          >
+            <option value="all">All Subjects</option>
+            {subjects.map(s => (
+              <option key={s.subject_id} value={s.subject_id}>{s.name}</option>
+            ))}
+          </select>
+
+          {selectedSubject !== 'all' && (
+            <select
+              value={selectedUnit}
+              onChange={(e) => setSelectedUnit(e.target.value)}
+              className="px-4 py-2 rounded-lg bg-slate-800/40 text-slate-300 border border-slate-700/50 text-sm"
+            >
+              <option value="all">All Units</option>
+              {units.filter(u => u.subject_id === selectedSubject).map(u => (
+                <option key={u.id} value={u.id}>Unit {u.unit_number}: {u.unit_name}</option>
+              ))}
+            </select>
+          )}
+
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="px-4 py-2 rounded-lg bg-slate-800/40 text-slate-300 border border-slate-700/50 text-sm"
+          >
+            <option value="date">Sort by Date</option>
+            <option value="accuracy">Sort by Accuracy</option>
+            <option value="time">Sort by Time Spent</option>
+          </select>
+        </div>
       </div>
 
       {/* Key Metrics */}
@@ -343,9 +418,25 @@ export default function Analytics() {
             <Clock className="w-5 h-5 text-emerald-400" />
             <span className="text-sm text-slate-400">Avg Time</span>
           </div>
-          <p className="text-3xl font-bold text-slate-100">{avgMinutesPerSession}m</p>
-          <p className="text-xs text-slate-500 mt-1">Per session</p>
+          <p className="text-3xl font-bold text-slate-100">{avgTimePerQuestion}s</p>
+          <p className="text-xs text-slate-500 mt-1">Per question</p>
         </div>
+      </div>
+
+      {/* Streaks Card */}
+      <div className="bg-gradient-to-br from-orange-500/10 to-amber-500/10 backdrop-blur-sm rounded-xl border border-orange-500/30 p-6 mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-slate-100 mb-1">🔥 Current Streak</h3>
+            <p className="text-5xl font-bold text-orange-400">{currentStreak}</p>
+            <p className="text-sm text-slate-400 mt-1">consecutive correct answers</p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-slate-400">Keep it going!</p>
+            <p className="text-xs text-slate-500 mt-1">Your best: {Math.max(currentStreak, 0)} answers</p>
+          </div>
+        </div>
+      </div>
       </div>
 
       {/* Charts */}
@@ -544,6 +635,46 @@ export default function Analytics() {
           </div>
         </div>
       )}
+
+      {/* Session History with Filters */}
+      <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 mb-6">
+        <h3 className="text-lg font-semibold text-slate-100 mb-4">Practice Session History</h3>
+        <div className="space-y-3 max-h-96 overflow-y-auto">
+          {filteredSessions
+            .sort((a, b) => {
+              if (sortBy === 'date') return new Date(b.created_date) - new Date(a.created_date);
+              if (sortBy === 'accuracy') return (b.correct_count || 0) / (b.total_questions || 1) - (a.correct_count || 0) / (a.total_questions || 1);
+              if (sortBy === 'time') return (b.time_spent_seconds || 0) - (a.time_spent_seconds || 0);
+              return 0;
+            })
+            .slice(0, 20)
+            .map((session, index) => {
+              const sessionAccuracy = session.total_questions > 0 
+                ? ((session.correct_count / session.total_questions) * 100).toFixed(1)
+                : 0;
+              const subject = subjects.find(s => s.subject_id === session.subject_id);
+              
+              return (
+                <div key={index} className="flex items-center justify-between p-4 bg-slate-900/40 border border-slate-700/30 rounded-lg hover:border-violet-500/30 transition-all">
+                  <div>
+                    <p className="font-medium text-slate-100">{subject?.name || session.subject_id}</p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      {format(parseISO(session.created_date), 'MMM d, yyyy h:mm a')}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-violet-400">{sessionAccuracy}%</p>
+                    <p className="text-xs text-slate-500">{session.correct_count}/{session.total_questions} correct</p>
+                    <p className="text-xs text-slate-500">{Math.floor((session.time_spent_seconds || 0) / 60)}m {((session.time_spent_seconds || 0) % 60)}s</p>
+                  </div>
+                </div>
+              );
+            })}
+          {filteredSessions.length === 0 && (
+            <p className="text-center text-slate-400 py-8">No practice sessions found for the selected filters</p>
+          )}
+        </div>
+      </div>
 
       {/* Common Errors */}
       {commonErrors.length > 0 && (

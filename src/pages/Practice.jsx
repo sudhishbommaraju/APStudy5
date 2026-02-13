@@ -122,6 +122,7 @@ export default function Practice() {
   const [generationProgress, setGenerationProgress] = useState(null);
   const [practiceState, setPracticeState] = useState({ state: PracticeState.IDLE });
   const [showTutor, setShowTutor] = useState(false);
+  const [tutorMode, setTutorMode] = useState('closed'); // 'closed', 'hints', 'split'
 
   useEffect(() => {
     const loadUser = async () => {
@@ -280,7 +281,7 @@ export default function Practice() {
         throw new Error('Subject or Unit not found');
       }
 
-      // BOUNDED GENERATION - College Board level
+      // BOUNDED GENERATION - Subject-specific College Board level questions
       const result = await SafeQuestionGenerator.generateSafe({
         subject_id: plan.subject_id,
         unit: targetUnit,
@@ -288,7 +289,8 @@ export default function Practice() {
         count: 10,
         difficulty: 'hard',
         onProgress: setGenerationProgress,
-        maxTimeMs: 20000
+        maxTimeMs: 20000,
+        ensureUnique: true // Guarantee unique questions per subject/unit
       });
 
       // VALIDATE
@@ -383,7 +385,7 @@ export default function Practice() {
         throw new Error('No unit found for generation');
       }
 
-      // BOUNDED GENERATION - College Board level difficulty
+      // BOUNDED GENERATION - Subject-specific College Board level difficulty
       const result = await SafeQuestionGenerator.generateSafe({
         subject_id: selectedSubject,
         unit: targetUnit,
@@ -391,7 +393,8 @@ export default function Practice() {
         count: questionCount,
         difficulty: 'hard',
         onProgress: setGenerationProgress,
-        maxTimeMs: 20000 // 20s backend limit
+        maxTimeMs: 20000, // 20s backend limit
+        ensureUnique: true // Guarantee unique questions per subject/unit
       });
 
       // STRICT SCHEMA VALIDATION
@@ -702,17 +705,14 @@ export default function Practice() {
     );
   }
 
-  // LOADING STATE - Must be visible
+  // LOADING STATE - Must be visible (simplified - no progress counter)
   if (practiceState.state === PracticeState.LOADING || isGenerating) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center px-4">
         <Loader2 className="w-16 h-16 text-[#D6B98C] animate-spin mb-6" />
         <h2 className="text-2xl font-bold text-[#F5F5F5] mb-2">Generating Practice Questions</h2>
-        <p className="text-[#B5B5B5]">
-          {generationProgress ? 
-            `${generationProgress.current} of ${generationProgress.total} questions generated...` :
-            'Setting up your practice session...'}
-        </p>
+        <p className="text-[#B5B5B5]">Preparing your custom practice session...</p>
+        <p className="text-xs text-[#8A8A8A] mt-2">This may take a few moments</p>
       </div>
     );
   }
@@ -825,20 +825,28 @@ export default function Practice() {
   return (
     <div className="min-h-screen focus-mode">
       <div className="sticky top-0 focus-mode-card border-b z-10">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <span className="text-sm focus-mode-text-secondary">
               Question {currentIndex + 1} of {questions.length}
             </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowTutor(true)}
-              className="ml-auto"
-            >
-              <MessageSquare className="w-4 h-4 mr-1" />
-              Ask AI
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant={tutorMode === 'hints' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTutorMode(tutorMode === 'hints' ? 'closed' : 'hints')}
+              >
+                💡 Hints
+              </Button>
+              <Button
+                variant={tutorMode === 'split' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setTutorMode(tutorMode === 'split' ? 'closed' : 'split')}
+              >
+                <MessageSquare className="w-4 h-4 mr-1" />
+                AI Tutor
+              </Button>
+            </div>
             {currentStreak > 0 && (
               <span className="px-2 py-1 bg-orange-500/20 text-orange-400 text-xs font-semibold rounded-full flex items-center gap-1">
                 🔥 {currentStreak} streak
@@ -859,28 +867,48 @@ export default function Practice() {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        {isFallback && (
-          <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-            <p className="text-yellow-400 text-sm">
-              ℹ️ Using practice questions while custom generation loads
-            </p>
-          </div>
-        )}
-        
-        <motion.div
-          key={currentIndex}
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-        >
-          <QuestionCard
-            question={currentQuestion}
-            onAnswer={handleAnswer}
-            selectedAnswer={answers[currentIndex]}
-            showFeedback={answered}
-            mode="practice"
-          />
-        </motion.div>
+      <div className={cn("mx-auto px-4 py-6", tutorMode === 'split' ? "max-w-7xl" : "max-w-4xl")}>
+        <div className={cn("grid gap-6", tutorMode === 'split' && "lg:grid-cols-2")}>
+        {/* Question Panel */}
+        <div>
+          {isFallback && (
+            <div className="mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+              <p className="text-yellow-400 text-sm">
+                ℹ️ Using practice questions while custom generation loads
+              </p>
+            </div>
+          )}
+          
+          {/* Hints Panel */}
+          {tutorMode === 'hints' && !answered && currentQuestion.hint && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg"
+            >
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">💡</span>
+                <div>
+                  <h4 className="font-semibold text-[#F5F5F5] mb-1">Hint</h4>
+                  <p className="text-sm text-[#B5B5B5]">{currentQuestion.hint}</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+          
+          <motion.div
+            key={currentIndex}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            <QuestionCard
+              question={currentQuestion}
+              onAnswer={handleAnswer}
+              selectedAnswer={answers[currentIndex]}
+              showFeedback={answered}
+              mode="practice"
+            />
+          </motion.div>
 
         <AnimatePresence>
           {!answered && (
@@ -915,35 +943,55 @@ export default function Practice() {
           )}
         </AnimatePresence>
 
-        <AnimatePresence>
-          {answered && (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex justify-end mt-4"
-            >
-              <Button onClick={handleNext}>
-                {currentIndex < questions.length - 1 ? 'Next Question' : 'Complete Practice'}
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+          <AnimatePresence>
+            {answered && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex justify-end mt-4"
+              >
+                <Button onClick={handleNext}>
+                  {currentIndex < questions.length - 1 ? 'Next Question' : 'Complete Practice'}
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
-      {/* AI Tutor Widget */}
-      {showTutor && (
-        <AITutorWidget
-          context={{
-            type: 'practice',
-            subject: selectedSubject,
-            currentQuestion: questions[currentIndex],
-            initialPrompt: `I'm practicing ${selectedSubject}. Can you help explain this concept?`
-          }}
-          userEmail={user?.email}
-          onClose={() => setShowTutor(false)}
-        />
-      )}
+        {/* Split-Screen AI Tutor */}
+        {tutorMode === 'split' && (
+          <motion.div 
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="lg:sticky lg:top-24 h-fit"
+          >
+            <div className="bg-[#1E1E1E] rounded-xl border border-[#2A2A2A] p-6 shadow-lg">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-[#F5F5F5]">🤖 AI Tutor</h3>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setTutorMode('closed')}
+                >
+                  Close
+                </Button>
+              </div>
+              <AITutorWidget
+                context={{
+                  type: 'practice',
+                  subject: selectedSubject,
+                  currentQuestion: currentQuestion,
+                  initialPrompt: `Help me understand this ${selectedSubject} question. What approach should I take?`
+                }}
+                userEmail={user?.email}
+                inline={true}
+              />
+            </div>
+          </motion.div>
+        )}
+        </div>
+      </div>
     </div>
   );
 }
