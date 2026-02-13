@@ -435,6 +435,7 @@ export default function Practice() {
       setQuestions(result.questions);
       setGenerationProgress(null);
       setIsGenerating(false);
+      setQuestionStartTime(Date.now());
       
     } catch (e) {
       clearTimeout(timeoutId);
