@@ -11,7 +11,8 @@ import { cn } from '@/lib/utils';
 export default function AITutorWidget({ 
   context = {},
   userEmail,
-  onClose 
+  onClose,
+  inline = false
 }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -105,29 +106,36 @@ Keep response under 300 words.`;
     setLoading(false);
   };
 
-  return (
-    <div className="fixed inset-0 bg-black/70 z-50 flex items-end justify-end p-4">
-      <div className="bg-[#1E1E1E] rounded-xl shadow-2xl w-full max-w-md h-[600px] flex flex-col border border-[#2A2A2A]">
+  const containerClass = inline 
+    ? "flex flex-col h-[500px]"
+    : "bg-[#1E1E1E] rounded-xl shadow-2xl w-full max-w-md h-[600px] flex flex-col border border-[#2A2A2A]";
+
+  const wrapperClass = inline ? "" : "fixed inset-0 bg-black/70 z-50 flex items-end justify-end p-4";
+
+  const content = (
+    <div className={containerClass}>
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-[#2A2A2A]">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#D6B98C]/20 flex items-center justify-center">
-              <Brain className="w-5 h-5 text-[#D6B98C]" />
+        {!inline && (
+          <div className="flex items-center justify-between p-4 border-b border-[#2A2A2A]">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-[#D6B98C]/20 flex items-center justify-center">
+                <Brain className="w-5 h-5 text-[#D6B98C]" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-[#F5F5F5]">AI Tutor</h3>
+                <p className="text-xs text-[#8A8A8A]">Ask me anything</p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-semibold text-[#F5F5F5]">AI Tutor</h3>
-              <p className="text-xs text-[#8A8A8A]">Ask me anything</p>
-            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              className="text-[#8A8A8A] hover:text-[#F5F5F5]"
+            >
+              <X className="w-5 h-5" />
+            </Button>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-            className="text-[#8A8A8A] hover:text-[#F5F5F5]"
-          >
-            <X className="w-5 h-5" />
-          </Button>
-        </div>
+        )}
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -210,7 +218,8 @@ Keep response under 300 words.`;
             </Button>
           </div>
         </form>
-      </div>
     </div>
   );
+
+  return inline ? content : <div className={wrapperClass}>{content}</div>;
 }
