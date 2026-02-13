@@ -107,13 +107,7 @@ export default function Practice() {
   const [user, setUser] = useState(null);
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedUnit, setSelectedUnit] = useState('');
-  const [selectedSkills, setSelectedSkills] = useState([]);
   const [questionCount, setQuestionCount] = useState(10);
-  const [adaptiveMode, setAdaptiveMode] = useState(true);
-  const [spacedRepetitionMode, setSpacedRepetitionMode] = useState(false);
-  const [recommendedTopics, setRecommendedTopics] = useState([]);
-  const [adaptiveEngine, setAdaptiveEngine] = useState(null);
-  const [questionStartTime, setQuestionStartTime] = useState(null);
   
   const [isGenerating, setIsGenerating] = useState(false);
   const [questions, setQuestions] = useState([]);
@@ -135,16 +129,7 @@ export default function Practice() {
     const loadUser = async () => {
       try {
         const currentUser = await base44.auth.me();
-        const { user: refreshedUser } = await checkAndResetCredits(currentUser);
-        setUser(refreshedUser);
-        
-        // Initialize adaptive engine
-        const engine = new AdaptiveDifficultyEngine(currentUser.email);
-        setAdaptiveEngine(engine);
-        
-        // Load recommended topics for spaced repetition
-        const recommended = await SpacedRepetitionHelper.getRecommendedTopics(currentUser.email, 5);
-        setRecommendedTopics(recommended);
+        setUser(currentUser);
       } catch (e) {
         console.error('Failed to load user:', e);
       }
@@ -435,7 +420,6 @@ export default function Practice() {
       setQuestions(result.questions);
       setGenerationProgress(null);
       setIsGenerating(false);
-      setQuestionStartTime(Date.now());
       
     } catch (e) {
       clearTimeout(timeoutId);
@@ -471,30 +455,13 @@ export default function Practice() {
     const question = questions[currentIndex];
     const isCorrect = answer === question.correct_answer;
     
-    // Calculate time spent on question
-    const timeSpent = questionStartTime 
-      ? Math.floor((Date.now() - questionStartTime) / 1000) 
-      : 0;
-    
-    // Update adaptive engine
-    if (adaptiveEngine && adaptiveMode) {
-      adaptiveEngine.recordAnswer(
-        question.id,
-        question.skill_name,
-        question.difficulty,
-        isCorrect,
-        timeSpent
-      );
-    }
-    
-    // Update streak
     if (isCorrect) {
       setCurrentStreak(prev => prev + 1);
       confetti({
         particleCount: 50,
         spread: 60,
         origin: { y: 0.6 },
-        colors: ['#6366F1', '#8B5CF6', '#A78BFA']
+        colors: ['#D6B98C', '#C9A96A', '#E6C9A0']
       });
     } else {
       setCurrentStreak(0);
@@ -526,17 +493,6 @@ export default function Practice() {
       error_type: 'none',
     });
 
-    // Update spaced repetition mastery
-    if (user && spacedRepetitionMode) {
-      await SpacedRepetitionHelper.updateTopicMastery(
-        user.email,
-        question.skill_name,
-        selectedSubject,
-        isCorrect,
-        question.difficulty
-      );
-    }
-
     // Update gamification stats
     if (user) {
       const result = await updateStatsForAnswer(user.email, isCorrect, currentStreak);
@@ -567,7 +523,6 @@ export default function Practice() {
 
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(prev => prev + 1);
-      setQuestionStartTime(Date.now()); // Reset timer for next question
     } else {
       setIsComplete(true);
       queryClient.invalidateQueries({ queryKey: ['attempts'] });
@@ -692,132 +647,6 @@ export default function Practice() {
               </motion.div>
             )}
           </AnimatePresence>
-
-          {/* Skill Selector */}
-          <AnimatePresence>
-            {selectedSubject && skills.filter(s => s.subject_id === selectedSubject).length > 0 && (
-              <motion.div 
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="bg-[#1E1E1E] rounded-xl border border-[#2A2A2A] p-6 shadow-lg"
-              >
-                <label className="text-sm font-medium text-[#F5F5F5] mb-3 block">Focus on Specific Skills (Optional)</label>
-                <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
-                  {skills
-                    .filter(s => s.subject_id === selectedSubject)
-                    .filter(s => !selectedUnit || selectedUnit === 'all' || s.unit_id === selectedUnit)
-                    .slice(0, 20)
-                    .map((skill) => (
-                      <button
-                        key={skill.id}
-                        onClick={() => {
-                          setSelectedSkills(prev => 
-                            prev.includes(skill.id) 
-                              ? prev.filter(id => id !== skill.id)
-                              : [...prev, skill.id]
-                          );
-                        }}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                          selectedSkills.includes(skill.id)
-                            ? 'bg-[#D6B98C] text-[#0C0C0C]'
-                            : 'bg-[#171717] text-[#B5B5B5] border border-[#2A2A2A] hover:border-[#D6B98C]/50'
-                        }`}
-                      >
-                        {skill.skill_name}
-                      </button>
-                    ))}
-                </div>
-                {selectedSkills.length > 0 && (
-                  <button
-                    onClick={() => setSelectedSkills([])}
-                    className="mt-2 text-xs text-[#8A8A8A] hover:text-[#F5F5F5]"
-                  >
-                    Clear selection ({selectedSkills.length} selected)
-                  </button>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Spaced Repetition Recommendations */}
-          {recommendedTopics.length > 0 && (
-            <motion.div 
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              className="bg-gradient-to-r from-violet-500/10 to-purple-500/10 rounded-xl border border-violet-500/30 p-6 shadow-lg"
-            >
-              <div className="flex items-center gap-2 mb-3">
-                <Target className="w-5 h-5 text-violet-400" />
-                <h3 className="text-sm font-semibold text-[#F5F5F5]">📚 Recommended Review Topics</h3>
-              </div>
-              <p className="text-xs text-[#8A8A8A] mb-3">Based on spaced repetition and your performance</p>
-              <div className="space-y-2">
-                {recommendedTopics.slice(0, 3).map((topic, i) => (
-                  <div key={i} className="flex items-center justify-between bg-[#171717] rounded-lg p-3 border border-[#2A2A2A]">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-[#F5F5F5]">{topic.topic_name}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-[#8A8A8A]">
-                          {topic.mastery_level} • {topic.accuracy.toFixed(0)}% accuracy
-                        </span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setSpacedRepetitionMode(true);
-                        const topicSkills = skills.filter(s => 
-                          s.skill_name.toLowerCase().includes(topic.topic_name.toLowerCase())
-                        );
-                        if (topicSkills.length > 0) {
-                          setSelectedSkills([topicSkills[0].id]);
-                          setSelectedSubject(topicSkills[0].subject_id);
-                        }
-                      }}
-                      className="px-3 py-1 bg-violet-500/20 hover:bg-violet-500/30 text-violet-300 rounded text-xs font-medium"
-                    >
-                      Practice
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-
-          {/* Practice Mode Options */}
-          <motion.div 
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            className="bg-[#1E1E1E] rounded-xl border border-[#2A2A2A] p-6 shadow-lg"
-          >
-            <label className="text-sm font-medium text-[#F5F5F5] mb-3 block">Practice Mode</label>
-            <div className="space-y-2">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={adaptiveMode}
-                  onChange={(e) => setAdaptiveMode(e.target.checked)}
-                  className="w-4 h-4 rounded border-[#2A2A2A] bg-[#171717] text-[#D6B98C] focus:ring-[#D6B98C]"
-                />
-                <div className="flex-1">
-                  <p className="text-sm text-[#F5F5F5]">🎯 Adaptive Difficulty</p>
-                  <p className="text-xs text-[#8A8A8A]">AI adjusts question difficulty based on your performance</p>
-                </div>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={spacedRepetitionMode}
-                  onChange={(e) => setSpacedRepetitionMode(e.target.checked)}
-                  className="w-4 h-4 rounded border-[#2A2A2A] bg-[#171717] text-[#D6B98C] focus:ring-[#D6B98C]"
-                />
-                <div className="flex-1">
-                  <p className="text-sm text-[#F5F5F5]">📅 Spaced Repetition</p>
-                  <p className="text-xs text-[#8A8A8A]">Focus on topics you struggle with at optimal intervals</p>
-                </div>
-              </label>
-            </div>
-          </motion.div>
 
           {/* Question Count */}
           <motion.div 
