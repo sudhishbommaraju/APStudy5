@@ -61,6 +61,7 @@ import Flashcards from './pages/Flashcards';
 import Generate from './pages/Generate';
 import GroupDetail from './pages/GroupDetail';
 import Home from './pages/Home';
+import Leaderboards from './pages/Leaderboards';
 import MistakeReplay from './pages/MistakeReplay';
 import Notes from './pages/Notes';
 import Onboarding from './pages/Onboarding';
@@ -78,7 +79,7 @@ import StudyPlans from './pages/StudyPlans';
 import TeacherMode from './pages/TeacherMode';
 import Tutor from './pages/Tutor';
 import ValidationDashboard from './pages/ValidationDashboard';
-import Leaderboards from './pages/Leaderboards';
+import DocumentAssistant from './pages/DocumentAssistant';
 import __Layout from './Layout.jsx';
 
 
@@ -97,6 +98,7 @@ export const PAGES = {
     "Generate": Generate,
     "GroupDetail": GroupDetail,
     "Home": Home,
+    "Leaderboards": Leaderboards,
     "MistakeReplay": MistakeReplay,
     "Notes": Notes,
     "Onboarding": Onboarding,
@@ -114,7 +116,7 @@ export const PAGES = {
     "TeacherMode": TeacherMode,
     "Tutor": Tutor,
     "ValidationDashboard": ValidationDashboard,
-    "Leaderboards": Leaderboards,
+    "DocumentAssistant": DocumentAssistant,
 }
 
 export const pagesConfig = {
