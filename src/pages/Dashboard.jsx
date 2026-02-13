@@ -29,6 +29,7 @@ import { checkCredits, useCredit } from '@/components/monetization/CreditHelper'
 import ReviewPopup from '@/components/reviews/ReviewPopup';
 import ReviewCard from '@/components/reviews/ReviewCard';
 import Leaderboard from '@/components/gamification/Leaderboard';
+import WeeklyChallenges from '@/components/gamification/WeeklyChallenges';
 import { getUserStats } from '@/components/gamification/GamificationHelper';
 
 export default function Dashboard() {
@@ -488,6 +489,28 @@ export default function Dashboard() {
 
         {/* Calendar */}
         <Calendar user={user} />
+
+        {/* Weekly Challenges */}
+        <div className="bg-[#1E1E1E] rounded-xl border border-[#2A2A2A] p-6 shadow-lg">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-[#F5F5F5]">🏆 Weekly Challenges</h3>
+            <Link to={createPageUrl('Leaderboards')}>
+              <Button variant="ghost" size="sm">View All</Button>
+            </Link>
+          </div>
+          <WeeklyChallenges userEmail={user?.email} />
+        </div>
+
+        {/* Mini Leaderboard */}
+        <div className="bg-[#1E1E1E] rounded-xl border border-[#2A2A2A] p-6 shadow-lg">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-[#F5F5F5]">🏅 Leaderboard</h3>
+            <Link to={createPageUrl('Leaderboards')}>
+              <Button variant="ghost" size="sm">Full Leaderboard</Button>
+            </Link>
+          </div>
+          <Leaderboard />
+        </div>
 
         {/* Student Reviews Section */}
         {reviews.length > 0 && (

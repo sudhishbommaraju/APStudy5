@@ -78,6 +78,7 @@ import StudyPlans from './pages/StudyPlans';
 import TeacherMode from './pages/TeacherMode';
 import Tutor from './pages/Tutor';
 import ValidationDashboard from './pages/ValidationDashboard';
+import Leaderboards from './pages/Leaderboards';
 import __Layout from './Layout.jsx';
 
 
@@ -113,6 +114,7 @@ export const PAGES = {
     "TeacherMode": TeacherMode,
     "Tutor": Tutor,
     "ValidationDashboard": ValidationDashboard,
+    "Leaderboards": Leaderboards,
 }
 
 export const pagesConfig = {
