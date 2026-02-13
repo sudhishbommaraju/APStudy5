@@ -67,6 +67,7 @@ export default function GlobalNav() {
     { label: 'Exam', path: createPageUrl('Exam') },
     { label: 'Teacher', path: createPageUrl('TeacherMode') },
     { label: 'Tutor', path: createPageUrl('Tutor') },
+    { label: 'Leaderboards', path: createPageUrl('Leaderboards') },
   ];
 
   const navItems = user ? appNavItems : marketingNavItems;
