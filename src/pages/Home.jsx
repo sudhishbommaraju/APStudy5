@@ -1,310 +1,535 @@
-import React from 'react';
-import { base44 } from '@/api/base44Client';
-import { createPageUrl } from '@/utils';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, useScroll, useTransform, useInView } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Target, Brain, TrendingUp, CheckCircle2 } from 'lucide-react';
-import ReviewCard from '@/components/reviews/ReviewCard';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import { ArrowRight, TrendingUp, Target, BarChart3 } from 'lucide-react';
 
-export default function Home() {
-  const handleGetStarted = () => {
-    base44.auth.redirectToLogin(createPageUrl('Dashboard'));
+const satData = [
+  { week: 'Week 0', score: 1180, label: 'Diagnostic' },
+  { week: 'Week 1', score: 1220 },
+  { week: 'Week 2', score: 1260 },
+  { week: 'Week 3', score: 1300 },
+  { week: 'Week 4', score: 1340 },
+  { week: 'Week 5', score: 1370 },
+  { week: 'Week 6', score: 1380, label: 'Projected' }
+];
+
+const actData = [
+  { week: 'Week 0', score: 23, label: 'Diagnostic' },
+  { week: 'Week 1', score: 25 },
+  { week: 'Week 2', score: 26 },
+  { week: 'Week 3', score: 27 },
+  { week: 'Week 4', score: 28 },
+  { week: 'Week 5', score: 29 },
+  { week: 'Week 6', score: 30, label: 'Projected' }
+];
+
+const apData = [
+  { week: 'Week 0', score: 42, label: '42% Prob. 4+' },
+  { week: 'Week 1', score: 51 },
+  { week: 'Week 2', score: 59 },
+  { week: 'Week 3', score: 66 },
+  { week: 'Week 4', score: 73 },
+  { week: 'Week 5', score: 78 },
+  { week: 'Week 6', score: 81, label: '81% Prob. 4+' }
+];
+
+function PerformanceEngine() {
+  const [activeTest, setActiveTest] = useState('SAT');
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true });
+
+  useEffect(() => {
+    if (inView) {
+      setTimeout(() => setIsVisible(true), 300);
+    }
+  }, [inView]);
+
+  const currentData = activeTest === 'SAT' ? satData : activeTest === 'ACT' ? actData : apData;
+  const maxScore = activeTest === 'SAT' ? 1600 : activeTest === 'ACT' ? 36 : 100;
+
+  const stats = {
+    SAT: [
+      { label: 'Reading Accuracy', value: '+19%' },
+      { label: 'Math Accuracy', value: '+14%' },
+      { label: 'Timing Efficiency', value: '+22%' }
+    ],
+    ACT: [
+      { label: 'English', value: '+4' },
+      { label: 'Math', value: '+5' },
+      { label: 'Reading', value: '+3' }
+    ],
+    AP: [
+      { label: 'Unit Mastery', value: '+38%' },
+      { label: 'FRQ Accuracy', value: '+29%' },
+      { label: 'Timing Control', value: '+31%' }
+    ]
   };
 
-  const { data: reviews = [] } = useQuery({
-    queryKey: ['reviews'],
-    queryFn: () => base44.entities.Review.filter({ is_public: true }),
-  });
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 40 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.8 }}
+      className="relative"
+    >
+      <div className="bg-[#0C0C0C]/80 backdrop-blur-xl border border-[#2A2A2A] rounded-2xl p-8 shadow-2xl">
+        {/* Toggle Tabs */}
+        <div className="flex gap-1 mb-8 bg-[#171717] rounded-lg p-1">
+          {['SAT', 'ACT', 'AP'].map((test) => (
+            <button
+              key={test}
+              onClick={() => setActiveTest(test)}
+              className={`flex-1 py-3 rounded-md text-sm font-semibold transition-all duration-300 ${
+                activeTest === test
+                  ? 'bg-[#D6B98C] text-[#0C0C0C]'
+                  : 'text-[#8A8A8A] hover:text-[#F5F5F5]'
+              }`}
+            >
+              {test}
+            </button>
+          ))}
+        </div>
 
-  const { data: allUsers = [] } = useQuery({
-    queryKey: ['allUsers'],
-    queryFn: () => base44.entities.User.list(),
-  });
+        {/* Chart */}
+        <div className="h-64 mb-6">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={currentData}>
+              <XAxis
+                dataKey="week"
+                stroke="#4A4A4A"
+                style={{ fontSize: '12px' }}
+                tickLine={false}
+              />
+              <YAxis
+                domain={[0, maxScore]}
+                stroke="#4A4A4A"
+                style={{ fontSize: '12px' }}
+                tickLine={false}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: '#171717',
+                  border: '1px solid #2A2A2A',
+                  borderRadius: '8px',
+                  color: '#F5F5F5'
+                }}
+              />
+              <Line
+                type="monotone"
+                dataKey="score"
+                stroke="#D6B98C"
+                strokeWidth={3}
+                dot={{ fill: '#D6B98C', r: 6 }}
+                animationDuration={2000}
+                animationBegin={isVisible ? 0 : 10000}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
 
-  const steps = [
-    {
-      number: '1',
-      title: 'Choose Your Subject',
-      description: 'Select from AP Calculus, SAT, ACT, and more',
-    },
-    {
-      number: '2',
-      title: 'Practice Smart',
-      description: 'Get personalized questions based on your performance',
-    },
-    {
-      number: '3',
-      title: 'Track Progress',
-      description: 'See your mastery improve over time',
-    },
-  ];
+        {/* Stats */}
+        <div className="grid grid-cols-3 gap-4">
+          {stats[activeTest].map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={isVisible ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: i * 0.1 + 0.5 }}
+              className="text-center"
+            >
+              <div className="text-2xl font-bold text-[#D6B98C] mb-1">{stat.value}</div>
+              <div className="text-xs text-[#8A8A8A]">{stat.label}</div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function ScrollNavbar() {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-[#0C0C0C]">
-      <div className="relative">
-      
-      {/* Hero Section */}
-      <section className="relative overflow-hidden pt-24 pb-16">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            
-            {/* Left Side - Content */}
-            <div className="space-y-8">
-              <div>
-                <h1 className="text-5xl lg:text-6xl font-semibold mb-6 leading-tight text-[#F5F5F5]">
-                  Your AI study partner for exam success
-                </h1>
-                <p className="text-xl text-[#B5B5B5] leading-relaxed">
-                  Ace your exams with personalized practice, adaptive learning, and instant feedback.
-                </p>
-              </div>
+    <motion.nav
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? 'bg-[#0C0C0C]/80 backdrop-blur-xl border-b border-[#2A2A2A]'
+          : 'bg-transparent'
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <Link to={createPageUrl('Home')} className="text-2xl font-bold text-[#F5F5F5]">
+          PROOFLY
+        </Link>
 
-              <div className="flex gap-4">
-                <Button 
-                  size="lg" 
-                  onClick={() => window.location.href = createPageUrl('Demo')} 
-                  variant="outline"
-                  className="h-12 px-8 text-base border-[#2A2A2A] text-[#F5F5F5] hover:bg-[#171717]"
+        <div className="flex items-center gap-8">
+          <a href="#about" className="text-sm text-[#B5B5B5] hover:text-[#F5F5F5] transition-colors relative group">
+            About
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D6B98C] transition-all group-hover:w-full" />
+          </a>
+          <a href="#features" className="text-sm text-[#B5B5B5] hover:text-[#F5F5F5] transition-colors relative group">
+            Explore Features
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D6B98C] transition-all group-hover:w-full" />
+          </a>
+          <Link to={createPageUrl('Dashboard')}>
+            <Button className="bg-[#D6B98C] hover:bg-[#C9A96A] text-[#0C0C0C] font-semibold">
+              Start Diagnostic
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </motion.nav>
+  );
+}
+
+export default function Home() {
+  const { scrollYProgress } = useScroll();
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, -100]);
+
+  return (
+    <div className="min-h-screen bg-[#0C0C0C] text-[#F5F5F5] overflow-hidden">
+      <ScrollNavbar />
+
+      {/* HERO SECTION */}
+      <motion.section
+        style={{ y: heroY }}
+        className="min-h-screen flex items-center justify-center px-6 pt-20"
+      >
+        <div className="max-w-7xl w-full grid lg:grid-cols-2 gap-16 items-center">
+          <div className="text-center lg:text-left">
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="text-6xl lg:text-7xl font-bold mb-6 leading-tight"
+            >
+              WELCOME TO<br />PROOFLY
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-2xl text-[#B5B5B5] mb-8"
+            >
+              Your test performance, engineered.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-6"
+            >
+              <Link to={createPageUrl('Dashboard')}>
+                <Button
+                  size="lg"
+                  className="bg-[#D6B98C] hover:bg-[#C9A96A] text-[#0C0C0C] font-semibold text-lg px-8 py-6 hover:scale-105 transition-transform"
                 >
-                  Try Demo (No Login)
-                </Button>
-                <Button 
-                  size="lg" 
-                  onClick={handleGetStarted} 
-                  className="h-12 px-8 text-base bg-[#D6B98C] hover:bg-[#C9A96A] text-[#0C0C0C] font-medium"
-                >
-                  Start studying free
+                  Start Your Diagnostic
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
-              </div>
+              </Link>
+              <a href="#features">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-[#2A2A2A] text-[#F5F5F5] hover:bg-[#1E1E1E] text-lg px-8 py-6"
+                >
+                  Explore Features
+                </Button>
+              </a>
+            </motion.div>
 
-              {/* Steps */}
-              <div className="space-y-4 pt-4">
-                {steps.map((step, i) => (
-                  <div key={i} className="flex gap-4 group">
-                    <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-[#1E1E1E] flex items-center justify-center text-[#D6B98C] font-semibold border border-[#2A2A2A]">
-                      {step.number}
-                    </div>
-                    <div>
-                      <h3 className="text-[#F5F5F5] font-medium mb-1">{step.title}</h3>
-                      <p className="text-[#8A8A8A] text-sm">{step.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="text-sm text-[#8A8A8A]"
+            >
+              Built as a nonprofit. Focused on access, not profit.
+            </motion.p>
+          </div>
 
-            {/* Right Side - Actual Question Preview */}
-            <div className="relative">
-              <div className="bg-[#1E1E1E] rounded-xl border border-[#2A2A2A] p-6 shadow-lg">
-                {/* Question Header */}
-                <div className="border-b border-[#2A2A2A] pb-4 mb-6">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-1 bg-[#171717] rounded-full text-xs font-medium text-[#B5B5B5]">
-                      SAT Math
-                    </span>
-                    <span className="px-2 py-1 bg-[#D6B98C]/10 rounded-full text-xs font-medium text-[#D6B98C]">
-                      medium
-                    </span>
-                  </div>
-                </div>
-
-                {/* Question Text */}
-                <div className="mb-6">
-                  <p className="text-base text-[#F5F5F5] leading-relaxed mb-1">
-                    If <u className="decoration-2 decoration-[#D6B98C] underline-offset-2">the function f(x) = 2x + 3</u>, what is f(5)?
-                  </p>
-                  <p className="text-sm text-[#F5F5F5] font-medium mt-4">
-                    Which choice best represents the value?
-                  </p>
-                </div>
-
-                {/* Answer Choices */}
-                <div className="space-y-2">
-                  {['A. 8', 'B. 10', 'C. 13', 'D. 15'].map((choice, i) => (
-                    <button
-                      key={i}
-                      className="w-full flex items-center gap-3 p-3 rounded-lg border border-[#2A2A2A] hover:border-[#D6B98C] bg-[#171717] text-left transition-all"
-                    >
-                      <span className="w-7 h-7 rounded-full bg-[#1E1E1E] flex items-center justify-center text-sm font-medium text-[#B5B5B5]">
-                        {choice[0]}
-                      </span>
-                      <span className="text-sm text-[#F5F5F5]">{choice.slice(3)}</span>
-                    </button>
-                  ))}
-                </div>
-
-                {/* Bottom note */}
-                <div className="mt-6 pt-4 border-t border-[#2A2A2A]">
-                  <p className="text-xs text-[#8A8A8A] text-center">
-                    Instant feedback • Step-by-step explanations • Track your progress
-                  </p>
-                </div>
-              </div>
-            </div>
-
+          <div>
+            <PerformanceEngine />
           </div>
         </div>
-      </section>
+      </motion.section>
 
-      {/* Features Section */}
-      <section className="py-20 relative">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-semibold text-[#F5F5F5] mb-4">
-              Everything you need to succeed
-            </h2>
-            <p className="text-xl text-[#B5B5B5] max-w-2xl mx-auto">
-              Built for students who want to study smarter, not harder
-            </p>
-          </div>
+      {/* THE PROBLEM */}
+      <section className="py-32 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-4xl font-bold mb-16"
+          >
+            Most students practice without measurement.
+          </motion.h2>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-12">
             {[
-              { icon: Target, title: 'Personalized Practice', desc: 'AI-powered questions tailored to your skill level and learning gaps' },
-              { icon: Brain, title: 'AP-Style Exams', desc: 'Full-length practice exams with real-time scoring and feedback' },
-              { icon: TrendingUp, title: 'Skill Mastery Tracking', desc: 'Visual progress reports showing exactly where you stand' },
-              { icon: CheckCircle2, title: 'AI-Generated Notes', desc: 'Comprehensive study materials created for every topic' },
-              { icon: Target, title: 'Flashcards', desc: 'Spaced repetition system for memorization and retention' },
-              { icon: Brain, title: 'AI Tutor Mode', desc: '24/7 personal tutor to answer questions and explain concepts' },
-            ].map((feature, i) => (
-              <div 
+              { text: 'No baseline.' },
+              { text: 'No precision.' },
+              { text: 'No projection.' }
+            ].map((item, i) => (
+              <motion.div
                 key={i}
-                className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-xl p-6 hover:border-[#D6B98C]/30 transition-all card-smooth"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.2 }}
+                className="text-2xl font-semibold text-[#8A8A8A]"
               >
-                <feature.icon className="w-8 h-8 text-[#D6B98C] mb-4" />
-                <h3 className="text-[#F5F5F5] font-medium mb-2">{feature.title}</h3>
-                <p className="text-[#8A8A8A] text-sm">{feature.desc}</p>
-              </div>
+                {item.text}
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Why Proofly Was Built */}
-      <section className="py-20 relative">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-[#000000] mb-4">
-              Why Proofly Was Built
-            </h2>
-          </div>
-          <div className="bg-white border border-[#CBD5E1] rounded-2xl p-8 lg:p-12 shadow-lg">
-            <div className="prose prose-lg max-w-none">
-              <p className="text-[#334155] text-lg leading-relaxed mb-6">
-                As a high school student preparing for AP exams, I struggled to find effective study tools that adapted to my learning pace. Generic practice materials didn't target my weak areas, and I spent hours reviewing concepts I already understood.
-              </p>
-              <p className="text-[#B5B5B5] text-lg leading-relaxed mb-6">
-                I realized that with AI, we could create a smarter study platform—one that learns from each answer, identifies knowledge gaps, and generates personalized practice exactly where students need it most.
-              </p>
-              <p className="text-[#B5B5B5] text-lg leading-relaxed">
-                Proofly was built to give every student the adaptive, intelligent study partner they deserve. Whether you're aiming for a 5 on AP Calculus or mastering SAT Math, Proofly meets you where you are and helps you get where you want to be.
-              </p>
-              <div className="mt-8 pt-6 border-t border-[#2A2A2A]">
-                <p className="text-[#8A8A8A] text-sm">— Proofly Team</p>
-              </div>
-            </div>
+      {/* HOW THE ENGINE WORKS */}
+      <section id="features" className="py-32 px-6 bg-[#0A0A0A]">
+        <div className="max-w-6xl mx-auto">
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-4xl font-bold text-center mb-20"
+          >
+            How the Engine Works
+          </motion.h2>
+
+          <div className="space-y-8">
+            {[
+              { num: '1', title: 'Diagnostic Baseline', desc: 'Measure current performance across all sections' },
+              { num: '2', title: 'Weakness Mapping', desc: 'Identify precise skill gaps and timing inefficiencies' },
+              { num: '3', title: 'Targeted Drills', desc: 'Practice questions calibrated to your weak points' },
+              { num: '4', title: 'Timed Simulation', desc: 'Full-length exams under real conditions' },
+              { num: '5', title: 'Projection Update', desc: 'Track improvement and recalculate score trajectory' }
+            ].map((step, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                whileHover={{ x: 10 }}
+                className="flex items-center gap-6 p-6 bg-[#0C0C0C]/50 border border-[#2A2A2A] rounded-xl hover:border-[#D6B98C]/30 transition-all cursor-pointer"
+              >
+                <div className="w-12 h-12 rounded-full bg-[#D6B98C]/10 flex items-center justify-center flex-shrink-0">
+                  <span className="text-xl font-bold text-[#D6B98C]">{step.num}</span>
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold mb-1">{step.title}</h3>
+                  <p className="text-sm text-[#8A8A8A]">{step.desc}</p>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Student Reviews Section */}
-      {reviews.length > 0 && (
-        <section className="py-20 relative">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-[#000000] mb-4">
-                What Students Say
-              </h2>
-              <p className="text-xl text-[#334155]">
-                Real feedback from students using Proofly
-              </p>
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {reviews.slice(0, 6).map((review) => {
-                const reviewUser = allUsers.find(u => u.email === review.user_id);
-                return (
-                  <ReviewCard key={review.id} review={review} user={reviewUser} />
-                );
-              })}
-            </div>
-          </div>
-        </section>
-      )}
+      {/* BUILT FOR REAL EXAMS */}
+      <section className="py-32 px-6">
+        <div className="max-w-6xl mx-auto">
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-4xl font-bold text-center mb-20"
+          >
+            Built for Real Exams
+          </motion.h2>
 
-      {/* CTA Section */}
-      <section className="py-20 relative">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-4xl font-semibold text-[#F5F5F5] mb-4">
-            Ready to ace your exams?
-          </h2>
-          <p className="text-xl text-[#B5B5B5] mb-8">
-            Join students who are studying smarter with Proofly
-          </p>
-          <div className="flex gap-4 justify-center">
-            <Button 
-              size="lg" 
-              onClick={() => window.location.href = createPageUrl('Demo')} 
-              variant="outline"
-              className="h-14 px-10 text-lg border-[#2A2A2A] text-[#F5F5F5] hover:bg-[#171717]"
-            >
-              Try Demo
-            </Button>
-            <Button 
-              size="lg" 
-              onClick={handleGetStarted} 
-              className="h-14 px-10 text-lg bg-[#D6B98C] hover:bg-[#C9A96A] text-[#0C0C0C] font-medium"
-            >
-              Get started free
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </Button>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                title: 'SAT',
+                icon: <TrendingUp className="w-8 h-8" />,
+                features: [
+                  '1600 scale tracking',
+                  'Section-level analytics',
+                  'Timing efficiency modeling'
+                ]
+              },
+              {
+                title: 'ACT',
+                icon: <BarChart3 className="w-8 h-8" />,
+                features: [
+                  'Composite + subscore modeling',
+                  '36-scale adaptive tracking',
+                  'Science reasoning analysis'
+                ]
+              },
+              {
+                title: 'AP',
+                icon: <Target className="w-8 h-8" />,
+                features: [
+                  '1–5 readiness modeling',
+                  'Unit-weighted mastery mapping',
+                  'FRQ timing calibration'
+                ]
+              }
+            ].map((exam, i) => (
+              <motion.div
+                key={exam.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.2 }}
+                whileHover={{ y: -5 }}
+                className="bg-[#0C0C0C]/80 backdrop-blur-xl border border-[#2A2A2A] rounded-xl p-8 hover:border-[#D6B98C]/50 hover:shadow-2xl hover:shadow-[#D6B98C]/10 transition-all"
+              >
+                <div className="text-[#D6B98C] mb-4">{exam.icon}</div>
+                <h3 className="text-2xl font-bold mb-6">{exam.title}</h3>
+                <ul className="space-y-3">
+                  {exam.features.map((feature, j) => (
+                    <li key={j} className="flex items-start gap-2 text-sm text-[#B5B5B5]">
+                      <span className="text-[#D6B98C] mt-1">•</span>
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* About the Creator */}
-      <section className="py-20 relative">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="bg-[#1E1E1E] border border-[#2A2A2A] rounded-2xl p-8 lg:p-12 shadow-lg">
-            <h2 className="text-3xl font-semibold text-[#F5F5F5] mb-6 text-center">About the Creator</h2>
-            <div className="space-y-6">
-              <p className="text-[#B5B5B5] text-lg leading-relaxed text-center">
-                Hi, I'm <span className="text-[#D6B98C] font-medium">Sudhish Bommaraju</span>, a football player with aspirations to become a tech entrepreneur. 
-                I built Proofly to combine my passion for technology with my commitment to helping students succeed academically. 
-                This platform reflects my belief that with the right tools, anyone can achieve their academic goals while pursuing their dreams.
-              </p>
-              <div className="flex items-center justify-center pt-4 border-t border-[#2A2A2A]">
-                <a 
-                  href="mailto:theproofly.com@gmail.com" 
-                  className="flex items-center gap-2 text-[#B5B5B5] hover:text-[#D6B98C] transition-colors"
+      {/* ABOUT + MISSION */}
+      <section id="about" className="py-32 px-6 bg-[#0A0A0A]">
+        <div className="max-w-4xl mx-auto">
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-4xl font-bold text-center mb-12"
+          >
+            Why Proofly Exists
+          </motion.h2>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="space-y-6 text-lg text-[#B5B5B5] leading-relaxed"
+          >
+            <p className="text-xl text-[#F5F5F5] font-semibold">
+              Most test prep is built for the top 10%.<br />
+              Proofly was built for the other 90%.
+            </p>
+
+            <p>
+              The founder and lead developer struggled academically — not from lack of effort, but from lack of precise feedback. Studying felt random. Improvement felt unpredictable.
+            </p>
+
+            <p>
+              Proofly was built to solve that problem:
+            </p>
+
+            <div className="grid md:grid-cols-3 gap-8 pt-8">
+              {[
+                'Measure performance.',
+                'Identify weaknesses.',
+                'Engineer improvement.'
+              ].map((text, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="text-center p-6 bg-[#0C0C0C]/50 border border-[#2A2A2A] rounded-xl"
                 >
-                  <span className="text-xl">✉️</span>
-                  <span className="text-sm">theproofly.com@gmail.com</span>
-                </a>
-              </div>
+                  <div className="text-xl font-semibold text-[#D6B98C]">{text}</div>
+                </motion.div>
+              ))}
             </div>
-          </div>
+
+            <ul className="space-y-3 pt-8">
+              <li className="flex items-start gap-3">
+                <span className="text-[#D6B98C]">•</span>
+                <span>Built around real exam skill frameworks</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-[#D6B98C]">•</span>
+                <span>Designed by someone who needed it</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="text-[#D6B98C]">•</span>
+                <span>Developed as a nonprofit to maximize access</span>
+              </li>
+            </ul>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* FINAL CTA */}
+      <section className="py-32 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-5xl font-bold mb-12"
+          >
+            Ready to measure your performance?
+          </motion.h2>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
+            <Link to={createPageUrl('Dashboard')}>
+              <Button
+                size="lg"
+                className="bg-[#D6B98C] hover:bg-[#C9A96A] text-[#0C0C0C] font-semibold text-lg px-10 py-7 hover:scale-105 transition-transform"
+              >
+                Start Your Diagnostic
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Button>
+            </Link>
+            <a href="#features">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-[#2A2A2A] text-[#F5F5F5] hover:bg-[#1E1E1E] text-lg px-10 py-7"
+              >
+                Explore Features
+              </Button>
+            </a>
+          </motion.div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[#2A2A2A] py-8">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-between text-[#8A8A8A] text-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded flex items-center justify-center bg-[#D6B98C]">
-                <span className="text-[#0C0C0C] font-bold text-xs">P</span>
-              </div>
-              <span>Proofly © 2026</span>
-            </div>
-            <a href="mailto:theproofly.com@gmail.com" className="hover:text-[#D6B98C] transition-colors">
-              Contact
-            </a>
-          </div>
+      <footer className="border-t border-[#2A2A2A] py-12 px-6">
+        <div className="max-w-7xl mx-auto text-center text-sm text-[#8A8A8A]">
+          <p>© 2026 Proofly. A nonprofit organization.</p>
+          <p className="mt-2">Built to increase access to measurable, high-quality exam preparation.</p>
         </div>
       </footer>
-      
-      </div>
     </div>
   );
 }
