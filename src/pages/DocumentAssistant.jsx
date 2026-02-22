@@ -14,6 +14,7 @@ export default function DocumentAssistant() {
   const [analysis, setAnalysis] = useState(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [generatedFlashcards, setGeneratedFlashcards] = useState([]);
+  const [studyGuide, setStudyGuide] = useState(null);
   const fileInputRef = useRef(null);
 
   React.useEffect(() => {
@@ -106,6 +107,8 @@ Be thorough but concise.`,
     if (uploadedFiles.length === 0) return;
     
     setIsAnalyzing(true);
+    setAnalysis(null);
+    setStudyGuide(null);
     try {
       const response = await base44.integrations.Core.InvokeLLM({
         prompt: `Based on the uploaded study materials, generate flashcards for effective studying.
@@ -153,6 +156,108 @@ Make flashcards:
       alert('Failed to generate flashcards. Please try again.');
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const handleGenerateStudyGuide = async () => {
+    if (uploadedFiles.length === 0) return;
+    
+    setIsAnalyzing(true);
+    setAnalysis(null);
+    setGeneratedFlashcards([]);
+    try {
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are an expert educational content creator. Create a comprehensive study guide from the uploaded materials.
+
+Format the study guide in Notion-compatible markdown with this structure:
+
+# 📚 Study Guide: [Topic Name]
+
+## 📖 Overview
+[2-3 paragraph overview of the topic]
+
+## 🎯 Learning Objectives
+- [ ] Objective 1
+- [ ] Objective 2
+- [ ] Objective 3
+
+## 📝 Key Concepts
+
+### Concept 1: [Name]
+**Definition:** [Clear definition]
+
+**Explanation:** [Detailed explanation]
+
+**Example:** [Real-world example]
+
+---
+
+### Concept 2: [Name]
+[Repeat structure]
+
+## 📐 Important Formulas & Equations
+
+### Formula 1: [Name]
+$$[LaTeX formula]$$
+
+**When to use:** [Application]
+
+**Example problem:** [Step-by-step example]
+
+---
+
+## 💡 Study Tips
+- Tip 1
+- Tip 2
+- Tip 3
+
+## 🧠 Practice Questions
+1. Question 1
+   - Answer: [Answer with explanation]
+2. Question 2
+   - Answer: [Answer with explanation]
+
+## 📊 Summary Table
+| Concept | Key Points | Formula (if applicable) |
+|---------|-----------|------------------------|
+| [Name] | [Points] | [Formula] |
+
+## 🔗 Related Topics
+- Topic 1
+- Topic 2
+
+---
+*Study Guide generated from your notes*
+
+Use proper Notion markdown formatting:
+- Use ## for main sections
+- Use ### for subsections
+- Use **bold** for emphasis
+- Use - for bullet points
+- Use - [ ] for checkboxes
+- Use $$...$$ for display math
+- Use $...$ for inline math
+- Use | for tables
+- Use --- for dividers`,
+        file_urls: uploadedFiles.map(f => f.url),
+      });
+
+      setStudyGuide(response);
+    } catch (e) {
+      console.error('Study guide generation failed:', e);
+      alert('Failed to generate study guide. Please try again.');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const copyToClipboard = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      alert('✅ Copied to clipboard! Paste into Notion.');
+    } catch (e) {
+      console.error('Failed to copy:', e);
+      alert('Failed to copy to clipboard');
     }
   };
 
@@ -251,21 +356,40 @@ Make flashcards:
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <Button
               onClick={handleAnalyzeDocuments}
               disabled={uploadedFiles.length === 0 || isAnalyzing}
-              className="w-full"
+              size="sm"
             >
               {isAnalyzing ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
                   Analyzing...
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4 mr-2" />
+                  <Sparkles className="w-3 h-3 mr-1" />
                   Analyze
+                </>
+              )}
+            </Button>
+
+            <Button
+              onClick={handleGenerateStudyGuide}
+              disabled={uploadedFiles.length === 0 || isAnalyzing}
+              variant="outline"
+              size="sm"
+            >
+              {isAnalyzing ? (
+                <>
+                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <BookOpen className="w-3 h-3 mr-1" />
+                  Study Guide
                 </>
               )}
             </Button>
@@ -274,15 +398,16 @@ Make flashcards:
               onClick={handleGenerateFlashcards}
               disabled={uploadedFiles.length === 0 || isAnalyzing}
               variant="outline"
+              size="sm"
             >
               {isAnalyzing ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-3 h-3 mr-1 animate-spin" />
                   Generating...
                 </>
               ) : (
                 <>
-                  <Plus className="w-4 h-4 mr-2" />
+                  <Plus className="w-3 h-3 mr-1" />
                   Flashcards
                 </>
               )}
@@ -297,10 +422,10 @@ Make flashcards:
             Analysis Results
           </h2>
 
-          {!analysis && !generatedFlashcards.length && (
+          {!analysis && !generatedFlashcards.length && !studyGuide && (
             <div className="text-center py-12 text-[#8A8A8A]">
               <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
-              <p className="text-sm">Upload documents and click Analyze or Generate Flashcards</p>
+              <p className="text-sm">Upload documents and generate content</p>
             </div>
           )}
 
@@ -318,6 +443,31 @@ Make flashcards:
                 >
                   {analysis}
                 </ReactMarkdown>
+              </motion.div>
+            )}
+
+            {studyGuide && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <p className="text-sm text-[#B5B5B5]">📚 Study Guide Ready</p>
+                  <Button onClick={() => copyToClipboard(studyGuide)} size="sm">
+                    📋 Copy for Notion
+                  </Button>
+                </div>
+                <div className="bg-[#171717] rounded-lg p-6 border border-[#2A2A2A] max-h-[600px] overflow-y-auto">
+                  <div className="prose prose-sm max-w-none [&_h1]:text-[#D6B98C] [&_h1]:text-xl [&_h1]:font-bold [&_h1]:mb-4 [&_h2]:text-[#D6B98C] [&_h2]:text-base [&_h2]:font-semibold [&_h2]:mt-6 [&_h2]:mb-3 [&_h3]:text-[#F5F5F5] [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2 [&_strong]:text-[#F5F5F5] [&_li]:text-[#B5B5B5] [&_p]:text-[#B5B5B5] [&_table]:text-[#B5B5B5] [&_th]:text-[#F5F5F5] [&_td]:border-[#2A2A2A] [&_th]:border-[#2A2A2A]">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkMath]}
+                      rehypePlugins={[rehypeKatex]}
+                    >
+                      {studyGuide}
+                    </ReactMarkdown>
+                  </div>
+                </div>
               </motion.div>
             )}
 

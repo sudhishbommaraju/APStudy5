@@ -56,6 +56,7 @@ import CourseBuilder from './pages/CourseBuilder';
 import Courses from './pages/Courses';
 import Dashboard from './pages/Dashboard';
 import Demo from './pages/Demo';
+import DocumentAssistant from './pages/DocumentAssistant';
 import Exam from './pages/Exam';
 import Flashcards from './pages/Flashcards';
 import Generate from './pages/Generate';
@@ -79,7 +80,6 @@ import StudyPlans from './pages/StudyPlans';
 import TeacherMode from './pages/TeacherMode';
 import Tutor from './pages/Tutor';
 import ValidationDashboard from './pages/ValidationDashboard';
-import DocumentAssistant from './pages/DocumentAssistant';
 import __Layout from './Layout.jsx';
 
 
@@ -93,6 +93,7 @@ export const PAGES = {
     "Courses": Courses,
     "Dashboard": Dashboard,
     "Demo": Demo,
+    "DocumentAssistant": DocumentAssistant,
     "Exam": Exam,
     "Flashcards": Flashcards,
     "Generate": Generate,
@@ -116,7 +117,6 @@ export const PAGES = {
     "TeacherMode": TeacherMode,
     "Tutor": Tutor,
     "ValidationDashboard": ValidationDashboard,
-    "DocumentAssistant": DocumentAssistant,
 }
 
 export const pagesConfig = {
