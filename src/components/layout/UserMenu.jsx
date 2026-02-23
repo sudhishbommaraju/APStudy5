@@ -2,9 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
-import { LogOut, Settings, Mail, Trophy, BookmarkPlus } from 'lucide-react';
+import { LogOut, Settings, Mail } from 'lucide-react';
 import { toast } from 'sonner';
-import Leaderboard from '@/components/gamification/Leaderboard';
 
 export default function UserMenu({ user }) {
   const navigate = useNavigate();
@@ -83,23 +82,8 @@ export default function UserMenu({ user }) {
             </div>
           </div>
 
-          {/* Leaderboard */}
-          <div className="px-4 py-3 border-b border-neutral-800">
-            <Leaderboard currentUser={user} />
-          </div>
-
           {/* Menu Items */}
           <div className="py-2">
-            <button
-              onClick={() => {
-                navigate(createPageUrl('StudyPlans'));
-                setOpen(false);
-              }}
-              className="w-full px-4 py-2 text-sm text-neutral-300 hover:text-white hover:bg-neutral-800 flex items-center gap-2 transition-colors"
-            >
-              <BookmarkPlus className="w-4 h-4" />
-              Study Plans
-            </button>
             <button
               onClick={() => {
                 navigate(createPageUrl('Profile'));

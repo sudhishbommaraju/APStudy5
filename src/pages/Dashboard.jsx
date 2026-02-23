@@ -8,16 +8,19 @@ import ProgressTracking from '@/components/dashboard/ProgressTracking';
 import EnhancedStatsCard from '@/components/dashboard/EnhancedStatsCard';
 import { AuroraBackground } from '@/components/ui/animated-background';
 import { motion } from 'framer-motion';
-import { Upload, Youtube, FileText, Target, Timer, BarChart, TrendingUp, Flame, BookOpen, Play, AlertCircle, LineChart, Sparkles } from 'lucide-react';
-import GamificationPoints from '@/components/gamification/GamificationPoints';
+import { Upload, Youtube, FileText, Target, Timer, BarChart, TrendingUp, Flame, BookOpen, Play, AlertCircle, LineChart } from 'lucide-react';
+import DashboardStudyPlan from '@/components/dashboard/DashboardStudyPlan';
+import ExamLeaderboard from '@/components/gamification/ExamLeaderboard';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [analyticsData, setAnalyticsData] = useState(null);
 
   useEffect(() => {
     loadUser();
+    loadAnalytics();
   }, []);
 
   const loadUser = async () => {
@@ -28,6 +31,44 @@ export default function Dashboard() {
       console.error('Failed to load user:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadAnalytics = async () => {
+    try {
+      const userData = await base44.auth.me();
+      const sessions = await base44.entities.EnginePracticeSession.filter({
+        user_email: userData.email
+      }, '-completed_at', 50);
+
+      const skillPerformance = await base44.entities.EngineUserSkillPerformance.filter({
+        user_email: userData.email
+      }, '-accuracy', 50);
+
+      const allResponses = await Promise.all(
+        sessions.map(session =>
+          base44.entities.EnginePracticeResponse.filter({
+            session_id: session.id
+          }, '', 1000)
+        )
+      );
+      const responses = allResponses.flat();
+
+      const completedSessions = sessions.filter(s => s.completed_at).length;
+      const correctAnswers = responses.filter(r => r.is_correct).length;
+      const overallAccuracy = responses.length > 0 ? (correctAnswers / responses.length) * 100 : 0;
+
+      setAnalyticsData({
+        overallAccuracy: parseFloat(overallAccuracy.toFixed(1)),
+        totalSessions: completedSessions,
+        skillPerformance: skillPerformance.map(s => ({
+          name: s.skill_id || 'Unknown',
+          accuracy: s.accuracy || 0,
+          attempts: s.attempts || 0
+        }))
+      });
+    } catch (error) {
+      console.error('Failed to load analytics:', error);
     }
   };
   const [activeTab, setActiveTab] = useState(() => {
@@ -515,6 +556,17 @@ export default function Dashboard() {
               </div>
             </div>
 
+            {/* Study Plan Section */}
+            <DashboardStudyPlan examType="SAT" analyticsData={analyticsData} />
+
+            {/* Leaderboard */}
+            <div className="mt-8">
+              <h2 className="text-2xl font-light text-white mb-6">Leaderboards</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <ExamLeaderboard examType="SAT" currentUser={user} />
+              </div>
+            </div>
+
             {/* Progress Tracking */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -663,6 +715,17 @@ export default function Dashboard() {
               </div>
             </div>
 
+            {/* Study Plan Section */}
+            <DashboardStudyPlan examType="ACT" analyticsData={analyticsData} />
+
+            {/* Leaderboard */}
+            <div className="mt-8">
+              <h2 className="text-2xl font-light text-white mb-6">Leaderboards</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <ExamLeaderboard examType="ACT" currentUser={user} />
+              </div>
+            </div>
+
             {/* Progress Tracking */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -807,6 +870,17 @@ export default function Dashboard() {
                     <div className="text-sm text-neutral-400">Mastery Gain</div>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Study Plan Section */}
+            <DashboardStudyPlan examType="AP" analyticsData={analyticsData} />
+
+            {/* Leaderboard */}
+            <div className="mt-8">
+              <h2 className="text-2xl font-light text-white mb-6">Leaderboards</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <ExamLeaderboard examType="AP" currentUser={user} />
               </div>
             </div>
 
