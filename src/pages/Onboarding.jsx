@@ -78,22 +78,22 @@ export default function Onboarding() {
 
   if (checkingAuth) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl p-8">
           {/* Step 1: Grade Level */}
           {step === 1 && (
             <div className="space-y-6">
               <div className="text-center">
-                <h1 className="text-2xl font-bold text-slate-900">Welcome to Proofly</h1>
-                <p className="text-slate-500 mt-2">What grade are you in?</p>
+                <h1 className="text-2xl font-bold text-white">Welcome to Proofly</h1>
+                <p className="text-neutral-400 mt-2">What grade are you in?</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {GRADES.map((grade) => (
@@ -103,17 +103,17 @@ export default function Onboarding() {
                     className={cn(
                       "p-4 rounded-xl border-2 text-left transition-all duration-150",
                       gradeLevel === grade.id
-                        ? "border-slate-900 bg-slate-50"
-                        : "border-slate-200 hover:border-slate-300"
+                        ? "border-white bg-neutral-800"
+                        : "border-neutral-700 hover:border-neutral-600"
                     )}
                   >
-                    <span className="font-semibold text-slate-900">{grade.name}</span>
-                    <span className="block text-sm text-slate-500">{grade.year}</span>
+                    <span className="font-semibold text-white">{grade.name}</span>
+                    <span className="block text-sm text-neutral-400">{grade.year}</span>
                   </button>
                 ))}
               </div>
 
-              <div className="flex justify-end mt-8 pt-6 border-t border-slate-100">
+              <div className="flex justify-end mt-8 pt-6 border-t border-neutral-800">
                 <Button
                   onClick={() => setStep(2)}
                   disabled={!gradeLevel}
@@ -129,8 +129,8 @@ export default function Onboarding() {
           {step === 2 && (
             <div className="space-y-6">
               <div className="text-center">
-                <h2 className="text-2xl font-bold text-slate-900">What are your goals?</h2>
-                <p className="text-slate-500 mt-2">Select all that apply</p>
+                <h2 className="text-2xl font-bold text-white">What are your goals?</h2>
+                <p className="text-neutral-400 mt-2">Select all that apply</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 {IMPROVEMENT_GOALS.map((goal) => (
@@ -140,17 +140,17 @@ export default function Onboarding() {
                     className={cn(
                       "p-4 rounded-xl border-2 text-left transition-all duration-150",
                       improvementGoals.includes(goal.id)
-                        ? "border-slate-900 bg-slate-50"
-                        : "border-slate-200 hover:border-slate-300"
+                        ? "border-white bg-neutral-800"
+                        : "border-neutral-700 hover:border-neutral-600"
                     )}
                   >
                     <span className="text-2xl mb-2 block">{goal.icon}</span>
-                    <span className="font-medium text-slate-900 text-sm">{goal.label}</span>
+                    <span className="font-medium text-white text-sm">{goal.label}</span>
                   </button>
                 ))}
               </div>
 
-              <div className="flex justify-between mt-8 pt-6 border-t border-slate-100">
+              <div className="flex justify-between mt-8 pt-6 border-t border-neutral-800">
                 <Button
                   variant="outline"
                   onClick={() => setStep(1)}

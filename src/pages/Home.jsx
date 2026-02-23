@@ -6,6 +6,7 @@ import { createPageUrl } from '@/utils';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { ArrowRight, TrendingUp, Target, BarChart3, Activity, Search, Clock } from 'lucide-react';
 import { AuroraBackground } from '@/components/ui/animated-background';
+import { base44 } from '@/api/base44Client';
 
 const satData = [
   { week: 'Week 0', score: 1180, label: 'Diagnostic: 1180' },
@@ -249,28 +250,27 @@ export default function Home() {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8"
             >
-              <Link to={createPageUrl('Dashboard')}>
-                <Button
-                  className="rounded-xl transition-all duration-200"
-                  style={{
-                    background: '#FFFFFF',
-                    color: '#0C0C0C',
-                    fontFamily: 'Inter, sans-serif',
-                    fontSize: '18px',
-                    fontWeight: '500',
-                    padding: '14px 32px',
-                    border: 'none'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#F5F5F5';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = '#FFFFFF';
-                  }}
-                >
-                  Get Started
-                </Button>
-              </Link>
+              <Button
+                onClick={() => base44.auth.redirectToLogin(createPageUrl('Onboarding'))}
+                className="rounded-xl transition-all duration-200"
+                style={{
+                  background: '#FFFFFF',
+                  color: '#0C0C0C',
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: '18px',
+                  fontWeight: '500',
+                  padding: '14px 32px',
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#F5F5F5';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#FFFFFF';
+                }}
+              >
+                Get Started
+              </Button>
               <a href="#features" className="transition-all duration-200">
                 <Button
                   variant="ghost"
@@ -777,29 +777,28 @@ export default function Home() {
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
           >
-            <Link to={createPageUrl('Dashboard')}>
-              <Button
-                className="transition-all duration-200"
-                style={{
-                  background: '#2F6DF6',
-                  color: '#FFFFFF',
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: '16px',
-                  fontWeight: '500',
-                  padding: '14px 36px',
-                  borderRadius: '999px',
-                  border: 'none'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#3C7CFF';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#2F6DF6';
-                }}
-              >
-                Get Started
-              </Button>
-            </Link>
+            <Button
+              onClick={() => base44.auth.redirectToLogin(createPageUrl('Onboarding'))}
+              className="transition-all duration-200"
+              style={{
+                background: '#2F6DF6',
+                color: '#FFFFFF',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '16px',
+                fontWeight: '500',
+                padding: '14px 36px',
+                borderRadius: '999px',
+                border: 'none'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#3C7CFF';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#2F6DF6';
+              }}
+            >
+              Get Started
+            </Button>
           </motion.div>
         </div>
       </section>
