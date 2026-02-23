@@ -47,13 +47,25 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import ACTFullTest from './pages/ACTFullTest';
+import ACTPractice from './pages/ACTPractice';
 import AIStudyPlanner from './pages/AIStudyPlanner';
+import APCreate from './pages/APCreate';
+import APFullTest from './pages/APFullTest';
+import APPractice from './pages/APPractice';
+import APProgress from './pages/APProgress';
+import APUpload from './pages/APUpload';
+import APYoutube from './pages/APYoutube';
 import About from './pages/About';
 import AdminUsers from './pages/AdminUsers';
 import Analytics from './pages/Analytics';
 import CourseBuilder from './pages/CourseBuilder';
 import Courses from './pages/Courses';
+import CreateNotes from './pages/CreateNotes';
+import Dashboard from './pages/Dashboard';
 import Demo from './pages/Demo';
+import Diagnostic from './pages/Diagnostic';
+import Engine from './pages/Engine';
 import Generate from './pages/Generate';
 import GroupDetail from './pages/GroupDetail';
 import Home from './pages/Home';
@@ -62,40 +74,40 @@ import Onboarding from './pages/Onboarding';
 import Pricing from './pages/Pricing';
 import Progress from './pages/Progress';
 import QuestionValidation from './pages/QuestionValidation';
+import Results from './pages/Results';
 import Rewards from './pages/Rewards';
+import SATFullTest from './pages/SATFullTest';
+import SATPractice from './pages/SATPractice';
 import SeedData from './pages/SeedData';
 import Settings from './pages/Settings';
 import StudyGroups from './pages/StudyGroups';
 import StudyPlans from './pages/StudyPlans';
-import ValidationDashboard from './pages/ValidationDashboard';
-import Diagnostic from './pages/Diagnostic';
-import Results from './pages/Results';
-import Engine from './pages/Engine';
-import Dashboard from './pages/Dashboard';
 import Upload from './pages/Upload';
+import ValidationDashboard from './pages/ValidationDashboard';
 import Youtube from './pages/Youtube';
-import CreateNotes from './pages/CreateNotes';
-import SATPractice from './pages/SATPractice';
-import SATFullTest from './pages/SATFullTest';
-import ACTPractice from './pages/ACTPractice';
-import ACTFullTest from './pages/ACTFullTest';
-import APUpload from './pages/APUpload';
-import APYoutube from './pages/APYoutube';
-import APCreate from './pages/APCreate';
-import APPractice from './pages/APPractice';
-import APFullTest from './pages/APFullTest';
-import APProgress from './pages/APProgress';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "ACTFullTest": ACTFullTest,
+    "ACTPractice": ACTPractice,
     "AIStudyPlanner": AIStudyPlanner,
+    "APCreate": APCreate,
+    "APFullTest": APFullTest,
+    "APPractice": APPractice,
+    "APProgress": APProgress,
+    "APUpload": APUpload,
+    "APYoutube": APYoutube,
     "About": About,
     "AdminUsers": AdminUsers,
     "Analytics": Analytics,
     "CourseBuilder": CourseBuilder,
     "Courses": Courses,
+    "CreateNotes": CreateNotes,
+    "Dashboard": Dashboard,
     "Demo": Demo,
+    "Diagnostic": Diagnostic,
+    "Engine": Engine,
     "Generate": Generate,
     "GroupDetail": GroupDetail,
     "Home": Home,
@@ -104,29 +116,17 @@ export const PAGES = {
     "Pricing": Pricing,
     "Progress": Progress,
     "QuestionValidation": QuestionValidation,
+    "Results": Results,
     "Rewards": Rewards,
+    "SATFullTest": SATFullTest,
+    "SATPractice": SATPractice,
     "SeedData": SeedData,
     "Settings": Settings,
     "StudyGroups": StudyGroups,
     "StudyPlans": StudyPlans,
-    "ValidationDashboard": ValidationDashboard,
-    "Diagnostic": Diagnostic,
-    "Results": Results,
-    "Engine": Engine,
-    "Dashboard": Dashboard,
     "Upload": Upload,
+    "ValidationDashboard": ValidationDashboard,
     "Youtube": Youtube,
-    "CreateNotes": CreateNotes,
-    "SATPractice": SATPractice,
-    "SATFullTest": SATFullTest,
-    "ACTPractice": ACTPractice,
-    "ACTFullTest": ACTFullTest,
-    "APUpload": APUpload,
-    "APYoutube": APYoutube,
-    "APCreate": APCreate,
-    "APPractice": APPractice,
-    "APFullTest": APFullTest,
-    "APProgress": APProgress,
 }
 
 export const pagesConfig = {

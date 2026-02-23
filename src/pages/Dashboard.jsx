@@ -74,6 +74,59 @@ export default function Dashboard() {
     }
   ];
 
+  const actStats = {
+    scoreEstimate: 28,
+    accuracy: 72,
+    streak: 5
+  };
+
+  const actScoreData = [
+    { week: 1, score: 23 },
+    { week: 2, score: 25 },
+    { week: 3, score: 26 },
+    { week: 4, score: 27 },
+    { week: 5, score: 28 }
+  ];
+
+  const actCoreTools = [
+    {
+      title: 'ACT Practice',
+      description: 'Adaptive question drills by section.',
+      route: 'ACTPractice',
+      icon: BookOpen
+    },
+    {
+      title: 'Full-Length ACT Test',
+      description: 'Simulated exam under timed conditions.',
+      route: 'ACTFullTest',
+      icon: Timer
+    },
+    {
+      title: 'Section Drill',
+      description: 'Focus on English, Math, Reading, or Science.',
+      route: 'ACTPractice',
+      icon: Target
+    },
+    {
+      title: 'Mistake Review',
+      description: 'Review incorrect answers and patterns.',
+      route: 'ACTPractice',
+      icon: AlertCircle
+    },
+    {
+      title: 'Timed Mini Test',
+      description: 'Short focused practice sessions.',
+      route: 'ACTPractice',
+      icon: Play
+    },
+    {
+      title: 'Performance Analytics',
+      description: 'Track progress across all sections.',
+      route: 'ACTPractice',
+      icon: LineChart
+    }
+  ];
+
   const actCards = [
     {
       title: 'ACT Practice',
@@ -84,6 +137,59 @@ export default function Dashboard() {
       title: 'Full-Length ACT Test',
       description: 'Simulated ACT exam under timed conditions.',
       route: 'ACTFullTest'
+    }
+  ];
+
+  const apStats = {
+    scoreEstimate: '4.2',
+    mastery: 68,
+    streak: 5
+  };
+
+  const apMasteryData = [
+    { week: 1, mastery: 42 },
+    { week: 2, mastery: 51 },
+    { week: 3, mastery: 59 },
+    { week: 4, mastery: 64 },
+    { week: 5, mastery: 68 }
+  ];
+
+  const apCoreTools = [
+    {
+      icon: Upload,
+      title: 'Upload Notes',
+      description: 'Upload PDFs to generate structured notes.',
+      route: 'APUpload'
+    },
+    {
+      icon: Youtube,
+      title: 'Paste YouTube URL',
+      description: 'Convert lecture videos into study notes.',
+      route: 'APYoutube'
+    },
+    {
+      icon: FileText,
+      title: 'Create Custom Notes',
+      description: 'Start structured notes from scratch.',
+      route: 'APCreate'
+    },
+    {
+      icon: Target,
+      title: 'AP Practice',
+      description: 'Topic-based AP question drills.',
+      route: 'APPractice'
+    },
+    {
+      icon: Timer,
+      title: 'Full-Length Practice Test',
+      description: 'Simulated AP exam experience.',
+      route: 'APFullTest'
+    },
+    {
+      icon: BarChart,
+      title: 'Progress Tracking',
+      description: 'Track skill mastery and score projection.',
+      route: 'APProgress'
     }
   ];
 
@@ -255,44 +361,211 @@ export default function Dashboard() {
         )}
 
         {activeTab === 'ACT' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {actCards.map((card, index) => (
-              <div
-                key={index}
-                onClick={() => navigate(createPageUrl(card.route))}
-                className="bg-neutral-900 border border-neutral-800 hover:border-neutral-600 rounded-2xl p-8 cursor-pointer transition-all duration-300 hover:scale-[1.02]"
-              >
-                <h3 className="text-xl font-medium text-white mb-2">
-                  {card.title}
-                </h3>
-                <p className="text-sm text-neutral-400 leading-relaxed">
-                  {card.description}
-                </p>
+          <div className="space-y-8">
+            {/* Header Section */}
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+              <div>
+                <h1 className="text-3xl font-light text-white mb-2">ACT Workspace</h1>
+                <p className="text-neutral-400">Master the ACT with structured practice and comprehensive analytics.</p>
               </div>
-            ))}
+              <div className="flex gap-4">
+                <div className="bg-neutral-900 rounded-xl border border-neutral-800 px-6 py-4 text-center hover:border-neutral-700 transition-colors">
+                  <div className="text-2xl font-semibold text-white mb-1">{actStats.scoreEstimate}</div>
+                  <div className="text-xs text-neutral-400">Score Estimate</div>
+                </div>
+                <div className="bg-neutral-900 rounded-xl border border-neutral-800 px-6 py-4 text-center hover:border-neutral-700 transition-colors">
+                  <div className="text-2xl font-semibold text-white mb-1">{actStats.accuracy}%</div>
+                  <div className="text-xs text-neutral-400">Accuracy</div>
+                </div>
+                <div className="bg-neutral-900 rounded-xl border border-neutral-800 px-6 py-4 text-center hover:border-neutral-700 transition-colors">
+                  <div className="text-2xl font-semibold text-white mb-1 flex items-center justify-center gap-1">
+                    <Flame className="w-5 h-5 text-orange-500" />
+                    {actStats.streak}
+                  </div>
+                  <div className="text-xs text-neutral-400">Day Streak</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Main Grid Container */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Left Column - Featured Action + Tools */}
+              <div className="lg:col-span-2 space-y-8">
+                {/* Primary Recommended Action */}
+                <div 
+                  onClick={() => navigate(createPageUrl('ACTPractice'))}
+                  className="bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 hover:border-neutral-600 rounded-2xl p-10 cursor-pointer transition-all duration-300 group"
+                >
+                  <div className="flex items-start justify-between mb-6">
+                    <div>
+                      <h2 className="text-2xl font-medium text-white mb-2">Continue ACT Practice</h2>
+                      <p className="text-neutral-400">You're 8 points away from your target composite score.</p>
+                    </div>
+                    <TrendingUp className="w-8 h-8 text-green-500" />
+                  </div>
+                  <button className="bg-white text-black px-6 py-3 rounded-lg font-medium hover:bg-neutral-100 transition-colors">
+                    Resume Practice
+                  </button>
+                </div>
+
+                {/* Core Tools Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {actCoreTools.map((tool, index) => {
+                    const Icon = tool.icon;
+                    return (
+                      <div
+                        key={index}
+                        onClick={() => navigate(createPageUrl(tool.route))}
+                        className="bg-neutral-900 border border-neutral-800 hover:border-neutral-600 rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:scale-[1.02]"
+                      >
+                        <Icon className="w-6 h-6 mb-4 text-neutral-300" />
+                        <h3 className="text-lg font-medium text-white mb-2">
+                          {tool.title}
+                        </h3>
+                        <p className="text-sm text-neutral-400 leading-relaxed">
+                          {tool.description}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Right Column - Score Trajectory */}
+              <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6">
+                <h3 className="text-lg font-medium text-white mb-6">Score Trajectory</h3>
+                <div className="space-y-3">
+                  {actScoreData.map((point, index) => {
+                    const maxScore = 36;
+                    const percentage = (point.score / maxScore) * 100;
+                    return (
+                      <div key={index}>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="text-neutral-400">Week {point.week}</span>
+                          <span className="text-white font-medium">{point.score}</span>
+                        </div>
+                        <div className="w-full bg-neutral-800 rounded-full h-2">
+                          <div 
+                            className="bg-gradient-to-r from-purple-500 to-purple-400 h-2 rounded-full transition-all duration-500"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="mt-6 pt-6 border-t border-neutral-800">
+                  <div className="text-center">
+                    <div className="text-2xl font-semibold text-white mb-1">+5</div>
+                    <div className="text-sm text-neutral-400">Point Improvement</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
         {activeTab === 'AP' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {apCards.map((card, index) => {
-              const Icon = card.icon;
-              return (
-                <div
-                  key={index}
-                  onClick={() => navigate(createPageUrl(card.route))}
-                  className="bg-neutral-900 border border-neutral-800 hover:border-neutral-600 rounded-2xl p-8 cursor-pointer transition-all duration-300 hover:scale-[1.02]"
-                >
-                  <Icon className="w-8 h-8 mb-6 text-neutral-300" />
-                  <h3 className="text-xl font-medium text-white mb-2">
-                    {card.title}
-                  </h3>
-                  <p className="text-sm text-neutral-400 leading-relaxed">
-                    {card.description}
-                  </p>
+          <div className="space-y-8">
+            {/* Header Section */}
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+              <div>
+                <h1 className="text-3xl font-light text-white mb-2">AP Workspace</h1>
+                <p className="text-neutral-400">Master AP exams with structured notes, targeted practice, and mastery tracking.</p>
+              </div>
+              <div className="flex gap-4">
+                <div className="bg-neutral-900 rounded-xl border border-neutral-800 px-6 py-4 text-center hover:border-neutral-700 transition-colors">
+                  <div className="text-2xl font-semibold text-white mb-1">{apStats.scoreEstimate}</div>
+                  <div className="text-xs text-neutral-400">Score Estimate</div>
                 </div>
-              );
-            })}
+                <div className="bg-neutral-900 rounded-xl border border-neutral-800 px-6 py-4 text-center hover:border-neutral-700 transition-colors">
+                  <div className="text-2xl font-semibold text-white mb-1">{apStats.mastery}%</div>
+                  <div className="text-xs text-neutral-400">Mastery</div>
+                </div>
+                <div className="bg-neutral-900 rounded-xl border border-neutral-800 px-6 py-4 text-center hover:border-neutral-700 transition-colors">
+                  <div className="text-2xl font-semibold text-white mb-1 flex items-center justify-center gap-1">
+                    <Flame className="w-5 h-5 text-orange-500" />
+                    {apStats.streak}
+                  </div>
+                  <div className="text-xs text-neutral-400">Day Streak</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Main Grid Container */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Left Column - Featured Action + Tools */}
+              <div className="lg:col-span-2 space-y-8">
+                {/* Primary Recommended Action */}
+                <div 
+                  onClick={() => navigate(createPageUrl('APPractice'))}
+                  className="bg-gradient-to-br from-neutral-900 to-neutral-950 border border-neutral-800 hover:border-neutral-600 rounded-2xl p-10 cursor-pointer transition-all duration-300 group"
+                >
+                  <div className="flex items-start justify-between mb-6">
+                    <div>
+                      <h2 className="text-2xl font-medium text-white mb-2">Continue AP Practice</h2>
+                      <p className="text-neutral-400">Focus on Unit 3 to reach 75% mastery across all topics.</p>
+                    </div>
+                    <TrendingUp className="w-8 h-8 text-green-500" />
+                  </div>
+                  <button className="bg-white text-black px-6 py-3 rounded-lg font-medium hover:bg-neutral-100 transition-colors">
+                    Resume Practice
+                  </button>
+                </div>
+
+                {/* Core Tools Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {apCoreTools.map((tool, index) => {
+                    const Icon = tool.icon;
+                    return (
+                      <div
+                        key={index}
+                        onClick={() => navigate(createPageUrl(tool.route))}
+                        className="bg-neutral-900 border border-neutral-800 hover:border-neutral-600 rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:scale-[1.02]"
+                      >
+                        <Icon className="w-6 h-6 mb-4 text-neutral-300" />
+                        <h3 className="text-lg font-medium text-white mb-2">
+                          {tool.title}
+                        </h3>
+                        <p className="text-sm text-neutral-400 leading-relaxed">
+                          {tool.description}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Right Column - Mastery Progress */}
+              <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6">
+                <h3 className="text-lg font-medium text-white mb-6">Mastery Progress</h3>
+                <div className="space-y-3">
+                  {apMasteryData.map((point, index) => {
+                    const percentage = point.mastery;
+                    return (
+                      <div key={index}>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="text-neutral-400">Week {point.week}</span>
+                          <span className="text-white font-medium">{point.mastery}%</span>
+                        </div>
+                        <div className="w-full bg-neutral-800 rounded-full h-2">
+                          <div 
+                            className="bg-gradient-to-r from-emerald-500 to-emerald-400 h-2 rounded-full transition-all duration-500"
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="mt-6 pt-6 border-t border-neutral-800">
+                  <div className="text-center">
+                    <div className="text-2xl font-semibold text-white mb-1">+26%</div>
+                    <div className="text-sm text-neutral-400">Mastery Gain</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
