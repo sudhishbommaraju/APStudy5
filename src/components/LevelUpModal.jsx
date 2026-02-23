@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { getTier } from '@/lib/tierSystem';
+import { getTier } from '@/components/tierSystem/tierUtils';
 
 export default function LevelUpModal({ level, isOpen, onClose }) {
   const [shouldShow, setShouldShow] = useState(isOpen);
