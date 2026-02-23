@@ -3,7 +3,7 @@ import MarketingNavbar from '@/components/navigation/MarketingNavbar';
 
 export default function Layout({ children, currentPageName }) {
   // Pages that don't need the layout wrapper at all
-  const noLayoutPages = ['Onboarding', 'Dashboard', 'Upload', 'Youtube', 'CreateNotes'];
+  const noLayoutPages = ['Onboarding', 'Dashboard', 'Upload', 'Youtube', 'CreateNotes', 'SATPractice', 'SATFullTest', 'ACTPractice', 'ACTFullTest', 'APUpload', 'APYoutube', 'APCreate', 'APPractice', 'APFullTest', 'APProgress'];
   
   // Marketing pages (use MarketingNavbar)
   const marketingPages = ['Home', 'Diagnostic', 'Results', 'Engine'];

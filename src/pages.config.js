@@ -75,6 +75,16 @@ import Dashboard from './pages/Dashboard';
 import Upload from './pages/Upload';
 import Youtube from './pages/Youtube';
 import CreateNotes from './pages/CreateNotes';
+import SATPractice from './pages/SATPractice';
+import SATFullTest from './pages/SATFullTest';
+import ACTPractice from './pages/ACTPractice';
+import ACTFullTest from './pages/ACTFullTest';
+import APUpload from './pages/APUpload';
+import APYoutube from './pages/APYoutube';
+import APCreate from './pages/APCreate';
+import APPractice from './pages/APPractice';
+import APFullTest from './pages/APFullTest';
+import APProgress from './pages/APProgress';
 import __Layout from './Layout.jsx';
 
 
@@ -107,6 +117,16 @@ export const PAGES = {
     "Upload": Upload,
     "Youtube": Youtube,
     "CreateNotes": CreateNotes,
+    "SATPractice": SATPractice,
+    "SATFullTest": SATFullTest,
+    "ACTPractice": ACTPractice,
+    "ACTFullTest": ACTFullTest,
+    "APUpload": APUpload,
+    "APYoutube": APYoutube,
+    "APCreate": APCreate,
+    "APPractice": APPractice,
+    "APFullTest": APFullTest,
+    "APProgress": APProgress,
 }
 
 export const pagesConfig = {
