@@ -96,6 +96,7 @@ import EngineMistakes from './pages/EngineMistakes';
 import EngineTimedQuiz from './pages/EngineTimedQuiz';
 import EngineNotes from './pages/EngineNotes';
 import APFRQSimulator from './pages/APFRQSimulator';
+import NotionSync from './pages/NotionSync';
 import __Layout from './Layout.jsx';
 
 
@@ -149,6 +150,7 @@ export const PAGES = {
     "EngineTimedQuiz": EngineTimedQuiz,
     "EngineNotes": EngineNotes,
     "APFRQSimulator": APFRQSimulator,
+    "NotionSync": NotionSync,
 }
 
 export const pagesConfig = {
