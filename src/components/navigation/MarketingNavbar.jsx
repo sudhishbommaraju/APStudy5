@@ -15,12 +15,12 @@ export default function MarketingNavbar() {
   }, []);
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none">
+    <div className="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none" style={{ marginTop: '32px', marginBottom: '64px' }}>
       <nav
         className="pointer-events-auto transition-all duration-300"
         style={{
           maxWidth: '1000px',
-          margin: '32px auto',
+          margin: '0 auto',
           padding: '8px',
           borderRadius: '999px',
           background: 'rgba(20, 20, 20, 0.6)',

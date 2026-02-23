@@ -199,10 +199,10 @@ export default function Home() {
 
       {/* HERO SECTION */}
       <motion.section
-        style={{ y: heroY, paddingTop: '180px', paddingBottom: '200px' }}
-        className="min-h-screen flex items-center justify-center px-6"
+        style={{ y: heroY, paddingTop: '120px', paddingBottom: '140px' }}
+        className="min-h-screen flex items-center justify-center"
       >
-        <div className="w-full grid lg:grid-cols-2 gap-24 items-center" style={{ maxWidth: '1200px' }}>
+        <div className="w-full grid lg:grid-cols-2 gap-24 items-center" style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px' }}>
           <div className="text-center lg:text-left">
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
@@ -309,26 +309,28 @@ export default function Home() {
       </motion.section>
 
       {/* THE PROBLEM */}
-      <section className="px-6" style={{ paddingTop: '160px', paddingBottom: '160px' }}>
-        <div className="mx-auto text-center" style={{ maxWidth: '1200px' }}>
+      <section style={{ paddingTop: '120px', paddingBottom: '120px' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px' }}>
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-8"
+            className="text-center"
             style={{ 
               color: '#F3F4F6',
               fontFamily: 'Space Grotesk, sans-serif',
               fontSize: '48px',
               fontWeight: '400',
               lineHeight: '1.1',
-              letterSpacing: '0.04em'
+              letterSpacing: '0.04em',
+              maxWidth: '800px',
+              margin: '0 auto'
             }}
           >
             Most students practice without measurement.
           </motion.h2>
 
-          <div className="grid md:grid-cols-3 gap-16" style={{ marginTop: '64px' }}>
+          <div className="flex justify-center gap-10" style={{ marginTop: '64px', flexWrap: 'wrap' }}>
             {[
               { text: 'No baseline.' },
               { text: 'No precision.' },
@@ -346,7 +348,9 @@ export default function Home() {
                   fontSize: '36px',
                   fontWeight: '400',
                   lineHeight: '1.1',
-                  letterSpacing: '0.04em'
+                  letterSpacing: '0.04em',
+                  width: '280px',
+                  textAlign: 'center'
                 }}
               >
                 {item.text}
@@ -357,26 +361,28 @@ export default function Home() {
       </section>
 
       {/* HOW THE ENGINE WORKS */}
-      <section id="features" className="px-6" style={{ background: '#171A21', paddingTop: '160px', paddingBottom: '160px' }}>
-        <div className="mx-auto" style={{ maxWidth: '1200px' }}>
+      <section id="features" style={{ background: '#171A21', paddingTop: '120px', paddingBottom: '120px' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px' }}>
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-8"
+            className="text-center"
             style={{ 
               color: '#F3F4F6',
               fontFamily: 'Space Grotesk, sans-serif',
               fontSize: '48px',
               fontWeight: '400',
               lineHeight: '1.1',
-              letterSpacing: '0.04em'
+              letterSpacing: '0.04em',
+              maxWidth: '800px',
+              margin: '0 auto 64px auto'
             }}
           >
             How the Engine Works
           </motion.h2>
 
-          <div className="space-y-8 mt-16">
+          <div className="space-y-8">
             {[
               { num: '1', title: 'Diagnostic Baseline', desc: 'Measure current performance across all sections' },
               { num: '2', title: 'Weakness Mapping', desc: 'Identify precise skill gaps and timing inefficiencies' },
@@ -440,26 +446,28 @@ export default function Home() {
       </section>
 
       {/* BUILT FOR REAL EXAMS */}
-      <section className="px-6" style={{ paddingTop: '160px', paddingBottom: '160px' }}>
-        <div className="mx-auto" style={{ maxWidth: '1200px' }}>
+      <section style={{ paddingTop: '120px', paddingBottom: '120px' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px' }}>
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-8"
+            className="text-center"
             style={{ 
               color: '#F3F4F6',
               fontFamily: 'Space Grotesk, sans-serif',
               fontSize: '48px',
               fontWeight: '400',
               lineHeight: '1.1',
-              letterSpacing: '0.04em'
+              letterSpacing: '0.04em',
+              maxWidth: '800px',
+              margin: '0 auto 64px auto'
             }}
           >
             Built for Real Exams
           </motion.h2>
 
-          <div className="grid md:grid-cols-3 gap-12 mt-16">
+          <div className="flex justify-center gap-10" style={{ flexWrap: 'wrap' }}>
             {[
               {
                 title: 'SAT',
@@ -499,7 +507,8 @@ export default function Home() {
                 className="rounded-xl p-8 transition-all"
                 style={{
                   background: '#171A21',
-                  border: '1px solid rgba(255, 255, 255, 0.06)'
+                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                  width: '280px'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = 'rgba(47, 109, 246, 0.5)';
@@ -544,20 +553,22 @@ export default function Home() {
       </section>
 
       {/* ABOUT + MISSION */}
-      <section id="about" className="px-6" style={{ background: '#171A21', paddingTop: '160px', paddingBottom: '160px' }}>
-        <div className="mx-auto" style={{ maxWidth: '1200px' }}>
+      <section id="about" style={{ background: '#171A21', paddingTop: '120px', paddingBottom: '120px' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px' }}>
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-8"
+            className="text-center"
             style={{ 
               color: '#F3F4F6',
               fontFamily: 'Space Grotesk, sans-serif',
               fontSize: '48px',
               fontWeight: '400',
               lineHeight: '1.1',
-              letterSpacing: '0.04em'
+              letterSpacing: '0.04em',
+              maxWidth: '800px',
+              margin: '0 auto'
             }}
           >
             Why Proofly Exists
@@ -567,8 +578,8 @@ export default function Home() {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="space-y-8 mt-16 mx-auto"
-            style={{ maxWidth: '650px' }}
+            className="space-y-8"
+            style={{ maxWidth: '700px', margin: '24px auto 0 auto' }}
           >
             <p style={{ 
               color: '#F3F4F6',
@@ -603,7 +614,7 @@ export default function Home() {
               Proofly was built to solve that problem:
             </p>
 
-            <div className="grid md:grid-cols-3 gap-12 pt-8">
+            <div className="flex justify-center gap-10 pt-8" style={{ flexWrap: 'wrap' }}>
               {[
                 'Measure performance.',
                 'Identify weaknesses.',
@@ -618,7 +629,8 @@ export default function Home() {
                   className="text-center p-8 rounded-xl"
                   style={{
                     background: 'rgba(15, 17, 21, 0.5)',
-                    border: '1px solid rgba(255, 255, 255, 0.05)'
+                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                    width: '280px'
                   }}
                 >
                   <div style={{ 
@@ -672,20 +684,21 @@ export default function Home() {
       </section>
 
       {/* FINAL CTA */}
-      <section className="px-6" style={{ paddingTop: '160px', paddingBottom: '160px' }}>
-        <div className="mx-auto text-center" style={{ maxWidth: '1200px' }}>
+      <section style={{ paddingTop: '120px', paddingBottom: '120px' }}>
+        <div className="text-center" style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px' }}>
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-12"
             style={{ 
               color: '#F3F4F6',
               fontFamily: 'Space Grotesk, sans-serif',
               fontSize: '48px',
               fontWeight: '400',
               lineHeight: '1.1',
-              letterSpacing: '0.04em'
+              letterSpacing: '0.04em',
+              maxWidth: '800px',
+              margin: '0 auto 48px auto'
             }}
           >
             Ready to measure your performance?
@@ -741,14 +754,17 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-6" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
-        <div className="max-w-7xl mx-auto text-center" style={{ 
+      <footer style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '48px', paddingBottom: '48px' }}>
+        <div className="text-center" style={{ 
+          maxWidth: '1100px',
+          margin: '0 auto',
+          padding: '0 24px',
           color: '#6B7280',
           fontFamily: 'Inter, sans-serif',
           fontSize: '16px'
         }}>
           <p>© 2026 Proofly. A nonprofit organization.</p>
-          <p className="mt-2">Built to increase access to measurable, high-quality exam preparation.</p>
+          <p style={{ marginTop: '8px' }}>Built to increase access to measurable, high-quality exam preparation.</p>
         </div>
       </footer>
     </div>
