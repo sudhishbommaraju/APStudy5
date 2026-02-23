@@ -65,8 +65,8 @@ export default function APUpload() {
 
       // AI-powered extraction and synthesis
       const synthesisInstructions = {
-        summary: 'Create a comprehensive summary with key points organized into digestible bullet points',
-        flashcards: 'Extract key terms and concepts and format as flashcards (Front: Term/Question | Back: Definition/Answer)',
+        summary: 'Create a comprehensive summary with key points organized into digestible bullet points. Use clear headings and concise explanations.',
+        flashcards: 'Extract 15-25 key terms, concepts, and questions. Format each as:\n\n**Front:** [Question/Term]\n**Back:** [Answer/Definition with brief explanation]\n\nPrioritize high-yield concepts for exam preparation.',
         detailed: 'Provide an in-depth analysis with detailed explanations, examples, and connections between concepts'
       };
 
@@ -169,10 +169,13 @@ Format the output as structured markdown notes.`;
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="summary">Bullet Point Summary</SelectItem>
-                  <SelectItem value="flashcards">Flashcard Format</SelectItem>
+                  <SelectItem value="flashcards">Generate Flashcards</SelectItem>
                   <SelectItem value="detailed">Detailed Analysis</SelectItem>
                 </SelectContent>
               </Select>
+              <p className="text-xs text-neutral-500 mt-1">
+                {synthesisType === 'flashcards' ? 'Creates Q&A flashcards for active recall' : 'Structured notes for study'}
+              </p>
             </div>
 
             <div>

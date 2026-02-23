@@ -101,6 +101,7 @@ import SATAdaptivePractice from './pages/SATAdaptivePractice';
 import ACTAdaptivePractice from './pages/ACTAdaptivePractice';
 import NotionSetupGuide from './pages/NotionSetupGuide';
 import SeedTaxonomy from './pages/SeedTaxonomy';
+import APQuestionGenerator from './pages/APQuestionGenerator';
 import __Layout from './Layout.jsx';
 
 
@@ -159,6 +160,7 @@ export const PAGES = {
     "ACTAdaptivePractice": ACTAdaptivePractice,
     "NotionSetupGuide": NotionSetupGuide,
     "SeedTaxonomy": SeedTaxonomy,
+    "APQuestionGenerator": APQuestionGenerator,
 }
 
 export const pagesConfig = {

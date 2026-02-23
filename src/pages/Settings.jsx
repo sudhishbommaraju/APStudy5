@@ -1,239 +1,279 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Loader2, User, Mail, Lock, CheckCircle2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowLeft, Database, Bell, Layout, User, Loader2, Save, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Settings() {
-  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(false);
-  
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [user, setUser] = useState(null);
+  const [settings, setSettings] = useState({
+    notion_practice_page: '',
+    notion_fulltest_page: '',
+    notion_progress_page: '',
+    notification_preferences: {
+      email_reminders: true,
+      practice_suggestions: true,
+      progress_updates: true,
+      weekly_reports: true
+    },
+    dashboard_layout: {
+      default_tab: 'SAT',
+      show_stats: true,
+      show_streak: true,
+      show_recommendations: true
+    }
+  });
 
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const currentUser = await base44.auth.me();
-        setUser(currentUser);
-        setFullName(currentUser.full_name || '');
-        setEmail(currentUser.email || '');
-      } catch (e) {
-        console.error('Failed to load user:', e);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadUser();
+    loadUserSettings();
   }, []);
 
-  const handleUpdateProfile = async () => {
-    if (!fullName.trim()) {
-      toast.error('Name cannot be empty');
-      return;
-    }
-
-    setUpdating(true);
+  const loadUserSettings = async () => {
     try {
-      await base44.auth.updateMe({ full_name: fullName });
-      toast.success('Profile updated successfully');
-      const updatedUser = await base44.auth.me();
-      setUser(updatedUser);
-    } catch (e) {
-      toast.error('Failed to update profile');
-      console.error(e);
-    } finally {
-      setUpdating(false);
+      const userData = await base44.auth.me();
+      setUser(userData);
+      setSettings({
+        notion_practice_page: userData.notion_practice_page || '',
+        notion_fulltest_page: userData.notion_fulltest_page || '',
+        notion_progress_page: userData.notion_progress_page || '',
+        notification_preferences: userData.notification_preferences || settings.notification_preferences,
+        dashboard_layout: userData.dashboard_layout || settings.dashboard_layout
+      });
+    } catch (error) {
+      console.error('Failed to load settings:', error);
     }
+    setLoading(false);
   };
 
-  const handleChangePassword = async () => {
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      toast.error('Please fill in all password fields');
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      toast.error('New passwords do not match');
-      return;
-    }
-
-    if (newPassword.length < 6) {
-      toast.error('Password must be at least 6 characters');
-      return;
-    }
-
-    setUpdating(true);
+  const handleSaveSettings = async () => {
+    setSaving(true);
     try {
-      // Note: This is a placeholder. Base44 may handle password changes differently
-      // You might need to use a different API endpoint
-      toast.info('Password change functionality requires backend setup');
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-    } catch (e) {
-      toast.error('Failed to change password');
-      console.error(e);
-    } finally {
-      setUpdating(false);
+      await base44.auth.updateMe(settings);
+      toast.success('Settings saved successfully!');
+    } catch (error) {
+      toast.error('Failed to save settings');
+      console.error(error);
+    }
+    setSaving(false);
+  };
+
+  const handleUnlinkNotion = async (field) => {
+    try {
+      await base44.auth.updateMe({ [field]: null });
+      setSettings({ ...settings, [field]: '' });
+      toast.success('Notion page unlinked');
+    } catch (error) {
+      toast.error('Failed to unlink page');
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-violet-400" />
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
       </div>
     );
   }
 
   return (
-    <>
-      <div className="page-header">
-        <h1 className="page-title">Account Settings</h1>
-        <p className="page-description">Manage your account information</p>
-      </div>
+    <div className="min-h-screen bg-black py-16">
+      <div className="max-w-4xl mx-auto px-6">
+        <button
+          onClick={() => navigate(createPageUrl('Dashboard'))}
+          className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors mb-12"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          Back to Dashboard
+        </button>
 
-      <div className="max-w-2xl space-y-6">
-        {/* Profile Information */}
-        <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500/30 to-indigo-500/30 border border-violet-400/30 flex items-center justify-center">
-              <User className="w-5 h-5 text-violet-300" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-slate-100">Profile Information</h2>
-              <p className="text-sm text-slate-400">Update your personal details</p>
-            </div>
-          </div>
+        <div className="mb-8">
+          <h1 className="text-4xl font-light text-white mb-2">Settings</h1>
+          <p className="text-neutral-400">Manage your profile and preferences</p>
+        </div>
 
-          <div className="space-y-4">
-            <div>
-              <Label className="text-slate-300">Full Name</Label>
-              <Input
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                className="mt-1.5 bg-slate-900/50 border-slate-700/50 text-slate-100"
-                placeholder="Enter your full name"
-              />
+        <div className="space-y-6">
+          {/* Profile Section */}
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
+            <div className="flex items-center gap-3 mb-6">
+              <User className="w-6 h-6 text-blue-500" />
+              <h2 className="text-2xl font-light text-white">Profile</h2>
             </div>
-
-            <div>
-              <Label className="text-slate-300">Email Address</Label>
-              <Input
-                value={email}
-                disabled
-                className="mt-1.5 bg-slate-900/30 border-slate-700/50 text-slate-400 cursor-not-allowed"
-                placeholder="Your email"
-              />
-              <p className="text-xs text-slate-500 mt-1.5">Email cannot be changed</p>
-            </div>
-
-            <div>
-              <Label className="text-slate-300">Account Type</Label>
-              <div className="mt-1.5 px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-lg">
-                <span className={`inline-flex items-center gap-2 text-sm font-medium ${
-                  user?.plan === 'pro' ? 'text-violet-400' : 'text-slate-300'
-                }`}>
-                  {user?.plan === 'pro' ? (
-                    <>
-                      <CheckCircle2 className="w-4 h-4" />
-                      Pro Plan
-                    </>
-                  ) : (
-                    'Free Plan'
-                  )}
-                </span>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">Email</label>
+                <Input value={user?.email || ''} disabled className="bg-neutral-800 border-neutral-700 text-neutral-400" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">Full Name</label>
+                <Input value={user?.full_name || ''} disabled className="bg-neutral-800 border-neutral-700 text-neutral-400" />
               </div>
             </div>
-
-            <Button 
-              onClick={handleUpdateProfile}
-              disabled={updating}
-              className="w-full bg-violet-600 hover:bg-violet-700"
-            >
-              {updating ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Updating...
-                </>
-              ) : (
-                'Save Changes'
-              )}
-            </Button>
-          </div>
-        </div>
-
-        {/* Password Change */}
-        <div className="bg-slate-800/40 backdrop-blur-sm rounded-xl border border-slate-700/50 p-6 shadow-lg">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose-500/30 to-orange-500/30 border border-rose-400/30 flex items-center justify-center">
-              <Lock className="w-5 h-5 text-rose-300" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-slate-100">Change Password</h2>
-              <p className="text-sm text-slate-400">Update your account password</p>
-            </div>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <Label className="text-slate-300">Current Password</Label>
-              <Input
-                type="password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                className="mt-1.5 bg-slate-900/50 border-slate-700/50 text-slate-100"
-                placeholder="Enter current password"
-              />
+          {/* Notion Integration */}
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
+            <div className="flex items-center gap-3 mb-6">
+              <Database className="w-6 h-6 text-blue-500" />
+              <h2 className="text-2xl font-light text-white">Notion Integration</h2>
             </div>
-
-            <div>
-              <Label className="text-slate-300">New Password</Label>
-              <Input
-                type="password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="mt-1.5 bg-slate-900/50 border-slate-700/50 text-slate-100"
-                placeholder="Enter new password"
-              />
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">Practice Page URL</label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="https://notion.so/your-practice-page"
+                    value={settings.notion_practice_page}
+                    onChange={(e) => setSettings({ ...settings, notion_practice_page: e.target.value })}
+                    className="bg-neutral-800 border-neutral-700 text-white"
+                  />
+                  {settings.notion_practice_page && (
+                    <Button variant="outline" size="icon" onClick={() => handleUnlinkNotion('notion_practice_page')}>
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">Full Test Page URL</label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="https://notion.so/your-fulltest-page"
+                    value={settings.notion_fulltest_page}
+                    onChange={(e) => setSettings({ ...settings, notion_fulltest_page: e.target.value })}
+                    className="bg-neutral-800 border-neutral-700 text-white"
+                  />
+                  {settings.notion_fulltest_page && (
+                    <Button variant="outline" size="icon" onClick={() => handleUnlinkNotion('notion_fulltest_page')}>
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">Progress Tracking Page URL</label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="https://notion.so/your-progress-page"
+                    value={settings.notion_progress_page}
+                    onChange={(e) => setSettings({ ...settings, notion_progress_page: e.target.value })}
+                    className="bg-neutral-800 border-neutral-700 text-white"
+                  />
+                  {settings.notion_progress_page && (
+                    <Button variant="outline" size="icon" onClick={() => handleUnlinkNotion('notion_progress_page')}>
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
             </div>
-
-            <div>
-              <Label className="text-slate-300">Confirm New Password</Label>
-              <Input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="mt-1.5 bg-slate-900/50 border-slate-700/50 text-slate-100"
-                placeholder="Confirm new password"
-              />
-            </div>
-
-            <Button 
-              onClick={handleChangePassword}
-              disabled={updating}
-              variant="outline"
-              className="w-full border-slate-700/50 hover:bg-slate-800/50"
-            >
-              {updating ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Changing...
-                </>
-              ) : (
-                'Change Password'
-              )}
-            </Button>
           </div>
+
+          {/* Notifications */}
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
+            <div className="flex items-center gap-3 mb-6">
+              <Bell className="w-6 h-6 text-blue-500" />
+              <h2 className="text-2xl font-light text-white">Notifications</h2>
+            </div>
+            <div className="space-y-4">
+              {Object.entries(settings.notification_preferences).map(([key, value]) => (
+                <div key={key} className="flex items-center justify-between">
+                  <label className="text-sm text-neutral-300 capitalize">{key.replace(/_/g, ' ')}</label>
+                  <button
+                    onClick={() => setSettings({
+                      ...settings,
+                      notification_preferences: {
+                        ...settings.notification_preferences,
+                        [key]: !value
+                      }
+                    })}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      value ? 'bg-blue-600' : 'bg-neutral-700'
+                    }`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      value ? 'translate-x-6' : 'translate-x-1'
+                    }`} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Dashboard Layout */}
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
+            <div className="flex items-center gap-3 mb-6">
+              <Layout className="w-6 h-6 text-blue-500" />
+              <h2 className="text-2xl font-light text-white">Dashboard Layout</h2>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">Default Tab</label>
+                <Select
+                  value={settings.dashboard_layout.default_tab}
+                  onValueChange={(val) => setSettings({
+                    ...settings,
+                    dashboard_layout: { ...settings.dashboard_layout, default_tab: val }
+                  })}
+                >
+                  <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="SAT">SAT</SelectItem>
+                    <SelectItem value="ACT">ACT</SelectItem>
+                    <SelectItem value="AP">AP</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {Object.entries(settings.dashboard_layout).filter(([key]) => key !== 'default_tab').map(([key, value]) => (
+                <div key={key} className="flex items-center justify-between">
+                  <label className="text-sm text-neutral-300 capitalize">{key.replace(/_/g, ' ')}</label>
+                  <button
+                    onClick={() => setSettings({
+                      ...settings,
+                      dashboard_layout: { ...settings.dashboard_layout, [key]: !value }
+                    })}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      value ? 'bg-blue-600' : 'bg-neutral-700'
+                    }`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      value ? 'translate-x-6' : 'translate-x-1'
+                    }`} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Save Button */}
+          <Button
+            onClick={handleSaveSettings}
+            disabled={saving}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+            size="lg"
+          >
+            {saving ? (
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="w-5 h-5 mr-2" />
+                Save Settings
+              </>
+            )}
+          </Button>
         </div>
       </div>
-    </>
+    </div>
   );
 }

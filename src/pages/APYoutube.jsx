@@ -55,9 +55,9 @@ export default function APYoutube() {
     setLoading(true);
     try {
       const synthesisInstructions = {
-        summary: 'Create a comprehensive summary organized into digestible bullet points with timestamps',
-        flashcards: 'Extract key terms and concepts and format as flashcards (Front: Term/Question | Back: Definition/Answer)',
-        detailed: 'Provide detailed lecture notes with explanations, examples, and connections between concepts'
+        summary: 'Create a comprehensive summary organized into digestible bullet points with timestamps. Group related concepts together.',
+        flashcards: 'Extract 15-25 key concepts from the video. Format each as:\n\n**Front:** [Question/Concept]\n**Back:** [Answer/Explanation with timestamp reference]\n\nFocus on testable material and important definitions.',
+        detailed: 'Provide detailed lecture notes with explanations, examples, and connections between concepts. Include timestamps for key sections.'
       };
 
       const prompt = `Analyze this YouTube lecture on AP ${subject} (URL: ${youtubeUrl}) and ${synthesisInstructions[synthesisType]}.
@@ -173,10 +173,13 @@ Organize the information clearly with proper markdown formatting and include tim
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="summary">Bullet Point Summary</SelectItem>
-                  <SelectItem value="flashcards">Flashcard Format</SelectItem>
+                  <SelectItem value="flashcards">Generate Flashcards</SelectItem>
                   <SelectItem value="detailed">Detailed Lecture Notes</SelectItem>
                 </SelectContent>
               </Select>
+              <p className="text-xs text-neutral-500 mt-1">
+                {synthesisType === 'flashcards' ? 'Creates Q&A flashcards from video content' : 'Organized notes from lecture'}
+              </p>
             </div>
 
             <div className="bg-neutral-800 border border-neutral-700 rounded-lg p-4">

@@ -265,6 +265,12 @@ export default function Dashboard() {
       route: 'APPractice'
     },
     {
+      icon: TrendingUp,
+      title: 'AI Question Generator',
+      description: 'Generate custom practice questions on any topic.',
+      route: 'APQuestionGenerator'
+    },
+    {
       icon: Timer,
       title: 'Full-Length Test (Notion)',
       description: 'Simulated AP exam using Notion content.',
