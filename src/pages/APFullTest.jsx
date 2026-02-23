@@ -4,6 +4,7 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { ArrowLeft, Database, Link as LinkIcon, Loader2, CheckCircle, ExternalLink, Timer, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
