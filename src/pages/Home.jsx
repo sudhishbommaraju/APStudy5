@@ -167,10 +167,19 @@ function PerformanceEngine() {
               transition={{ delay: i * 0.1 + 0.5 }}
               className="text-center"
             >
-              <div className="text-2xl font-bold mb-1" style={{ color: '#2F6DF6' }}>
+              <div className="mb-1" style={{ 
+                color: '#2F6DF6',
+                fontFamily: 'Space Grotesk, sans-serif',
+                fontSize: '30px',
+                fontWeight: '700'
+              }}>
                 {stat.value}
               </div>
-              <div className="text-xs" style={{ color: '#6B7280' }}>
+              <div style={{ 
+                color: '#9CA3AF',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '16px'
+              }}>
                 {stat.label}
               </div>
             </motion.div>
@@ -191,16 +200,22 @@ export default function Home() {
       {/* HERO SECTION */}
       <motion.section
         style={{ y: heroY }}
-        className="min-h-screen flex items-center justify-center px-6 pt-20"
+        className="min-h-screen flex items-center justify-center px-6"
       >
-        <div className="max-w-7xl w-full grid lg:grid-cols-2 gap-16 items-center">
+        <div className="max-w-7xl w-full grid lg:grid-cols-2 gap-24 items-center">
           <div className="text-center lg:text-left">
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="text-6xl lg:text-7xl font-bold mb-6 leading-tight"
-              style={{ color: '#F3F4F6' }}
+              className="mt-24 mb-8 max-w-3xl"
+              style={{ 
+                color: '#F3F4F6',
+                fontFamily: 'Space Grotesk, sans-serif',
+                fontSize: '72px',
+                fontWeight: '700',
+                lineHeight: '1.2'
+              }}
             >
               WELCOME TO<br />PROOFLY
             </motion.h1>
@@ -209,8 +224,14 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-2xl mb-8"
-              style={{ color: '#9CA3AF' }}
+              className="mb-12 max-w-2xl"
+              style={{ 
+                color: '#9CA3AF',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '24px',
+                fontWeight: '400',
+                lineHeight: '1.6'
+              }}
             >
               Your test performance, engineered.
             </motion.p>
@@ -219,15 +240,18 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-6"
+              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8"
             >
               <Link to={createPageUrl('Dashboard')}>
                 <Button
-                  size="lg"
-                  className="font-semibold text-lg px-8 py-6 transition-all duration-200 hover:scale-103"
+                  className="rounded-lg transition-all duration-200 hover:scale-103"
                   style={{
                     background: '#2F6DF6',
-                    color: '#F3F4F6'
+                    color: '#F3F4F6',
+                    fontFamily: 'Space Grotesk, sans-serif',
+                    fontSize: '22px',
+                    fontWeight: '600',
+                    padding: '16px 32px'
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.background = '#3C7CFF'}
                   onMouseLeave={(e) => e.currentTarget.style.background = '#2F6DF6'}
@@ -236,18 +260,19 @@ export default function Home() {
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </Link>
-              <a href="#features">
+              <a href="#features" className="transition-all duration-200">
                 <Button
-                  size="lg"
-                  variant="outline"
-                  className="text-lg px-8 py-6"
+                  variant="ghost"
+                  className="rounded-lg"
                   style={{
-                    borderColor: 'rgba(255, 255, 255, 0.06)',
                     color: '#F3F4F6',
-                    background: 'transparent'
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: '18px',
+                    fontWeight: '500',
+                    padding: '16px 32px',
+                    textDecoration: 'underline',
+                    textUnderlineOffset: '4px'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#171A21'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                 >
                   Explore Features
                 </Button>
@@ -258,8 +283,12 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.6 }}
-              className="text-sm"
-              style={{ color: '#6B7280' }}
+              style={{ 
+                color: '#6B7280',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '16px',
+                fontWeight: '400'
+              }}
             >
               Built as a nonprofit. Focused on access, not profit.
             </motion.p>
@@ -272,19 +301,25 @@ export default function Home() {
       </motion.section>
 
       {/* THE PROBLEM */}
-      <section className="py-32 px-6">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="py-24 px-6">
+        <div className="max-w-7xl mx-auto text-center">
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl font-bold mb-16"
-            style={{ color: '#F3F4F6' }}
+            className="mb-8"
+            style={{ 
+              color: '#F3F4F6',
+              fontFamily: 'Space Grotesk, sans-serif',
+              fontSize: '48px',
+              fontWeight: '600',
+              lineHeight: '1.2'
+            }}
           >
             Most students practice without measurement.
           </motion.h2>
 
-          <div className="grid md:grid-cols-3 gap-12">
+          <div className="grid md:grid-cols-3 gap-12 mt-16">
             {[
               { text: 'No baseline.' },
               { text: 'No precision.' },
@@ -296,8 +331,13 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.2 }}
-                className="text-2xl font-semibold"
-                style={{ color: '#6B7280' }}
+                style={{ 
+                  color: '#6B7280',
+                  fontFamily: 'Space Grotesk, sans-serif',
+                  fontSize: '36px',
+                  fontWeight: '600',
+                  lineHeight: '1.2'
+                }}
               >
                 {item.text}
               </motion.div>
@@ -307,19 +347,25 @@ export default function Home() {
       </section>
 
       {/* HOW THE ENGINE WORKS */}
-      <section id="features" className="py-32 px-6" style={{ background: '#171A21' }}>
-        <div className="max-w-6xl mx-auto">
+      <section id="features" className="py-24 px-6" style={{ background: '#171A21' }}>
+        <div className="max-w-7xl mx-auto">
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl font-bold text-center mb-20"
-            style={{ color: '#F3F4F6' }}
+            className="text-center mb-8"
+            style={{ 
+              color: '#F3F4F6',
+              fontFamily: 'Space Grotesk, sans-serif',
+              fontSize: '48px',
+              fontWeight: '600',
+              lineHeight: '1.2'
+            }}
           >
             How the Engine Works
           </motion.h2>
 
-          <div className="space-y-8">
+          <div className="space-y-8 mt-16">
             {[
               { num: '1', title: 'Diagnostic Baseline', desc: 'Measure current performance across all sections' },
               { num: '2', title: 'Weakness Mapping', desc: 'Identify precise skill gaps and timing inefficiencies' },
@@ -334,7 +380,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
                 whileHover={{ x: 10 }}
-                className="flex items-center gap-6 p-6 rounded-xl transition-all cursor-pointer"
+                className="flex items-center gap-8 p-8 rounded-xl transition-all cursor-pointer"
                 style={{
                   background: 'rgba(15, 17, 21, 0.5)',
                   border: '1px solid rgba(255, 255, 255, 0.05)'
@@ -343,18 +389,33 @@ export default function Home() {
                 onMouseLeave={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.05)'}
               >
                 <div 
-                  className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+                  className="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0"
                   style={{ background: 'rgba(47, 109, 246, 0.1)' }}
                 >
-                  <span className="text-xl font-bold" style={{ color: '#2F6DF6' }}>
+                  <span style={{ 
+                    color: '#2F6DF6',
+                    fontFamily: 'Space Grotesk, sans-serif',
+                    fontSize: '24px',
+                    fontWeight: '700'
+                  }}>
                     {step.num}
                   </span>
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold mb-1" style={{ color: '#F3F4F6' }}>
+                  <h3 className="mb-2" style={{ 
+                    color: '#F3F4F6',
+                    fontFamily: 'Space Grotesk, sans-serif',
+                    fontSize: '24px',
+                    fontWeight: '600'
+                  }}>
                     {step.title}
                   </h3>
-                  <p className="text-sm" style={{ color: '#6B7280' }}>
+                  <p style={{ 
+                    color: '#9CA3AF',
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: '18px',
+                    lineHeight: '1.6'
+                  }}>
                     {step.desc}
                   </p>
                 </div>
@@ -365,23 +426,29 @@ export default function Home() {
       </section>
 
       {/* BUILT FOR REAL EXAMS */}
-      <section className="py-32 px-6">
-        <div className="max-w-6xl mx-auto">
+      <section className="py-24 px-6">
+        <div className="max-w-7xl mx-auto">
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl font-bold text-center mb-20"
-            style={{ color: '#F3F4F6' }}
+            className="text-center mb-8"
+            style={{ 
+              color: '#F3F4F6',
+              fontFamily: 'Space Grotesk, sans-serif',
+              fontSize: '48px',
+              fontWeight: '600',
+              lineHeight: '1.2'
+            }}
           >
             Built for Real Exams
           </motion.h2>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-12 mt-16">
             {[
               {
                 title: 'SAT',
-                icon: <TrendingUp className="w-8 h-8" />,
+                icon: <TrendingUp className="w-10 h-10" />,
                 features: [
                   '1600 scale tracking',
                   'Section-level analytics',
@@ -390,7 +457,7 @@ export default function Home() {
               },
               {
                 title: 'ACT',
-                icon: <BarChart3 className="w-8 h-8" />,
+                icon: <BarChart3 className="w-10 h-10" />,
                 features: [
                   'Composite + subscore modeling',
                   '36-scale adaptive tracking',
@@ -399,7 +466,7 @@ export default function Home() {
               },
               {
                 title: 'AP',
-                icon: <Target className="w-8 h-8" />,
+                icon: <Target className="w-10 h-10" />,
                 features: [
                   '1–5 readiness modeling',
                   'Unit-weighted mastery mapping',
@@ -428,16 +495,26 @@ export default function Home() {
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                <div style={{ color: '#2F6DF6' }} className="mb-4">
+                <div style={{ color: '#2F6DF6' }} className="mb-6">
                   {exam.icon}
                 </div>
-                <h3 className="text-2xl font-bold mb-6" style={{ color: '#F3F4F6' }}>
+                <h3 className="mb-6" style={{ 
+                  color: '#F3F4F6',
+                  fontFamily: 'Space Grotesk, sans-serif',
+                  fontSize: '24px',
+                  fontWeight: '600'
+                }}>
                   {exam.title}
                 </h3>
-                <ul className="space-y-3">
+                <ul className="space-y-4">
                   {exam.features.map((feature, j) => (
-                    <li key={j} className="flex items-start gap-2 text-sm" style={{ color: '#9CA3AF' }}>
-                      <span style={{ color: '#2F6DF6' }} className="mt-1">•</span>
+                    <li key={j} className="flex items-start gap-3" style={{ 
+                      color: '#9CA3AF',
+                      fontFamily: 'Inter, sans-serif',
+                      fontSize: '18px',
+                      lineHeight: '1.6'
+                    }}>
+                      <span style={{ color: '#2F6DF6', fontSize: '20px' }}>•</span>
                       <span>{feature}</span>
                     </li>
                   ))}
@@ -449,14 +526,20 @@ export default function Home() {
       </section>
 
       {/* ABOUT + MISSION */}
-      <section id="about" className="py-32 px-6" style={{ background: '#171A21' }}>
-        <div className="max-w-4xl mx-auto">
+      <section id="about" className="py-24 px-6" style={{ background: '#171A21' }}>
+        <div className="max-w-7xl mx-auto">
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl font-bold text-center mb-12"
-            style={{ color: '#F3F4F6' }}
+            className="text-center mb-8"
+            style={{ 
+              color: '#F3F4F6',
+              fontFamily: 'Space Grotesk, sans-serif',
+              fontSize: '48px',
+              fontWeight: '600',
+              lineHeight: '1.2'
+            }}
           >
             Why Proofly Exists
           </motion.h2>
@@ -465,23 +548,39 @@ export default function Home() {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="space-y-6 text-lg leading-relaxed"
-            style={{ color: '#9CA3AF' }}
+            className="space-y-8 mt-16 max-w-4xl mx-auto"
           >
-            <p className="text-xl font-semibold" style={{ color: '#F3F4F6' }}>
+            <p style={{ 
+              color: '#F3F4F6',
+              fontFamily: 'Space Grotesk, sans-serif',
+              fontSize: '24px',
+              fontWeight: '600',
+              lineHeight: '1.6',
+              textAlign: 'center'
+            }}>
               Most test prep is built for the top 10%.<br />
               Proofly was built for the other 90%.
             </p>
 
-            <p>
+            <p style={{ 
+              color: '#9CA3AF',
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '18px',
+              lineHeight: '1.6'
+            }}>
               The founder and lead developer struggled academically — not from lack of effort, but from lack of precise feedback. Studying felt random. Improvement felt unpredictable.
             </p>
 
-            <p>
+            <p style={{ 
+              color: '#9CA3AF',
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '18px',
+              lineHeight: '1.6'
+            }}>
               Proofly was built to solve that problem:
             </p>
 
-            <div className="grid md:grid-cols-3 gap-8 pt-8">
+            <div className="grid md:grid-cols-3 gap-12 pt-8">
               {[
                 'Measure performance.',
                 'Identify weaknesses.',
@@ -493,30 +592,50 @@ export default function Home() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="text-center p-6 rounded-xl"
+                  className="text-center p-8 rounded-xl"
                   style={{
                     background: 'rgba(15, 17, 21, 0.5)',
                     border: '1px solid rgba(255, 255, 255, 0.05)'
                   }}
                 >
-                  <div className="text-xl font-semibold" style={{ color: '#2F6DF6' }}>
+                  <div style={{ 
+                    color: '#2F6DF6',
+                    fontFamily: 'Space Grotesk, sans-serif',
+                    fontSize: '24px',
+                    fontWeight: '600'
+                  }}>
                     {text}
                   </div>
                 </motion.div>
               ))}
             </div>
 
-            <ul className="space-y-3 pt-8">
-              <li className="flex items-start gap-3">
-                <span style={{ color: '#2F6DF6' }}>•</span>
+            <ul className="space-y-4 pt-8">
+              <li className="flex items-start gap-4" style={{ 
+                color: '#9CA3AF',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '18px',
+                lineHeight: '1.6'
+              }}>
+                <span style={{ color: '#2F6DF6', fontSize: '20px' }}>•</span>
                 <span>Built around real exam skill frameworks</span>
               </li>
-              <li className="flex items-start gap-3">
-                <span style={{ color: '#2F6DF6' }}>•</span>
+              <li className="flex items-start gap-4" style={{ 
+                color: '#9CA3AF',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '18px',
+                lineHeight: '1.6'
+              }}>
+                <span style={{ color: '#2F6DF6', fontSize: '20px' }}>•</span>
                 <span>Designed by someone who needed it</span>
               </li>
-              <li className="flex items-start gap-3">
-                <span style={{ color: '#2F6DF6' }}>•</span>
+              <li className="flex items-start gap-4" style={{ 
+                color: '#9CA3AF',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '18px',
+                lineHeight: '1.6'
+              }}>
+                <span style={{ color: '#2F6DF6', fontSize: '20px' }}>•</span>
                 <span>Developed as a nonprofit to maximize access</span>
               </li>
             </ul>
@@ -525,14 +644,20 @@ export default function Home() {
       </section>
 
       {/* FINAL CTA */}
-      <section className="py-32 px-6">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="py-24 px-6">
+        <div className="max-w-7xl mx-auto text-center">
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-5xl font-bold mb-12"
-            style={{ color: '#F3F4F6' }}
+            className="mb-12"
+            style={{ 
+              color: '#F3F4F6',
+              fontFamily: 'Space Grotesk, sans-serif',
+              fontSize: '48px',
+              fontWeight: '600',
+              lineHeight: '1.2'
+            }}
           >
             Ready to measure your performance?
           </motion.h2>
@@ -545,11 +670,14 @@ export default function Home() {
           >
             <Link to={createPageUrl('Dashboard')}>
               <Button
-                size="lg"
-                className="font-semibold text-lg px-10 py-7 transition-all duration-200 hover:scale-103"
+                className="rounded-lg transition-all duration-200 hover:scale-103"
                 style={{
                   background: '#2F6DF6',
-                  color: '#F3F4F6'
+                  color: '#F3F4F6',
+                  fontFamily: 'Space Grotesk, sans-serif',
+                  fontSize: '22px',
+                  fontWeight: '600',
+                  padding: '16px 32px'
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.background = '#3C7CFF'}
                 onMouseLeave={(e) => e.currentTarget.style.background = '#2F6DF6'}
@@ -560,16 +688,17 @@ export default function Home() {
             </Link>
             <a href="#features">
               <Button
-                size="lg"
-                variant="outline"
-                className="text-lg px-10 py-7"
+                variant="ghost"
+                className="rounded-lg"
                 style={{
-                  borderColor: 'rgba(255, 255, 255, 0.06)',
                   color: '#F3F4F6',
-                  background: 'transparent'
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: '18px',
+                  fontWeight: '500',
+                  padding: '16px 32px',
+                  textDecoration: 'underline',
+                  textUnderlineOffset: '4px'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#171A21'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
               >
                 Explore Features
               </Button>
@@ -580,7 +709,11 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="py-12 px-6" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
-        <div className="max-w-7xl mx-auto text-center text-sm" style={{ color: '#6B7280' }}>
+        <div className="max-w-7xl mx-auto text-center" style={{ 
+          color: '#6B7280',
+          fontFamily: 'Inter, sans-serif',
+          fontSize: '16px'
+        }}>
           <p>© 2026 Proofly. A nonprofit organization.</p>
           <p className="mt-2">Built to increase access to measurable, high-quality exam preparation.</p>
         </div>
