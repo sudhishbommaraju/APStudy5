@@ -136,7 +136,7 @@ export default function NotionSetupGuide() {
 
               <div className="bg-neutral-800 rounded-lg p-4">
                 <div className="text-sm text-neutral-400 mb-2">Mixed:</div>
-                <code className="text-blue-400 text-sm">Solve for $x$: $$x^2 - 5x + 6 = 0$$</code>
+                <code className="text-blue-400 text-sm">{"Solve for $x$: $$x^2 - 5x + 6 = 0$$"}</code>
               </div>
             </div>
           </div>
