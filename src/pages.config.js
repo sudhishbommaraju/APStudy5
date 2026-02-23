@@ -61,6 +61,7 @@ import APStudyKit from './pages/APStudyKit';
 import APUpload from './pages/APUpload';
 import APYoutube from './pages/APYoutube';
 import About from './pages/About';
+import AdminHealth from './pages/AdminHealth';
 import AdminUsers from './pages/AdminUsers';
 import Analytics from './pages/Analytics';
 import CourseBuilder from './pages/CourseBuilder';
@@ -87,6 +88,7 @@ import NotionSetupGuide from './pages/NotionSetupGuide';
 import NotionSync from './pages/NotionSync';
 import Onboarding from './pages/Onboarding';
 import Pricing from './pages/Pricing';
+import Profile from './pages/Profile';
 import Progress from './pages/Progress';
 import QuestionValidation from './pages/QuestionValidation';
 import Results from './pages/Results';
@@ -102,8 +104,7 @@ import StudyPlans from './pages/StudyPlans';
 import Upload from './pages/Upload';
 import ValidationDashboard from './pages/ValidationDashboard';
 import Youtube from './pages/Youtube';
-import AdminHealth from './pages/AdminHealth';
-import Profile from './pages/Profile';
+import Tier from './pages/Tier';
 import __Layout from './Layout.jsx';
 
 
@@ -122,6 +123,7 @@ export const PAGES = {
     "APUpload": APUpload,
     "APYoutube": APYoutube,
     "About": About,
+    "AdminHealth": AdminHealth,
     "AdminUsers": AdminUsers,
     "Analytics": Analytics,
     "CourseBuilder": CourseBuilder,
@@ -148,6 +150,7 @@ export const PAGES = {
     "NotionSync": NotionSync,
     "Onboarding": Onboarding,
     "Pricing": Pricing,
+    "Profile": Profile,
     "Progress": Progress,
     "QuestionValidation": QuestionValidation,
     "Results": Results,
@@ -163,8 +166,7 @@ export const PAGES = {
     "Upload": Upload,
     "ValidationDashboard": ValidationDashboard,
     "Youtube": Youtube,
-    "AdminHealth": AdminHealth,
-    "Profile": Profile,
+    "Tier": Tier,
 }
 
 export const pagesConfig = {
