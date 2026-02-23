@@ -23,10 +23,10 @@ export default function MarketingNavbar() {
           margin: '0 auto',
           padding: '8px',
           borderRadius: '999px',
-          background: 'rgba(20, 20, 20, 0.6)',
-          backdropFilter: 'blur(20px)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-          boxShadow: '0 8px 30px rgba(0, 0, 0, 0.35)'
+          background: 'transparent',
+          backdropFilter: 'none',
+          border: 'none',
+          boxShadow: 'none'
         }}
       >
         <div className="flex items-center justify-between" style={{ padding: '16px 24px' }}>
