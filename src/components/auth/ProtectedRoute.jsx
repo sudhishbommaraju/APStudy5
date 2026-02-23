@@ -17,7 +17,7 @@ export default function ProtectedRoute({ children, requireOnboarding = false }) 
       const isAuthenticated = await base44.auth.isAuthenticated();
       
       if (!isAuthenticated) {
-        navigate(createPageUrl('Home'));
+        base44.auth.redirectToLogin();
         return;
       }
 
@@ -37,7 +37,7 @@ export default function ProtectedRoute({ children, requireOnboarding = false }) 
       setAuthorized(true);
     } catch (error) {
       console.error('Auth check failed:', error);
-      navigate(createPageUrl('Home'));
+      base44.auth.redirectToLogin();
     } finally {
       setLoading(false);
     }
