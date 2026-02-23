@@ -80,11 +80,14 @@ function PerformanceEngine() {
       className="relative"
     >
       <div 
-        className="rounded-2xl p-8 shadow-2xl"
+        className="rounded-2xl shadow-2xl"
         style={{
           background: 'rgba(23, 26, 33, 0.75)',
           backdropFilter: 'blur(16px)',
-          border: '1px solid rgba(255, 255, 255, 0.06)'
+          border: '1px solid rgba(255, 255, 255, 0.06)',
+          width: '100%',
+          minHeight: '520px',
+          padding: '24px'
         }}
       >
         {/* Toggle Tabs */}
@@ -106,7 +109,7 @@ function PerformanceEngine() {
         </div>
 
         {/* Chart */}
-        <div className="h-64 mb-6">
+        <div style={{ width: '100%', height: '360px', marginBottom: '24px' }}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={currentData}>
               <XAxis
@@ -203,7 +206,7 @@ export default function Home() {
         style={{ y: heroY, paddingTop: '120px', paddingBottom: '140px' }}
         className="min-h-screen flex items-center justify-center"
       >
-        <div className="w-full grid lg:grid-cols-2 gap-24 items-center" style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px' }}>
+        <div className="w-full" style={{ maxWidth: '1500px', margin: '0 auto', padding: '0 40px', display: 'grid', gridTemplateColumns: '0.9fr 1.6fr', gap: '80px', alignItems: 'center' }}>
           <div className="text-center lg:text-left">
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
@@ -303,7 +306,7 @@ export default function Home() {
             </motion.p>
           </div>
 
-          <div style={{ maxWidth: '650px' }}>
+          <div>
             <PerformanceEngine />
           </div>
         </div>
