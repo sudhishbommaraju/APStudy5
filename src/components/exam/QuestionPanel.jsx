@@ -136,22 +136,33 @@ export default function QuestionPanel({
       </div>
 
       {/* Explanation (after submit) */}
-      {isSubmitted && question.explanation && (
-        <div className="mt-8 bg-neutral-900 border border-neutral-800 rounded-2xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-3">Explanation</h3>
-          <div className="prose prose-invert">
-            <ReactMarkdown
-              remarkPlugins={[remarkMath]}
-              rehypePlugins={[rehypeKatex]}
-              components={{
-                p: ({ children }) => <p className="text-neutral-300 leading-relaxed">{children}</p>,
-              }}
-            >
-              {question.explanation}
-            </ReactMarkdown>
-          </div>
-        </div>
-      )}
+       {isSubmitted && (
+         <div className="mt-8 space-y-4">
+           {question.explanation && (
+             <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6">
+               <h3 className="text-lg font-semibold text-white mb-3">Explanation</h3>
+               <div className="prose prose-invert">
+                 <ReactMarkdown
+                   remarkPlugins={[remarkMath]}
+                   rehypePlugins={[rehypeKatex]}
+                   components={{
+                     p: ({ children }) => <p className="text-neutral-300 leading-relaxed">{children}</p>,
+                   }}
+                 >
+                   {question.explanation}
+                 </ReactMarkdown>
+               </div>
+             </div>
+           )}
+           <AIExplanation 
+             question={question}
+             userAnswer={selectedAnswer}
+             correctAnswer={question.correct_answer}
+             isCorrect={isCorrect}
+             isSubmitted={isSubmitted}
+           />
+         </div>
+       )}
     </div>
   );
 }
