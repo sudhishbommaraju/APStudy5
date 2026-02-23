@@ -1,6 +1,6 @@
 import React from 'react';
-import { useUserProfile } from '@/contexts/UserProfileContext';
-import { getTier, TIER_PERKS, getXPToNextLevel } from '@/lib/tierSystem';
+import { useUserProfile } from '@/components/tierSystem/UserProfileContext';
+import { getTier, TIER_PERKS, getXPToNextLevel } from '@/components/tierSystem/tierUtils';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Star, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
