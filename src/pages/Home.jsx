@@ -7,23 +7,23 @@ import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'rec
 import { ArrowRight, TrendingUp, Target, BarChart3 } from 'lucide-react';
 
 const satData = [
-  { week: 'Week 0', score: 1180, label: 'Diagnostic' },
+  { week: 'Week 0', score: 1180, label: 'Diagnostic: 1180' },
   { week: 'Week 1', score: 1220 },
   { week: 'Week 2', score: 1260 },
   { week: 'Week 3', score: 1300 },
   { week: 'Week 4', score: 1340 },
   { week: 'Week 5', score: 1370 },
-  { week: 'Week 6', score: 1380, label: 'Projected' }
+  { week: 'Week 6', score: 1380, label: 'Projected: 1380' }
 ];
 
 const actData = [
-  { week: 'Week 0', score: 23, label: 'Diagnostic' },
+  { week: 'Week 0', score: 23, label: 'Diagnostic: 23' },
   { week: 'Week 1', score: 25 },
   { week: 'Week 2', score: 26 },
   { week: 'Week 3', score: 27 },
   { week: 'Week 4', score: 28 },
   { week: 'Week 5', score: 29 },
-  { week: 'Week 6', score: 30, label: 'Projected' }
+  { week: 'Week 6', score: 30, label: 'Projected: 30' }
 ];
 
 const apData = [
@@ -50,6 +50,7 @@ function PerformanceEngine() {
 
   const currentData = activeTest === 'SAT' ? satData : activeTest === 'ACT' ? actData : apData;
   const maxScore = activeTest === 'SAT' ? 1600 : activeTest === 'ACT' ? 36 : 100;
+  const minScore = activeTest === 'SAT' ? 400 : activeTest === 'ACT' ? 1 : 0;
 
   const stats = {
     SAT: [
@@ -77,18 +78,26 @@ function PerformanceEngine() {
       transition={{ duration: 0.8 }}
       className="relative"
     >
-      <div className="bg-[#0C0C0C]/80 backdrop-blur-xl border border-[#2A2A2A] rounded-2xl p-8 shadow-2xl">
+      <div 
+        className="rounded-2xl p-8 shadow-2xl"
+        style={{
+          background: 'rgba(23, 26, 33, 0.75)',
+          backdropFilter: 'blur(16px)',
+          border: '1px solid rgba(255, 255, 255, 0.06)'
+        }}
+      >
         {/* Toggle Tabs */}
-        <div className="flex gap-1 mb-8 bg-[#171717] rounded-lg p-1">
+        <div className="flex gap-1 mb-8 p-1 rounded-lg" style={{ background: '#171A21' }}>
           {['SAT', 'ACT', 'AP'].map((test) => (
             <button
               key={test}
               onClick={() => setActiveTest(test)}
-              className={`flex-1 py-3 rounded-md text-sm font-semibold transition-all duration-300 ${
-                activeTest === test
-                  ? 'bg-[#D6B98C] text-[#0C0C0C]'
-                  : 'text-[#8A8A8A] hover:text-[#F5F5F5]'
-              }`}
+              className="flex-1 py-3 rounded-md text-sm font-semibold transition-all duration-300"
+              style={{
+                background: activeTest === test ? '#2F6DF6' : 'transparent',
+                color: activeTest === test ? '#F3F4F6' : '#9CA3AF',
+                border: activeTest === test ? 'none' : '1px solid rgba(255, 255, 255, 0.06)'
+              }}
             >
               {test}
             </button>
@@ -101,32 +110,48 @@ function PerformanceEngine() {
             <LineChart data={currentData}>
               <XAxis
                 dataKey="week"
-                stroke="#4A4A4A"
-                style={{ fontSize: '12px' }}
+                stroke="rgba(255, 255, 255, 0.3)"
+                style={{ fontSize: '11px', fill: '#9CA3AF' }}
                 tickLine={false}
+                axisLine={{ stroke: 'rgba(255, 255, 255, 0.05)' }}
               />
               <YAxis
-                domain={[0, maxScore]}
-                stroke="#4A4A4A"
-                style={{ fontSize: '12px' }}
+                domain={[minScore, maxScore]}
+                stroke="rgba(255, 255, 255, 0.3)"
+                style={{ fontSize: '11px', fill: '#9CA3AF' }}
                 tickLine={false}
+                axisLine={{ stroke: 'rgba(255, 255, 255, 0.05)' }}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: '#171717',
-                  border: '1px solid #2A2A2A',
+                  backgroundColor: '#171A21',
+                  border: '1px solid rgba(255, 255, 255, 0.06)',
                   borderRadius: '8px',
-                  color: '#F5F5F5'
+                  color: '#F3F4F6'
                 }}
               />
               <Line
                 type="monotone"
                 dataKey="score"
-                stroke="#D6B98C"
-                strokeWidth={3}
-                dot={{ fill: '#D6B98C', r: 6 }}
+                stroke="#2F6DF6"
+                strokeWidth={2.5}
+                dot={{ 
+                  fill: '#2F6DF6', 
+                  r: 6,
+                  strokeWidth: 2,
+                  stroke: '#4CC9F0'
+                }}
+                activeDot={{ 
+                  r: 8, 
+                  fill: '#4CC9F0',
+                  stroke: '#2F6DF6',
+                  strokeWidth: 2
+                }}
                 animationDuration={2000}
                 animationBegin={isVisible ? 0 : 10000}
+                style={{
+                  filter: 'drop-shadow(0 0 8px rgba(76, 201, 240, 0.3))'
+                }}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -142,8 +167,12 @@ function PerformanceEngine() {
               transition={{ delay: i * 0.1 + 0.5 }}
               className="text-center"
             >
-              <div className="text-2xl font-bold text-[#D6B98C] mb-1">{stat.value}</div>
-              <div className="text-xs text-[#8A8A8A]">{stat.label}</div>
+              <div className="text-2xl font-bold mb-1" style={{ color: '#2F6DF6' }}>
+                {stat.value}
+              </div>
+              <div className="text-xs" style={{ color: '#6B7280' }}>
+                {stat.label}
+              </div>
             </motion.div>
           ))}
         </div>
@@ -167,28 +196,55 @@ function ScrollNavbar() {
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-[#0C0C0C]/80 backdrop-blur-xl border-b border-[#2A2A2A]'
-          : 'bg-transparent'
-      }`}
+      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+      style={{
+        background: scrolled ? 'rgba(15, 17, 21, 0.85)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(12px)' : 'none',
+        borderBottom: scrolled ? '1px solid rgba(255, 255, 255, 0.05)' : 'none'
+      }}
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-        <Link to={createPageUrl('Home')} className="text-2xl font-bold text-[#F5F5F5]">
+        <Link to={createPageUrl('Home')} className="text-2xl font-bold" style={{ color: '#F3F4F6' }}>
           PROOFLY
         </Link>
 
         <div className="flex items-center gap-8">
-          <a href="#about" className="text-sm text-[#B5B5B5] hover:text-[#F5F5F5] transition-colors relative group">
+          <a 
+            href="#about" 
+            className="text-sm transition-colors relative group"
+            style={{ color: '#9CA3AF' }}
+            onMouseEnter={(e) => e.target.style.color = '#F3F4F6'}
+            onMouseLeave={(e) => e.target.style.color = '#9CA3AF'}
+          >
             About
-            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D6B98C] transition-all group-hover:w-full" />
+            <span 
+              className="absolute bottom-0 left-0 h-0.5 w-0 transition-all group-hover:w-full"
+              style={{ background: '#2F6DF6' }}
+            />
           </a>
-          <a href="#features" className="text-sm text-[#B5B5B5] hover:text-[#F5F5F5] transition-colors relative group">
+          <a 
+            href="#features" 
+            className="text-sm transition-colors relative group"
+            style={{ color: '#9CA3AF' }}
+            onMouseEnter={(e) => e.target.style.color = '#F3F4F6'}
+            onMouseLeave={(e) => e.target.style.color = '#9CA3AF'}
+          >
             Explore Features
-            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#D6B98C] transition-all group-hover:w-full" />
+            <span 
+              className="absolute bottom-0 left-0 h-0.5 w-0 transition-all group-hover:w-full"
+              style={{ background: '#2F6DF6' }}
+            />
           </a>
           <Link to={createPageUrl('Dashboard')}>
-            <Button className="bg-[#D6B98C] hover:bg-[#C9A96A] text-[#0C0C0C] font-semibold">
+            <Button 
+              className="font-semibold transition-all duration-200 hover:scale-103"
+              style={{
+                background: '#2F6DF6',
+                color: '#F3F4F6'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#3C7CFF'}
+              onMouseLeave={(e) => e.currentTarget.style.background = '#2F6DF6'}
+            >
               Start Diagnostic
             </Button>
           </Link>
@@ -200,10 +256,10 @@ function ScrollNavbar() {
 
 export default function Home() {
   const { scrollYProgress } = useScroll();
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, -50]);
 
   return (
-    <div className="min-h-screen bg-[#0C0C0C] text-[#F5F5F5] overflow-hidden">
+    <div className="min-h-screen overflow-hidden" style={{ background: '#0F1115', color: '#F3F4F6' }}>
       <ScrollNavbar />
 
       {/* HERO SECTION */}
@@ -218,6 +274,7 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               className="text-6xl lg:text-7xl font-bold mb-6 leading-tight"
+              style={{ color: '#F3F4F6' }}
             >
               WELCOME TO<br />PROOFLY
             </motion.h1>
@@ -226,7 +283,8 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-2xl text-[#B5B5B5] mb-8"
+              className="text-2xl mb-8"
+              style={{ color: '#9CA3AF' }}
             >
               Your test performance, engineered.
             </motion.p>
@@ -240,7 +298,13 @@ export default function Home() {
               <Link to={createPageUrl('Dashboard')}>
                 <Button
                   size="lg"
-                  className="bg-[#D6B98C] hover:bg-[#C9A96A] text-[#0C0C0C] font-semibold text-lg px-8 py-6 hover:scale-105 transition-transform"
+                  className="font-semibold text-lg px-8 py-6 transition-all duration-200 hover:scale-103"
+                  style={{
+                    background: '#2F6DF6',
+                    color: '#F3F4F6'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = '#3C7CFF'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = '#2F6DF6'}
                 >
                   Start Your Diagnostic
                   <ArrowRight className="w-5 h-5 ml-2" />
@@ -250,7 +314,14 @@ export default function Home() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-[#2A2A2A] text-[#F5F5F5] hover:bg-[#1E1E1E] text-lg px-8 py-6"
+                  className="text-lg px-8 py-6"
+                  style={{
+                    borderColor: 'rgba(255, 255, 255, 0.06)',
+                    color: '#F3F4F6',
+                    background: 'transparent'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = '#171A21'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                 >
                   Explore Features
                 </Button>
@@ -261,7 +332,8 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.6 }}
-              className="text-sm text-[#8A8A8A]"
+              className="text-sm"
+              style={{ color: '#6B7280' }}
             >
               Built as a nonprofit. Focused on access, not profit.
             </motion.p>
@@ -281,6 +353,7 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-4xl font-bold mb-16"
+            style={{ color: '#F3F4F6' }}
           >
             Most students practice without measurement.
           </motion.h2>
@@ -297,7 +370,8 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.2 }}
-                className="text-2xl font-semibold text-[#8A8A8A]"
+                className="text-2xl font-semibold"
+                style={{ color: '#6B7280' }}
               >
                 {item.text}
               </motion.div>
@@ -307,13 +381,14 @@ export default function Home() {
       </section>
 
       {/* HOW THE ENGINE WORKS */}
-      <section id="features" className="py-32 px-6 bg-[#0A0A0A]">
+      <section id="features" className="py-32 px-6" style={{ background: '#171A21' }}>
         <div className="max-w-6xl mx-auto">
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-4xl font-bold text-center mb-20"
+            style={{ color: '#F3F4F6' }}
           >
             How the Engine Works
           </motion.h2>
@@ -333,14 +408,29 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
                 whileHover={{ x: 10 }}
-                className="flex items-center gap-6 p-6 bg-[#0C0C0C]/50 border border-[#2A2A2A] rounded-xl hover:border-[#D6B98C]/30 transition-all cursor-pointer"
+                className="flex items-center gap-6 p-6 rounded-xl transition-all cursor-pointer"
+                style={{
+                  background: 'rgba(15, 17, 21, 0.5)',
+                  border: '1px solid rgba(255, 255, 255, 0.05)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.borderColor = 'rgba(47, 109, 246, 0.3)'}
+                onMouseLeave={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.05)'}
               >
-                <div className="w-12 h-12 rounded-full bg-[#D6B98C]/10 flex items-center justify-center flex-shrink-0">
-                  <span className="text-xl font-bold text-[#D6B98C]">{step.num}</span>
+                <div 
+                  className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(47, 109, 246, 0.1)' }}
+                >
+                  <span className="text-xl font-bold" style={{ color: '#2F6DF6' }}>
+                    {step.num}
+                  </span>
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold mb-1">{step.title}</h3>
-                  <p className="text-sm text-[#8A8A8A]">{step.desc}</p>
+                  <h3 className="text-xl font-semibold mb-1" style={{ color: '#F3F4F6' }}>
+                    {step.title}
+                  </h3>
+                  <p className="text-sm" style={{ color: '#6B7280' }}>
+                    {step.desc}
+                  </p>
                 </div>
               </motion.div>
             ))}
@@ -356,6 +446,7 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-4xl font-bold text-center mb-20"
+            style={{ color: '#F3F4F6' }}
           >
             Built for Real Exams
           </motion.h2>
@@ -397,14 +488,30 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.2 }}
                 whileHover={{ y: -5 }}
-                className="bg-[#0C0C0C]/80 backdrop-blur-xl border border-[#2A2A2A] rounded-xl p-8 hover:border-[#D6B98C]/50 hover:shadow-2xl hover:shadow-[#D6B98C]/10 transition-all"
+                className="rounded-xl p-8 transition-all"
+                style={{
+                  background: '#171A21',
+                  border: '1px solid rgba(255, 255, 255, 0.06)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(47, 109, 246, 0.5)';
+                  e.currentTarget.style.boxShadow = '0 20px 40px rgba(47, 109, 246, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.06)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               >
-                <div className="text-[#D6B98C] mb-4">{exam.icon}</div>
-                <h3 className="text-2xl font-bold mb-6">{exam.title}</h3>
+                <div style={{ color: '#2F6DF6' }} className="mb-4">
+                  {exam.icon}
+                </div>
+                <h3 className="text-2xl font-bold mb-6" style={{ color: '#F3F4F6' }}>
+                  {exam.title}
+                </h3>
                 <ul className="space-y-3">
                   {exam.features.map((feature, j) => (
-                    <li key={j} className="flex items-start gap-2 text-sm text-[#B5B5B5]">
-                      <span className="text-[#D6B98C] mt-1">•</span>
+                    <li key={j} className="flex items-start gap-2 text-sm" style={{ color: '#9CA3AF' }}>
+                      <span style={{ color: '#2F6DF6' }} className="mt-1">•</span>
                       <span>{feature}</span>
                     </li>
                   ))}
@@ -416,13 +523,14 @@ export default function Home() {
       </section>
 
       {/* ABOUT + MISSION */}
-      <section id="about" className="py-32 px-6 bg-[#0A0A0A]">
+      <section id="about" className="py-32 px-6" style={{ background: '#171A21' }}>
         <div className="max-w-4xl mx-auto">
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-4xl font-bold text-center mb-12"
+            style={{ color: '#F3F4F6' }}
           >
             Why Proofly Exists
           </motion.h2>
@@ -431,9 +539,10 @@ export default function Home() {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="space-y-6 text-lg text-[#B5B5B5] leading-relaxed"
+            className="space-y-6 text-lg leading-relaxed"
+            style={{ color: '#9CA3AF' }}
           >
-            <p className="text-xl text-[#F5F5F5] font-semibold">
+            <p className="text-xl font-semibold" style={{ color: '#F3F4F6' }}>
               Most test prep is built for the top 10%.<br />
               Proofly was built for the other 90%.
             </p>
@@ -458,24 +567,30 @@ export default function Home() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="text-center p-6 bg-[#0C0C0C]/50 border border-[#2A2A2A] rounded-xl"
+                  className="text-center p-6 rounded-xl"
+                  style={{
+                    background: 'rgba(15, 17, 21, 0.5)',
+                    border: '1px solid rgba(255, 255, 255, 0.05)'
+                  }}
                 >
-                  <div className="text-xl font-semibold text-[#D6B98C]">{text}</div>
+                  <div className="text-xl font-semibold" style={{ color: '#2F6DF6' }}>
+                    {text}
+                  </div>
                 </motion.div>
               ))}
             </div>
 
             <ul className="space-y-3 pt-8">
               <li className="flex items-start gap-3">
-                <span className="text-[#D6B98C]">•</span>
+                <span style={{ color: '#2F6DF6' }}>•</span>
                 <span>Built around real exam skill frameworks</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="text-[#D6B98C]">•</span>
+                <span style={{ color: '#2F6DF6' }}>•</span>
                 <span>Designed by someone who needed it</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="text-[#D6B98C]">•</span>
+                <span style={{ color: '#2F6DF6' }}>•</span>
                 <span>Developed as a nonprofit to maximize access</span>
               </li>
             </ul>
@@ -491,6 +606,7 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-5xl font-bold mb-12"
+            style={{ color: '#F3F4F6' }}
           >
             Ready to measure your performance?
           </motion.h2>
@@ -504,7 +620,13 @@ export default function Home() {
             <Link to={createPageUrl('Dashboard')}>
               <Button
                 size="lg"
-                className="bg-[#D6B98C] hover:bg-[#C9A96A] text-[#0C0C0C] font-semibold text-lg px-10 py-7 hover:scale-105 transition-transform"
+                className="font-semibold text-lg px-10 py-7 transition-all duration-200 hover:scale-103"
+                style={{
+                  background: '#2F6DF6',
+                  color: '#F3F4F6'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#3C7CFF'}
+                onMouseLeave={(e) => e.currentTarget.style.background = '#2F6DF6'}
               >
                 Start Your Diagnostic
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -514,7 +636,14 @@ export default function Home() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-[#2A2A2A] text-[#F5F5F5] hover:bg-[#1E1E1E] text-lg px-10 py-7"
+                className="text-lg px-10 py-7"
+                style={{
+                  borderColor: 'rgba(255, 255, 255, 0.06)',
+                  color: '#F3F4F6',
+                  background: 'transparent'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = '#171A21'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
               >
                 Explore Features
               </Button>
@@ -524,8 +653,8 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-[#2A2A2A] py-12 px-6">
-        <div className="max-w-7xl mx-auto text-center text-sm text-[#8A8A8A]">
+      <footer className="py-12 px-6" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
+        <div className="max-w-7xl mx-auto text-center text-sm" style={{ color: '#6B7280' }}>
           <p>© 2026 Proofly. A nonprofit organization.</p>
           <p className="mt-2">Built to increase access to measurable, high-quality exam preparation.</p>
         </div>
