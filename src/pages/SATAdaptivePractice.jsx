@@ -4,7 +4,8 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Zap, Target } from 'lucide-react';
+import { ArrowLeft, Zap, Target, AlertCircle, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function SATAdaptivePractice() {
   const navigate = useNavigate();
@@ -13,33 +14,64 @@ export default function SATAdaptivePractice() {
   const [selectedDomain, setSelectedDomain] = useState('');
   const [questionCount, setQuestionCount] = useState(20);
   const [mode, setMode] = useState('untimed');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [examId, setExamId] = useState(null);
 
   useEffect(() => {
     loadDomains();
   }, []);
 
   async function loadDomains() {
-    const exams = await base44.entities.Exam.filter({ exam_type: 'SAT' });
-    if (exams.length > 0) {
-      const domainList = await base44.entities.Domain.filter({ exam_id: exams[0].id });
-      setDomains(domainList);
+    try {
+      setLoading(true);
+      setError(null);
+      const exams = await base44.entities.Exam.filter({ exam_type: 'SAT' });
+      if (exams.length > 0) {
+        setExamId(exams[0].id);
+        const domainList = await base44.entities.Domain.filter({ exam_id: exams[0].id });
+        setDomains(domainList);
+      }
+    } catch (err) {
+      console.error('Failed to load domains:', err);
+      if (err.message?.includes('rate limit') || err.message?.includes('429')) {
+        setError('Rate limit reached. Please wait a moment before trying again.');
+        toast.error('Rate limit reached. Please try again in a moment.');
+      } else {
+        setError('Failed to load practice sections. Please try again.');
+        toast.error('Failed to load sections');
+      }
+    } finally {
+      setLoading(false);
     }
   }
 
   async function startPractice() {
-    const user = await base44.auth.me();
-    const exams = await base44.entities.Exam.filter({ exam_type: 'SAT' });
-    
-    const session = await base44.entities.EnginePracticeSession.create({
-      user_email: user.email,
-      exam_id: exams[0]?.id,
-      domain_id: selectedDomain,
-      mode,
-      question_count: questionCount,
-      started_at: new Date().toISOString()
-    });
+    if (!examId || !selectedDomain) {
+      toast.error('Please select a section');
+      return;
+    }
 
-    navigate(createPageUrl('EnginePracticeSession') + `?session=${session.id}`);
+    try {
+      const user = await base44.auth.me();
+      const session = await base44.entities.EnginePracticeSession.create({
+        user_email: user.email,
+        exam_id: examId,
+        domain_id: selectedDomain,
+        mode,
+        question_count: questionCount,
+        started_at: new Date().toISOString()
+      });
+
+      navigate(createPageUrl('EnginePracticeSession') + `?session=${session.id}`);
+    } catch (err) {
+      console.error('Failed to start practice:', err);
+      if (err.message?.includes('rate limit') || err.message?.includes('429')) {
+        toast.error('Rate limit reached. Please wait a moment and try again.');
+      } else {
+        toast.error('Failed to start practice session');
+      }
+    }
   }
 
   return (
@@ -60,19 +92,36 @@ export default function SATAdaptivePractice() {
           <p className="text-neutral-400">AI-powered questions that adapt to your skill level</p>
         </div>
 
+        {error && (
+          <div className="bg-red-900/20 border border-red-800/30 rounded-lg p-4 flex gap-3 mb-6">
+            <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-red-300 text-sm font-medium">Loading Error</p>
+              <p className="text-red-200/70 text-sm">{error}</p>
+            </div>
+          </div>
+        )}
+
         <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 space-y-6">
           <div>
             <label className="text-sm text-neutral-400 mb-2 block">Section</label>
-            <Select value={selectedDomain} onValueChange={setSelectedDomain}>
-              <SelectTrigger className="bg-black border-neutral-700 text-white">
-                <SelectValue placeholder="Select section" />
-              </SelectTrigger>
-              <SelectContent>
-                {domains.map((d) => (
-                  <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {loading ? (
+              <div className="flex items-center gap-2 py-2 px-3 text-neutral-500">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Loading sections...</span>
+              </div>
+            ) : (
+              <Select value={selectedDomain} onValueChange={setSelectedDomain} disabled={loading || domains.length === 0}>
+                <SelectTrigger className="bg-black border-neutral-700 text-white">
+                  <SelectValue placeholder="Select section" />
+                </SelectTrigger>
+                <SelectContent>
+                  {domains.map((d) => (
+                    <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <div>
@@ -118,8 +167,8 @@ export default function SATAdaptivePractice() {
 
           <Button
             onClick={startPractice}
-            disabled={!selectedDomain}
-            className="w-full bg-blue-600 text-white hover:bg-blue-700 py-6 text-lg"
+            disabled={!selectedDomain || loading}
+            className="w-full bg-blue-600 text-white hover:bg-blue-700 py-6 text-lg disabled:opacity-50"
           >
             <Target className="w-5 h-5 mr-2" />
             Start Adaptive Practice
