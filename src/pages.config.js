@@ -99,6 +99,8 @@ import APFRQSimulator from './pages/APFRQSimulator';
 import NotionSync from './pages/NotionSync';
 import SATAdaptivePractice from './pages/SATAdaptivePractice';
 import ACTAdaptivePractice from './pages/ACTAdaptivePractice';
+import NotionSetupGuide from './pages/NotionSetupGuide';
+import SeedTaxonomy from './pages/SeedTaxonomy';
 import __Layout from './Layout.jsx';
 
 
@@ -155,6 +157,8 @@ export const PAGES = {
     "NotionSync": NotionSync,
     "SATAdaptivePractice": SATAdaptivePractice,
     "ACTAdaptivePractice": ACTAdaptivePractice,
+    "NotionSetupGuide": NotionSetupGuide,
+    "SeedTaxonomy": SeedTaxonomy,
 }
 
 export const pagesConfig = {
