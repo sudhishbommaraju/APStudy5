@@ -467,7 +467,7 @@ export default function Home() {
             Built for Real Exams
           </motion.h2>
 
-          <div className="flex justify-center gap-10" style={{ flexWrap: 'wrap' }}>
+          <div className="grid md:grid-cols-3 gap-12">
             {[
               {
                 title: 'SAT',
@@ -507,8 +507,7 @@ export default function Home() {
                 className="rounded-xl p-8 transition-all"
                 style={{
                   background: '#171A21',
-                  border: '1px solid rgba(255, 255, 255, 0.06)',
-                  width: '280px'
+                  border: '1px solid rgba(255, 255, 255, 0.06)'
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = 'rgba(47, 109, 246, 0.5)';
