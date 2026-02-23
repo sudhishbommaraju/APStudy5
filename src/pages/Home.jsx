@@ -199,22 +199,24 @@ export default function Home() {
 
       {/* HERO SECTION */}
       <motion.section
-        style={{ y: heroY }}
+        style={{ y: heroY, paddingTop: '140px', paddingBottom: '160px' }}
         className="min-h-screen flex items-center justify-center px-6"
       >
-        <div className="max-w-7xl w-full grid lg:grid-cols-2 gap-24 items-center">
+        <div className="w-full grid lg:grid-cols-2 gap-24 items-center" style={{ maxWidth: '1200px' }}>
           <div className="text-center lg:text-left">
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="mt-24 mb-8 max-w-3xl"
               style={{ 
                 color: '#F3F4F6',
                 fontFamily: 'Space Grotesk, sans-serif',
                 fontSize: '72px',
-                fontWeight: '700',
-                lineHeight: '1.2'
+                fontWeight: '300',
+                lineHeight: '1.1',
+                letterSpacing: '0.04em',
+                maxWidth: '650px',
+                marginBottom: '32px'
               }}
             >
               WELCOME TO<br />PROOFLY
@@ -224,13 +226,14 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="mb-12 max-w-2xl"
               style={{ 
                 color: '#9CA3AF',
                 fontFamily: 'Inter, sans-serif',
                 fontSize: '24px',
                 fontWeight: '400',
-                lineHeight: '1.6'
+                lineHeight: '1.7',
+                maxWidth: '650px',
+                marginBottom: '40px'
               }}
             >
               Your test performance, engineered.
@@ -250,7 +253,7 @@ export default function Home() {
                     color: '#F3F4F6',
                     fontFamily: 'Space Grotesk, sans-serif',
                     fontSize: '22px',
-                    fontWeight: '600',
+                    fontWeight: '500',
                     padding: '16px 32px'
                   }}
                   onMouseEnter={(e) => e.currentTarget.style.background = '#3C7CFF'}
@@ -287,22 +290,23 @@ export default function Home() {
                 color: '#6B7280',
                 fontFamily: 'Inter, sans-serif',
                 fontSize: '16px',
-                fontWeight: '400'
+                fontWeight: '400',
+                lineHeight: '1.7'
               }}
             >
               Built as a nonprofit. Focused on access, not profit.
             </motion.p>
           </div>
 
-          <div>
+          <div style={{ maxWidth: '650px' }}>
             <PerformanceEngine />
           </div>
         </div>
       </motion.section>
 
       {/* THE PROBLEM */}
-      <section className="py-24 px-6">
-        <div className="max-w-7xl mx-auto text-center">
+      <section className="px-6" style={{ paddingTop: '120px', paddingBottom: '120px' }}>
+        <div className="mx-auto text-center" style={{ maxWidth: '1200px' }}>
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -312,14 +316,15 @@ export default function Home() {
               color: '#F3F4F6',
               fontFamily: 'Space Grotesk, sans-serif',
               fontSize: '48px',
-              fontWeight: '600',
-              lineHeight: '1.2'
+              fontWeight: '400',
+              lineHeight: '1.1',
+              letterSpacing: '0.04em'
             }}
           >
             Most students practice without measurement.
           </motion.h2>
 
-          <div className="grid md:grid-cols-3 gap-12 mt-16">
+          <div className="grid md:grid-cols-3 gap-16" style={{ marginTop: '64px' }}>
             {[
               { text: 'No baseline.' },
               { text: 'No precision.' },
@@ -335,8 +340,9 @@ export default function Home() {
                   color: '#6B7280',
                   fontFamily: 'Space Grotesk, sans-serif',
                   fontSize: '36px',
-                  fontWeight: '600',
-                  lineHeight: '1.2'
+                  fontWeight: '400',
+                  lineHeight: '1.1',
+                  letterSpacing: '0.04em'
                 }}
               >
                 {item.text}
@@ -347,8 +353,8 @@ export default function Home() {
       </section>
 
       {/* HOW THE ENGINE WORKS */}
-      <section id="features" className="py-24 px-6" style={{ background: '#171A21' }}>
-        <div className="max-w-7xl mx-auto">
+      <section id="features" className="px-6" style={{ background: '#171A21', paddingTop: '120px', paddingBottom: '120px' }}>
+        <div className="mx-auto" style={{ maxWidth: '1200px' }}>
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -358,8 +364,9 @@ export default function Home() {
               color: '#F3F4F6',
               fontFamily: 'Space Grotesk, sans-serif',
               fontSize: '48px',
-              fontWeight: '600',
-              lineHeight: '1.2'
+              fontWeight: '400',
+              lineHeight: '1.1',
+              letterSpacing: '0.04em'
             }}
           >
             How the Engine Works
@@ -406,7 +413,9 @@ export default function Home() {
                     color: '#F3F4F6',
                     fontFamily: 'Space Grotesk, sans-serif',
                     fontSize: '24px',
-                    fontWeight: '600'
+                    fontWeight: '400',
+                    lineHeight: '1.1',
+                    letterSpacing: '0.04em'
                   }}>
                     {step.title}
                   </h3>
@@ -414,7 +423,8 @@ export default function Home() {
                     color: '#9CA3AF',
                     fontFamily: 'Inter, sans-serif',
                     fontSize: '18px',
-                    lineHeight: '1.6'
+                    fontWeight: '400',
+                    lineHeight: '1.7'
                   }}>
                     {step.desc}
                   </p>
@@ -426,8 +436,8 @@ export default function Home() {
       </section>
 
       {/* BUILT FOR REAL EXAMS */}
-      <section className="py-24 px-6">
-        <div className="max-w-7xl mx-auto">
+      <section className="px-6" style={{ paddingTop: '120px', paddingBottom: '120px' }}>
+        <div className="mx-auto" style={{ maxWidth: '1200px' }}>
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -437,8 +447,9 @@ export default function Home() {
               color: '#F3F4F6',
               fontFamily: 'Space Grotesk, sans-serif',
               fontSize: '48px',
-              fontWeight: '600',
-              lineHeight: '1.2'
+              fontWeight: '400',
+              lineHeight: '1.1',
+              letterSpacing: '0.04em'
             }}
           >
             Built for Real Exams
@@ -502,7 +513,9 @@ export default function Home() {
                   color: '#F3F4F6',
                   fontFamily: 'Space Grotesk, sans-serif',
                   fontSize: '24px',
-                  fontWeight: '600'
+                  fontWeight: '400',
+                  lineHeight: '1.1',
+                  letterSpacing: '0.04em'
                 }}>
                   {exam.title}
                 </h3>
@@ -512,7 +525,8 @@ export default function Home() {
                       color: '#9CA3AF',
                       fontFamily: 'Inter, sans-serif',
                       fontSize: '18px',
-                      lineHeight: '1.6'
+                      fontWeight: '400',
+                      lineHeight: '1.7'
                     }}>
                       <span style={{ color: '#2F6DF6', fontSize: '20px' }}>•</span>
                       <span>{feature}</span>
@@ -526,8 +540,8 @@ export default function Home() {
       </section>
 
       {/* ABOUT + MISSION */}
-      <section id="about" className="py-24 px-6" style={{ background: '#171A21' }}>
-        <div className="max-w-7xl mx-auto">
+      <section id="about" className="px-6" style={{ background: '#171A21', paddingTop: '120px', paddingBottom: '120px' }}>
+        <div className="mx-auto" style={{ maxWidth: '1200px' }}>
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -537,8 +551,9 @@ export default function Home() {
               color: '#F3F4F6',
               fontFamily: 'Space Grotesk, sans-serif',
               fontSize: '48px',
-              fontWeight: '600',
-              lineHeight: '1.2'
+              fontWeight: '400',
+              lineHeight: '1.1',
+              letterSpacing: '0.04em'
             }}
           >
             Why Proofly Exists
@@ -548,14 +563,16 @@ export default function Home() {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="space-y-8 mt-16 max-w-4xl mx-auto"
+            className="space-y-8 mt-16 mx-auto"
+            style={{ maxWidth: '650px' }}
           >
             <p style={{ 
               color: '#F3F4F6',
               fontFamily: 'Space Grotesk, sans-serif',
               fontSize: '24px',
-              fontWeight: '600',
-              lineHeight: '1.6',
+              fontWeight: '400',
+              lineHeight: '1.7',
+              letterSpacing: '0.04em',
               textAlign: 'center'
             }}>
               Most test prep is built for the top 10%.<br />
@@ -566,7 +583,8 @@ export default function Home() {
               color: '#9CA3AF',
               fontFamily: 'Inter, sans-serif',
               fontSize: '18px',
-              lineHeight: '1.6'
+              fontWeight: '400',
+              lineHeight: '1.7'
             }}>
               The founder and lead developer struggled academically — not from lack of effort, but from lack of precise feedback. Studying felt random. Improvement felt unpredictable.
             </p>
@@ -575,7 +593,8 @@ export default function Home() {
               color: '#9CA3AF',
               fontFamily: 'Inter, sans-serif',
               fontSize: '18px',
-              lineHeight: '1.6'
+              fontWeight: '400',
+              lineHeight: '1.7'
             }}>
               Proofly was built to solve that problem:
             </p>
@@ -602,7 +621,9 @@ export default function Home() {
                     color: '#2F6DF6',
                     fontFamily: 'Space Grotesk, sans-serif',
                     fontSize: '24px',
-                    fontWeight: '600'
+                    fontWeight: '400',
+                    lineHeight: '1.1',
+                    letterSpacing: '0.04em'
                   }}>
                     {text}
                   </div>
@@ -615,7 +636,8 @@ export default function Home() {
                 color: '#9CA3AF',
                 fontFamily: 'Inter, sans-serif',
                 fontSize: '18px',
-                lineHeight: '1.6'
+                fontWeight: '400',
+                lineHeight: '1.7'
               }}>
                 <span style={{ color: '#2F6DF6', fontSize: '20px' }}>•</span>
                 <span>Built around real exam skill frameworks</span>
@@ -624,7 +646,8 @@ export default function Home() {
                 color: '#9CA3AF',
                 fontFamily: 'Inter, sans-serif',
                 fontSize: '18px',
-                lineHeight: '1.6'
+                fontWeight: '400',
+                lineHeight: '1.7'
               }}>
                 <span style={{ color: '#2F6DF6', fontSize: '20px' }}>•</span>
                 <span>Designed by someone who needed it</span>
@@ -633,7 +656,8 @@ export default function Home() {
                 color: '#9CA3AF',
                 fontFamily: 'Inter, sans-serif',
                 fontSize: '18px',
-                lineHeight: '1.6'
+                fontWeight: '400',
+                lineHeight: '1.7'
               }}>
                 <span style={{ color: '#2F6DF6', fontSize: '20px' }}>•</span>
                 <span>Developed as a nonprofit to maximize access</span>
@@ -644,8 +668,8 @@ export default function Home() {
       </section>
 
       {/* FINAL CTA */}
-      <section className="py-24 px-6">
-        <div className="max-w-7xl mx-auto text-center">
+      <section className="px-6" style={{ paddingTop: '120px', paddingBottom: '120px' }}>
+        <div className="mx-auto text-center" style={{ maxWidth: '1200px' }}>
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -655,8 +679,9 @@ export default function Home() {
               color: '#F3F4F6',
               fontFamily: 'Space Grotesk, sans-serif',
               fontSize: '48px',
-              fontWeight: '600',
-              lineHeight: '1.2'
+              fontWeight: '400',
+              lineHeight: '1.1',
+              letterSpacing: '0.04em'
             }}
           >
             Ready to measure your performance?
@@ -676,7 +701,7 @@ export default function Home() {
                   color: '#F3F4F6',
                   fontFamily: 'Space Grotesk, sans-serif',
                   fontSize: '22px',
-                  fontWeight: '600',
+                  fontWeight: '500',
                   padding: '16px 32px'
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.background = '#3C7CFF'}

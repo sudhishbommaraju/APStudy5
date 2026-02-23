@@ -21,7 +21,8 @@ export default function MarketingNavbar() {
         style={{
           maxWidth: '1100px',
           margin: '24px auto',
-          padding: '14px 28px',
+          padding: '16px 32px',
+          minHeight: '64px',
           borderRadius: '18px',
           background: 'rgba(15, 17, 21, 0.55)',
           backdropFilter: 'blur(18px)',
@@ -32,17 +33,18 @@ export default function MarketingNavbar() {
         <div className="flex items-center justify-between">
           <Link 
             to={createPageUrl('Home')} 
-            className="font-bold tracking-wide"
+            className="tracking-wide"
             style={{ 
               color: '#F3F4F6',
               fontFamily: 'Space Grotesk, sans-serif',
-              fontSize: '24px'
+              fontSize: '24px',
+              fontWeight: '500'
             }}
           >
             PROOFLY
           </Link>
 
-          <div className="flex items-center" style={{ gap: '28px' }}>
+          <div className="flex items-center" style={{ gap: '32px' }}>
             <a 
               href="#about" 
               className="font-medium tracking-wide transition-colors relative group"
@@ -71,12 +73,13 @@ export default function MarketingNavbar() {
             </a>
             <Link to={createPageUrl('Dashboard')}>
               <Button 
-                className="font-semibold transition-all duration-200"
+                className="transition-all duration-200"
                 style={{
                   background: '#2F6DF6',
                   color: '#F3F4F6',
                   fontFamily: 'Space Grotesk, sans-serif',
                   fontSize: '18px',
+                  fontWeight: '500',
                   padding: '8px 24px',
                   borderRadius: '12px'
                 }}
