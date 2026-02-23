@@ -249,7 +249,7 @@ export default function Home() {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8"
             >
-              <Link to={createPageUrl('Dashboard')}>
+              <Link to={createPageUrl('Diagnostic')}>
                 <Button
                   className="rounded-xl transition-all duration-200"
                   style={{
@@ -777,7 +777,7 @@ export default function Home() {
             viewport={{ once: true }}
             transition={{ delay: 0.2 }}
           >
-            <Link to={createPageUrl('Dashboard')}>
+            <Link to={createPageUrl('Diagnostic')}>
               <Button
                 className="transition-all duration-200"
                 style={{

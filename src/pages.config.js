@@ -47,76 +47,58 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
-import ACTPractice from './pages/ACTPractice';
 import AIStudyPlanner from './pages/AIStudyPlanner';
 import About from './pages/About';
 import AdminUsers from './pages/AdminUsers';
 import Analytics from './pages/Analytics';
 import CourseBuilder from './pages/CourseBuilder';
 import Courses from './pages/Courses';
-import Dashboard from './pages/Dashboard';
 import Demo from './pages/Demo';
-import DocumentAssistant from './pages/DocumentAssistant';
-import Exam from './pages/Exam';
-import Flashcards from './pages/Flashcards';
 import Generate from './pages/Generate';
 import GroupDetail from './pages/GroupDetail';
 import Home from './pages/Home';
-import Leaderboards from './pages/Leaderboards';
 import MistakeReplay from './pages/MistakeReplay';
-import Notes from './pages/Notes';
 import Onboarding from './pages/Onboarding';
-import Practice from './pages/Practice';
-import PracticeWorkspace from './pages/PracticeWorkspace';
 import Pricing from './pages/Pricing';
 import Progress from './pages/Progress';
 import QuestionValidation from './pages/QuestionValidation';
 import Rewards from './pages/Rewards';
-import SATPractice from './pages/SATPractice';
 import SeedData from './pages/SeedData';
 import Settings from './pages/Settings';
 import StudyGroups from './pages/StudyGroups';
 import StudyPlans from './pages/StudyPlans';
-import TeacherMode from './pages/TeacherMode';
-import Tutor from './pages/Tutor';
 import ValidationDashboard from './pages/ValidationDashboard';
+import Diagnostic from './pages/Diagnostic';
+import Results from './pages/Results';
+import Engine from './pages/Engine';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "ACTPractice": ACTPractice,
     "AIStudyPlanner": AIStudyPlanner,
     "About": About,
     "AdminUsers": AdminUsers,
     "Analytics": Analytics,
     "CourseBuilder": CourseBuilder,
     "Courses": Courses,
-    "Dashboard": Dashboard,
     "Demo": Demo,
-    "DocumentAssistant": DocumentAssistant,
-    "Exam": Exam,
-    "Flashcards": Flashcards,
     "Generate": Generate,
     "GroupDetail": GroupDetail,
     "Home": Home,
-    "Leaderboards": Leaderboards,
     "MistakeReplay": MistakeReplay,
-    "Notes": Notes,
     "Onboarding": Onboarding,
-    "Practice": Practice,
-    "PracticeWorkspace": PracticeWorkspace,
     "Pricing": Pricing,
     "Progress": Progress,
     "QuestionValidation": QuestionValidation,
     "Rewards": Rewards,
-    "SATPractice": SATPractice,
     "SeedData": SeedData,
     "Settings": Settings,
     "StudyGroups": StudyGroups,
     "StudyPlans": StudyPlans,
-    "TeacherMode": TeacherMode,
-    "Tutor": Tutor,
     "ValidationDashboard": ValidationDashboard,
+    "Diagnostic": Diagnostic,
+    "Results": Results,
+    "Engine": Engine,
 }
 
 export const pagesConfig = {
