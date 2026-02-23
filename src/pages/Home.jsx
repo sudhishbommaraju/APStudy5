@@ -702,8 +702,15 @@ export default function Home() {
       </section>
 
       {/* FINAL CTA */}
-      <section style={{ paddingTop: '120px', paddingBottom: '120px' }}>
-        <div className="text-center" style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 24px' }}>
+      <section style={{ 
+        minHeight: '70vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        textAlign: 'center',
+        padding: '120px 24px'
+      }}>
+        <div>
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -711,80 +718,67 @@ export default function Home() {
             style={{ 
               color: '#F3F4F6',
               fontFamily: 'Space Grotesk, sans-serif',
-              fontSize: '48px',
+              fontSize: '60px',
               fontWeight: '400',
-              lineHeight: '1.1',
-              letterSpacing: '0.04em',
+              lineHeight: '1.05',
+              letterSpacing: '-0.02em',
               maxWidth: '800px',
-              margin: '0 auto 48px auto'
+              margin: '0 auto 24px auto'
             }}
           >
-            Ready to measure your performance?
+            Take control of your performance.
           </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1 }}
+            style={{ 
+              color: '#9CA3AF',
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '18px',
+              fontWeight: '400',
+              lineHeight: '1.6',
+              maxWidth: '600px',
+              margin: '0 auto 40px auto'
+            }}
+          >
+            No guesswork. No random studying. Just measurable improvement.
+          </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
+            transition={{ delay: 0.2 }}
           >
             <Link to={createPageUrl('Dashboard')}>
               <Button
-                className="rounded-xl transition-all duration-200"
+                className="transition-all duration-200"
                 style={{
-                  background: '#FFFFFF',
-                  color: '#0C0C0C',
+                  background: '#2F6DF6',
+                  color: '#FFFFFF',
                   fontFamily: 'Inter, sans-serif',
-                  fontSize: '18px',
+                  fontSize: '16px',
                   fontWeight: '500',
-                  padding: '14px 32px',
+                  padding: '14px 36px',
+                  borderRadius: '999px',
                   border: 'none'
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#F5F5F5';
+                  e.currentTarget.style.background = '#3C7CFF';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#FFFFFF';
+                  e.currentTarget.style.background = '#2F6DF6';
                 }}
               >
                 Start Diagnostic
               </Button>
             </Link>
-            <a href="#features">
-              <Button
-                variant="ghost"
-                className="rounded-lg"
-                style={{
-                  color: '#F3F4F6',
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: '18px',
-                  fontWeight: '500',
-                  padding: '16px 32px',
-                  textDecoration: 'underline',
-                  textUnderlineOffset: '4px'
-                }}
-              >
-                Explore Features
-              </Button>
-            </a>
           </motion.div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '48px', paddingBottom: '48px' }}>
-        <div className="text-center" style={{ 
-          maxWidth: '1100px',
-          margin: '0 auto',
-          padding: '0 24px',
-          color: '#6B7280',
-          fontFamily: 'Inter, sans-serif',
-          fontSize: '16px'
-        }}>
-          <p>© 2026 Proofly. A nonprofit organization.</p>
-          <p style={{ marginTop: '8px' }}>Built to increase access to measurable, high-quality exam preparation.</p>
-        </div>
-      </footer>
     </AuroraBackground>
   );
 }
