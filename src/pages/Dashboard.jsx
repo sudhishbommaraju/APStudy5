@@ -166,6 +166,45 @@ export default function Dashboard() {
     }
   ];
 
+  const actStrategyContent = [
+    {
+      channel: 'PrepScholar ACT',
+      title: 'ACT Science: Master Data Interpretation',
+      duration: '22:30',
+      thumbnail: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=600&h=340&fit=crop'
+    },
+    {
+      channel: 'The Testing Mom',
+      title: 'ACT English: Grammar Essentials',
+      duration: '17:55',
+      thumbnail: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&h=340&fit=crop'
+    },
+    {
+      channel: 'Magoosh ACT',
+      title: 'ACT Math: Problem-Solving Strategies',
+      duration: '25:10',
+      thumbnail: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=600&h=340&fit=crop'
+    },
+    {
+      channel: 'SupertutorTV',
+      title: 'ACT Reading: Speed & Accuracy',
+      duration: '19:40',
+      thumbnail: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&h=340&fit=crop'
+    },
+    {
+      channel: 'Scalar Learning',
+      title: 'Complete ACT Strategy Guide',
+      duration: '31:25',
+      thumbnail: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600&h=340&fit=crop'
+    },
+    {
+      channel: 'ACT Academy',
+      title: 'Score 34+: Proven Techniques',
+      duration: '26:15',
+      thumbnail: 'https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=600&h=340&fit=crop'
+    }
+  ];
+
   const actCards = [
     {
       title: 'ACT Practice',
@@ -229,6 +268,45 @@ export default function Dashboard() {
       title: 'Progress Tracking',
       description: 'Track skill mastery and score projection.',
       route: 'APProgress'
+    }
+  ];
+
+  const apStrategyContent = [
+    {
+      channel: 'Heimler\'s History',
+      title: 'AP US History: Period 3 Review',
+      duration: '28:45',
+      thumbnail: 'https://images.unsplash.com/photo-1461360370896-922624d12aa1?w=600&h=340&fit=crop'
+    },
+    {
+      channel: 'Khan Academy',
+      title: 'AP Calculus: Integration Techniques',
+      duration: '23:15',
+      thumbnail: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=600&h=340&fit=crop'
+    },
+    {
+      channel: 'Bozeman Science',
+      title: 'AP Biology: Cell Respiration Deep Dive',
+      duration: '20:30',
+      thumbnail: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=600&h=340&fit=crop'
+    },
+    {
+      channel: 'The Organic Chemistry Tutor',
+      title: 'AP Chemistry: Equilibrium Mastery',
+      duration: '31:50',
+      thumbnail: 'https://images.unsplash.com/photo-1603126857599-f6e157fa2fe6?w=600&h=340&fit=crop'
+    },
+    {
+      channel: 'AP Physics with Mr. P',
+      title: 'AP Physics: Mechanics Problem Solving',
+      duration: '25:20',
+      thumbnail: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&h=340&fit=crop'
+    },
+    {
+      channel: 'Fiveable',
+      title: 'AP English: FRQ Writing Strategies',
+      duration: '18:40',
+      thumbnail: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&h=340&fit=crop'
     }
   ];
 
@@ -545,6 +623,50 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
+
+            {/* ACT Strategy Library */}
+            <div className="mt-12">
+              <div className="flex justify-between items-end mb-6">
+                <div>
+                  <h2 className="text-2xl font-light text-white mb-2">ACT Strategy Library</h2>
+                  <p className="text-neutral-400">Curated expert breakdowns to boost your score.</p>
+                </div>
+                <button className="text-sm text-neutral-400 hover:text-white transition-colors">
+                  View All →
+                </button>
+              </div>
+              
+              <div className="overflow-x-auto pb-4 -mx-6 px-6" style={{ scrollBehavior: 'smooth' }}>
+                <div className="flex gap-6">
+                  {actStrategyContent.map((video, index) => (
+                    <div
+                      key={index}
+                      className="min-w-[300px] bg-neutral-900 border border-neutral-800 hover:border-neutral-600 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02]"
+                    >
+                      <div className="aspect-video bg-neutral-800 relative overflow-hidden">
+                        <img 
+                          src={video.thumbnail} 
+                          alt={video.title}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
+                          {video.duration}
+                        </div>
+                      </div>
+                      <div className="p-4">
+                        <div className="text-sm text-neutral-400 mb-2">{video.channel}</div>
+                        <h3 className="text-base font-medium text-white mb-3 line-clamp-2">
+                          {video.title}
+                        </h3>
+                        <button className="text-sm text-neutral-300 hover:text-white transition-colors">
+                          Watch →
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -646,6 +768,50 @@ export default function Dashboard() {
                     <div className="text-2xl font-semibold text-white mb-1">+26%</div>
                     <div className="text-sm text-neutral-400">Mastery Gain</div>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* AP Strategy Library */}
+            <div className="mt-12">
+              <div className="flex justify-between items-end mb-6">
+                <div>
+                  <h2 className="text-2xl font-light text-white mb-2">AP Strategy Library</h2>
+                  <p className="text-neutral-400">Curated expert breakdowns to boost your score.</p>
+                </div>
+                <button className="text-sm text-neutral-400 hover:text-white transition-colors">
+                  View All →
+                </button>
+              </div>
+              
+              <div className="overflow-x-auto pb-4 -mx-6 px-6" style={{ scrollBehavior: 'smooth' }}>
+                <div className="flex gap-6">
+                  {apStrategyContent.map((video, index) => (
+                    <div
+                      key={index}
+                      className="min-w-[300px] bg-neutral-900 border border-neutral-800 hover:border-neutral-600 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02]"
+                    >
+                      <div className="aspect-video bg-neutral-800 relative overflow-hidden">
+                        <img 
+                          src={video.thumbnail} 
+                          alt={video.title}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
+                          {video.duration}
+                        </div>
+                      </div>
+                      <div className="p-4">
+                        <div className="text-sm text-neutral-400 mb-2">{video.channel}</div>
+                        <h3 className="text-base font-medium text-white mb-3 line-clamp-2">
+                          {video.title}
+                        </h3>
+                        <button className="text-sm text-neutral-300 hover:text-white transition-colors">
+                          Watch →
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
