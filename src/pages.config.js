@@ -105,6 +105,7 @@ import Upload from './pages/Upload';
 import ValidationDashboard from './pages/ValidationDashboard';
 import Youtube from './pages/Youtube';
 import Tier from './pages/Tier';
+import Flashcards from './pages/Flashcards';
 import __Layout from './Layout.jsx';
 
 
@@ -167,6 +168,7 @@ export const PAGES = {
     "ValidationDashboard": ValidationDashboard,
     "Youtube": Youtube,
     "Tier": Tier,
+    "Flashcards": Flashcards,
 }
 
 export const pagesConfig = {
