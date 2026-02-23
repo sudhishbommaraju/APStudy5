@@ -386,7 +386,12 @@ export default function Home() {
             How the Engine Works
           </motion.h2>
 
-          <div className="space-y-8">
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(3, 1fr)', 
+            gap: '32px',
+            justifyItems: 'center'
+          }}>
             {[
               { num: '1', title: 'Diagnostic Baseline', desc: 'Measure current performance across all sections' },
               { num: '2', title: 'Weakness Mapping', desc: 'Identify precise skill gaps and timing inefficiencies' },
@@ -396,22 +401,35 @@ export default function Home() {
             ].map((step, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, x: -30 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                whileHover={{ x: 10 }}
-                className="flex items-center gap-8 p-8 rounded-xl transition-all cursor-pointer"
                 style={{
-                  background: 'rgba(15, 17, 21, 0.5)',
-                  border: '1px solid rgba(255, 255, 255, 0.05)'
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                  borderRadius: '16px',
+                  padding: '28px',
+                  width: '100%',
+                  maxWidth: '320px',
+                  minHeight: '180px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  textAlign: 'center'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.borderColor = 'rgba(47, 109, 246, 0.3)'}
-                onMouseLeave={(e) => e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.05)'}
               >
                 <div 
-                  className="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(47, 109, 246, 0.1)' }}
+                  className="mb-4"
+                  style={{ 
+                    width: '56px',
+                    height: '56px',
+                    borderRadius: '50%',
+                    background: 'rgba(47, 109, 246, 0.1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
                 >
                   <span style={{ 
                     color: '#2F6DF6',
@@ -422,27 +440,24 @@ export default function Home() {
                     {step.num}
                   </span>
                 </div>
-                <div>
-                  <h3 className="mb-2" style={{ 
-                    color: '#F3F4F6',
-                    fontFamily: 'Space Grotesk, sans-serif',
-                    fontSize: '24px',
-                    fontWeight: '400',
-                    lineHeight: '1.1',
-                    letterSpacing: '0.04em'
-                  }}>
-                    {step.title}
-                  </h3>
-                  <p style={{ 
-                    color: '#9CA3AF',
-                    fontFamily: 'Inter, sans-serif',
-                    fontSize: '18px',
-                    fontWeight: '400',
-                    lineHeight: '1.7'
-                  }}>
-                    {step.desc}
-                  </p>
-                </div>
+                <h3 className="mb-3" style={{ 
+                  color: '#F3F4F6',
+                  fontFamily: 'Space Grotesk, sans-serif',
+                  fontSize: '20px',
+                  fontWeight: '500',
+                  lineHeight: '1.2'
+                }}>
+                  {step.title}
+                </h3>
+                <p style={{ 
+                  color: '#9CA3AF',
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: '15px',
+                  fontWeight: '400',
+                  lineHeight: '1.5'
+                }}>
+                  {step.desc}
+                </p>
               </motion.div>
             ))}
           </div>
