@@ -1,10 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { base44 } from '@/api/base44Client';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { Upload, Youtube, FileText, Target, Timer, BarChart, TrendingUp, Flame, BookOpen, Play, AlertCircle, LineChart } from 'lucide-react';
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    loadUser();
+  }, []);
+
+  const loadUser = async () => {
+    try {
+      const userData = await base44.auth.me();
+      setUser(userData);
+    } catch (error) {
+      console.error('Failed to load user:', error);
+    }
+  };
   const [activeTab, setActiveTab] = useState(() => {
     return localStorage.getItem('dashboard_active_tab') || 'SAT';
   });
@@ -363,7 +379,8 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-black py-16">
+    <ProtectedRoute>
+      <div className="min-h-screen bg-black py-16">
       <div className="max-w-6xl mx-auto px-6">
         {/* Exam Tab Navigation */}
         <div className="flex justify-center mb-16">
@@ -831,6 +848,7 @@ export default function Dashboard() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </ProtectedRoute>
   );
 }
