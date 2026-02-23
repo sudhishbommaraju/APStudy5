@@ -277,24 +277,28 @@ export default function APPractice() {
       }
 
       // Create practice session
-       const session = await base44.entities.EnginePracticeSession.create({
-         user_email: user.email,
-         exam_id: 'AP',
-         subject_id: subject,
-         unit_id: unit,
-         question_count: questions.length,
-         mode: 'untimed'
-       });
+      const exams = await base44.entities.Exam.filter({ exam_type: 'AP' });
+      if (!exams.length) throw new Error('AP exam not found');
 
-       // Verify session was created successfully
-       if (!session || !session.id) {
-         throw new Error('Session creation failed - no ID returned');
-       }
+      const session = await base44.entities.EnginePracticeSession.create({
+        user_email: user.email,
+        exam_id: exams[0].id,
+        subject_id: subject,
+        unit_id: unit,
+        question_count: questions.length,
+        mode: 'untimed',
+        started_at: new Date().toISOString()
+      });
 
-       console.log('✓ Session created:', { id: session.id, questions: questions.length });
+      // Verify session was created successfully
+      if (!session || !session.id) {
+        throw new Error('Session creation failed - no ID returned');
+      }
 
-       toast.success('Starting practice session...');
-       navigate(createPageUrl('EnginePracticeSession') + `?session=${session.id}`);
+      console.log('✓ Session created:', { id: session.id, questions: questions.length });
+
+      toast.success('Starting practice session...');
+      navigate(createPageUrl('EnginePracticeSession') + `?session=${session.id}`);
     } catch (error) {
       toast.error(error.message || 'Failed to start practice');
       console.error('Practice start error:', error);

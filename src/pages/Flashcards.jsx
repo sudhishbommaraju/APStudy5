@@ -75,12 +75,20 @@ export default function Flashcards() {
       const newDeck = await base44.entities.FlashcardDeck.create({
         user_email: userData.email,
         name,
-        description
+        description: description || '',
+        is_active: true
       });
+      
+      if (!newDeck || !newDeck.id) {
+        throw new Error('Deck creation failed - no ID returned');
+      }
+      
       setDecks([newDeck, ...decks]);
+      console.log('✓ Flashcard deck created:', newDeck.id);
       return newDeck;
     } catch (error) {
       console.error('Failed to create deck:', error);
+      toast.error(error.message || 'Failed to create deck');
       throw error;
     }
   };
