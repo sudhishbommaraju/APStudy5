@@ -347,3 +347,43 @@ select:focus-visible {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Aurora Background Animations */
+@keyframes aurora1 {
+  0% { transform: translateX(-100px) translateY(-50px) scale(1); }
+  50% { transform: translateX(50px) translateY(30px) scale(1.1); }
+  100% { transform: translateX(100px) translateY(-30px) scale(0.9); }
+}
+
+@keyframes aurora2 {
+  0% { transform: translateX(80px) translateY(40px) scale(0.8); }
+  50% { transform: translateX(-30px) translateY(-20px) scale(1.2); }
+  100% { transform: translateX(-80px) translateY(60px) scale(0.9); }
+}
+
+@keyframes aurora3 {
+  0% { transform: translateX(-50px) translateY(20px) scale(1.1); }
+  50% { transform: translateX(70px) translateY(-40px) scale(0.8); }
+  100% { transform: translateX(-20px) translateY(50px) scale(1.0); }
+}
+
+.animate-aurora1 {
+  animation: aurora1 14s ease-in-out infinite alternate;
+}
+
+.animate-aurora2 {
+  animation: aurora2 12s ease-in-out infinite alternate-reverse;
+}
+
+.animate-aurora3 {
+  animation: aurora3 16s ease-in-out infinite alternate;
+}
+
+/* Accessibility: Respect Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .animate-aurora1,
+  .animate-aurora2,
+  .animate-aurora3 {
+    animation: none !important;
+  }
+}

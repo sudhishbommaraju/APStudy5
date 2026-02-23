@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { ArrowRight, TrendingUp, Target, BarChart3 } from 'lucide-react';
+import { AuroraBackground } from '@/components/ui/animated-background';
 
 const satData = [
   { week: 'Week 0', score: 1180, label: 'Diagnostic: 1180' },
@@ -195,7 +196,7 @@ export default function Home() {
   const heroY = useTransform(scrollYProgress, [0, 1], [0, -50]);
 
   return (
-    <div className="min-h-screen overflow-hidden" style={{ background: '#0F1115', color: '#F3F4F6' }}>
+    <AuroraBackground>
 
       {/* HERO SECTION */}
       <motion.section
@@ -766,6 +767,6 @@ export default function Home() {
           <p style={{ marginTop: '8px' }}>Built to increase access to measurable, high-quality exam preparation.</p>
         </div>
       </footer>
-    </div>
+    </AuroraBackground>
   );
 }
