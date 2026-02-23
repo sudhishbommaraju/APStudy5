@@ -773,7 +773,7 @@ export default function Home() {
                   e.currentTarget.style.background = '#2F6DF6';
                 }}
               >
-                Start Diagnostic
+                Get Started
               </Button>
             </Link>
           </motion.div>
