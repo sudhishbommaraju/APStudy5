@@ -41,78 +41,27 @@ export default function APQuestionGenerator() {
 
     setLoading(true);
     try {
+      const { generateQuestionsWithRetry } = await import('@/components/generation/RobustQuestionGenerator');
+      
       const keywordList = keywords.split(',').map(k => k.trim()).filter(Boolean);
       
-      const prompt = `Generate ${questionCount} original AP-style multiple choice questions for ${subject} on the topic: ${topic}.
-
-Difficulty level: ${difficulty}/5
-${unit ? `Unit: ${unit}` : ''}
-${keywordList.length > 0 ? `Emphasize these concepts: ${keywordList.join(', ')}` : ''}
-
-Requirements:
-- Each question must be original (not from official College Board materials)
-- 4 answer choices (A, B, C, D)
-- One clear correct answer
-- Realistic distractors based on common misconceptions
-- Include brief explanation for the correct answer
-- Match AP exam style and rigor
-
-Return JSON array of questions with this structure:
-[{
-  "stem": "question text",
-  "answer_choices": ["choice A", "choice B", "choice C", "choice D"],
-  "correct_answer": 0-3,
-  "explanation": "why this answer is correct",
-  "difficulty": ${difficulty}
-}]`;
-
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt,
-        response_json_schema: {
-          type: 'object',
-          properties: {
-            questions: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  stem: { type: 'string' },
-                  answer_choices: {
-                    type: 'array',
-                    items: { type: 'string' }
-                  },
-                  correct_answer: { type: 'number' },
-                  explanation: { type: 'string' },
-                  difficulty: { type: 'number' }
-                }
-              }
-            }
-          }
-        }
+      const result = await generateQuestionsWithRetry({
+        examType: 'AP',
+        subjectId: subject,
+        unitId: unit,
+        difficulty: difficulty,
+        questionCount: questionCount,
+        questionType: 'MCQ',
+        topic: topic,
+        keywords: keywordList
       });
 
-      // Save questions to database
-      const savedQuestions = [];
-      for (const q of response.questions) {
-        const question = await base44.entities.ProoflyQuestion.create({
-          stem: q.stem,
-          answer_choices: q.answer_choices,
-          correct_answer: q.correct_answer,
-          explanation: q.explanation,
-          skill_id: subject,
-          difficulty: q.difficulty,
-          is_active: true,
-          generation_metadata: {
-            topic,
-            unit,
-            keywords: keywordList,
-            generated_at: new Date().toISOString()
-          }
-        });
-        savedQuestions.push(question);
+      if (!result.success) {
+        toast.error(result.error || 'Failed to generate questions');
+        return;
       }
 
-      toast.success(`${savedQuestions.length} questions generated and saved!`);
+      toast.success(`${result.count} questions generated successfully!`);
       
       // Start practice session with generated questions
       const session = await base44.entities.EnginePracticeSession.create({
@@ -120,13 +69,13 @@ Return JSON array of questions with this structure:
         exam_id: 'AP',
         subject_id: subject,
         unit_id: unit,
-        question_count: savedQuestions.length,
+        question_count: result.count,
         mode: 'untimed'
       });
 
-      navigate(createPageUrl('EnginePracticeSession') + `?session_id=${session.id}`);
+      navigate(createPageUrl('EnginePracticeSession') + `?session=${session.id}`);
     } catch (error) {
-      toast.error('Failed to generate questions');
+      toast.error('Generation failed: ' + error.message);
       console.error(error);
     }
     setLoading(false);
