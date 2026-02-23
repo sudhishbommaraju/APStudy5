@@ -6,6 +6,7 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import DashboardNavbar from '@/components/layout/DashboardNavbar';
 import ProgressTracking from '@/components/dashboard/ProgressTracking';
 import EnhancedStatsCard from '@/components/dashboard/EnhancedStatsCard';
+import { AuroraBackground } from '@/components/ui/animated-background';
 import { motion } from 'framer-motion';
 import { Upload, Youtube, FileText, Target, Timer, BarChart, TrendingUp, Flame, BookOpen, Play, AlertCircle, LineChart } from 'lucide-react';
 
@@ -387,9 +388,10 @@ export default function Dashboard() {
 
   return (
     <ProtectedRoute>
-      <DashboardNavbar />
-      <div className="min-h-screen bg-black py-16">
-      <div className="max-w-6xl mx-auto px-6">
+      <AuroraBackground>
+        <DashboardNavbar />
+        <div className="min-h-screen py-16">
+        <div className="max-w-6xl mx-auto px-6">
         {/* Exam Tab Navigation */}
         <div className="flex justify-center mb-16">
           <div className="bg-neutral-900 border border-neutral-800 rounded-full p-1 inline-flex">
@@ -854,6 +856,7 @@ export default function Dashboard() {
         )}
       </div>
       </div>
-    </ProtectedRoute>
-  );
-}
+      </AuroraBackground>
+      </ProtectedRoute>
+      );
+      }
