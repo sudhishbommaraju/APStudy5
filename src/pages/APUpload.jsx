@@ -15,6 +15,32 @@ export default function APUpload() {
   const [subject, setSubject] = useState('');
   const [synthesisType, setSynthesisType] = useState('summary');
 
+  const apSubjects = [
+    { id: 'biology', name: 'AP Biology' },
+    { id: 'chemistry', name: 'AP Chemistry' },
+    { id: 'physics_1', name: 'AP Physics 1' },
+    { id: 'physics_2', name: 'AP Physics 2' },
+    { id: 'physics_c_mech', name: 'AP Physics C: Mechanics' },
+    { id: 'physics_c_em', name: 'AP Physics C: E&M' },
+    { id: 'environmental_science', name: 'AP Environmental Science' },
+    { id: 'calc_ab', name: 'AP Calculus AB' },
+    { id: 'calc_bc', name: 'AP Calculus BC' },
+    { id: 'statistics', name: 'AP Statistics' },
+    { id: 'cs_a', name: 'AP Computer Science A' },
+    { id: 'cs_principles', name: 'AP Computer Science Principles' },
+    { id: 'us_history', name: 'AP US History' },
+    { id: 'world_history', name: 'AP World History: Modern' },
+    { id: 'european_history', name: 'AP European History' },
+    { id: 'us_gov', name: 'AP US Government & Politics' },
+    { id: 'comp_gov', name: 'AP Comparative Government & Politics' },
+    { id: 'macro', name: 'AP Macroeconomics' },
+    { id: 'micro', name: 'AP Microeconomics' },
+    { id: 'psychology', name: 'AP Psychology' },
+    { id: 'human_geo', name: 'AP Human Geography' },
+    { id: 'english_lang', name: 'AP English Language & Composition' },
+    { id: 'english_lit', name: 'AP English Literature & Composition' },
+  ];
+
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
@@ -118,12 +144,18 @@ Format the output as structured markdown notes.`;
           <div className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-neutral-300 mb-2">AP Subject</label>
-              <Input
-                placeholder="e.g., Biology, Chemistry, US History"
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                className="bg-neutral-800 border-neutral-700 text-white"
-              />
+              <Select value={subject} onValueChange={setSubject}>
+                <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
+                  <SelectValue placeholder="Select AP Subject" />
+                </SelectTrigger>
+                <SelectContent>
+                  {apSubjects.map((subj) => (
+                    <SelectItem key={subj.id} value={subj.id}>
+                      {subj.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div>

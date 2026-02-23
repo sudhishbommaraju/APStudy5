@@ -17,6 +17,47 @@ export default function APPractice() {
   const [questionCount, setQuestionCount] = useState(10);
   const [linkedPage, setLinkedPage] = useState(null);
 
+  const apSubjects = [
+    { id: 'biology', name: 'AP Biology' },
+    { id: 'chemistry', name: 'AP Chemistry' },
+    { id: 'physics_1', name: 'AP Physics 1' },
+    { id: 'physics_2', name: 'AP Physics 2' },
+    { id: 'physics_c_mech', name: 'AP Physics C: Mechanics' },
+    { id: 'physics_c_em', name: 'AP Physics C: E&M' },
+    { id: 'environmental_science', name: 'AP Environmental Science' },
+    { id: 'calc_ab', name: 'AP Calculus AB' },
+    { id: 'calc_bc', name: 'AP Calculus BC' },
+    { id: 'statistics', name: 'AP Statistics' },
+    { id: 'cs_a', name: 'AP Computer Science A' },
+    { id: 'cs_principles', name: 'AP Computer Science Principles' },
+    { id: 'us_history', name: 'AP US History' },
+    { id: 'world_history', name: 'AP World History: Modern' },
+    { id: 'european_history', name: 'AP European History' },
+    { id: 'us_gov', name: 'AP US Government & Politics' },
+    { id: 'comp_gov', name: 'AP Comparative Government & Politics' },
+    { id: 'macro', name: 'AP Macroeconomics' },
+    { id: 'micro', name: 'AP Microeconomics' },
+    { id: 'psychology', name: 'AP Psychology' },
+    { id: 'human_geo', name: 'AP Human Geography' },
+    { id: 'english_lang', name: 'AP English Language & Composition' },
+    { id: 'english_lit', name: 'AP English Literature & Composition' },
+  ];
+
+  const subjectUnits = {
+    biology: Array.from({ length: 8 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
+    chemistry: Array.from({ length: 9 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
+    physics_1: Array.from({ length: 10 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
+    physics_2: Array.from({ length: 7 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
+    calc_ab: Array.from({ length: 10 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
+    calc_bc: Array.from({ length: 10 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
+    statistics: Array.from({ length: 9 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
+    us_history: Array.from({ length: 9 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
+    world_history: Array.from({ length: 9 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
+    european_history: Array.from({ length: 9 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
+  };
+
+  const availableUnits = subject ? (subjectUnits[subject] || Array.from({ length: 8 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` }))) : [];
+
   useEffect(() => {
     loadLinkedPage();
   }, []);
@@ -191,22 +232,34 @@ export default function APPractice() {
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-neutral-300 mb-2">Subject</label>
-                <Input
-                  placeholder="e.g., AP Biology, AP Calculus AB"
-                  value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
-                  className="bg-neutral-800 border-neutral-700 text-white"
-                />
+                <Select value={subject} onValueChange={(val) => { setSubject(val); setUnit(''); }}>
+                  <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
+                    <SelectValue placeholder="Select AP Subject" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {apSubjects.map((subj) => (
+                      <SelectItem key={subj.id} value={subj.id}>
+                        {subj.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-neutral-300 mb-2">Unit</label>
-                <Input
-                  placeholder="e.g., Unit 3"
-                  value={unit}
-                  onChange={(e) => setUnit(e.target.value)}
-                  className="bg-neutral-800 border-neutral-700 text-white"
-                />
+                <Select value={unit} onValueChange={setUnit} disabled={!subject}>
+                  <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
+                    <SelectValue placeholder={subject ? "Select Unit" : "Select subject first"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableUnits.map((u) => (
+                      <SelectItem key={u.id} value={u.id}>
+                        {u.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
