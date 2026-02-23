@@ -4,6 +4,9 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import DashboardNavbar from '@/components/layout/DashboardNavbar';
+import ProgressTracking from '@/components/dashboard/ProgressTracking';
+import EnhancedStatsCard from '@/components/dashboard/EnhancedStatsCard';
+import { motion } from 'framer-motion';
 import { Upload, Youtube, FileText, Target, Timer, BarChart, TrendingUp, Flame, BookOpen, Play, AlertCircle, LineChart } from 'lucide-react';
 
 export default function Dashboard() {
@@ -415,22 +418,10 @@ export default function Dashboard() {
                 <h1 className="text-3xl font-light text-white mb-2">SAT Workspace</h1>
                 <p className="text-neutral-400">Master the SAT with structured practice and full simulations.</p>
               </div>
-              <div className="flex gap-4">
-                <div className="bg-neutral-900 rounded-xl border border-neutral-800 px-6 py-4 text-center hover:border-neutral-700 transition-colors">
-                  <div className="text-2xl font-semibold text-white mb-1">{stats.scoreEstimate}</div>
-                  <div className="text-xs text-neutral-400">Score Estimate</div>
-                </div>
-                <div className="bg-neutral-900 rounded-xl border border-neutral-800 px-6 py-4 text-center hover:border-neutral-700 transition-colors">
-                  <div className="text-2xl font-semibold text-white mb-1">{stats.accuracy}%</div>
-                  <div className="text-xs text-neutral-400">Accuracy</div>
-                </div>
-                <div className="bg-neutral-900 rounded-xl border border-neutral-800 px-6 py-4 text-center hover:border-neutral-700 transition-colors">
-                  <div className="text-2xl font-semibold text-white mb-1 flex items-center justify-center gap-1">
-                    <Flame className="w-5 h-5 text-orange-500" />
-                    {stats.streak}
-                  </div>
-                  <div className="text-xs text-neutral-400">Day Streak</div>
-                </div>
+              <div className="grid grid-cols-3 gap-3">
+                <EnhancedStatsCard icon={BarChart} title="Score Estimate" value={stats.scoreEstimate} trend={12} />
+                <EnhancedStatsCard icon={Target} title="Accuracy" value={`${stats.accuracy}%`} trend={8} />
+                <EnhancedStatsCard icon={Flame} title="Day Streak" value={stats.streak} trend={5} />
               </div>
             </div>
 
@@ -510,6 +501,17 @@ export default function Dashboard() {
               </div>
             </div>
 
+            {/* Progress Tracking */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mt-8"
+            >
+              <h2 className="text-2xl font-light text-white mb-6">Your Progress</h2>
+              <ProgressTracking />
+            </motion.div>
+
             {/* SAT Strategy Library */}
             <div className="mt-12">
               <div className="flex justify-between items-end mb-6">
@@ -564,22 +566,10 @@ export default function Dashboard() {
                 <h1 className="text-3xl font-light text-white mb-2">ACT Workspace</h1>
                 <p className="text-neutral-400">Master the ACT with structured practice and comprehensive analytics.</p>
               </div>
-              <div className="flex gap-4">
-                <div className="bg-neutral-900 rounded-xl border border-neutral-800 px-6 py-4 text-center hover:border-neutral-700 transition-colors">
-                  <div className="text-2xl font-semibold text-white mb-1">{actStats.scoreEstimate}</div>
-                  <div className="text-xs text-neutral-400">Score Estimate</div>
-                </div>
-                <div className="bg-neutral-900 rounded-xl border border-neutral-800 px-6 py-4 text-center hover:border-neutral-700 transition-colors">
-                  <div className="text-2xl font-semibold text-white mb-1">{actStats.accuracy}%</div>
-                  <div className="text-xs text-neutral-400">Accuracy</div>
-                </div>
-                <div className="bg-neutral-900 rounded-xl border border-neutral-800 px-6 py-4 text-center hover:border-neutral-700 transition-colors">
-                  <div className="text-2xl font-semibold text-white mb-1 flex items-center justify-center gap-1">
-                    <Flame className="w-5 h-5 text-orange-500" />
-                    {actStats.streak}
-                  </div>
-                  <div className="text-xs text-neutral-400">Day Streak</div>
-                </div>
+              <div className="grid grid-cols-3 gap-3">
+                <EnhancedStatsCard icon={BarChart} title="Score Estimate" value={actStats.scoreEstimate} trend={6} />
+                <EnhancedStatsCard icon={Target} title="Accuracy" value={`${actStats.accuracy}%`} trend={10} />
+                <EnhancedStatsCard icon={Flame} title="Day Streak" value={actStats.streak} trend={4} />
               </div>
             </div>
 
@@ -659,6 +649,17 @@ export default function Dashboard() {
               </div>
             </div>
 
+            {/* Progress Tracking */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mt-8"
+            >
+              <h2 className="text-2xl font-light text-white mb-6">Your Progress</h2>
+              <ProgressTracking />
+            </motion.div>
+
             {/* ACT Strategy Library */}
             <div className="mt-12">
               <div className="flex justify-between items-end mb-6">
@@ -713,22 +714,10 @@ export default function Dashboard() {
                 <h1 className="text-3xl font-light text-white mb-2">AP Workspace</h1>
                 <p className="text-neutral-400">Master AP exams with structured notes, targeted practice, and mastery tracking.</p>
               </div>
-              <div className="flex gap-4">
-                <div className="bg-neutral-900 rounded-xl border border-neutral-800 px-6 py-4 text-center hover:border-neutral-700 transition-colors">
-                  <div className="text-2xl font-semibold text-white mb-1">{apStats.scoreEstimate}</div>
-                  <div className="text-xs text-neutral-400">Score Estimate</div>
-                </div>
-                <div className="bg-neutral-900 rounded-xl border border-neutral-800 px-6 py-4 text-center hover:border-neutral-700 transition-colors">
-                  <div className="text-2xl font-semibold text-white mb-1">{apStats.mastery}%</div>
-                  <div className="text-xs text-neutral-400">Mastery</div>
-                </div>
-                <div className="bg-neutral-900 rounded-xl border border-neutral-800 px-6 py-4 text-center hover:border-neutral-700 transition-colors">
-                  <div className="text-2xl font-semibold text-white mb-1 flex items-center justify-center gap-1">
-                    <Flame className="w-5 h-5 text-orange-500" />
-                    {apStats.streak}
-                  </div>
-                  <div className="text-xs text-neutral-400">Day Streak</div>
-                </div>
+              <div className="grid grid-cols-3 gap-3">
+                <EnhancedStatsCard icon={BarChart} title="Score Est." value={apStats.scoreEstimate} />
+                <EnhancedStatsCard icon={Target} title="Mastery" value={`${apStats.mastery}%`} trend={11} />
+                <EnhancedStatsCard icon={Flame} title="Day Streak" value={apStats.streak} trend={3} />
               </div>
             </div>
 
@@ -806,6 +795,17 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
+
+            {/* Progress Tracking */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mt-8"
+            >
+              <h2 className="text-2xl font-light text-white mb-6">Your Progress</h2>
+              <ProgressTracking />
+            </motion.div>
 
             {/* AP Strategy Library */}
             <div className="mt-12">
