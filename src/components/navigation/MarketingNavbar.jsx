@@ -19,57 +19,66 @@ export default function MarketingNavbar() {
       <nav
         className="pointer-events-auto transition-all duration-300"
         style={{
-          maxWidth: '1100px',
-          margin: '24px auto',
-          padding: '16px 32px',
-          minHeight: '64px',
-          borderRadius: '18px',
-          background: 'rgba(15, 17, 21, 0.55)',
-          backdropFilter: 'blur(18px)',
-          border: '1px solid rgba(255, 255, 255, 0.06)',
+          maxWidth: '1000px',
+          margin: '32px auto',
+          padding: '8px',
+          borderRadius: '999px',
+          background: 'rgba(20, 20, 20, 0.6)',
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
           boxShadow: '0 8px 30px rgba(0, 0, 0, 0.35)'
         }}
       >
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between" style={{ padding: '16px 24px' }}>
           <Link 
             to={createPageUrl('Home')} 
-            className="tracking-wide"
             style={{ 
               color: '#F3F4F6',
-              fontFamily: 'Space Grotesk, sans-serif',
-              fontSize: '24px',
-              fontWeight: '500'
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '16px',
+              fontWeight: '500',
+              letterSpacing: '0.03em'
             }}
           >
-            PROOFLY
+            Proofly
           </Link>
 
-          <div className="flex items-center" style={{ gap: '32px' }}>
+          <div className="flex items-center" style={{ gap: '8px' }}>
             <a 
               href="#about" 
-              className="font-medium tracking-wide transition-colors relative group"
-              style={{ color: '#9CA3AF', fontSize: '18px', fontFamily: 'Inter, sans-serif' }}
-              onMouseEnter={(e) => e.target.style.color = '#F3F4F6'}
-              onMouseLeave={(e) => e.target.style.color = '#9CA3AF'}
+              className="transition-all duration-200"
+              style={{ 
+                color: '#F3F4F6',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '16px',
+                fontWeight: '400',
+                letterSpacing: '0.03em',
+                padding: '8px 18px',
+                borderRadius: '999px',
+                background: 'transparent'
+              }}
+              onMouseEnter={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.08)'}
+              onMouseLeave={(e) => e.target.style.background = 'transparent'}
             >
               About
-              <span 
-                className="absolute bottom-0 left-0 h-0.5 w-0 transition-all group-hover:w-full"
-                style={{ background: '#2F6DF6' }}
-              />
             </a>
             <a 
               href="#features" 
-              className="font-medium tracking-wide transition-colors relative group"
-              style={{ color: '#9CA3AF', fontSize: '18px', fontFamily: 'Inter, sans-serif' }}
-              onMouseEnter={(e) => e.target.style.color = '#F3F4F6'}
-              onMouseLeave={(e) => e.target.style.color = '#9CA3AF'}
+              className="transition-all duration-200"
+              style={{ 
+                color: '#F3F4F6',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '16px',
+                fontWeight: '400',
+                letterSpacing: '0.03em',
+                padding: '8px 18px',
+                borderRadius: '999px',
+                background: 'transparent'
+              }}
+              onMouseEnter={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.08)'}
+              onMouseLeave={(e) => e.target.style.background = 'transparent'}
             >
               Explore Features
-              <span 
-                className="absolute bottom-0 left-0 h-0.5 w-0 transition-all group-hover:w-full"
-                style={{ background: '#2F6DF6' }}
-              />
             </a>
             <Link to={createPageUrl('Dashboard')}>
               <Button 
@@ -77,11 +86,12 @@ export default function MarketingNavbar() {
                 style={{
                   background: '#2F6DF6',
                   color: '#F3F4F6',
-                  fontFamily: 'Space Grotesk, sans-serif',
-                  fontSize: '18px',
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: '16px',
                   fontWeight: '500',
-                  padding: '8px 24px',
-                  borderRadius: '12px'
+                  letterSpacing: '0.03em',
+                  padding: '8px 20px',
+                  borderRadius: '999px'
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.background = '#3C7CFF'}
                 onMouseLeave={(e) => e.currentTarget.style.background = '#2F6DF6'}
