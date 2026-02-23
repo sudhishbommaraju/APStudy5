@@ -251,21 +251,7 @@ export default function Home() {
               className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8"
             >
               <Button
-                onClick={() => {
-                  base44.auth.isAuthenticated().then(isAuth => {
-                    if (isAuth) {
-                      base44.auth.me().then(user => {
-                        if (user.onboarding_complete) {
-                          window.location.href = createPageUrl('Dashboard');
-                        } else {
-                          window.location.href = createPageUrl('Onboarding');
-                        }
-                      });
-                    } else {
-                      base44.auth.redirectToLogin(createPageUrl('Onboarding'));
-                    }
-                  });
-                }}
+                onClick={() => base44.auth.redirectToLogin()}
                 className="rounded-xl transition-all duration-200"
                 style={{
                   background: '#FFFFFF',
@@ -792,21 +778,7 @@ export default function Home() {
             transition={{ delay: 0.2 }}
           >
             <Button
-              onClick={() => {
-                base44.auth.isAuthenticated().then(isAuth => {
-                  if (isAuth) {
-                    base44.auth.me().then(user => {
-                      if (user.onboarding_complete) {
-                        window.location.href = createPageUrl('Dashboard');
-                      } else {
-                        window.location.href = createPageUrl('Onboarding');
-                      }
-                    });
-                  } else {
-                    base44.auth.redirectToLogin(createPageUrl('Onboarding'));
-                  }
-                });
-              }}
+              onClick={() => base44.auth.redirectToLogin()}
               className="transition-all duration-200"
               style={{
                 background: '#2F6DF6',
