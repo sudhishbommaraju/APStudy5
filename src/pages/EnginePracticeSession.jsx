@@ -27,28 +27,47 @@ export default function EnginePracticeSession() {
   }, [sessionId]);
 
   async function loadSession() {
-    const user = await base44.auth.me();
-    const sessionData = await base44.entities.EnginePracticeSession.list();
-    const current = sessionData.find(s => s.id === sessionId);
-    
-    if (!current) {
+    try {
+      const user = await base44.auth.me();
+      
+      // Get session by ID directly
+      const sessionData = await base44.entities.EnginePracticeSession.read(sessionId);
+      
+      if (!sessionData) {
+        console.error('Session not found:', sessionId);
+        setLoading(false);
+        return;
+      }
+      
+      setSession(sessionData);
+
+      // Fetch questions directly by subject/unit
+      let questionsData = [];
+      if (sessionData.subject_id && sessionData.unit_id) {
+        questionsData = await base44.entities.ProoflyQuestion.filter({
+          'generation_metadata.subject_id': sessionData.subject_id,
+          'generation_metadata.unit_id': sessionData.unit_id,
+          is_active: true
+        }, '', sessionData.question_count);
+      }
+
+      if (questionsData.length === 0) {
+        // Fallback: fetch any active questions
+        questionsData = await base44.entities.ProoflyQuestion.list('-created_date', sessionData.question_count);
+      }
+
+      if (questionsData.length === 0) {
+        console.error('No questions found for session');
+        setLoading(false);
+        return;
+      }
+
+      setQuestions(questionsData);
+    } catch (error) {
+      console.error('Error loading session:', error);
+    } finally {
       setLoading(false);
-      return;
     }
-    
-    setSession(current);
-
-    // Use adaptive question selection
-    const adaptiveQuestions = await selectAdaptiveQuestions({
-      userEmail: user.email,
-      examType: current.exam_id,
-      domainId: current.domain_id,
-      unitId: current.unit_id,
-      questionCount: current.question_count
-    });
-
-    setQuestions(adaptiveQuestions);
-    setLoading(false);
   }
 
   async function submitAnswer() {
