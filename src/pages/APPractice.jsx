@@ -44,16 +44,152 @@ export default function APPractice() {
   ];
 
   const subjectUnits = {
-    biology: Array.from({ length: 8 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
-    chemistry: Array.from({ length: 9 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
-    physics_1: Array.from({ length: 10 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
-    physics_2: Array.from({ length: 7 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
-    calc_ab: Array.from({ length: 10 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
-    calc_bc: Array.from({ length: 10 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
-    statistics: Array.from({ length: 9 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
-    us_history: Array.from({ length: 9 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
-    world_history: Array.from({ length: 9 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
-    european_history: Array.from({ length: 9 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
+    biology: [
+      { id: 'unit_1', name: 'Unit 1: Chemistry of Life' },
+      { id: 'unit_2', name: 'Unit 2: Cell Structure and Function' },
+      { id: 'unit_3', name: 'Unit 3: Cellular Energetics' },
+      { id: 'unit_4', name: 'Unit 4: Cell Communication and Cell Cycle' },
+      { id: 'unit_5', name: 'Unit 5: Heredity' },
+      { id: 'unit_6', name: 'Unit 6: Gene Expression and Regulation' },
+      { id: 'unit_7', name: 'Unit 7: Natural Selection' },
+      { id: 'unit_8', name: 'Unit 8: Ecology' }
+    ],
+    chemistry: [
+      { id: 'unit_1', name: 'Unit 1: Atomic Structure and Properties' },
+      { id: 'unit_2', name: 'Unit 2: Molecular and Ionic Compound Structure' },
+      { id: 'unit_3', name: 'Unit 3: Intermolecular Forces and Properties' },
+      { id: 'unit_4', name: 'Unit 4: Chemical Reactions' },
+      { id: 'unit_5', name: 'Unit 5: Kinetics' },
+      { id: 'unit_6', name: 'Unit 6: Thermodynamics' },
+      { id: 'unit_7', name: 'Unit 7: Equilibrium' },
+      { id: 'unit_8', name: 'Unit 8: Acids and Bases' },
+      { id: 'unit_9', name: 'Unit 9: Applications of Thermodynamics' }
+    ],
+    physics_1: [
+      { id: 'unit_1', name: 'Unit 1: Kinematics' },
+      { id: 'unit_2', name: 'Unit 2: Dynamics' },
+      { id: 'unit_3', name: 'Unit 3: Circular Motion and Gravitation' },
+      { id: 'unit_4', name: 'Unit 4: Energy' },
+      { id: 'unit_5', name: 'Unit 5: Momentum' },
+      { id: 'unit_6', name: 'Unit 6: Simple Harmonic Motion' },
+      { id: 'unit_7', name: 'Unit 7: Torque and Rotational Motion' },
+      { id: 'unit_8', name: 'Unit 8: Electric Charge and Electric Force' },
+      { id: 'unit_9', name: 'Unit 9: DC Circuits' },
+      { id: 'unit_10', name: 'Unit 10: Mechanical Waves and Sound' }
+    ],
+    calc_ab: [
+      { id: 'unit_1', name: 'Unit 1: Limits and Continuity' },
+      { id: 'unit_2', name: 'Unit 2: Differentiation: Definition and Fundamental Properties' },
+      { id: 'unit_3', name: 'Unit 3: Differentiation: Composite, Implicit, and Inverse Functions' },
+      { id: 'unit_4', name: 'Unit 4: Contextual Applications of Differentiation' },
+      { id: 'unit_5', name: 'Unit 5: Analytical Applications of Differentiation' },
+      { id: 'unit_6', name: 'Unit 6: Integration and Accumulation of Change' },
+      { id: 'unit_7', name: 'Unit 7: Differential Equations' },
+      { id: 'unit_8', name: 'Unit 8: Applications of Integration' },
+      { id: 'unit_9', name: 'Unit 9: Parametric Equations, Polar Coordinates, and Vector-Valued Functions' },
+      { id: 'unit_10', name: 'Unit 10: Infinite Sequences and Series' }
+    ],
+    calc_bc: [
+      { id: 'unit_1', name: 'Unit 1: Limits and Continuity' },
+      { id: 'unit_2', name: 'Unit 2: Differentiation: Definition and Fundamental Properties' },
+      { id: 'unit_3', name: 'Unit 3: Differentiation: Composite, Implicit, and Inverse Functions' },
+      { id: 'unit_4', name: 'Unit 4: Contextual Applications of Differentiation' },
+      { id: 'unit_5', name: 'Unit 5: Analytical Applications of Differentiation' },
+      { id: 'unit_6', name: 'Unit 6: Integration and Accumulation of Change' },
+      { id: 'unit_7', name: 'Unit 7: Differential Equations' },
+      { id: 'unit_8', name: 'Unit 8: Applications of Integration' },
+      { id: 'unit_9', name: 'Unit 9: Parametric Equations, Polar Coordinates, and Vector-Valued Functions' },
+      { id: 'unit_10', name: 'Unit 10: Infinite Sequences and Series' }
+    ],
+    us_history: [
+      { id: 'unit_1', name: 'Unit 1: Period 1: 1491-1607' },
+      { id: 'unit_2', name: 'Unit 2: Period 2: 1607-1754' },
+      { id: 'unit_3', name: 'Unit 3: Period 3: 1754-1800' },
+      { id: 'unit_4', name: 'Unit 4: Period 4: 1800-1848' },
+      { id: 'unit_5', name: 'Unit 5: Period 5: 1844-1877' },
+      { id: 'unit_6', name: 'Unit 6: Period 6: 1865-1898' },
+      { id: 'unit_7', name: 'Unit 7: Period 7: 1890-1945' },
+      { id: 'unit_8', name: 'Unit 8: Period 8: 1945-1980' },
+      { id: 'unit_9', name: 'Unit 9: Period 9: 1980-Present' }
+    ],
+    world_history: [
+      { id: 'unit_1', name: 'Unit 1: The Global Tapestry (1200-1450)' },
+      { id: 'unit_2', name: 'Unit 2: Networks of Exchange (1200-1450)' },
+      { id: 'unit_3', name: 'Unit 3: Land-Based Empires (1450-1750)' },
+      { id: 'unit_4', name: 'Unit 4: Transoceanic Interconnections (1450-1750)' },
+      { id: 'unit_5', name: 'Unit 5: Revolutions (1750-1900)' },
+      { id: 'unit_6', name: 'Unit 6: Consequences of Industrialization (1750-1900)' },
+      { id: 'unit_7', name: 'Unit 7: Global Conflict (1900-Present)' },
+      { id: 'unit_8', name: 'Unit 8: Cold War and Decolonization (1900-Present)' },
+      { id: 'unit_9', name: 'Unit 9: Globalization (1900-Present)' }
+    ],
+    statistics: [
+      { id: 'unit_1', name: 'Unit 1: Exploring One-Variable Data' },
+      { id: 'unit_2', name: 'Unit 2: Exploring Two-Variable Data' },
+      { id: 'unit_3', name: 'Unit 3: Collecting Data' },
+      { id: 'unit_4', name: 'Unit 4: Probability, Random Variables, and Probability Distributions' },
+      { id: 'unit_5', name: 'Unit 5: Sampling Distributions' },
+      { id: 'unit_6', name: 'Unit 6: Inference for Categorical Data: Proportions' },
+      { id: 'unit_7', name: 'Unit 7: Inference for Quantitative Data: Means' },
+      { id: 'unit_8', name: 'Unit 8: Inference for Categorical Data: Chi-Square' },
+      { id: 'unit_9', name: 'Unit 9: Inference for Quantitative Data: Slopes' }
+    ],
+    english_lang: [
+      { id: 'unit_1', name: 'Unit 1: Rhetorical Situation' },
+      { id: 'unit_2', name: 'Unit 2: Claims and Evidence' },
+      { id: 'unit_3', name: 'Unit 3: Reasoning and Organization' },
+      { id: 'unit_4', name: 'Unit 4: Style' },
+      { id: 'unit_5', name: 'Unit 5: Joining the Conversation' },
+      { id: 'unit_6', name: 'Unit 6: Research and Argumentation' },
+      { id: 'unit_7', name: 'Unit 7: Synthesis and Revision' },
+      { id: 'unit_8', name: 'Unit 8: Analyzing Arguments' },
+      { id: 'unit_9', name: 'Unit 9: Writing Process' }
+    ],
+    psychology: [
+      { id: 'unit_1', name: 'Unit 1: Scientific Foundations of Psychology' },
+      { id: 'unit_2', name: 'Unit 2: Biological Bases of Behavior' },
+      { id: 'unit_3', name: 'Unit 3: Sensation and Perception' },
+      { id: 'unit_4', name: 'Unit 4: Learning' },
+      { id: 'unit_5', name: 'Unit 5: Cognitive Psychology' },
+      { id: 'unit_6', name: 'Unit 6: Developmental Psychology' },
+      { id: 'unit_7', name: 'Unit 7: Motivation, Emotion, and Personality' },
+      { id: 'unit_8', name: 'Unit 8: Clinical Psychology' },
+      { id: 'unit_9', name: 'Unit 9: Social Psychology' }
+    ],
+    macro: [
+      { id: 'unit_1', name: 'Unit 1: Basic Economic Concepts' },
+      { id: 'unit_2', name: 'Unit 2: Economic Indicators and the Business Cycle' },
+      { id: 'unit_3', name: 'Unit 3: National Income and Price Determination' },
+      { id: 'unit_4', name: 'Unit 4: Financial Sector' },
+      { id: 'unit_5', name: 'Unit 5: Long-Run Consequences of Stabilization Policies' },
+      { id: 'unit_6', name: 'Unit 6: Open Economy—International Trade and Finance' }
+    ],
+    micro: [
+      { id: 'unit_1', name: 'Unit 1: Basic Economic Concepts' },
+      { id: 'unit_2', name: 'Unit 2: Supply and Demand' },
+      { id: 'unit_3', name: 'Unit 3: Production, Cost, and the Perfect Competition Model' },
+      { id: 'unit_4', name: 'Unit 4: Imperfect Competition' },
+      { id: 'unit_5', name: 'Unit 5: Factor Markets' },
+      { id: 'unit_6', name: 'Unit 6: Market Failure and the Role of Government' }
+    ],
+    us_gov: [
+      { id: 'unit_1', name: 'Unit 1: Foundations of American Democracy' },
+      { id: 'unit_2', name: 'Unit 2: Interactions Among Branches of Government' },
+      { id: 'unit_3', name: 'Unit 3: Civil Liberties and Civil Rights' },
+      { id: 'unit_4', name: 'Unit 4: American Political Ideologies and Beliefs' },
+      { id: 'unit_5', name: 'Unit 5: Political Participation' }
+    ],
+    european_history: [
+      { id: 'unit_1', name: 'Unit 1: Renaissance and Exploration (1450-1648)' },
+      { id: 'unit_2', name: 'Unit 2: Age of Reformation (1450-1648)' },
+      { id: 'unit_3', name: 'Unit 3: Absolutism and Constitutionalism (1648-1815)' },
+      { id: 'unit_4', name: 'Unit 4: Scientific, Philosophical, and Political Developments (1648-1815)' },
+      { id: 'unit_5', name: 'Unit 5: Conflict, Crisis, and Reaction in the Late 18th Century (1648-1815)' },
+      { id: 'unit_6', name: 'Unit 6: Industrialization and Its Effects (1815-1914)' },
+      { id: 'unit_7', name: 'Unit 7: 19th-Century Perspectives and Political Developments (1815-1914)' },
+      { id: 'unit_8', name: 'Unit 8: 20th-Century Global Conflicts (1914-Present)' },
+      { id: 'unit_9', name: 'Unit 9: Cold War and Contemporary Europe (1914-Present)' }
+    ],
   };
 
   const availableUnits = subject ? (subjectUnits[subject] || Array.from({ length: 8 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` }))) : [];
