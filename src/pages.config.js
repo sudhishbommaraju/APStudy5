@@ -103,6 +103,7 @@ import Upload from './pages/Upload';
 import ValidationDashboard from './pages/ValidationDashboard';
 import Youtube from './pages/Youtube';
 import AdminHealth from './pages/AdminHealth';
+import Profile from './pages/Profile';
 import __Layout from './Layout.jsx';
 
 
@@ -163,6 +164,7 @@ export const PAGES = {
     "ValidationDashboard": ValidationDashboard,
     "Youtube": Youtube,
     "AdminHealth": AdminHealth,
+    "Profile": Profile,
 }
 
 export const pagesConfig = {

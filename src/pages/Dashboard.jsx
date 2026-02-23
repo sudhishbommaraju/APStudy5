@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import DashboardNavbar from '@/components/layout/DashboardNavbar';
 import { Upload, Youtube, FileText, Target, Timer, BarChart, TrendingUp, Flame, BookOpen, Play, AlertCircle, LineChart } from 'lucide-react';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadUser();
@@ -19,6 +21,8 @@ export default function Dashboard() {
       setUser(userData);
     } catch (error) {
       console.error('Failed to load user:', error);
+    } finally {
+      setLoading(false);
     }
   };
   const [activeTab, setActiveTab] = useState(() => {
@@ -380,6 +384,7 @@ export default function Dashboard() {
 
   return (
     <ProtectedRoute>
+      <DashboardNavbar />
       <div className="min-h-screen bg-black py-16">
       <div className="max-w-6xl mx-auto px-6">
         {/* Exam Tab Navigation */}
