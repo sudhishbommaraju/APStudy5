@@ -19,7 +19,7 @@ export default function MarketingNavbar() {
       <nav
         className="pointer-events-auto transition-all duration-300"
         style={{
-          maxWidth: '1000px',
+          maxWidth: '1200px',
           margin: '0 auto',
           padding: '8px',
           borderRadius: '999px',
@@ -36,8 +36,9 @@ export default function MarketingNavbar() {
               color: '#F3F4F6',
               fontFamily: 'Inter, sans-serif',
               fontSize: '16px',
-              fontWeight: '500',
-              letterSpacing: '0.03em'
+              fontWeight: '700',
+              letterSpacing: '0.03em',
+              marginRight: '64px'
             }}
           >
             Proofly
