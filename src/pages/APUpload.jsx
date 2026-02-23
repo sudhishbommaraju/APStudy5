@@ -1,14 +1,103 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { ArrowLeft } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowLeft, Upload, Loader2, FileText, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function APUpload() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [file, setFile] = useState(null);
+  const [subject, setSubject] = useState('');
+  const [synthesisType, setSynthesisType] = useState('summary');
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      if (selectedFile.type !== 'application/pdf') {
+        toast.error('Please upload a PDF file');
+        return;
+      }
+      setFile(selectedFile);
+    }
+  };
+
+  const handleUploadAndProcess = async () => {
+    if (!file || !subject) {
+      toast.error('Please select a file and subject');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Upload file
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+
+      // AI-powered extraction and synthesis
+      const synthesisInstructions = {
+        summary: 'Create a comprehensive summary with key points organized into digestible bullet points',
+        flashcards: 'Extract key terms and concepts and format as flashcards (Front: Term/Question | Back: Definition/Answer)',
+        detailed: 'Provide an in-depth analysis with detailed explanations, examples, and connections between concepts'
+      };
+
+      const prompt = `Analyze this AP ${subject} study material and ${synthesisInstructions[synthesisType]}. 
+      
+Focus on:
+- Main concepts and definitions
+- Important formulas or theories
+- Key examples and applications
+- Common mistakes or misconceptions
+- Practice recommendations
+
+Format the output as structured markdown notes.`;
+
+      const extractedContent = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        file_urls: [file_url],
+        add_context_from_internet: true
+      });
+
+      // Extract key concepts
+      const conceptsPrompt = `From the following content, extract 5-10 key concepts or terms as a JSON array of strings:\n\n${extractedContent}`;
+      const conceptsResponse = await base44.integrations.Core.InvokeLLM({
+        prompt: conceptsPrompt,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            concepts: {
+              type: 'array',
+              items: { type: 'string' }
+            }
+          }
+        }
+      });
+
+      // Save personalized notes
+      await base44.entities.StudyNote.create({
+        user_email: (await base44.auth.me()).email,
+        exam_type: 'AP',
+        subject_id: subject,
+        title: `${file.name.replace('.pdf', '')} - AI Summary`,
+        content: extractedContent,
+        key_concepts: conceptsResponse.concepts || []
+      });
+
+      toast.success('Notes processed and saved successfully!');
+      navigate(createPageUrl('Dashboard'));
+    } catch (error) {
+      toast.error('Failed to process file');
+      console.error(error);
+    }
+    setLoading(false);
+  };
 
   return (
     <div className="min-h-screen bg-black py-16">
-      <div className="max-w-4xl mx-auto px-6">
+      <div className="max-w-3xl mx-auto px-6">
         <button
           onClick={() => navigate(createPageUrl('Dashboard'))}
           className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors mb-12"
@@ -17,13 +106,88 @@ export default function APUpload() {
           Back to Dashboard
         </button>
 
-        <div className="text-center">
-          <h1 className="text-4xl font-light tracking-tight text-white mb-4">
-            Upload Notes
-          </h1>
-          <p className="text-lg text-neutral-400 mb-12">
-            Upload functionality coming soon.
-          </p>
+        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
+          <div className="flex items-center gap-3 mb-8">
+            <Upload className="w-8 h-8 text-blue-500" />
+            <div>
+              <h1 className="text-3xl font-light text-white">Upload & AI-Personalize Notes</h1>
+              <p className="text-neutral-400 mt-1">Transform PDFs into personalized study materials</p>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-neutral-300 mb-2">AP Subject</label>
+              <Input
+                placeholder="e.g., Biology, Chemistry, US History"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                className="bg-neutral-800 border-neutral-700 text-white"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-neutral-300 mb-2 flex items-center gap-2">
+                <Sparkles className="w-4 h-4" />
+                AI Synthesis Type
+              </label>
+              <Select value={synthesisType} onValueChange={setSynthesisType}>
+                <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="summary">Bullet Point Summary</SelectItem>
+                  <SelectItem value="flashcards">Flashcard Format</SelectItem>
+                  <SelectItem value="detailed">Detailed Analysis</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-neutral-300 mb-3">
+                Upload PDF File
+              </label>
+              <div className="border-2 border-dashed border-neutral-700 rounded-xl p-8 text-center hover:border-neutral-600 transition-colors">
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  id="file-upload"
+                />
+                <label htmlFor="file-upload" className="cursor-pointer">
+                  <FileText className="w-12 h-12 text-neutral-500 mx-auto mb-3" />
+                  {file ? (
+                    <p className="text-white font-medium">{file.name}</p>
+                  ) : (
+                    <>
+                      <p className="text-neutral-300 font-medium mb-1">Click to upload PDF</p>
+                      <p className="text-sm text-neutral-500">AI will extract and synthesize key information</p>
+                    </>
+                  )}
+                </label>
+              </div>
+            </div>
+
+            <Button
+              onClick={handleUploadAndProcess}
+              disabled={loading || !file || !subject}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              size="lg"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  AI Processing...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  Upload & Personalize
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
     </div>

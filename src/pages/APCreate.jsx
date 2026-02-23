@@ -1,14 +1,79 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { ArrowLeft } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowLeft, Sparkles, Loader2, BookOpen, Tags } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function APCreate() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [subject, setSubject] = useState('');
+  const [topic, setTopic] = useState('');
+  const [detailLevel, setDetailLevel] = useState('medium');
+  const [keywords, setKeywords] = useState('');
+  const [outputFormat, setOutputFormat] = useState('notes');
+
+  const handleGenerate = async () => {
+    if (!subject || !topic) {
+      toast.error('Please fill in subject and topic');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const keywordList = keywords.split(',').map(k => k.trim()).filter(Boolean);
+      
+      const detailInstructions = {
+        brief: 'concise overview with only essential concepts',
+        medium: 'balanced coverage with key concepts and examples',
+        comprehensive: 'in-depth explanation with detailed examples, practice problems, and edge cases'
+      };
+
+      const formatInstructions = {
+        notes: 'structured study notes in markdown format',
+        bullets: 'digestible bullet points summarizing key information',
+        flashcards: 'flashcard format (Front: Question/Term | Back: Answer/Definition)'
+      };
+
+      let prompt = `Generate ${detailInstructions[detailLevel]} for AP ${subject}, topic: ${topic}. Format: ${formatInstructions[outputFormat]}.`;
+      
+      if (keywordList.length > 0) {
+        prompt += ` Emphasize these concepts: ${keywordList.join(', ')}.`;
+      }
+
+      prompt += `\n\nInclude:\n- Key concepts and definitions\n- Important formulas or rules\n- Common mistakes to avoid\n- Practice tips`;
+
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        add_context_from_internet: true
+      });
+
+      await base44.entities.StudyNote.create({
+        user_email: (await base44.auth.me()).email,
+        exam_type: 'AP',
+        subject_id: subject,
+        title: `${subject} - ${topic}`,
+        content: response,
+        key_concepts: keywordList
+      });
+
+      toast.success('Notes generated successfully!');
+      navigate(createPageUrl('Dashboard'));
+    } catch (error) {
+      toast.error('Failed to generate notes');
+      console.error(error);
+    }
+    setLoading(false);
+  };
 
   return (
     <div className="min-h-screen bg-black py-16">
-      <div className="max-w-4xl mx-auto px-6">
+      <div className="max-w-3xl mx-auto px-6">
         <button
           onClick={() => navigate(createPageUrl('Dashboard'))}
           className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors mb-12"
@@ -17,13 +82,101 @@ export default function APCreate() {
           Back to Dashboard
         </button>
 
-        <div className="text-center">
-          <h1 className="text-4xl font-light tracking-tight text-white mb-4">
-            Create Custom Notes
-          </h1>
-          <p className="text-lg text-neutral-400 mb-12">
-            Custom note creation coming soon.
-          </p>
+        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
+          <div className="flex items-center gap-3 mb-8">
+            <Sparkles className="w-8 h-8 text-blue-500" />
+            <div>
+              <h1 className="text-3xl font-light text-white">AI-Generated Custom Notes</h1>
+              <p className="text-neutral-400 mt-1">Personalized study materials tailored to your needs</p>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-neutral-300 mb-2">AP Subject</label>
+              <Input
+                placeholder="e.g., Biology, Calculus AB, US History"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                className="bg-neutral-800 border-neutral-700 text-white"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-neutral-300 mb-2">Topic</label>
+              <Input
+                placeholder="e.g., Cell Respiration, Derivatives, Progressive Era"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                className="bg-neutral-800 border-neutral-700 text-white"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-neutral-300 mb-2 flex items-center gap-2">
+                <BookOpen className="w-4 h-4" />
+                Detail Level
+              </label>
+              <Select value={detailLevel} onValueChange={setDetailLevel}>
+                <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="brief">Brief - Quick overview</SelectItem>
+                  <SelectItem value="medium">Medium - Balanced coverage</SelectItem>
+                  <SelectItem value="comprehensive">Comprehensive - In-depth detail</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-neutral-300 mb-2">Output Format</label>
+              <Select value={outputFormat} onValueChange={setOutputFormat}>
+                <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="notes">Structured Notes</SelectItem>
+                  <SelectItem value="bullets">Bullet Point Summary</SelectItem>
+                  <SelectItem value="flashcards">Flashcard Format</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-neutral-300 mb-2 flex items-center gap-2">
+                <Tags className="w-4 h-4" />
+                Emphasize Keywords (optional)
+              </label>
+              <Textarea
+                placeholder="Enter keywords or concepts separated by commas (e.g., ATP, mitochondria, electron transport chain)"
+                value={keywords}
+                onChange={(e) => setKeywords(e.target.value)}
+                className="bg-neutral-800 border-neutral-700 text-white"
+                rows={3}
+              />
+              <p className="text-xs text-neutral-500 mt-1">AI will focus on these specific terms and concepts</p>
+            </div>
+
+            <Button
+              onClick={handleGenerate}
+              disabled={loading}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              size="lg"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  Generate Notes
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
