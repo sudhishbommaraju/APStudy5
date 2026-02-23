@@ -81,7 +81,7 @@ export default function MarketingNavbar() {
             >
               Explore Features
             </a>
-            <Link to={createPageUrl('Diagnostic')}>
+            <Link to={createPageUrl('Dashboard')}>
               <Button 
                 className="transition-all duration-200"
                 style={{

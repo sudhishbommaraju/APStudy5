@@ -2,18 +2,18 @@ import React from 'react';
 import MarketingNavbar from '@/components/navigation/MarketingNavbar';
 
 export default function Layout({ children, currentPageName }) {
-  // Pages that don't need the layout wrapper
-  const noLayoutPages = ['Onboarding'];
+  // Pages that don't need the layout wrapper at all
+  const noLayoutPages = ['Onboarding', 'Dashboard', 'Upload', 'Youtube', 'CreateNotes'];
   
   // Marketing pages (use MarketingNavbar)
   const marketingPages = ['Home', 'Diagnostic', 'Results', 'Engine'];
 
-  // No layout for specific pages
+  // No layout wrapper for dashboard pages
   if (noLayoutPages.includes(currentPageName)) {
     return children;
   }
 
-  // All pages now use marketing navbar
+  // Marketing pages use navbar
   const isMarketingPage = marketingPages.includes(currentPageName);
 
   return (

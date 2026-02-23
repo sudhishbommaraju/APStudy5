@@ -71,6 +71,10 @@ import ValidationDashboard from './pages/ValidationDashboard';
 import Diagnostic from './pages/Diagnostic';
 import Results from './pages/Results';
 import Engine from './pages/Engine';
+import Dashboard from './pages/Dashboard';
+import Upload from './pages/Upload';
+import Youtube from './pages/Youtube';
+import CreateNotes from './pages/CreateNotes';
 import __Layout from './Layout.jsx';
 
 
@@ -99,6 +103,10 @@ export const PAGES = {
     "Diagnostic": Diagnostic,
     "Results": Results,
     "Engine": Engine,
+    "Dashboard": Dashboard,
+    "Upload": Upload,
+    "Youtube": Youtube,
+    "CreateNotes": CreateNotes,
 }
 
 export const pagesConfig = {
