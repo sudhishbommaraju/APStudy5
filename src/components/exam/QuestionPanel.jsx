@@ -1,4 +1,5 @@
 import React from 'react';
+import AIExplanation from './AIExplanation';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';

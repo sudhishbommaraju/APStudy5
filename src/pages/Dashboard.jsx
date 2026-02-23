@@ -8,7 +8,8 @@ import ProgressTracking from '@/components/dashboard/ProgressTracking';
 import EnhancedStatsCard from '@/components/dashboard/EnhancedStatsCard';
 import { AuroraBackground } from '@/components/ui/animated-background';
 import { motion } from 'framer-motion';
-import { Upload, Youtube, FileText, Target, Timer, BarChart, TrendingUp, Flame, BookOpen, Play, AlertCircle, LineChart } from 'lucide-react';
+import { Upload, Youtube, FileText, Target, Timer, BarChart, TrendingUp, Flame, BookOpen, Play, AlertCircle, LineChart, Sparkles } from 'lucide-react';
+import GamificationPoints from '@/components/gamification/GamificationPoints';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -414,6 +415,17 @@ export default function Dashboard() {
         {/* Tab Content */}
         {activeTab === 'SAT' && (
           <div className="space-y-8">
+            {/* Tier Progress Bar */}
+            <div className="mb-6">
+              <div className="flex justify-between items-center mb-2">
+                <p className="text-xs font-semibold text-neutral-400 uppercase">Level Progress</p>
+                <p className="text-xs text-neutral-500">12 / 50 XP</p>
+              </div>
+              <div className="h-1 bg-neutral-800 rounded-full overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-blue-500 to-purple-500 w-[24%] transition-all duration-500" />
+              </div>
+            </div>
+
             {/* Header Section */}
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
               <div>
