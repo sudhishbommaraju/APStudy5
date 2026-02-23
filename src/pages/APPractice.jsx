@@ -239,27 +239,46 @@ export default function APPractice() {
 
     setLoading(true);
     try {
+      const user = await base44.auth.me();
+
       // Sync progress to Notion before starting
       if (linkedPage) {
         await syncProgressToNotion();
       }
 
-      // Fetch questions from ProoflyQuestion entity filtered by subject/unit
-      const questions = await base44.entities.ProoflyQuestion.filter({
-        subject_id: subject,
-        unit_id: unit,
+      // Fetch existing questions from ProoflyQuestion entity
+      let questions = await base44.entities.ProoflyQuestion.filter({
+        'generation_metadata.subject_id': subject,
+        'generation_metadata.unit_id': unit,
         is_active: true
       }, '', questionCount);
 
+      // If no questions found, generate them
       if (questions.length === 0) {
-        toast.error('No questions found. Please sync your Notion database first.');
-        setLoading(false);
-        return;
+        toast.info('No questions found - generating new questions...');
+        
+        const { generateQuestionsWithRetry } = await import('@/components/generation/RobustQuestionGenerator');
+        
+        const result = await generateQuestionsWithRetry({
+          examType: 'AP',
+          subjectId: subject,
+          unitId: unit,
+          difficulty: 3,
+          questionCount: questionCount,
+          questionType: 'MCQ'
+        });
+
+        if (!result.success) {
+          throw new Error(result.error || 'Failed to generate questions');
+        }
+
+        questions = result.questions;
+        toast.success(`Generated ${questions.length} questions`);
       }
 
       // Create practice session
       const session = await base44.entities.EnginePracticeSession.create({
-        user_email: (await base44.auth.me()).email,
+        user_email: user.email,
         exam_id: 'AP',
         subject_id: subject,
         unit_id: unit,
@@ -267,10 +286,19 @@ export default function APPractice() {
         mode: 'untimed'
       });
 
-      navigate(createPageUrl('EnginePracticeSession') + `?session_id=${session.id}`);
+      toast.success('Starting practice session...');
+      navigate(createPageUrl('EnginePracticeSession') + `?session=${session.id}`);
     } catch (error) {
-      toast.error('Failed to start practice');
-      console.error(error);
+      toast.error(error.message || 'Failed to start practice');
+      console.error('Practice start error:', error);
+      
+      // Log failure
+      await base44.entities.GenerationLog.create({
+        user_email: (await base44.auth.me()).email,
+        type: 'QUESTIONS',
+        status: 'FAIL',
+        error_message: error.message
+      });
     }
     setLoading(false);
   };
