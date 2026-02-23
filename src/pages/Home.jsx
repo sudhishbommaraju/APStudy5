@@ -199,7 +199,7 @@ export default function Home() {
 
       {/* HERO SECTION */}
       <motion.section
-        style={{ y: heroY, paddingTop: '140px', paddingBottom: '160px' }}
+        style={{ y: heroY, paddingTop: '180px', paddingBottom: '200px' }}
         className="min-h-screen flex items-center justify-center px-6"
       >
         <div className="w-full grid lg:grid-cols-2 gap-24 items-center" style={{ maxWidth: '1200px' }}>
@@ -216,7 +216,7 @@ export default function Home() {
                 lineHeight: '1.1',
                 letterSpacing: '0.04em',
                 maxWidth: '650px',
-                marginBottom: '32px'
+                marginBottom: '48px'
               }}
             >
               WELCOME TO<br />PROOFLY
@@ -233,7 +233,7 @@ export default function Home() {
                 fontWeight: '400',
                 lineHeight: '1.7',
                 maxWidth: '650px',
-                marginBottom: '40px'
+                marginBottom: '56px'
               }}
             >
               Your test performance, engineered.
@@ -247,20 +247,24 @@ export default function Home() {
             >
               <Link to={createPageUrl('Dashboard')}>
                 <Button
-                  className="rounded-lg transition-all duration-200 hover:scale-103"
+                  className="rounded-xl transition-all duration-200"
                   style={{
-                    background: '#2F6DF6',
-                    color: '#F3F4F6',
-                    fontFamily: 'Space Grotesk, sans-serif',
-                    fontSize: '22px',
+                    background: '#FFFFFF',
+                    color: '#0C0C0C',
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: '18px',
                     fontWeight: '500',
-                    padding: '16px 32px'
+                    padding: '14px 32px',
+                    border: 'none'
                   }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#3C7CFF'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = '#2F6DF6'}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#F5F5F5';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#FFFFFF';
+                  }}
                 >
-                  Start Your Diagnostic
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  Start Diagnostic
                 </Button>
               </Link>
               <a href="#features" className="transition-all duration-200">
@@ -305,7 +309,7 @@ export default function Home() {
       </motion.section>
 
       {/* THE PROBLEM */}
-      <section className="px-6" style={{ paddingTop: '120px', paddingBottom: '120px' }}>
+      <section className="px-6" style={{ paddingTop: '160px', paddingBottom: '160px' }}>
         <div className="mx-auto text-center" style={{ maxWidth: '1200px' }}>
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
@@ -353,7 +357,7 @@ export default function Home() {
       </section>
 
       {/* HOW THE ENGINE WORKS */}
-      <section id="features" className="px-6" style={{ background: '#171A21', paddingTop: '120px', paddingBottom: '120px' }}>
+      <section id="features" className="px-6" style={{ background: '#171A21', paddingTop: '160px', paddingBottom: '160px' }}>
         <div className="mx-auto" style={{ maxWidth: '1200px' }}>
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
@@ -436,7 +440,7 @@ export default function Home() {
       </section>
 
       {/* BUILT FOR REAL EXAMS */}
-      <section className="px-6" style={{ paddingTop: '120px', paddingBottom: '120px' }}>
+      <section className="px-6" style={{ paddingTop: '160px', paddingBottom: '160px' }}>
         <div className="mx-auto" style={{ maxWidth: '1200px' }}>
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
@@ -540,7 +544,7 @@ export default function Home() {
       </section>
 
       {/* ABOUT + MISSION */}
-      <section id="about" className="px-6" style={{ background: '#171A21', paddingTop: '120px', paddingBottom: '120px' }}>
+      <section id="about" className="px-6" style={{ background: '#171A21', paddingTop: '160px', paddingBottom: '160px' }}>
         <div className="mx-auto" style={{ maxWidth: '1200px' }}>
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
@@ -668,7 +672,7 @@ export default function Home() {
       </section>
 
       {/* FINAL CTA */}
-      <section className="px-6" style={{ paddingTop: '120px', paddingBottom: '120px' }}>
+      <section className="px-6" style={{ paddingTop: '160px', paddingBottom: '160px' }}>
         <div className="mx-auto text-center" style={{ maxWidth: '1200px' }}>
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
@@ -695,20 +699,24 @@ export default function Home() {
           >
             <Link to={createPageUrl('Dashboard')}>
               <Button
-                className="rounded-lg transition-all duration-200 hover:scale-103"
+                className="rounded-xl transition-all duration-200"
                 style={{
-                  background: '#2F6DF6',
-                  color: '#F3F4F6',
-                  fontFamily: 'Space Grotesk, sans-serif',
-                  fontSize: '22px',
+                  background: '#FFFFFF',
+                  color: '#0C0C0C',
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: '18px',
                   fontWeight: '500',
-                  padding: '16px 32px'
+                  padding: '14px 32px',
+                  border: 'none'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#3C7CFF'}
-                onMouseLeave={(e) => e.currentTarget.style.background = '#2F6DF6'}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#F5F5F5';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#FFFFFF';
+                }}
               >
-                Start Your Diagnostic
-                <ArrowRight className="w-5 h-5 ml-2" />
+                Start Diagnostic
               </Button>
             </Link>
             <a href="#features">
