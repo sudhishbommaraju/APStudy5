@@ -236,37 +236,37 @@ export default function Dashboard() {
     {
       icon: Upload,
       title: 'Upload Notes',
-      description: 'Upload PDFs to generate structured notes.',
+      description: 'AI personalizes PDFs into structured notes.',
       route: 'APUpload'
     },
     {
       icon: Youtube,
       title: 'Paste YouTube URL',
-      description: 'Convert lecture videos into study notes.',
+      description: 'AI transforms videos into personalized study notes.',
       route: 'APYoutube'
     },
     {
       icon: FileText,
-      title: 'Create Custom Notes',
-      description: 'Start structured notes from scratch.',
+      title: 'Generate Custom Notes',
+      description: 'AI creates personalized notes from scratch.',
       route: 'APCreate'
     },
     {
       icon: Target,
-      title: 'AP Practice',
-      description: 'Topic-based AP question drills.',
+      title: 'AP Practice (Notion)',
+      description: 'Topic-based drills from your Notion question bank.',
       route: 'APPractice'
     },
     {
       icon: Timer,
-      title: 'Full-Length Practice Test',
-      description: 'Simulated AP exam experience.',
+      title: 'Full-Length Test (Notion)',
+      description: 'Simulated AP exam using Notion content.',
       route: 'APFullTest'
     },
     {
       icon: BarChart,
-      title: 'Progress Tracking',
-      description: 'Track skill mastery and score projection.',
+      title: 'Progress Tracking (Notion)',
+      description: 'Notion-powered mastery and score projection.',
       route: 'APProgress'
     }
   ];
@@ -314,37 +314,37 @@ export default function Dashboard() {
     {
       icon: Upload,
       title: 'Upload Notes',
-      description: 'Upload PDFs to generate structured notes.',
+      description: 'AI personalizes PDFs into structured notes.',
       route: 'APUpload'
     },
     {
       icon: Youtube,
       title: 'Paste YouTube URL',
-      description: 'Convert lecture videos into structured study notes.',
+      description: 'AI transforms videos into personalized study notes.',
       route: 'APYoutube'
     },
     {
       icon: FileText,
-      title: 'Create Custom Notes',
-      description: 'Start structured notes from scratch.',
+      title: 'Generate Custom Notes',
+      description: 'AI creates personalized notes from scratch.',
       route: 'APCreate'
     },
     {
       icon: Target,
-      title: 'AP Practice',
-      description: 'Topic-based AP question drills.',
+      title: 'AP Practice (Notion)',
+      description: 'Topic-based drills from your Notion question bank.',
       route: 'APPractice'
     },
     {
       icon: Timer,
-      title: 'Full-Length Practice Test',
-      description: 'Simulated AP exam experience.',
+      title: 'Full-Length Test (Notion)',
+      description: 'Simulated AP exam using Notion content.',
       route: 'APFullTest'
     },
     {
       icon: BarChart,
-      title: 'Progress Tracking',
-      description: 'Track skill mastery and score projection.',
+      title: 'Progress Tracking (Notion)',
+      description: 'Notion-powered mastery and score projection.',
       route: 'APProgress'
     }
   ];
@@ -709,7 +709,7 @@ export default function Dashboard() {
                   <div className="flex items-start justify-between mb-6">
                     <div>
                       <h2 className="text-2xl font-medium text-white mb-2">Continue AP Practice</h2>
-                      <p className="text-neutral-400">Focus on Unit 3 to reach 75% mastery across all topics.</p>
+                      <p className="text-neutral-400">Notion-powered drills tailored to your weak points.</p>
                     </div>
                     <TrendingUp className="w-8 h-8 text-green-500" />
                   </div>
