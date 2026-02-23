@@ -85,6 +85,12 @@ import StudyPlans from './pages/StudyPlans';
 import Upload from './pages/Upload';
 import ValidationDashboard from './pages/ValidationDashboard';
 import Youtube from './pages/Youtube';
+import EnginePracticeBuilder from './pages/EnginePracticeBuilder';
+import EnginePracticeSession from './pages/EnginePracticeSession';
+import EngineResults from './pages/EngineResults';
+import EngineBenchmarks from './pages/EngineBenchmarks';
+import EngineAnalytics from './pages/EngineAnalytics';
+import APStudyKit from './pages/APStudyKit';
 import __Layout from './Layout.jsx';
 
 
@@ -127,6 +133,12 @@ export const PAGES = {
     "Upload": Upload,
     "ValidationDashboard": ValidationDashboard,
     "Youtube": Youtube,
+    "EnginePracticeBuilder": EnginePracticeBuilder,
+    "EnginePracticeSession": EnginePracticeSession,
+    "EngineResults": EngineResults,
+    "EngineBenchmarks": EngineBenchmarks,
+    "EngineAnalytics": EngineAnalytics,
+    "APStudyKit": APStudyKit,
 }
 
 export const pagesConfig = {
