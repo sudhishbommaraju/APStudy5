@@ -47,39 +47,67 @@ css
 
 /* Global Typography */
 body {
-  font-family: var(--font-primary);
+  font-family: 'Inter', var(--font-primary);
   color: var(--color-text-primary);
   background-color: var(--color-primary-bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  font-size: 18px;
+  line-height: 1.6;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
-  font-weight: 600;
-  line-height: 1.3;
+  font-family: 'Space Grotesk', var(--font-display);
+  font-weight: 700;
+  line-height: 1.2;
   color: var(--color-text-primary);
   letter-spacing: -0.01em;
 }
 
 h1 {
-  font-size: 3rem;
+  font-size: 72px;
+  font-weight: 700;
   letter-spacing: -0.02em;
 }
 
 h2 {
-  font-size: 2.25rem;
+  font-size: 48px;
+  font-weight: 600;
   letter-spacing: -0.01em;
 }
 
 h3 {
-  font-size: 1.5rem;
+  font-size: 36px;
+  font-weight: 600;
 }
 
 p {
-  line-height: 1.7;
+  line-height: 1.6;
   color: var(--color-text-secondary);
+  font-size: 18px;
+}
+
+@media (max-width: 768px) {
+  body {
+    font-size: 16px;
+  }
+  
+  h1 {
+    font-size: 48px;
+  }
+  
+  h2 {
+    font-size: 32px;
+  }
+  
+  h3 {
+    font-size: 24px;
+  }
+  
+  p {
+    font-size: 16px;
+  }
 }
 
 /* Premium Dashboard Pages */
