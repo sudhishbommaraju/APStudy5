@@ -61,6 +61,45 @@ export default function Dashboard() {
     }
   ];
 
+  const satStrategyContent = [
+    {
+      channel: 'Scalar Learning',
+      title: 'SAT Math: Complete Strategy Guide',
+      duration: '24:15',
+      thumbnail: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600&h=340&fit=crop'
+    },
+    {
+      channel: 'Hayden Rhodea SAT',
+      title: 'Reading & Writing: Pattern Recognition',
+      duration: '18:42',
+      thumbnail: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=600&h=340&fit=crop'
+    },
+    {
+      channel: 'SupertutorTV',
+      title: 'Time Management Strategies for SAT',
+      duration: '15:30',
+      thumbnail: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&h=340&fit=crop'
+    },
+    {
+      channel: 'The College Panda',
+      title: 'Advanced Math Techniques',
+      duration: '21:05',
+      thumbnail: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=600&h=340&fit=crop'
+    },
+    {
+      channel: "Anna's Universe",
+      title: 'SAT Grammar Rules You Must Know',
+      duration: '19:20',
+      thumbnail: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=600&h=340&fit=crop'
+    },
+    {
+      channel: 'PrepScholar SAT',
+      title: 'Score 1500+: Complete Roadmap',
+      duration: '28:45',
+      thumbnail: 'https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=600&h=340&fit=crop'
+    }
+  ];
+
   const satCards = [
     {
       title: 'SAT Practice',
@@ -354,6 +393,50 @@ export default function Dashboard() {
                     <div className="text-2xl font-semibold text-white mb-1">+140</div>
                     <div className="text-sm text-neutral-400">Point Improvement</div>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* SAT Strategy Library */}
+            <div className="mt-12">
+              <div className="flex justify-between items-end mb-6">
+                <div>
+                  <h2 className="text-2xl font-light text-white mb-2">SAT Strategy Library</h2>
+                  <p className="text-neutral-400">Curated expert breakdowns to boost your score.</p>
+                </div>
+                <button className="text-sm text-neutral-400 hover:text-white transition-colors">
+                  View All →
+                </button>
+              </div>
+              
+              <div className="overflow-x-auto pb-4 -mx-6 px-6" style={{ scrollBehavior: 'smooth' }}>
+                <div className="flex gap-6">
+                  {satStrategyContent.map((video, index) => (
+                    <div
+                      key={index}
+                      className="min-w-[300px] bg-neutral-900 border border-neutral-800 hover:border-neutral-600 rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02]"
+                    >
+                      <div className="aspect-video bg-neutral-800 relative overflow-hidden">
+                        <img 
+                          src={video.thumbnail} 
+                          alt={video.title}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute bottom-2 right-2 bg-black/80 text-white text-xs px-2 py-1 rounded">
+                          {video.duration}
+                        </div>
+                      </div>
+                      <div className="p-4">
+                        <div className="text-sm text-neutral-400 mb-2">{video.channel}</div>
+                        <h3 className="text-base font-medium text-white mb-3 line-clamp-2">
+                          {video.title}
+                        </h3>
+                        <button className="text-sm text-neutral-300 hover:text-white transition-colors">
+                          Watch →
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
