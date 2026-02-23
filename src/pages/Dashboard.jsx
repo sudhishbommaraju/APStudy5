@@ -5,7 +5,14 @@ import { Upload, Youtube, FileText, Target, Timer, BarChart, TrendingUp, Flame, 
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('SAT');
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem('dashboard_active_tab') || 'SAT';
+  });
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    localStorage.setItem('dashboard_active_tab', tab);
+  };
 
   // Mock data
   const stats = {
@@ -358,7 +365,7 @@ export default function Dashboard() {
             {['SAT', 'ACT', 'AP'].map((tab) => (
               <button
                 key={tab}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => handleTabChange(tab)}
                 className={`px-6 py-2 rounded-full transition-all ${
                   activeTab === tab
                     ? 'bg-white text-black'
