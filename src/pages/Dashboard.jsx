@@ -3,11 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Upload, Youtube, FileText, Target, Timer, BarChart } from 'lucide-react';
 
-type ExamType = 'SAT' | 'ACT' | 'AP';
-
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<ExamType>('SAT');
+  const [activeTab, setActiveTab] = useState('SAT');
 
   const satCards = [
     {
@@ -80,7 +78,7 @@ export default function Dashboard() {
         {/* Exam Tab Navigation */}
         <div className="flex justify-center mb-16">
           <div className="bg-neutral-900 border border-neutral-800 rounded-full p-1 inline-flex">
-            {(['SAT', 'ACT', 'AP'] as ExamType[]).map((tab) => (
+            {['SAT', 'ACT', 'AP'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
