@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
-import { ArrowRight, TrendingUp, Target, BarChart3 } from 'lucide-react';
+import { ArrowRight, TrendingUp, Target, BarChart3, Activity, Search, Clock } from 'lucide-react';
 import { AuroraBackground } from '@/components/ui/animated-background';
 
 const satData = [
@@ -390,76 +390,100 @@ export default function Home() {
             display: 'grid', 
             gridTemplateColumns: 'repeat(3, 1fr)', 
             gap: '32px',
-            justifyItems: 'center'
+            maxWidth: '1100px',
+            margin: '0 auto'
           }}>
             {[
-              { num: '1', title: 'Diagnostic Baseline', desc: 'Measure current performance across all sections' },
-              { num: '2', title: 'Weakness Mapping', desc: 'Identify precise skill gaps and timing inefficiencies' },
-              { num: '3', title: 'Targeted Drills', desc: 'Practice questions calibrated to your weak points' },
-              { num: '4', title: 'Timed Simulation', desc: 'Full-length exams under real conditions' },
-              { num: '5', title: 'Projection Update', desc: 'Track improvement and recalculate score trajectory' }
-            ].map((step, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                style={{
-                  background: 'rgba(255, 255, 255, 0.04)',
-                  border: '1px solid rgba(255, 255, 255, 0.06)',
-                  borderRadius: '16px',
-                  padding: '28px',
-                  width: '100%',
-                  maxWidth: '320px',
-                  minHeight: '180px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  textAlign: 'center'
-                }}
-              >
-                <div 
-                  className="mb-4"
-                  style={{ 
-                    width: '56px',
-                    height: '56px',
-                    borderRadius: '50%',
-                    background: 'rgba(47, 109, 246, 0.1)',
+              { num: '1', icon: Activity, title: 'Diagnostic Baseline', desc: 'Measure current performance across all sections' },
+              { num: '2', icon: Search, title: 'Weakness Mapping', desc: 'Identify precise skill gaps and timing inefficiencies' },
+              { num: '3', icon: Target, title: 'Targeted Drills', desc: 'Practice questions calibrated to your weak points' },
+              { num: '4', icon: Clock, title: 'Timed Simulation', desc: 'Full-length exams under real conditions' },
+              { num: '5', icon: TrendingUp, title: 'Projection Update', desc: 'Track improvement and recalculate score trajectory' },
+              { num: '6', icon: BarChart3, title: 'Performance Review', desc: 'Analyze trends and adjust strategy weekly' }
+            ].map((step, i) => {
+              const Icon = step.icon;
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.04)',
+                    border: '1px solid rgba(255, 255, 255, 0.06)',
+                    borderRadius: '16px',
+                    padding: '28px',
+                    width: '100%',
+                    minHeight: '280px',
                     display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    textAlign: 'center',
+                    transition: 'all 0.3s ease'
+                  }}
+                  whileHover={{
+                    boxShadow: '0 8px 30px rgba(47, 109, 246, 0.15)'
                   }}
                 >
-                  <span style={{ 
-                    color: '#2F6DF6',
+                  <Icon 
+                    size={28} 
+                    strokeWidth={1.5}
+                    style={{ 
+                      color: '#2F6DF6',
+                      opacity: 0.85,
+                      marginBottom: '16px'
+                    }}
+                  />
+                  <div 
+                    className="mb-4"
+                    style={{ 
+                      width: '48px',
+                      height: '48px',
+                      borderRadius: '50%',
+                      background: 'rgba(47, 109, 246, 0.1)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    <span style={{ 
+                      color: '#2F6DF6',
+                      fontFamily: 'Space Grotesk, sans-serif',
+                      fontSize: '20px',
+                      fontWeight: '700'
+                    }}>
+                      {step.num}
+                    </span>
+                  </div>
+                  <h3 className="mb-3" style={{ 
+                    color: '#F3F4F6',
                     fontFamily: 'Space Grotesk, sans-serif',
-                    fontSize: '24px',
-                    fontWeight: '700'
+                    fontSize: '20px',
+                    fontWeight: '500',
+                    lineHeight: '1.2'
                   }}>
-                    {step.num}
-                  </span>
-                </div>
-                <h3 className="mb-3" style={{ 
-                  color: '#F3F4F6',
-                  fontFamily: 'Space Grotesk, sans-serif',
-                  fontSize: '20px',
-                  fontWeight: '500',
-                  lineHeight: '1.2'
-                }}>
-                  {step.title}
-                </h3>
-                <p style={{ 
-                  color: '#9CA3AF',
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: '15px',
-                  fontWeight: '400',
-                  lineHeight: '1.5'
-                }}>
-                  {step.desc}
-                </p>
-              </motion.div>
-            ))}
+                    {step.title}
+                  </h3>
+                  <div style={{
+                    width: '40px',
+                    height: '2px',
+                    background: '#2F6DF6',
+                    opacity: 0.3,
+                    margin: '12px 0'
+                  }} />
+                  <p style={{ 
+                    color: '#9CA3AF',
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: '15px',
+                    fontWeight: '400',
+                    lineHeight: '1.5'
+                  }}>
+                    {step.desc}
+                  </p>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </section>
