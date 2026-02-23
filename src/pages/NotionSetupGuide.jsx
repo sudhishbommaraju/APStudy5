@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Database, FileText, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Database, FileText, CheckCircle, AlertCircle } from 'lucide-react';
 
 export default function NotionSetupGuide() {
   const navigate = useNavigate();
@@ -90,7 +90,7 @@ export default function NotionSetupGuide() {
 
                 <div className="bg-neutral-800/50 rounded-lg p-4">
                   <div className="font-mono text-sm text-blue-400 mb-2">Stem</div>
-                  <div className="text-xs text-neutral-400">Type: Rich Text • Question text (use LaTeX: $x^2$ or $$\frac{'{'a'}{'}{b}$$)</div>
+                  <div className="text-xs text-neutral-400">Type: Rich Text • Question text (supports LaTeX math)</div>
                 </div>
 
                 <div className="bg-neutral-800/50 rounded-lg p-4">
@@ -131,7 +131,7 @@ export default function NotionSetupGuide() {
 
               <div className="bg-neutral-800 rounded-lg p-4 mb-4">
                 <div className="text-sm text-neutral-400 mb-2">Block Math:</div>
-                <code className="text-blue-400 text-sm">$$\frac{'{'x^2 + 3x + 2'}{'}{x + 1}$$</code>
+                <code className="text-blue-400 text-sm">$$x^2 + 5x + 6 = 0$$</code>
               </div>
 
               <div className="bg-neutral-800 rounded-lg p-4">
