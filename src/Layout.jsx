@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '@/utils';
-import GlobalNav from '@/components/layout/GlobalNav';
+import MarketingNavbar from '@/components/navigation/MarketingNavbar';
+import AppNavbar from '@/components/navigation/AppNavbar';
 import UpgradeModal from '@/components/monetization/UpgradeModal';
 import GlobalErrorBoundary from '@/components/error/GlobalErrorBoundary';
 import RouteErrorFallback from '@/components/error/RouteErrorFallback';
@@ -14,11 +15,14 @@ export default function Layout({ children, currentPageName }) {
   // Pages that don't need the layout wrapper
   const noLayoutPages = ['Onboarding'];
   
+  // Marketing pages (use MarketingNavbar)
+  const marketingPages = ['Home'];
+  
   // Admin-only pages
   const adminOnlyPages = ['AdminUsers', 'SeedData', 'QuestionValidation', 'ValidationDashboard'];
 
   // Protected pages
-  const protectedPages = ['Dashboard', 'Practice', 'Exam', 'Tutor', 'Notes', 'Flashcards', 'Progress', 'Generate', 'AdminUsers', 'SeedData', 'MistakeReplay', 'Settings', 'StudyGroups', 'AIStudyPlanner', 'Analytics', 'Rewards', 'Courses', 'GroupDetail', 'CourseBuilder', 'TeacherMode', 'QuestionValidation', 'PracticeWorkspace', 'ValidationDashboard'];
+  const protectedPages = ['Dashboard', 'Practice', 'Exam', 'Tutor', 'Notes', 'Flashcards', 'Progress', 'Generate', 'AdminUsers', 'SeedData', 'MistakeReplay', 'Settings', 'StudyGroups', 'AIStudyPlanner', 'Analytics', 'Rewards', 'Courses', 'GroupDetail', 'CourseBuilder', 'TeacherMode', 'QuestionValidation', 'PracticeWorkspace', 'ValidationDashboard', 'SATPractice', 'ACTPractice', 'DocumentAssistant', 'Leaderboards'];
 
   useEffect(() => {
     const loadUser = async () => {
@@ -66,11 +70,14 @@ export default function Layout({ children, currentPageName }) {
     return children;
   }
 
+  // Determine which navbar to use
+  const isMarketingPage = marketingPages.includes(currentPageName);
+
   return (
     <GlobalErrorBoundary FallbackComponent={RouteErrorFallback}>
       <div className="min-h-screen bg-[#0C0C0C]">
-        <GlobalNav />
-        <main className="max-w-7xl mx-auto px-6 py-8 pt-24">
+        {isMarketingPage ? <MarketingNavbar /> : <AppNavbar />}
+        <main className={isMarketingPage ? "" : "max-w-7xl mx-auto px-6 py-8 pt-24"}>
           {children}
         </main>
         <UpgradeModal open={upgradeModalOpen} onOpenChange={setUpgradeModalOpen} />
