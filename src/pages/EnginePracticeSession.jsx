@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { getQuestionsForPractice } from '@/components/engine/QuestionGenerator';
 import { selectAdaptiveQuestions } from '@/components/engine/AdaptiveDifficultyEngine';
 import LatexRenderer from '@/components/ui/LatexRenderer';
+import PracticeErrorState from '@/components/error/PracticeErrorState';
 import { Clock, ArrowRight, Check, X } from 'lucide-react';
 
 export default function EnginePracticeSession() {
@@ -190,23 +191,19 @@ export default function EnginePracticeSession() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-center text-white">
-          <h1 className="text-2xl font-bold mb-4">Session Not Found</h1>
-          <p className="text-neutral-400">Unable to load this practice session.</p>
-        </div>
-      </div>
+      <PracticeErrorState 
+        title="Session Not Found"
+        description="Unable to load this practice session. Please try again or start a new practice session."
+      />
     );
   }
 
   if (!questions.length) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-center text-white">
-          <h1 className="text-2xl font-bold mb-4">No Questions Available</h1>
-          <p className="text-neutral-400">Unable to load questions for this session.</p>
-        </div>
-      </div>
+      <PracticeErrorState 
+        title="No Questions Available"
+        description="Unable to load questions for this session. Please try again."
+      />
     );
   }
 

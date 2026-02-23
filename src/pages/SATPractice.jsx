@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import ExamShell from '@/components/exam/ExamShell';
+import PracticeErrorState from '@/components/error/PracticeErrorState';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 
 export default function SATPractice() {
@@ -66,21 +67,10 @@ export default function SATPractice() {
 
   if (questions.length === 0) {
     return (
-      <div className="min-h-screen bg-black py-16">
-        <div className="max-w-4xl mx-auto px-6">
-          <button
-            onClick={() => navigate(createPageUrl('Dashboard'))}
-            className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors mb-12"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            Back to Dashboard
-          </button>
-          <div className="text-center">
-            <h1 className="text-4xl font-light text-white mb-4">SAT Practice</h1>
-            <p className="text-neutral-400">No questions available. Please generate some questions first.</p>
-          </div>
-        </div>
-      </div>
+      <PracticeErrorState 
+        title="No Questions Available"
+        description="Unable to load SAT questions. Please generate some questions first."
+      />
     );
   }
 
