@@ -97,7 +97,7 @@ export default function MarketingNavbar() {
                 onMouseEnter={(e) => e.currentTarget.style.background = '#3C7CFF'}
                 onMouseLeave={(e) => e.currentTarget.style.background = '#2F6DF6'}
               >
-                Start Diagnostic
+                Get Started
               </Button>
             </Link>
           </div>

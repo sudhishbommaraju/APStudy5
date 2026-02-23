@@ -268,7 +268,7 @@ export default function Home() {
                     e.currentTarget.style.background = '#FFFFFF';
                   }}
                 >
-                  Start Diagnostic
+                  Get Started
                 </Button>
               </Link>
               <a href="#features" className="transition-all duration-200">
