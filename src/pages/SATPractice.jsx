@@ -19,22 +19,30 @@ export default function SATPractice() {
 
   const initializePractice = async () => {
     try {
-      // Create practice session
+      // Get user and exam ID
       const user = await base44.auth.me();
+      const exams = await base44.entities.Exam.filter({ exam_type: 'SAT' });
+      
+      if (!exams.length) {
+        throw new Error('SAT exam not found');
+      }
+
+      // Create practice session
       const session = await base44.entities.EnginePracticeSession.create({
         user_email: user.email,
-        exam_id: 'SAT',
+        exam_id: exams[0].id,
         question_count: 10,
-        mode: 'untimed'
+        mode: 'untimed',
+        started_at: new Date().toISOString()
       });
       setSessionId(session.id);
 
       // Fetch sample questions
-      const allQuestions = await base44.entities.ProoflyQuestion.list();
-      const satQuestions = allQuestions.slice(0, 10);
-      setQuestions(satQuestions);
+      const allQuestions = await base44.entities.ProoflyQuestion.filter({ is_active: true }, '-difficulty', 10);
+      setQuestions(allQuestions);
     } catch (error) {
       console.error('Failed to load practice:', error);
+      setLoading(false);
     }
     setLoading(false);
   };
