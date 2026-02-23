@@ -26,7 +26,7 @@ export default function Dashboard() {
     {
       title: 'SAT Practice',
       description: 'Adaptive question drills by section.',
-      route: 'SATPractice',
+      route: 'SATAdaptivePractice',
       icon: BookOpen
     },
     {
@@ -131,7 +131,7 @@ export default function Dashboard() {
     {
       title: 'ACT Practice',
       description: 'Adaptive question drills by section.',
-      route: 'ACTPractice',
+      route: 'ACTAdaptivePractice',
       icon: BookOpen
     },
     {

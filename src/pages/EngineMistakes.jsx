@@ -5,6 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, AlertCircle, Lightbulb } from 'lucide-react';
 import { generateExplanation } from '@/components/engine/AIExplanationEngine';
+import LatexRenderer from '@/components/ui/LatexRenderer';
 
 export default function EngineMistakes() {
   const navigate = useNavigate();
@@ -98,7 +99,7 @@ export default function EngineMistakes() {
                     <AlertCircle className="w-5 h-5 text-red-500 mt-1" />
                     <div className="flex-1">
                       <div className="text-white mb-3 leading-relaxed">
-                        {question.stem}
+                        <LatexRenderer content={question.stem} />
                       </div>
                       <div className="grid grid-cols-2 gap-2 mb-4">
                         {question.answer_choices.map((choice, idx) => (
@@ -112,7 +113,7 @@ export default function EngineMistakes() {
                                 : 'text-neutral-400'
                             }`}
                           >
-                            {String.fromCharCode(65 + idx)}. {choice}
+                            {String.fromCharCode(65 + idx)}. <LatexRenderer content={choice} />
                           </div>
                         ))}
                       </div>

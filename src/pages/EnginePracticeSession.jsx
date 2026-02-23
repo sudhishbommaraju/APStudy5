@@ -4,6 +4,8 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { getQuestionsForPractice } from '@/components/engine/QuestionGenerator';
+import { selectAdaptiveQuestions } from '@/components/engine/AdaptiveDifficultyEngine';
+import LatexRenderer from '@/components/ui/LatexRenderer';
 import { Clock, ArrowRight, Check, X } from 'lucide-react';
 
 export default function EnginePracticeSession() {
@@ -25,27 +27,21 @@ export default function EnginePracticeSession() {
   }, [sessionId]);
 
   async function loadSession() {
+    const user = await base44.auth.me();
     const sessionData = await base44.entities.EnginePracticeSession.list();
     const current = sessionData.find(s => s.id === sessionId);
     setSession(current);
 
-    // Get skills for this domain
-    const skills = await base44.entities.EngineSkill.filter({ 
-      domain_id: current.domain_id 
+    // Use adaptive question selection
+    const adaptiveQuestions = await selectAdaptiveQuestions({
+      userEmail: user.email,
+      examType: current.exam_id,
+      domainId: current.domain_id,
+      unitId: current.unit_id,
+      questionCount: current.question_count
     });
 
-    // Generate/fetch questions
-    const allQuestions = [];
-    for (const skill of skills.slice(0, 3)) { // Use top 3 skills
-      const skillQuestions = await getQuestionsForPractice({
-        skillId: skill.id,
-        difficulty: 3,
-        count: Math.ceil(current.question_count / 3)
-      });
-      allQuestions.push(...skillQuestions);
-    }
-
-    setQuestions(allQuestions.slice(0, current.question_count));
+    setQuestions(adaptiveQuestions);
     setLoading(false);
   }
 
@@ -146,7 +142,7 @@ export default function EnginePracticeSession() {
         {/* Question */}
         <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 mb-6">
           <div className="text-white text-lg mb-8 leading-relaxed">
-            {current.stem}
+            <LatexRenderer content={current.stem} />
           </div>
 
           <div className="space-y-3">
@@ -189,7 +185,7 @@ export default function EnginePracticeSession() {
                         ? 'text-black'
                         : 'text-white'
                     }>
-                      {choice}
+                      <LatexRenderer content={choice} />
                     </span>
                   </div>
                   {answered && idx === current.correct_answer && (
@@ -215,7 +211,7 @@ export default function EnginePracticeSession() {
               {isCorrect ? '✓ Correct!' : '✗ Incorrect'}
             </div>
             <div className="text-neutral-300 leading-relaxed">
-              {current.explanation}
+              <LatexRenderer content={current.explanation} />
             </div>
           </div>
         )}

@@ -97,6 +97,8 @@ import EngineTimedQuiz from './pages/EngineTimedQuiz';
 import EngineNotes from './pages/EngineNotes';
 import APFRQSimulator from './pages/APFRQSimulator';
 import NotionSync from './pages/NotionSync';
+import SATAdaptivePractice from './pages/SATAdaptivePractice';
+import ACTAdaptivePractice from './pages/ACTAdaptivePractice';
 import __Layout from './Layout.jsx';
 
 
@@ -151,6 +153,8 @@ export const PAGES = {
     "EngineNotes": EngineNotes,
     "APFRQSimulator": APFRQSimulator,
     "NotionSync": NotionSync,
+    "SATAdaptivePractice": SATAdaptivePractice,
+    "ACTAdaptivePractice": ACTAdaptivePractice,
 }
 
 export const pagesConfig = {
