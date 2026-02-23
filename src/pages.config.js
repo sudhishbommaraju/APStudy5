@@ -91,6 +91,11 @@ import EngineResults from './pages/EngineResults';
 import EngineBenchmarks from './pages/EngineBenchmarks';
 import EngineAnalytics from './pages/EngineAnalytics';
 import APStudyKit from './pages/APStudyKit';
+import EngineHome from './pages/EngineHome';
+import EngineMistakes from './pages/EngineMistakes';
+import EngineTimedQuiz from './pages/EngineTimedQuiz';
+import EngineNotes from './pages/EngineNotes';
+import APFRQSimulator from './pages/APFRQSimulator';
 import __Layout from './Layout.jsx';
 
 
@@ -139,6 +144,11 @@ export const PAGES = {
     "EngineBenchmarks": EngineBenchmarks,
     "EngineAnalytics": EngineAnalytics,
     "APStudyKit": APStudyKit,
+    "EngineHome": EngineHome,
+    "EngineMistakes": EngineMistakes,
+    "EngineTimedQuiz": EngineTimedQuiz,
+    "EngineNotes": EngineNotes,
+    "APFRQSimulator": APFRQSimulator,
 }
 
 export const pagesConfig = {

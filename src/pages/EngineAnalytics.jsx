@@ -4,12 +4,16 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, TrendingUp, Target, BarChart, Activity } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import { LineChart, Line, BarChart as ReBarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import { calculateWeightedMovingAverage, projectSATScore, projectACTScore, analyzeDifficultyPerformance, calculateImprovementVelocity } from '@/components/engine/ScoreProjection';
 
 export default function EngineAnalytics() {
   const navigate = useNavigate();
   const [sessions, setSessions] = useState([]);
   const [skillPerformance, setSkillPerformance] = useState([]);
+  const [difficultyBreakdown, setDifficultyBreakdown] = useState([]);
+  const [projectedScore, setProjectedScore] = useState(null);
+  const [improvementVelocity, setImprovementVelocity] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -33,6 +37,23 @@ export default function EngineAnalytics() {
       user_email: user.email
     });
     setSkillPerformance(performance.sort((a, b) => b.accuracy - a.accuracy));
+
+    // Calculate difficulty performance
+    const skills = await base44.entities.EngineSkill.list();
+    const performanceWithDifficulty = performance.map(p => {
+      const skill = skills.find(s => s.id === p.skill_id);
+      return { ...p, difficulty_level: skill?.difficulty_level || 3 };
+    });
+    const diffBreakdown = analyzeDifficultyPerformance(performanceWithDifficulty);
+    setDifficultyBreakdown(diffBreakdown);
+
+    // Calculate projections
+    const wma = calculateWeightedMovingAverage(completed);
+    setProjectedScore(projectSATScore(wma)); // Default to SAT, can make dynamic
+
+    // Calculate improvement velocity
+    const velocity = await calculateImprovementVelocity(user.email);
+    setImprovementVelocity(velocity);
 
     setLoading(false);
   }
@@ -109,6 +130,55 @@ export default function EngineAnalytics() {
             </div>
           </div>
         </div>
+
+        {/* Score Projection */}
+        {projectedScore && (
+          <div className="bg-gradient-to-br from-blue-900 to-blue-950 border border-blue-800 rounded-2xl p-8 mb-8">
+            <h2 className="text-xl font-medium text-white mb-4">Projected Score</h2>
+            <div className="text-center">
+              <div className="text-5xl font-bold text-blue-400 mb-2">{projectedScore}</div>
+              <div className="text-sm text-blue-300 mb-4">Estimated SAT Score</div>
+              {improvementVelocity > 0 && (
+                <div className="text-sm text-green-400">
+                  +{improvementVelocity.toFixed(1)}% improvement velocity
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Difficulty Performance Curve */}
+        {difficultyBreakdown.length > 0 && (
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 mb-8">
+            <h2 className="text-xl font-medium text-white mb-6">Difficulty Performance Curve</h2>
+            <div style={{ width: '100%', height: '300px' }}>
+              <ResponsiveContainer>
+                <ReBarChart data={difficultyBreakdown}>
+                  <XAxis
+                    dataKey="difficulty"
+                    stroke="rgba(255, 255, 255, 0.3)"
+                    style={{ fontSize: '12px', fill: '#9CA3AF' }}
+                    tickFormatter={(v) => `Level ${v}`}
+                  />
+                  <YAxis
+                    domain={[0, 100]}
+                    stroke="rgba(255, 255, 255, 0.3)"
+                    style={{ fontSize: '12px', fill: '#9CA3AF' }}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#171717',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      borderRadius: '8px',
+                      color: '#F3F4F6'
+                    }}
+                  />
+                  <Bar dataKey="accuracy" fill="#8B5CF6" radius={[8, 8, 0, 0]} />
+                </ReBarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
 
         {/* Progress Chart */}
         {progressData.length > 0 && (
