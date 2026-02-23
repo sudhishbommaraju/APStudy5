@@ -30,6 +30,12 @@ export default function EnginePracticeSession() {
     const user = await base44.auth.me();
     const sessionData = await base44.entities.EnginePracticeSession.list();
     const current = sessionData.find(s => s.id === sessionId);
+    
+    if (!current) {
+      setLoading(false);
+      return;
+    }
+    
     setSession(current);
 
     // Use adaptive question selection

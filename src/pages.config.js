@@ -47,13 +47,17 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import ACTAdaptivePractice from './pages/ACTAdaptivePractice';
 import ACTFullTest from './pages/ACTFullTest';
 import ACTPractice from './pages/ACTPractice';
 import AIStudyPlanner from './pages/AIStudyPlanner';
 import APCreate from './pages/APCreate';
+import APFRQSimulator from './pages/APFRQSimulator';
 import APFullTest from './pages/APFullTest';
 import APPractice from './pages/APPractice';
 import APProgress from './pages/APProgress';
+import APQuestionGenerator from './pages/APQuestionGenerator';
+import APStudyKit from './pages/APStudyKit';
 import APUpload from './pages/APUpload';
 import APYoutube from './pages/APYoutube';
 import About from './pages/About';
@@ -66,53 +70,53 @@ import Dashboard from './pages/Dashboard';
 import Demo from './pages/Demo';
 import Diagnostic from './pages/Diagnostic';
 import Engine from './pages/Engine';
+import EngineAnalytics from './pages/EngineAnalytics';
+import EngineBenchmarks from './pages/EngineBenchmarks';
+import EngineHome from './pages/EngineHome';
+import EngineMistakes from './pages/EngineMistakes';
+import EngineNotes from './pages/EngineNotes';
+import EnginePracticeBuilder from './pages/EnginePracticeBuilder';
+import EnginePracticeSession from './pages/EnginePracticeSession';
+import EngineResults from './pages/EngineResults';
+import EngineTimedQuiz from './pages/EngineTimedQuiz';
 import Generate from './pages/Generate';
 import GroupDetail from './pages/GroupDetail';
 import Home from './pages/Home';
 import MistakeReplay from './pages/MistakeReplay';
+import NotionSetupGuide from './pages/NotionSetupGuide';
+import NotionSync from './pages/NotionSync';
 import Onboarding from './pages/Onboarding';
 import Pricing from './pages/Pricing';
 import Progress from './pages/Progress';
 import QuestionValidation from './pages/QuestionValidation';
 import Results from './pages/Results';
 import Rewards from './pages/Rewards';
+import SATAdaptivePractice from './pages/SATAdaptivePractice';
 import SATFullTest from './pages/SATFullTest';
 import SATPractice from './pages/SATPractice';
 import SeedData from './pages/SeedData';
+import SeedTaxonomy from './pages/SeedTaxonomy';
 import Settings from './pages/Settings';
 import StudyGroups from './pages/StudyGroups';
 import StudyPlans from './pages/StudyPlans';
 import Upload from './pages/Upload';
 import ValidationDashboard from './pages/ValidationDashboard';
 import Youtube from './pages/Youtube';
-import EnginePracticeBuilder from './pages/EnginePracticeBuilder';
-import EnginePracticeSession from './pages/EnginePracticeSession';
-import EngineResults from './pages/EngineResults';
-import EngineBenchmarks from './pages/EngineBenchmarks';
-import EngineAnalytics from './pages/EngineAnalytics';
-import APStudyKit from './pages/APStudyKit';
-import EngineHome from './pages/EngineHome';
-import EngineMistakes from './pages/EngineMistakes';
-import EngineTimedQuiz from './pages/EngineTimedQuiz';
-import EngineNotes from './pages/EngineNotes';
-import APFRQSimulator from './pages/APFRQSimulator';
-import NotionSync from './pages/NotionSync';
-import SATAdaptivePractice from './pages/SATAdaptivePractice';
-import ACTAdaptivePractice from './pages/ACTAdaptivePractice';
-import NotionSetupGuide from './pages/NotionSetupGuide';
-import SeedTaxonomy from './pages/SeedTaxonomy';
-import APQuestionGenerator from './pages/APQuestionGenerator';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "ACTAdaptivePractice": ACTAdaptivePractice,
     "ACTFullTest": ACTFullTest,
     "ACTPractice": ACTPractice,
     "AIStudyPlanner": AIStudyPlanner,
     "APCreate": APCreate,
+    "APFRQSimulator": APFRQSimulator,
     "APFullTest": APFullTest,
     "APPractice": APPractice,
     "APProgress": APProgress,
+    "APQuestionGenerator": APQuestionGenerator,
+    "APStudyKit": APStudyKit,
     "APUpload": APUpload,
     "APYoutube": APYoutube,
     "About": About,
@@ -125,42 +129,38 @@ export const PAGES = {
     "Demo": Demo,
     "Diagnostic": Diagnostic,
     "Engine": Engine,
+    "EngineAnalytics": EngineAnalytics,
+    "EngineBenchmarks": EngineBenchmarks,
+    "EngineHome": EngineHome,
+    "EngineMistakes": EngineMistakes,
+    "EngineNotes": EngineNotes,
+    "EnginePracticeBuilder": EnginePracticeBuilder,
+    "EnginePracticeSession": EnginePracticeSession,
+    "EngineResults": EngineResults,
+    "EngineTimedQuiz": EngineTimedQuiz,
     "Generate": Generate,
     "GroupDetail": GroupDetail,
     "Home": Home,
     "MistakeReplay": MistakeReplay,
+    "NotionSetupGuide": NotionSetupGuide,
+    "NotionSync": NotionSync,
     "Onboarding": Onboarding,
     "Pricing": Pricing,
     "Progress": Progress,
     "QuestionValidation": QuestionValidation,
     "Results": Results,
     "Rewards": Rewards,
+    "SATAdaptivePractice": SATAdaptivePractice,
     "SATFullTest": SATFullTest,
     "SATPractice": SATPractice,
     "SeedData": SeedData,
+    "SeedTaxonomy": SeedTaxonomy,
     "Settings": Settings,
     "StudyGroups": StudyGroups,
     "StudyPlans": StudyPlans,
     "Upload": Upload,
     "ValidationDashboard": ValidationDashboard,
     "Youtube": Youtube,
-    "EnginePracticeBuilder": EnginePracticeBuilder,
-    "EnginePracticeSession": EnginePracticeSession,
-    "EngineResults": EngineResults,
-    "EngineBenchmarks": EngineBenchmarks,
-    "EngineAnalytics": EngineAnalytics,
-    "APStudyKit": APStudyKit,
-    "EngineHome": EngineHome,
-    "EngineMistakes": EngineMistakes,
-    "EngineTimedQuiz": EngineTimedQuiz,
-    "EngineNotes": EngineNotes,
-    "APFRQSimulator": APFRQSimulator,
-    "NotionSync": NotionSync,
-    "SATAdaptivePractice": SATAdaptivePractice,
-    "ACTAdaptivePractice": ACTAdaptivePractice,
-    "NotionSetupGuide": NotionSetupGuide,
-    "SeedTaxonomy": SeedTaxonomy,
-    "APQuestionGenerator": APQuestionGenerator,
 }
 
 export const pagesConfig = {
