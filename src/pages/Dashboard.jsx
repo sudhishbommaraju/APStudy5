@@ -338,6 +338,18 @@ export default function Dashboard() {
       route: 'APQuestionGenerator'
     },
     {
+      icon: BookOpen,
+      title: 'FRQ Generator',
+      description: 'AI-generated free response questions with rubrics.',
+      route: 'APFRQSimulator'
+    },
+    {
+      icon: FileText,
+      title: 'Flashcard Generator',
+      description: 'Create AI-powered flashcards for spaced repetition.',
+      route: 'Flashcards'
+    },
+    {
       icon: Timer,
       title: 'Full-Length Test (Notion)',
       description: 'Simulated AP exam using Notion content.',
