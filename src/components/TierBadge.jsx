@@ -1,5 +1,5 @@
 import React from 'react';
-import { useUserProfile } from '@/contexts/UserProfileContext';
+import { useUserProfile } from '@/components/tierSystem/UserProfileContext';
 import { motion } from 'framer-motion';
 
 export default function TierBadge() {
