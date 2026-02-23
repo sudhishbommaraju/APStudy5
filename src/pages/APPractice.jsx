@@ -277,17 +277,24 @@ export default function APPractice() {
       }
 
       // Create practice session
-      const session = await base44.entities.EnginePracticeSession.create({
-        user_email: user.email,
-        exam_id: 'AP',
-        subject_id: subject,
-        unit_id: unit,
-        question_count: questions.length,
-        mode: 'untimed'
-      });
+       const session = await base44.entities.EnginePracticeSession.create({
+         user_email: user.email,
+         exam_id: 'AP',
+         subject_id: subject,
+         unit_id: unit,
+         question_count: questions.length,
+         mode: 'untimed'
+       });
 
-      toast.success('Starting practice session...');
-      navigate(createPageUrl('EnginePracticeSession') + `?session=${session.id}`);
+       // Verify session was created successfully
+       if (!session || !session.id) {
+         throw new Error('Session creation failed - no ID returned');
+       }
+
+       console.log('✓ Session created:', { id: session.id, questions: questions.length });
+
+       toast.success('Starting practice session...');
+       navigate(createPageUrl('EnginePracticeSession') + `?session=${session.id}`);
     } catch (error) {
       toast.error(error.message || 'Failed to start practice');
       console.error('Practice start error:', error);
