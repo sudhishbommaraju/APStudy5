@@ -216,14 +216,14 @@ export default function Home() {
                 color: '#F3F4F6',
                 fontFamily: 'Space Grotesk, sans-serif',
                 fontSize: '72px',
-                fontWeight: '300',
-                lineHeight: '1.1',
-                letterSpacing: '0.04em',
-                maxWidth: '650px',
-                marginBottom: '48px'
+                fontWeight: '400',
+                lineHeight: '1.05',
+                letterSpacing: '-0.02em',
+                maxWidth: '700px',
+                marginBottom: '28px'
               }}
             >
-              WELCOME TO<br />PROOFLY
+              Study smarter.<br />Improve predictably.
             </motion.h1>
 
             <motion.p
@@ -233,14 +233,14 @@ export default function Home() {
               style={{ 
                 color: '#9CA3AF',
                 fontFamily: 'Inter, sans-serif',
-                fontSize: '24px',
+                fontSize: '20px',
                 fontWeight: '400',
-                lineHeight: '1.7',
-                maxWidth: '650px',
+                lineHeight: '1.6',
+                maxWidth: '600px',
                 marginBottom: '56px'
               }}
             >
-              Your test performance, engineered.
+              Engineered around real exam skill frameworks, adaptive practice, and measurable progress.
             </motion.p>
 
             <motion.div
