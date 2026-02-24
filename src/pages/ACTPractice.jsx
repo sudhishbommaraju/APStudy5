@@ -18,9 +18,10 @@ export default function ACTPractice() {
   const [practicing, setPracticing] = useState(false);
 
   useEffect(() => {
-    // Clear any cached state
+    // Always clear state to allow new generation
     setError(null);
     setSelectedSection('');
+    setPracticing(false);
     
     loadSections();
   }, []);

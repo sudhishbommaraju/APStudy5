@@ -195,10 +195,11 @@ export default function APPractice() {
   const availableUnits = subject ? (subjectUnits[subject] || Array.from({ length: 8 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` }))) : [];
 
   useEffect(() => {
-    // Clear any cached state
+    // Clear any cached state - always reset to allow new generation
     setSubject('');
     setUnit('');
     setNotionPageUrl('');
+    setLoading(false);
     
     loadLinkedPage();
   }, []);
@@ -245,6 +246,22 @@ export default function APPractice() {
     setLoading(true);
     try {
       const user = await base44.auth.me();
+
+      // Check daily limit for free users (3 per day)
+      const today = new Date().toISOString().split('T')[0];
+      const todaySessions = await base44.entities.EnginePracticeSession.filter({
+        user_email: user.email
+      }, '-created_date', 100);
+
+      const todayCount = todaySessions.filter(s => 
+        s.created_date && s.created_date.startsWith(today) && s.exam_id
+      ).length;
+
+      if (todayCount >= 3) {
+        toast.error('Daily limit reached (3 practices per day for free users)');
+        setLoading(false);
+        return;
+      }
 
       // Sync progress to Notion before starting
       if (linkedPage) {
@@ -471,19 +488,22 @@ export default function APPractice() {
 
               <Button
                 onClick={handleStartPractice}
-                disabled={loading}
+                disabled={loading || !subject || !unit}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 size="lg"
               >
                 {loading ? (
                   <>
                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Loading Questions...
+                    Generating Practice...
                   </>
                 ) : (
-                  'Start Practice from Notion'
+                  'Generate New Practice'
                 )}
               </Button>
+              <p className="text-xs text-neutral-500 text-center mt-2">
+                Free users: 3 practices per day
+              </p>
             </div>
           </div>
         </div>

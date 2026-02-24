@@ -15,10 +15,11 @@ export default function SATPractice() {
   const [sessionId, setSessionId] = useState(null);
 
   useEffect(() => {
-    // Clear any cached state
+    // Always clear state to allow new generation
     setQuestions([]);
     setCurrentIndex(0);
     setSessionId(null);
+    setLoading(true);
     
     initializePractice();
   }, []);
