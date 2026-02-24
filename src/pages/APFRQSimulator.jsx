@@ -54,7 +54,63 @@ export default function APFRQSimulator() {
     setPrompts(promptList);
     if (promptList.length > 0) {
       setCurrentPrompt(promptList[0]);
+    } else {
+      // Generate FRQ if none exist
+      await generateFRQ();
     }
+  }
+
+  async function generateFRQ() {
+    if (!selectedSubject || !selectedUnit) return;
+    
+    setSubmitting(true);
+    const unit = units.find(u => u.id === selectedUnit);
+    
+    const result = await base44.integrations.Core.InvokeLLM({
+      prompt: `Generate 1 AP-style Free Response Question for ${unit?.name}.
+
+STRICT JSON FORMAT:
+{
+  "prompt_text": "The FRQ prompt (2-3 paragraphs max)",
+  "total_points": 6,
+  "rubric_criteria": [
+    {"criterion": "Description", "points": 2},
+    {"criterion": "Description", "points": 2},
+    {"criterion": "Description", "points": 2}
+  ]
+}`,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          prompt_text: { type: "string" },
+          total_points: { type: "number" },
+          rubric_criteria: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                criterion: { type: "string" },
+                points: { type: "number" }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    const created = await base44.entities.APFRQPrompt.create({
+      subject_id: selectedSubject,
+      unit_id: selectedUnit,
+      prompt_text: result.prompt_text,
+      total_points: result.total_points,
+      rubric_criteria: result.rubric_criteria,
+      difficulty: 'medium',
+      is_active: true
+    });
+
+    setCurrentPrompt(created);
+    setPrompts([created]);
+    setSubmitting(false);
   }
 
   async function submitResponse() {
