@@ -74,21 +74,26 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
           className="bg-neutral-900 border border-neutral-800 rounded-xl p-8"
         >
           {/* Stimulus Section */}
-          {question.stimulus && (
+          {question.stimulus && question.stimulus.trim() && (
             <div className="bg-neutral-800/30 rounded-lg p-4 mb-8">
               <div className="text-neutral-400 leading-relaxed text-sm md:text-base">
-                {question.stimulus.replace(/^\*\*Stimulus:\*\*\s*/i, '').replace(/^\*\*\s*/, '').replace(/\*\*$/, '')}
+                {String(question.stimulus || '')
+                  .replace(/^\*\*Stimulus:\*\*\s*/i, '')
+                  .replace(/^\*\*\s*/, '')
+                  .replace(/\*\*$/, '')
+                  .trim()}
               </div>
             </div>
           )}
 
           {/* Question Prompt */}
           <h2 className="text-lg md:text-xl font-semibold text-white mb-6 leading-relaxed">
-            {(question.question_text || question.stem)
+            {String(question.question_text || question.stem || '')
               .replace(/^\*\*Question:\*\*\s*/i, '')
               .replace(/^\*\*\s*/, '')
               .replace(/\*\*$/, '')
-              .replace(/^##\s*/, '')}
+              .replace(/^##\s*/, '')
+              .trim() || 'Question prompt missing'}
           </h2>
 
           {/* Answer Options */}

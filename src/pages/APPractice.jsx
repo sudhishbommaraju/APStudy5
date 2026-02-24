@@ -264,7 +264,9 @@ export default function APPractice() {
 
       setQuestions(result.map(q => ({
         id: q.id,
-        stem: q.stimulus + ' ' + q.question_text,
+        stimulus: q.stimulus || '',
+        question_text: q.question_text || '',
+        stem: q.question_text || '',
         answer_choices: [q.choice_a, q.choice_b, q.choice_c, q.choice_d],
         correct_answer: ['A', 'B', 'C', 'D'].indexOf(q.correct_answer),
         explanation: q.explanation
@@ -277,15 +279,19 @@ export default function APPractice() {
       setQuestions([
         {
           id: 'fallback-1',
-          stem: "What is 5 + 7?",
-          answer_choices: ["10", "11", "12", "13"],
-          correct_answer: 2,
+          stimulus: "A cell biologist observes that a particular organelle contains enzymes that break down macromolecules.",
+          question_text: "Which organelle is most likely being observed?",
+          stem: "Which organelle is most likely being observed?",
+          answer_choices: ["Lysosome", "Ribosome", "Smooth ER", "Golgi apparatus"],
+          correct_answer: 0,
           explanation: null
         },
         {
           id: 'fallback-2',
-          stem: "What is the capital of France?",
-          answer_choices: ["Berlin", "Paris", "Rome", "Madrid"],
+          stimulus: "During photosynthesis, light energy is converted into chemical energy.",
+          question_text: "What is the primary product of the light-dependent reactions?",
+          stem: "What is the primary product of the light-dependent reactions?",
+          answer_choices: ["Glucose", "ATP and NADPH", "Carbon dioxide", "Oxygen only"],
           correct_answer: 1,
           explanation: null
         }

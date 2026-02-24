@@ -71,7 +71,9 @@ export default function ACTPractice() {
 
       setQuestions(result.map(q => ({
         id: q.id,
-        stem: q.stimulus + ' ' + q.question_text,
+        stimulus: q.stimulus || '',
+        question_text: q.question_text || '',
+        stem: q.question_text || '',
         answer_choices: [q.choice_a, q.choice_b, q.choice_c, q.choice_d],
         correct_answer: ['A', 'B', 'C', 'D'].indexOf(q.correct_answer),
         explanation: q.explanation
