@@ -54,54 +54,41 @@ export default function ACTPractice() {
       toast.error('Please select a section');
       return;
     }
+    
+    if (practicing) return; // Prevent duplicate calls
 
-    console.log("🚀 ACT Practice generation started");
     setPracticing(true);
 
     try {
-      const user = await base44.auth.me();
-      const sectionData = sections.find(s => s.id === selectedSection);
-      const sectionName = sectionData?.name || 'ACT';
-
-      const { generateQuestionsWithRetry } = await import('@/components/generation/RobustQuestionGenerator');
+      const { generateQuestionsOptimized } = await import('@/components/generation/FastQuestionGenerator');
       
-      const result = await generateQuestionsWithRetry({
+      const result = await generateQuestionsOptimized({
         examType: 'ACT',
-        domainId: selectedSection,
-        difficulty: 3,
-        questionCount: questionCount,
-        questionType: 'MCQ',
-        keywords: [sectionName],
-        userEmail: user.email,
-        adaptiveDifficulty: true
+        subjectId: selectedSection,
+        difficulty: 'mixed',
+        count: questionCount
       });
 
-      console.log("✅ AI Response:", result);
-
-      if (!result || !result.questions || result.questions.length === 0) {
-        throw new Error("AI returned no questions");
-      }
-
-      setQuestions(result.questions);
+      setQuestions(result.map(q => ({
+        id: q.id,
+        stem: q.stimulus + ' ' + q.question_text,
+        answer_choices: [q.choice_a, q.choice_b, q.choice_c, q.choice_d],
+        correct_answer: ['A', 'B', 'C', 'D'].indexOf(q.correct_answer),
+        explanation: q.explanation
+      })));
       setCurrentIndex(0);
-      toast.success(`Generated ${result.questions.length} ACT questions`);
 
     } catch (error) {
-      console.error("❌ AI failed, using HARD FALLBACK:", error);
+      console.error("Generation failed:", error);
       
-      const fallback = [
-        {
-          id: 'fallback-1',
-          stem: "What is 8 × 7?",
-          answer_choices: ["48", "54", "56", "63"],
-          correct_answer: 2,
-          explanation: "8 × 7 = 56"
-        }
-      ];
-      
-      setQuestions(fallback);
+      setQuestions([{
+        id: 'fallback-1',
+        stem: "What is 8 × 7?",
+        answer_choices: ["48", "54", "56", "63"],
+        correct_answer: 2,
+        explanation: null
+      }]);
       setCurrentIndex(0);
-      toast.info("Using fallback questions - AI temporarily unavailable");
     } finally {
       setPracticing(false);
     }
