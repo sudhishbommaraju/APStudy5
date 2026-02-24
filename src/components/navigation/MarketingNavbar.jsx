@@ -35,7 +35,7 @@ export default function MarketingNavbar() {
       scrolled ? 'bg-[#0C0C0C]/80 backdrop-blur-lg border-b border-[#2A2A2A]' : 'bg-transparent'
     }`}>
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex h-16 items-center justify-between gap-8">
+        <div className="flex h-16 items-center justify-center gap-8">
           {/* Left side */}
           <div className="flex items-center gap-6">
             {/* Mobile menu trigger */}
