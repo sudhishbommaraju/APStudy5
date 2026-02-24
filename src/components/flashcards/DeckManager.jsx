@@ -17,19 +17,114 @@ export default function DeckManager({ onCreateDeck }) {
   const [cardCount, setCardCount] = useState(10);
 
   const apSubjects = [
+    { id: 'calc_ab', name: 'AP Calculus AB' },
+    { id: 'calc_bc', name: 'AP Calculus BC' },
+    { id: 'statistics', name: 'AP Statistics' },
     { id: 'biology', name: 'AP Biology' },
     { id: 'chemistry', name: 'AP Chemistry' },
-    { id: 'calc_ab', name: 'AP Calculus AB' },
+    { id: 'physics_1', name: 'AP Physics 1' },
+    { id: 'physics_c', name: 'AP Physics C' },
     { id: 'us_history', name: 'AP US History' },
-    { id: 'psychology', name: 'AP Psychology' }
+    { id: 'world_history', name: 'AP World History' },
+    { id: 'english_lang', name: 'AP English Language' },
+    { id: 'english_lit', name: 'AP English Literature' },
+    { id: 'psychology', name: 'AP Psychology' },
+    { id: 'government', name: 'AP Government' },
+    { id: 'macroeconomics', name: 'AP Macroeconomics' },
+    { id: 'microeconomics', name: 'AP Microeconomics' }
   ];
 
   const subjectUnits = {
-    biology: Array.from({ length: 8 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
-    chemistry: Array.from({ length: 9 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
-    calc_ab: Array.from({ length: 10 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
-    us_history: Array.from({ length: 9 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` })),
-    psychology: Array.from({ length: 9 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` }))
+    calc_ab: [
+      { id: 'unit_1', name: 'Limits and Continuity' },
+      { id: 'unit_2', name: 'Differentiation' },
+      { id: 'unit_3', name: 'Integration' },
+      { id: 'unit_4', name: 'Differential Equations' }
+    ],
+    calc_bc: [
+      { id: 'unit_1', name: 'Limits and Continuity' },
+      { id: 'unit_2', name: 'Differentiation' },
+      { id: 'unit_3', name: 'Integration' },
+      { id: 'unit_4', name: 'Series' }
+    ],
+    statistics: [
+      { id: 'unit_1', name: 'Exploring Data' },
+      { id: 'unit_2', name: 'Sampling and Experimentation' },
+      { id: 'unit_3', name: 'Probability' },
+      { id: 'unit_4', name: 'Inference' }
+    ],
+    biology: [
+      { id: 'unit_1', name: 'Chemistry of Life' },
+      { id: 'unit_2', name: 'Cell Structure' },
+      { id: 'unit_3', name: 'Cellular Energetics' },
+      { id: 'unit_4', name: 'Cell Communication' }
+    ],
+    chemistry: [
+      { id: 'unit_1', name: 'Atomic Structure' },
+      { id: 'unit_2', name: 'Molecular Structure' },
+      { id: 'unit_3', name: 'Intermolecular Forces' },
+      { id: 'unit_4', name: 'Chemical Reactions' }
+    ],
+    physics_1: [
+      { id: 'unit_1', name: 'Kinematics' },
+      { id: 'unit_2', name: 'Dynamics' },
+      { id: 'unit_3', name: 'Circular Motion' },
+      { id: 'unit_4', name: 'Energy' }
+    ],
+    physics_c: [
+      { id: 'unit_1', name: 'Kinematics' },
+      { id: 'unit_2', name: 'Newton\'s Laws' },
+      { id: 'unit_3', name: 'Work and Energy' },
+      { id: 'unit_4', name: 'Linear Momentum' }
+    ],
+    us_history: [
+      { id: 'unit_1', name: 'Period 1: 1491-1607' },
+      { id: 'unit_2', name: 'Period 2: 1607-1754' },
+      { id: 'unit_3', name: 'Period 3: 1754-1800' },
+      { id: 'unit_4', name: 'Period 4: 1800-1848' }
+    ],
+    world_history: [
+      { id: 'unit_1', name: 'The Global Tapestry' },
+      { id: 'unit_2', name: 'Networks of Exchange' },
+      { id: 'unit_3', name: 'Land-Based Empires' },
+      { id: 'unit_4', name: 'Transoceanic Interconnections' }
+    ],
+    english_lang: [
+      { id: 'unit_1', name: 'Rhetorical Situation' },
+      { id: 'unit_2', name: 'Claims and Evidence' },
+      { id: 'unit_3', name: 'Reasoning and Organization' },
+      { id: 'unit_4', name: 'Style' }
+    ],
+    english_lit: [
+      { id: 'unit_1', name: 'Short Fiction' },
+      { id: 'unit_2', name: 'Poetry' },
+      { id: 'unit_3', name: 'Longer Fiction' },
+      { id: 'unit_4', name: 'Drama' }
+    ],
+    psychology: [
+      { id: 'unit_1', name: 'Scientific Foundations' },
+      { id: 'unit_2', name: 'Biological Bases' },
+      { id: 'unit_3', name: 'Sensation and Perception' },
+      { id: 'unit_4', name: 'Learning' }
+    ],
+    government: [
+      { id: 'unit_1', name: 'Foundations of Democracy' },
+      { id: 'unit_2', name: 'Branches of Government' },
+      { id: 'unit_3', name: 'Civil Liberties and Rights' },
+      { id: 'unit_4', name: 'Political Participation' }
+    ],
+    macroeconomics: [
+      { id: 'unit_1', name: 'Basic Concepts' },
+      { id: 'unit_2', name: 'Economic Indicators' },
+      { id: 'unit_3', name: 'National Income' },
+      { id: 'unit_4', name: 'Fiscal Policy' }
+    ],
+    microeconomics: [
+      { id: 'unit_1', name: 'Basic Concepts' },
+      { id: 'unit_2', name: 'Supply and Demand' },
+      { id: 'unit_3', name: 'Production and Costs' },
+      { id: 'unit_4', name: 'Market Structures' }
+    ]
   };
 
   const availableUnits = subject ? (subjectUnits[subject] || []) : [];
