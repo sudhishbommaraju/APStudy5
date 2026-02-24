@@ -218,112 +218,21 @@ export default function APPractice() {
 
   const handleLinkNotion = async () => {
     if (!notionPageUrl) {
-      toast.error('Please enter a Notion database URL');
+      toast.error('Please enter a Notion tracker URL');
       return;
     }
 
     setLoading(true);
     try {
-      console.log('[Notion] Importing question bank from:', notionPageUrl);
-      toast.info('Extracting questions from Notion...');
-
-      // Extract questions from Notion database using AI
-      const extractionPrompt = `Extract ALL practice questions from this Notion database: ${notionPageUrl}
-
-Look for a table/database with questions. Each row should have:
-- Question text
-- 4 answer choices (A, B, C, D)
-- Correct answer indicator
-- Explanation (optional)
-- Subject/topic (optional)
-- Difficulty 1-5 (optional)
-
-Return JSON with this exact structure:
-{
-  "questions": [
-    {
-      "stem": "full question text",
-      "choices": ["choice A", "choice B", "choice C", "choice D"],
-      "correctAnswerIndex": 0,
-      "explanation": "why correct",
-      "subject": "AP Biology",
-      "unit": "Cell Structure",
-      "difficulty": 3
-    }
-  ]
-}
-
-If you cannot access the page or no questions found, return {"questions": []}`;
-
-      const extracted = await base44.integrations.Core.InvokeLLM({
-        prompt: extractionPrompt,
-        add_context_from_internet: true,
-        response_json_schema: {
-          type: 'object',
-          properties: {
-            questions: {
-              type: 'array',
-              items: {
-                type: 'object',
-                properties: {
-                  stem: { type: 'string' },
-                  choices: { type: 'array', items: { type: 'string' } },
-                  correctAnswerIndex: { type: 'number' },
-                  explanation: { type: 'string' },
-                  subject: { type: 'string' },
-                  unit: { type: 'string' },
-                  difficulty: { type: 'number' }
-                }
-              }
-            }
-          }
-        }
-      });
-
-      console.log('[Notion] Extracted questions:', extracted?.questions?.length || 0);
-
-      if (!extracted?.questions || extracted.questions.length === 0) {
-        toast.error('No questions found. Make sure your Notion page is public and has a question bank table.');
-        setLoading(false);
-        return;
-      }
-
-      // Save to database
-      let savedCount = 0;
-      for (const q of extracted.questions) {
-        if (q.choices?.length === 4 && q.stem) {
-          await base44.entities.ProoflyQuestion.create({
-            stem: q.stem,
-            answer_choices: q.choices,
-            correct_answer: q.correctAnswerIndex,
-            explanation: q.explanation || 'No explanation provided',
-            skill_id: q.subject || 'AP',
-            difficulty: q.difficulty || 3,
-            is_active: true,
-            generation_metadata: {
-              exam_type: 'AP',
-              subject_id: q.subject,
-              unit_id: q.unit,
-              source: 'notion',
-              notion_url: notionPageUrl,
-              imported_at: new Date().toISOString()
-            }
-          });
-          savedCount++;
-        }
-      }
-
       await base44.auth.updateMe({
-        notion_practice_page: notionPageUrl,
-        notion_questions_imported: savedCount,
-        notion_last_sync: new Date().toISOString()
+        notion_practice_page: notionPageUrl
       });
       
       setLinkedPage(notionPageUrl);
-      toast.success(`Imported ${savedCount} questions from Notion!`);
+      toast.success('Notion tracker linked for progress sync!');
     } catch (error) {
-      toast.error('Failed to import from Notion');
-      console.error('[Notion] Import error:', error);
+      toast.error('Failed to link Notion');
+      console.error('[Notion] Link error:', error);
     }
     setLoading(false);
   };
@@ -341,38 +250,20 @@ If you cannot access the page or no questions found, return {"questions": []}`;
       const user = await base44.auth.me();
       console.log('[AP Practice] User authenticated:', user.email);
 
-      // Prioritize Notion questions if linked
+      // Fetch existing Proofly-generated questions
       let questions = [];
-      if (linkedPage) {
-        console.log('[AP Practice] Fetching questions from Notion import...');
-        const notionQuestions = await base44.entities.ProoflyQuestion.filter({
-          is_active: true
-        }, '-created_date', 100);
+      const existingQuestions = await base44.entities.ProoflyQuestion.filter({
+        is_active: true
+      }, '-created_date', questionCount * 2);
 
-        questions = notionQuestions.filter(q => 
-          q.generation_metadata?.source === 'notion' &&
-          q.generation_metadata?.exam_type === 'AP' &&
-          (!subject || !q.generation_metadata?.subject_id || q.generation_metadata?.subject_id === subject) &&
-          (!unit || !q.generation_metadata?.unit_id || q.generation_metadata?.unit_id === unit)
-        ).slice(0, questionCount);
+      questions = existingQuestions.filter(q => 
+        q.generation_metadata?.exam_type === 'AP' &&
+        q.generation_metadata?.source !== 'official' &&
+        (!q.generation_metadata?.subject_id || q.generation_metadata?.subject_id === subject) &&
+        (!q.generation_metadata?.unit_id || q.generation_metadata?.unit_id === unit)
+      ).slice(0, questionCount);
 
-        console.log('[AP Practice] Found', questions.length, 'Notion questions');
-      }
-
-      // Fallback to regular questions if not enough from Notion
-      if (questions.length < questionCount) {
-        const regularQuestions = await base44.entities.ProoflyQuestion.filter({
-          is_active: true
-        }, '-created_date', questionCount);
-
-        const filtered = regularQuestions.filter(q => 
-          q.generation_metadata?.exam_type === 'AP' &&
-          (!q.generation_metadata?.subject_id || q.generation_metadata?.subject_id === subject) &&
-          (!q.generation_metadata?.unit_id || q.generation_metadata?.unit_id === unit)
-        );
-
-        questions = [...questions, ...filtered].slice(0, questionCount);
-      }
+      console.log('[AP Practice] Found', questions.length, 'existing Proofly questions');
 
       // Generate new questions if needed
       if (questions.length < questionCount) {
@@ -481,8 +372,8 @@ If you cannot access the page or no questions found, return {"questions": []}`;
             <div className="flex items-center gap-3 mb-6">
               <Database className="w-8 h-8 text-blue-500" />
               <div>
-                <h2 className="text-2xl font-light text-white">Link Notion Database</h2>
-                <p className="text-neutral-400 mt-1">Connect your Notion question bank for practice</p>
+                <h2 className="text-2xl font-light text-white">Notion Progress Tracker (Optional)</h2>
+                <p className="text-neutral-400 mt-1">Link Notion to track your practice sessions</p>
               </div>
             </div>
 
@@ -492,8 +383,8 @@ If you cannot access the page or no questions found, return {"questions": []}`;
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-500" />
                     <div>
-                      <p className="text-white font-medium">Notion Question Bank Linked</p>
-                      <p className="text-sm text-neutral-400">Questions imported and ready for practice</p>
+                      <p className="text-white font-medium">Notion Tracker Linked</p>
+                      <p className="text-sm text-neutral-400">Progress will sync to your Notion page</p>
                     </div>
                   </div>
                   <Button
@@ -505,62 +396,56 @@ If you cannot access the page or no questions found, return {"questions": []}`;
                     View in Notion
                   </Button>
                 </div>
-                <Button
-                  variant="outline"
-                  onClick={handleLinkNotion}
-                  disabled={loading}
-                  className="w-full"
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Re-syncing...
-                    </>
-                  ) : (
-                    'Re-sync Questions from Notion'
-                  )}
-                </Button>
+                <div className="text-sm text-neutral-400 mt-2">
+                  All practice questions are Proofly-original content aligned to College Board skill taxonomies.
+                </div>
               </div>
             ) : (
               <div className="space-y-4">
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-neutral-300 mb-2">
-                      Notion Database URL
+                      Notion Page URL (Optional)
                     </label>
                     <Input
-                      placeholder="https://notion.so/your-database-id"
+                      placeholder="https://notion.so/your-tracker-page"
                       value={notionPageUrl}
                       onChange={(e) => setNotionPageUrl(e.target.value)}
                       className="bg-neutral-800 border-neutral-700 text-white"
                     />
                     <p className="text-xs text-neutral-500 mt-2">
-                      Share your Notion database publicly and paste the link here
+                      Link a Notion page to track your practice sessions and progress
                     </p>
-                  </div>
-                  
-                  <div className="bg-neutral-800 border border-neutral-700 rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-neutral-300 mb-2">Question Bank Format:</h4>
-                    <ul className="text-xs text-neutral-400 space-y-1">
-                      <li>• Each row = 1 question</li>
-                      <li>• Columns: Question, Choice A, Choice B, Choice C, Choice D, Correct Answer (A/B/C/D), Explanation</li>
-                      <li>• Optional: Subject, Unit, Difficulty (1-5)</li>
-                    </ul>
                   </div>
 
                   <Button onClick={handleLinkNotion} disabled={loading} className="w-full">
                     {loading ? (
                       <>
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Importing Questions...
+                        Linking...
                       </>
                     ) : (
                       <>
                         <LinkIcon className="w-4 h-4 mr-2" />
-                        Import Question Bank from Notion
+                        Link Notion Tracker
                       </>
                     )}
                   </Button>
+
+                  <div className="bg-neutral-800 border border-neutral-700 rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-neutral-300 mb-2">📚 Official Resources</h4>
+                    <div className="space-y-2 text-xs text-neutral-400">
+                      <a href="https://apcentral.collegeboard.org/courses/past-exam-questions" target="_blank" rel="noopener" className="block hover:text-white">
+                        → AP Past Free-Response Questions
+                      </a>
+                      <a href="https://apcentral.collegeboard.org/media/pdf/ap-biology-course-and-exam-description.pdf" target="_blank" rel="noopener" className="block hover:text-white">
+                        → AP Course & Exam Descriptions
+                      </a>
+                      <p className="text-xs text-neutral-500 mt-2 italic">
+                        Proofly generates original questions aligned to official skill taxonomies. Official materials are linked for reference only.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
