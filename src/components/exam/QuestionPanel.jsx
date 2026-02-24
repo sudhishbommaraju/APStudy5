@@ -38,27 +38,41 @@ export default function QuestionPanel({
 
   return (
     <div className="max-w-4xl mx-auto px-8 py-12">
-      {/* Question Text */}
+      {/* Question Display */}
       <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 mb-6">
-        <div className="prose prose-invert prose-lg max-w-none">
+        {question.stimulus && (
+          <div className="bg-neutral-800/30 rounded-lg p-4 mb-8">
+            <div className="text-neutral-400 leading-relaxed text-sm md:text-base">
+              <ReactMarkdown
+                remarkPlugins={[remarkMath]}
+                rehypePlugins={[rehypeKatex]}
+                components={{
+                  p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                  strong: ({ children }) => <span className="font-medium text-neutral-300">{children}</span>,
+                }}
+              >
+                {question.stimulus.replace(/^\*\*Stimulus:\*\*\s*/i, '').replace(/^\*\*\s*/, '').replace(/\*\*$/, '')}
+              </ReactMarkdown>
+            </div>
+          </div>
+        )}
+        
+        <h2 className="text-lg md:text-xl font-semibold text-white mb-4">
           <ReactMarkdown
             remarkPlugins={[remarkMath]}
             rehypePlugins={[rehypeKatex]}
             components={{
-              p: ({ children }) => <p className="text-neutral-100 leading-relaxed mb-4">{children}</p>,
-              strong: ({ children }) => <strong className="text-white font-semibold">{children}</strong>,
-              em: ({ children }) => <em className="text-neutral-300 italic">{children}</em>,
-              code: ({ inline, children }) => 
-                inline ? (
-                  <code className="bg-neutral-800 text-blue-400 px-2 py-1 rounded text-sm">{children}</code>
-                ) : (
-                  <code className="block bg-neutral-800 p-4 rounded-lg text-sm overflow-x-auto">{children}</code>
-                ),
+              p: ({ children }) => <>{children}</>,
+              strong: ({ children }) => <>{children}</>,
             }}
           >
-            {question.stem}
+            {(question.question_text || question.stem)
+              .replace(/^\*\*Question:\*\*\s*/i, '')
+              .replace(/^\*\*\s*/, '')
+              .replace(/\*\*$/, '')
+              .replace(/^##\s*/, '')}
           </ReactMarkdown>
-        </div>
+        </h2>
       </div>
 
       {/* Answer Choices */}

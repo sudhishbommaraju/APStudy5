@@ -73,8 +73,23 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
           animate={{ opacity: 1, y: 0 }}
           className="bg-neutral-900 border border-neutral-800 rounded-xl p-8"
         >
-          <p className="text-neutral-400 text-sm mb-4 uppercase tracking-wider">Question</p>
-          <p className="text-white text-lg mb-8 leading-relaxed">{question.stem}</p>
+          {/* Stimulus Section */}
+          {question.stimulus && (
+            <div className="bg-neutral-800/30 rounded-lg p-4 mb-8">
+              <div className="text-neutral-400 leading-relaxed text-sm md:text-base">
+                {question.stimulus.replace(/^\*\*Stimulus:\*\*\s*/i, '').replace(/^\*\*\s*/, '').replace(/\*\*$/, '')}
+              </div>
+            </div>
+          )}
+
+          {/* Question Prompt */}
+          <h2 className="text-lg md:text-xl font-semibold text-white mb-6 leading-relaxed">
+            {(question.question_text || question.stem)
+              .replace(/^\*\*Question:\*\*\s*/i, '')
+              .replace(/^\*\*\s*/, '')
+              .replace(/\*\*$/, '')
+              .replace(/^##\s*/, '')}
+          </h2>
 
           {/* Answer Options */}
           <div className="space-y-3">
