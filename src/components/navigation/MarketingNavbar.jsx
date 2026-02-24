@@ -16,7 +16,7 @@ export default function MarketingNavbar() {
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all ${
-      scrolled ? 'bg-[#0C0C0C]/95 backdrop-blur-sm border-b border-[#2A2A2A]' : 'bg-[#0C0C0C]'
+      scrolled ? 'bg-[#0C0C0C]/80 backdrop-blur-lg border-b border-[#2A2A2A]' : 'bg-transparent'
     }`}>
       <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
@@ -24,13 +24,16 @@ export default function MarketingNavbar() {
             Proofly
           </Link>
           
-          <div className="flex items-center gap-6">
-            <Link to={createPageUrl('Home')} className="text-[#B5B5B5] hover:text-[#F5F5F5] transition-colors">
-              Home
-            </Link>
+          <div className="flex items-center gap-8">
+            <a href="#about" className="text-[#B5B5B5] hover:text-[#F5F5F5] transition-colors">
+              About
+            </a>
+            <a href="#features" className="text-[#B5B5B5] hover:text-[#F5F5F5] transition-colors">
+              Features
+            </a>
             <Link to={createPageUrl('Dashboard')}>
               <Button variant="default" size="sm">
-                Dashboard
+                Get Started
               </Button>
             </Link>
           </div>
