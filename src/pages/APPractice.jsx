@@ -246,61 +246,51 @@ export default function APPractice() {
       toast.error('Please select subject and unit');
       return;
     }
+    
+    if (loading) return; // Prevent duplicate calls
 
-    console.log("🚀 Practice generation started");
     setLoading(true);
     
     try {
-      const subjectName = apSubjects.find(s => s.id === subject)?.name || 'AP';
-      const unitName = availableUnits.find(u => u.id === unit)?.name || '';
+      const { generateQuestionsOptimized } = await import('@/components/generation/FastQuestionGenerator');
       
-      const { generateQuestionsWithRetry } = await import('@/components/generation/RobustQuestionGenerator');
-      
-      const result = await generateQuestionsWithRetry({
+      const result = await generateQuestionsOptimized({
         examType: 'AP',
         subjectId: subject,
         unitId: unit,
-        difficulty: 3,
-        questionCount: questionCount,
-        questionType: 'MCQ',
-        topic: `${subjectName} - ${unitName}`,
-        keywords: [subjectName, unitName].filter(Boolean),
-        adaptiveDifficulty: true
+        difficulty: 'mixed',
+        count: questionCount
       });
 
-      console.log("✅ AI Response:", result);
-
-      if (!result || !result.questions || result.questions.length === 0) {
-        throw new Error("AI returned no questions");
-      }
-
-      setQuestions(result.questions);
+      setQuestions(result.map(q => ({
+        id: q.id,
+        stem: q.stimulus + ' ' + q.question_text,
+        answer_choices: [q.choice_a, q.choice_b, q.choice_c, q.choice_d],
+        correct_answer: ['A', 'B', 'C', 'D'].indexOf(q.correct_answer),
+        explanation: q.explanation
+      })));
       setCurrentIndex(0);
-      toast.success(`Generated ${result.questions.length} AP questions`);
 
     } catch (error) {
-      console.error("❌ Generation failed. Using HARD FALLBACK.", error);
+      console.error("Generation failed:", error);
       
-      const fallback = [
+      setQuestions([
         {
           id: 'fallback-1',
           stem: "What is 5 + 7?",
           answer_choices: ["10", "11", "12", "13"],
           correct_answer: 2,
-          explanation: "5 + 7 equals 12."
+          explanation: null
         },
         {
           id: 'fallback-2',
           stem: "What is the capital of France?",
           answer_choices: ["Berlin", "Paris", "Rome", "Madrid"],
           correct_answer: 1,
-          explanation: "Paris is the capital of France."
+          explanation: null
         }
-      ];
-
-      setQuestions(fallback);
+      ]);
       setCurrentIndex(0);
-      toast.info("Using fallback questions - AI temporarily unavailable");
     } finally {
       setLoading(false);
     }
