@@ -266,6 +266,7 @@ export default function APPractice() {
         difficulty: 3,
         questionCount: questionCount,
         questionType: 'MCQ',
+        topic: `${subjectName} - ${unitName}`,
         keywords: [subjectName, unitName].filter(Boolean),
         userEmail: user.email,
         adaptiveDifficulty: true
