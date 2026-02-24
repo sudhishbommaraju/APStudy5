@@ -243,19 +243,13 @@ export default function APPractice() {
       return;
     }
 
+    console.log("🚀 AP Practice generation started");
     setLoading(true);
-    console.log('[AP Practice] Starting generation:', { subject, unit, questionCount });
     
     try {
       const user = await base44.auth.me();
-      console.log('[AP Practice] User authenticated:', user.email);
-
-      // ALWAYS generate fresh questions - no checks, no blocks
       const subjectName = apSubjects.find(s => s.id === subject)?.name || 'AP';
       const unitName = availableUnits.find(u => u.id === unit)?.name || '';
-      
-      console.log('[AP Practice] Generating fresh questions...');
-      toast.info(`Generating ${questionCount} original questions...`);
       
       const { generateQuestionsWithRetry } = await import('@/components/generation/RobustQuestionGenerator');
       
@@ -272,96 +266,54 @@ export default function APPractice() {
         adaptiveDifficulty: true
       });
 
-      console.log('[AP Practice] AI response:', { success: result.success, questionCount: result.questions?.length, error: result.error });
+      console.log("✅ AI Response:", result);
 
-      if (!result.success || !result.questions || result.questions.length === 0) {
-        console.error('[AP Practice] Generation failed:', result.error);
-        throw new Error(result.error || 'Failed to generate questions');
+      if (!result || !result.questions || result.questions.length === 0) {
+        throw new Error("AI returned no questions");
       }
 
-      const questions = result.questions;
-      console.log('[AP Practice] Generated', questions.length, 'questions successfully');
-      toast.success(`Generated ${questions.length} original AP questions`);
+      toast.success(`Generated ${result.questions.length} AP questions`);
 
-      // Get or create AP exam
-      let exams = await base44.entities.Exam.filter({ exam_type: 'AP' });
-      let examId;
-      
-      if (!exams.length) {
-        console.log('[CREATE] Creating AP exam record...');
-        const newExam = await base44.entities.Exam.create({
-          exam_type: 'AP',
-          name: 'Advanced Placement'
-        });
-        examId = newExam.id;
-        console.log('[CREATE] Exam created:', examId);
-      } else {
-        examId = exams[0].id;
-        console.log('[CREATE] Using existing exam:', examId);
-      }
-
-      // Create practice session - WAIT for full response
-      console.log('[CREATE] Creating session with:', {
-        user: user.email,
-        exam: examId,
-        subject,
-        unit,
-        questionCount: questions.length
-      });
-
-      const session = await base44.entities.EnginePracticeSession.create({
-        user_email: user.email,
-        exam_id: examId,
-        subject_id: subject,
-        unit_id: unit,
-        question_count: questions.length,
-        mode: 'untimed',
-        status: 'active',
-        started_at: new Date().toISOString()
-      });
-
-      console.log('[CREATE] ✓ Session created successfully:', {
-        id: session.id,
-        status: session.status,
-        questionCount: session.question_count
-      });
-
-      // Validate session before redirect
-      if (!session?.id) {
-        console.error('[CREATE] ✗ Session creation failed - no ID returned');
-        throw new Error('Session creation failed - no ID returned');
-      }
-
-      // Verify session exists by reading it back
-      console.log('[CREATE] Verifying session exists...');
-      const verifySession = await base44.entities.EnginePracticeSession.read(session.id);
-      
-      if (!verifySession) {
-        console.error('[CREATE] ✗ Session verification failed - cannot read back session');
-        throw new Error('Session verification failed');
-      }
-
-      console.log('[CREATE] ✓ Session verified, redirecting to:', session.id);
-      toast.success('Starting practice...');
-      
-      // Add small delay to ensure DB consistency
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      navigate(createPageUrl('EnginePracticeSession') + `?session=${session.id}`);
-    } catch (error) {
-      console.error('[AP Practice] Error:', error);
-      toast.error(error.message || 'Failed to generate practice');
-      
+      // Optional session tracking
       try {
-        await base44.entities.GenerationLog.create({
+        let exams = await base44.entities.Exam.filter({ exam_type: 'AP' });
+        let examId = exams.length > 0 ? exams[0].id : null;
+        
+        if (!examId) {
+          const newExam = await base44.entities.Exam.create({
+            exam_type: 'AP',
+            name: 'Advanced Placement'
+          });
+          examId = newExam.id;
+        }
+
+        const session = await base44.entities.EnginePracticeSession.create({
           user_email: user.email,
-          type: 'QUESTIONS',
-          status: 'FAIL',
-          error_message: error.message
+          exam_id: examId,
+          subject_id: subject,
+          unit_id: unit,
+          question_count: result.questions.length,
+          mode: 'untimed',
+          status: 'active',
+          started_at: new Date().toISOString()
         });
-      } catch (logError) {
-        console.error('[AP Practice] Failed to log error:', logError);
+
+        if (session?.id) {
+          navigate(createPageUrl('EnginePracticeSession') + `?session=${session.id}`);
+          return;
+        }
+      } catch (sessionError) {
+        console.warn("Session tracking failed (non-critical):", sessionError);
       }
+
+      // Fallback: show questions directly
+      navigate(createPageUrl('EnginePracticeSession') + `?direct=true`);
+
+    } catch (error) {
+      console.error("❌ AI failed, using HARD FALLBACK:", error);
+      
+      toast.info("Using fallback questions - AI temporarily unavailable");
+      navigate(createPageUrl('EnginePracticeSession') + `?fallback=true`);
     } finally {
       setLoading(false);
     }

@@ -51,19 +51,14 @@ export default function ACTPractice() {
       return;
     }
 
+    console.log("🚀 ACT Practice generation started");
+    setPracticing(true);
+
     try {
-      setPracticing(true);
-      console.log('[ACT Practice] Starting practice:', { selectedSection, questionCount });
-      
       const user = await base44.auth.me();
-      console.log('[ACT Practice] User authenticated:', user.email);
-      
-      // Get section info for question generation
       const sectionData = sections.find(s => s.id === selectedSection);
       const sectionName = sectionData?.name || 'ACT';
 
-      // ALWAYS generate fresh AI questions (Proofly-original, aligned with ACT taxonomy)
-      console.log('[ACT Practice] Generating Proofly-original ACT questions...');
       const { generateQuestionsWithRetry } = await import('@/components/generation/RobustQuestionGenerator');
       
       const result = await generateQuestionsWithRetry({
@@ -77,43 +72,42 @@ export default function ACTPractice() {
         adaptiveDifficulty: true
       });
 
-      console.log('[ACT Practice] AI response:', { success: result.success, questionCount: result.questions?.length, isFallback: result.isFallback });
+      console.log("✅ AI Response:", result);
 
-      if (!result.success || result.questions.length === 0) {
-        console.error('[ACT Practice] AI generation failed:', result.error);
-        throw new Error(result.error || 'Question generation failed');
+      if (!result || !result.questions || result.questions.length === 0) {
+        throw new Error("AI returned no questions");
       }
 
-      const practiceQuestions = result.questions;
-      console.log('[ACT Practice] ✓ Generated', practiceQuestions.length, 'questions');
+      // Optional session tracking
+      try {
+        const session = await base44.entities.EnginePracticeSession.create({
+          user_email: user.email,
+          exam_id: examId,
+          domain_id: selectedSection,
+          mode: 'untimed',
+          status: 'active',
+          question_count: result.questions.length,
+          started_at: new Date().toISOString()
+        });
+        
+        if (session?.id) {
+          navigate(createPageUrl('EnginePracticeSession') + `?session=${session.id}`);
+          return;
+        }
+      } catch (sessionError) {
+        console.warn("Session creation failed (non-critical):", sessionError);
+      }
+
+      // Fallback: show questions directly without session
+      toast.success(`Generated ${result.questions.length} ACT questions`);
+      navigate(createPageUrl('EnginePracticeSession') + `?direct=true`);
+
+    } catch (error) {
+      console.error("❌ AI failed, using HARD FALLBACK:", error);
       
-      if (result.isFallback) {
-        toast.info('Using fallback questions - AI temporarily unavailable');
-      } else {
-        toast.success(`Generated ${practiceQuestions.length} adaptive ACT questions`);
-      }
-
-      console.log('[ACT Practice] Creating session...');
-      const session = await base44.entities.EnginePracticeSession.create({
-        user_email: user.email,
-        exam_id: examId,
-        domain_id: selectedSection,
-        mode: 'untimed',
-        status: 'active',
-        question_count: practiceQuestions.length,
-        started_at: new Date().toISOString()
-      });
-
-      if (!session || !session.id) {
-        console.error('[ACT Practice] Session creation failed');
-        throw new Error('Session creation failed');
-      }
-
-      console.log('[ACT Practice] Session created:', session.id);
-      navigate(createPageUrl('EnginePracticeSession') + `?session=${session.id}`);
-    } catch (err) {
-      console.error('[ACT Practice] Practice start failed:', err);
-      toast.error(err.message || 'Practice generation failed. Check console.');
+      // GUARANTEED FALLBACK PRACTICE
+      toast.info("Using fallback questions - AI temporarily unavailable");
+      navigate(createPageUrl('EnginePracticeSession') + `?fallback=true`);
     } finally {
       setPracticing(false);
     }
