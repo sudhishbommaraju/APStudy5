@@ -22,11 +22,13 @@ export default function SATPractice() {
 
     try {
       const user = await base44.auth.me();
-      const { generateQuestionsOptimized } = await import('@/components/generation/FastQuestionGenerator');
+      // PHASE 5: CLEAR ALL CACHES BEFORE NEW GENERATION
+      const { generateQuestionsOptimized, clearCache } = await import('@/components/generation/FastQuestionGenerator');
+      clearCache();
       
       const result = await generateQuestionsOptimized({
         examType: 'SAT',
-        subjectId: 'sat_math',
+        subjectId: 'SAT',
         difficulty: 'mixed',
         count: 10
       });
