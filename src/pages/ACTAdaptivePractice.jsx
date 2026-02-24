@@ -14,31 +14,47 @@ export default function ACTAdaptivePractice() {
   const [mode, setMode] = useState('untimed');
 
   useEffect(() => {
+    let mounted = true;
+    
+    async function loadDomains() {
+      try {
+        const exams = await base44.entities.Exam.filter({ exam_type: 'ACT' });
+        if (exams.length > 0 && mounted) {
+          const domainList = await base44.entities.Domain.filter({ exam_id: exams[0].id });
+          if (mounted) {
+            setDomains(domainList);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load domains:', error);
+      }
+    }
+    
     loadDomains();
+    
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  async function loadDomains() {
-    const exams = await base44.entities.Exam.filter({ exam_type: 'ACT' });
-    if (exams.length > 0) {
-      const domainList = await base44.entities.Domain.filter({ exam_id: exams[0].id });
-      setDomains(domainList);
-    }
-  }
-
   async function startPractice() {
-    const user = await base44.auth.me();
-    const exams = await base44.entities.Exam.filter({ exam_type: 'ACT' });
-    
-    const session = await base44.entities.EnginePracticeSession.create({
-      user_email: user.email,
-      exam_id: exams[0]?.id,
-      domain_id: selectedDomain,
-      mode,
-      question_count: questionCount,
-      started_at: new Date().toISOString()
-    });
+    try {
+      const user = await base44.auth.me();
+      const exams = await base44.entities.Exam.filter({ exam_type: 'ACT' });
+      
+      const session = await base44.entities.EnginePracticeSession.create({
+        user_email: user.email,
+        exam_id: exams[0]?.id,
+        domain_id: selectedDomain,
+        mode,
+        question_count: questionCount,
+        started_at: new Date().toISOString()
+      });
 
-    navigate(createPageUrl('EnginePracticeSession') + `?session=${session.id}`);
+      navigate(createPageUrl('EnginePracticeSession') + `?session=${session.id}`);
+    } catch (error) {
+      console.error('Failed to start practice:', error);
+    }
   }
 
   return (
