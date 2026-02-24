@@ -15,94 +15,29 @@ export default function MarketingNavbar() {
   }, []);
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none" style={{ marginTop: '32px', marginBottom: '64px' }}>
-      <nav
-        className="pointer-events-auto transition-all duration-300"
-        style={{
-          maxWidth: '1200px',
-          margin: '0 auto',
-          padding: '8px',
-          borderRadius: '999px',
-          background: 'transparent',
-          backdropFilter: 'none',
-          border: 'none',
-          boxShadow: 'none'
-        }}
-      >
-        <div className="flex items-center justify-between" style={{ padding: '16px 24px' }}>
-          <Link 
-            to={createPageUrl('Home')} 
-            style={{ 
-              color: '#F3F4F6',
-              fontFamily: 'Inter, sans-serif',
-              fontSize: '16px',
-              fontWeight: '700',
-              letterSpacing: '0.03em',
-              marginRight: '64px'
-            }}
-          >
-            Proofly
+    <div className="fixed top-0 left-0 right-0 z-50">
+      <div className="flex items-center justify-between px-8 py-6 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950">
+        {/* Left: Large Proofly Title */}
+        <div>
+          <Link to={createPageUrl('Home')}>
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent">
+              Proofly
+            </h1>
           </Link>
-
-          <div className="flex items-center" style={{ gap: '8px' }}>
-            <a 
-              href="#about" 
-              className="transition-all duration-200"
-              style={{ 
-                color: '#F3F4F6',
-                fontFamily: 'Inter, sans-serif',
-                fontSize: '16px',
-                fontWeight: '400',
-                letterSpacing: '0.03em',
-                padding: '8px 18px',
-                borderRadius: '999px',
-                background: 'transparent'
-              }}
-              onMouseEnter={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.08)'}
-              onMouseLeave={(e) => e.target.style.background = 'transparent'}
-            >
-              About
-            </a>
-            <a 
-              href="#features" 
-              className="transition-all duration-200"
-              style={{ 
-                color: '#F3F4F6',
-                fontFamily: 'Inter, sans-serif',
-                fontSize: '16px',
-                fontWeight: '400',
-                letterSpacing: '0.03em',
-                padding: '8px 18px',
-                borderRadius: '999px',
-                background: 'transparent'
-              }}
-              onMouseEnter={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.08)'}
-              onMouseLeave={(e) => e.target.style.background = 'transparent'}
-            >
-              Explore Features
-            </a>
-            <Link to={createPageUrl('Dashboard')}>
-              <Button 
-                className="transition-all duration-200"
-                style={{
-                  background: '#2F6DF6',
-                  color: '#F3F4F6',
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: '16px',
-                  fontWeight: '500',
-                  letterSpacing: '0.03em',
-                  padding: '8px 20px',
-                  borderRadius: '999px'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = '#3C7CFF'}
-                onMouseLeave={(e) => e.currentTarget.style.background = '#2F6DF6'}
-              >
-                Get Started
-              </Button>
-            </Link>
-          </div>
+          <p className="text-sm text-gray-400 mt-1">
+            Adaptive AP & SAT Practice Engine
+          </p>
         </div>
-      </nav>
+
+        {/* Right: Small Profile Icon */}
+        <Link to={createPageUrl('Dashboard')}>
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center hover:scale-105 transition-transform cursor-pointer">
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+        </Link>
+      </div>
     </div>
   );
 }
