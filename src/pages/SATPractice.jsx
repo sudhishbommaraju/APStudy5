@@ -16,33 +16,28 @@ export default function SATPractice() {
   const [sessionId, setSessionId] = useState(null);
 
   const generatePractice = async () => {
-    console.log("🚀 SAT Practice generation started");
+    if (loading) return; // Prevent duplicate calls
+    
     setLoading(true);
 
     try {
       const user = await base44.auth.me();
-      console.log("✅ User authenticated:", user.email);
-
-      const { generateQuestionsWithRetry } = await import('@/components/generation/RobustQuestionGenerator');
+      const { generateQuestionsOptimized } = await import('@/components/generation/FastQuestionGenerator');
       
-      const result = await generateQuestionsWithRetry({
+      const result = await generateQuestionsOptimized({
         examType: 'SAT',
-        difficulty: 3,
-        questionCount: 10,
-        questionType: 'MCQ',
-        keywords: ['Math', 'Reading and Writing'],
-        userEmail: user.email,
-        adaptiveDifficulty: true
+        subjectId: 'sat_math',
+        difficulty: 'mixed',
+        count: 10
       });
 
-      console.log("✅ AI Response:", result);
-
-      if (!result || !result.questions || result.questions.length === 0) {
-        throw new Error("AI returned no questions");
-      }
-
-      setQuestions(result.questions);
-      toast.success(`Generated ${result.questions.length} SAT questions`);
+      setQuestions(result.map(q => ({
+        id: q.id,
+        stem: q.stimulus + ' ' + q.question_text,
+        answer_choices: [q.choice_a, q.choice_b, q.choice_c, q.choice_d],
+        correct_answer: ['A', 'B', 'C', 'D'].indexOf(q.correct_answer),
+        explanation: q.explanation
+      })));
 
       // Optional session tracking
       try {
@@ -51,7 +46,7 @@ export default function SATPractice() {
           const session = await base44.entities.EnginePracticeSession.create({
             user_email: user.email,
             exam_id: exams[0].id,
-            question_count: result.questions.length,
+            question_count: result.length,
             mode: 'untimed',
             status: 'active',
             started_at: new Date().toISOString()
@@ -59,39 +54,35 @@ export default function SATPractice() {
           setSessionId(session.id);
         }
       } catch (sessionError) {
-        console.warn("Session tracking failed (non-critical):", sessionError);
+        console.warn("Session tracking skipped:", sessionError);
       }
 
     } catch (error) {
-      console.error("❌ AI failed, using HARD FALLBACK:", error);
+      console.error("Generation failed:", error);
       
-      // GUARANTEED FALLBACK PRACTICE
-      const fallback = [
+      setQuestions([
         {
           id: 'fallback-1',
           stem: "If 3x + 5 = 20, what is the value of x?",
           answer_choices: ["5", "8", "10", "15"],
           correct_answer: 0,
-          explanation: "Subtract 5 from both sides: 3x = 15. Divide by 3: x = 5."
+          explanation: null
         },
         {
           id: 'fallback-2',
-          stem: "Which word best completes the sentence?\nThe scientist's findings were _____ by multiple independent studies.",
+          stem: "Which word best completes the sentence? The scientist's findings were _____ by multiple independent studies.",
           answer_choices: ["contradicted", "corroborated", "fabricated", "dismissed"],
           correct_answer: 1,
-          explanation: "'Corroborated' means confirmed or supported by evidence."
+          explanation: null
         },
         {
           id: 'fallback-3',
           stem: "A rectangle has a length of 12 and width of 5. What is its area?",
           answer_choices: ["17", "34", "60", "72"],
           correct_answer: 2,
-          explanation: "Area = length × width = 12 × 5 = 60."
+          explanation: null
         }
-      ];
-
-      setQuestions(fallback);
-      toast.info("Using fallback questions - AI temporarily unavailable");
+      ]);
     } finally {
       setLoading(false);
     }
