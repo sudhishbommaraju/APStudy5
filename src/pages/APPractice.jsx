@@ -195,6 +195,11 @@ export default function APPractice() {
   const availableUnits = subject ? (subjectUnits[subject] || Array.from({ length: 8 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` }))) : [];
 
   useEffect(() => {
+    // Clear any cached state
+    setSubject('');
+    setUnit('');
+    setNotionPageUrl('');
+    
     loadLinkedPage();
   }, []);
 
@@ -296,6 +301,7 @@ export default function APPractice() {
         unit_id: unit,
         question_count: questions.length,
         mode: 'untimed',
+        status: 'active',
         started_at: new Date().toISOString()
       });
 

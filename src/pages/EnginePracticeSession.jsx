@@ -172,7 +172,8 @@ export default function EnginePracticeSession() {
       const correct = responses.filter(r => r.is_correct).length;
       await base44.entities.EnginePracticeSession.update(sessionId, {
         completed_at: new Date().toISOString(),
-        score: (correct / questions.length) * 100
+        score: (correct / questions.length) * 100,
+        status: 'completed'
       });
       navigate(createPageUrl('EngineResults') + `?session=${sessionId}`);
     }

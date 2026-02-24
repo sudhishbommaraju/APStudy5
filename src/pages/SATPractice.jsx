@@ -15,6 +15,11 @@ export default function SATPractice() {
   const [sessionId, setSessionId] = useState(null);
 
   useEffect(() => {
+    // Clear any cached state
+    setQuestions([]);
+    setCurrentIndex(0);
+    setSessionId(null);
+    
     initializePractice();
   }, []);
 
@@ -68,6 +73,7 @@ export default function SATPractice() {
         exam_id: exams[0].id,
         question_count: practiceQuestions.length,
         mode: 'untimed',
+        status: 'active',
         started_at: new Date().toISOString()
       });
 
