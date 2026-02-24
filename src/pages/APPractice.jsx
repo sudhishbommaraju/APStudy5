@@ -246,16 +246,24 @@ export default function APPractice() {
         await syncProgressToNotion();
       }
 
-      // Fetch existing questions from ProoflyQuestion entity
+      // Try to fetch existing questions
       let questions = await base44.entities.ProoflyQuestion.filter({
-        'generation_metadata.subject_id': subject,
-        'generation_metadata.unit_id': unit,
         is_active: true
-      }, '', questionCount);
+      }, '-created_date', questionCount);
 
-      // If no questions found, generate them
-      if (questions.length === 0) {
-        toast.info('No questions found - generating new questions...');
+      // Filter for matching subject/unit if metadata exists
+      questions = questions.filter(q => 
+        q.generation_metadata?.exam_type === 'AP' &&
+        (!q.generation_metadata?.subject_id || q.generation_metadata?.subject_id === subject) &&
+        (!q.generation_metadata?.unit_id || q.generation_metadata?.unit_id === unit)
+      );
+
+      // Generate new questions if needed
+      if (questions.length < questionCount) {
+        const subjectName = apSubjects.find(s => s.id === subject)?.name || 'AP';
+        const unitName = availableUnits.find(u => u.id === unit)?.name || '';
+        
+        toast.info(`Generating ${questionCount} original questions...`);
         
         const { generateQuestionsWithRetry } = await import('@/components/generation/RobustQuestionGenerator');
         
@@ -265,7 +273,8 @@ export default function APPractice() {
           unitId: unit,
           difficulty: 3,
           questionCount: questionCount,
-          questionType: 'MCQ'
+          questionType: 'MCQ',
+          keywords: [subjectName, unitName].filter(Boolean)
         });
 
         if (!result.success) {
@@ -273,7 +282,7 @@ export default function APPractice() {
         }
 
         questions = result.questions;
-        toast.success(`Generated ${questions.length} questions`);
+        toast.success(`Generated ${questions.length} original AP questions`);
       }
 
       // Create practice session

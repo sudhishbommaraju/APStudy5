@@ -20,7 +20,7 @@ export default function SATPractice() {
 
   const initializePractice = async () => {
     try {
-      // Get user and exam ID
+      setLoading(true);
       const user = await base44.auth.me();
       const exams = await base44.entities.Exam.filter({ exam_type: 'SAT' });
       
@@ -28,24 +28,62 @@ export default function SATPractice() {
         throw new Error('SAT exam not found');
       }
 
+      // Try to fetch existing questions
+      let practiceQuestions = await base44.entities.ProoflyQuestion.filter({
+        is_active: true
+      }, '-created_date', 10);
+
+      // Filter for SAT questions if metadata available
+      practiceQuestions = practiceQuestions.filter(q => 
+        !q.generation_metadata?.exam_type || q.generation_metadata?.exam_type === 'SAT'
+      );
+
+      // Generate new questions if needed
+      if (practiceQuestions.length < 10) {
+        const { generateQuestionsWithRetry } = await import('@/components/generation/RobustQuestionGenerator');
+        
+        const result = await generateQuestionsWithRetry({
+          examType: 'SAT',
+          difficulty: 3,
+          questionCount: 10,
+          questionType: 'MCQ',
+          keywords: ['Math', 'Reading', 'Writing']
+        });
+
+        if (result.success && result.questions.length > 0) {
+          practiceQuestions = result.questions;
+          toast.success(`Generated ${result.questions.length} new SAT questions`);
+        } else {
+          throw new Error(result.error || 'Failed to generate questions');
+        }
+      }
+
+      if (practiceQuestions.length === 0) {
+        throw new Error('No practice questions available');
+      }
+
       // Create practice session
       const session = await base44.entities.EnginePracticeSession.create({
         user_email: user.email,
         exam_id: exams[0].id,
-        question_count: 10,
+        question_count: practiceQuestions.length,
         mode: 'untimed',
         started_at: new Date().toISOString()
       });
-      setSessionId(session.id);
 
-      // Fetch sample questions
-      const allQuestions = await base44.entities.ProoflyQuestion.filter({ is_active: true }, '-difficulty', 10);
-      setQuestions(allQuestions);
+      if (!session || !session.id) {
+        throw new Error('Failed to create practice session');
+      }
+
+      console.log('✓ SAT practice session created:', session.id);
+      setSessionId(session.id);
+      setQuestions(practiceQuestions);
     } catch (error) {
       console.error('Failed to load practice:', error);
+      toast.error(error.message);
+    } finally {
       setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleSubmit = async (response) => {
@@ -84,15 +122,17 @@ export default function SATPractice() {
   }
 
   return (
-    <ExamShell
-      question={questions[currentIndex]}
-      questionNumber={currentIndex + 1}
-      totalQuestions={questions.length}
-      examType="SAT"
-      subject="Math"
-      mode="practice"
-      onSubmit={handleSubmit}
-      onNext={handleNext}
-    />
+    <div className="min-h-screen bg-black">
+      <ExamShell
+        question={questions[currentIndex]}
+        questionNumber={currentIndex + 1}
+        totalQuestions={questions.length}
+        examType="SAT"
+        subject="Math"
+        mode="practice"
+        onSubmit={handleSubmit}
+        onNext={handleNext}
+      />
+    </div>
   );
 }
