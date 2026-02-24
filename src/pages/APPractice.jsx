@@ -244,29 +244,11 @@ export default function APPractice() {
     }
 
     setLoading(true);
+    console.log('[AP Practice] Starting generation:', { subject, unit, questionCount });
+    
     try {
       const user = await base44.auth.me();
-
-      // Check daily limit for free users (3 per day)
-      const today = new Date().toISOString().split('T')[0];
-      const todaySessions = await base44.entities.EnginePracticeSession.filter({
-        user_email: user.email
-      }, '-created_date', 100);
-
-      const todayCount = todaySessions.filter(s => 
-        s.created_date && s.created_date.startsWith(today) && s.exam_id
-      ).length;
-
-      if (todayCount >= 3) {
-        toast.error('Daily limit reached (3 practices per day for free users)');
-        setLoading(false);
-        return;
-      }
-
-      // Sync progress to Notion before starting
-      if (linkedPage) {
-        await syncProgressToNotion();
-      }
+      console.log('[AP Practice] User authenticated:', user.email);
 
       // Try to fetch existing questions
       let questions = await base44.entities.ProoflyQuestion.filter({
@@ -498,12 +480,9 @@ export default function APPractice() {
                     Generating Practice...
                   </>
                 ) : (
-                  'Generate New Practice'
+                  'Generate Practice'
                 )}
               </Button>
-              <p className="text-xs text-neutral-500 text-center mt-2">
-                Free users: 3 practices per day
-              </p>
             </div>
           </div>
         </div>
