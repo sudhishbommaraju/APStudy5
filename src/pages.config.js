@@ -80,6 +80,7 @@ import EnginePracticeBuilder from './pages/EnginePracticeBuilder';
 import EnginePracticeSession from './pages/EnginePracticeSession';
 import EngineResults from './pages/EngineResults';
 import EngineTimedQuiz from './pages/EngineTimedQuiz';
+import Flashcards from './pages/Flashcards';
 import Generate from './pages/Generate';
 import GroupDetail from './pages/GroupDetail';
 import Home from './pages/Home';
@@ -101,11 +102,10 @@ import SeedTaxonomy from './pages/SeedTaxonomy';
 import Settings from './pages/Settings';
 import StudyGroups from './pages/StudyGroups';
 import StudyPlans from './pages/StudyPlans';
+import Tier from './pages/Tier';
 import Upload from './pages/Upload';
 import ValidationDashboard from './pages/ValidationDashboard';
 import Youtube from './pages/Youtube';
-import Tier from './pages/Tier';
-import Flashcards from './pages/Flashcards';
 import __Layout from './Layout.jsx';
 
 
@@ -143,6 +143,7 @@ export const PAGES = {
     "EnginePracticeSession": EnginePracticeSession,
     "EngineResults": EngineResults,
     "EngineTimedQuiz": EngineTimedQuiz,
+    "Flashcards": Flashcards,
     "Generate": Generate,
     "GroupDetail": GroupDetail,
     "Home": Home,
@@ -164,11 +165,10 @@ export const PAGES = {
     "Settings": Settings,
     "StudyGroups": StudyGroups,
     "StudyPlans": StudyPlans,
+    "Tier": Tier,
     "Upload": Upload,
     "ValidationDashboard": ValidationDashboard,
     "Youtube": Youtube,
-    "Tier": Tier,
-    "Flashcards": Flashcards,
 }
 
 export const pagesConfig = {

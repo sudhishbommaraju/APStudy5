@@ -50,12 +50,52 @@ export default function ACTPractice() {
       setPracticing(true);
       const user = await base44.auth.me();
       
+      // Get section info for question generation
+      const sectionData = sections.find(s => s.id === selectedSection);
+      const sectionName = sectionData?.name || 'ACT';
+
+      // Check for existing questions
+      let practiceQuestions = await base44.entities.ProoflyQuestion.filter({
+        is_active: true
+      }, '-created_date', questionCount);
+
+      // Filter for ACT questions
+      practiceQuestions = practiceQuestions.filter(q => 
+        q.generation_metadata?.exam_type === 'ACT' &&
+        (q.generation_metadata?.domain_id === selectedSection || !q.generation_metadata?.domain_id)
+      );
+
+      // Generate if needed
+      if (practiceQuestions.length < questionCount) {
+        console.log(`Generating ${questionCount} ACT questions for ${sectionName}...`);
+        const { generateQuestions } = await import('@/components/generation/RobustQuestionGenerator');
+        
+        const result = await generateQuestions({
+          exam_type: 'ACT',
+          domain_id: selectedSection,
+          difficulty: 3,
+          count: questionCount,
+          keywords: [sectionName]
+        });
+
+        if (result.success && result.questions.length > 0) {
+          practiceQuestions = result.questions;
+          toast.success(`Generated ${result.questions.length} original questions`);
+        } else {
+          throw new Error(result.error || 'Question generation failed');
+        }
+      }
+
+      if (practiceQuestions.length === 0) {
+        throw new Error('No questions available for practice');
+      }
+
       const session = await base44.entities.EnginePracticeSession.create({
         user_email: user.email,
         exam_id: examId,
         domain_id: selectedSection,
         mode: 'untimed',
-        question_count: questionCount,
+        question_count: practiceQuestions.length,
         started_at: new Date().toISOString()
       });
 
