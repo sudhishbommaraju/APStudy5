@@ -250,17 +250,38 @@ export default function APPractice() {
       const user = await base44.auth.me();
       console.log('[AP Practice] User authenticated:', user.email);
 
-      // Try to fetch existing questions
-      let questions = await base44.entities.ProoflyQuestion.filter({
-        is_active: true
-      }, '-created_date', questionCount);
+      // Prioritize Notion questions if linked
+      let questions = [];
+      if (linkedPage) {
+        console.log('[AP Practice] Fetching questions from Notion import...');
+        const notionQuestions = await base44.entities.ProoflyQuestion.filter({
+          is_active: true
+        }, '-created_date', 100);
 
-      // Filter for matching subject/unit if metadata exists
-      questions = questions.filter(q => 
-        q.generation_metadata?.exam_type === 'AP' &&
-        (!q.generation_metadata?.subject_id || q.generation_metadata?.subject_id === subject) &&
-        (!q.generation_metadata?.unit_id || q.generation_metadata?.unit_id === unit)
-      );
+        questions = notionQuestions.filter(q => 
+          q.generation_metadata?.source === 'notion' &&
+          q.generation_metadata?.exam_type === 'AP' &&
+          (!subject || !q.generation_metadata?.subject_id || q.generation_metadata?.subject_id === subject) &&
+          (!unit || !q.generation_metadata?.unit_id || q.generation_metadata?.unit_id === unit)
+        ).slice(0, questionCount);
+
+        console.log('[AP Practice] Found', questions.length, 'Notion questions');
+      }
+
+      // Fallback to regular questions if not enough from Notion
+      if (questions.length < questionCount) {
+        const regularQuestions = await base44.entities.ProoflyQuestion.filter({
+          is_active: true
+        }, '-created_date', questionCount);
+
+        const filtered = regularQuestions.filter(q => 
+          q.generation_metadata?.exam_type === 'AP' &&
+          (!q.generation_metadata?.subject_id || q.generation_metadata?.subject_id === subject) &&
+          (!q.generation_metadata?.unit_id || q.generation_metadata?.unit_id === unit)
+        );
+
+        questions = [...questions, ...filtered].slice(0, questionCount);
+      }
 
       // Generate new questions if needed
       if (questions.length < questionCount) {
@@ -375,49 +396,81 @@ export default function APPractice() {
             </div>
 
             {linkedPage ? (
-              <div className="bg-neutral-800 border border-neutral-700 rounded-lg p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <div>
-                    <p className="text-white font-medium">Notion Page Linked</p>
-                    <p className="text-sm text-neutral-400">Bidirectional sync enabled</p>
+              <div className="space-y-4">
+                <div className="bg-neutral-800 border border-neutral-700 rounded-lg p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5 text-green-500" />
+                    <div>
+                      <p className="text-white font-medium">Notion Question Bank Linked</p>
+                      <p className="text-sm text-neutral-400">Questions imported and ready for practice</p>
+                    </div>
                   </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.open(linkedPage, '_blank')}
+                  >
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    View in Notion
+                  </Button>
                 </div>
                 <Button
                   variant="outline"
-                  size="sm"
-                  onClick={() => window.open(linkedPage, '_blank')}
+                  onClick={handleLinkNotion}
+                  disabled={loading}
+                  className="w-full"
                 >
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  View in Notion
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Re-syncing...
+                    </>
+                  ) : (
+                    'Re-sync Questions from Notion'
+                  )}
                 </Button>
               </div>
             ) : (
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-neutral-300 mb-2">
-                    Notion Page URL
-                  </label>
-                  <Input
-                    placeholder="https://notion.so/your-page-id"
-                    value={notionPageUrl}
-                    onChange={(e) => setNotionPageUrl(e.target.value)}
-                    className="bg-neutral-800 border-neutral-700 text-white"
-                  />
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-300 mb-2">
+                      Notion Database URL
+                    </label>
+                    <Input
+                      placeholder="https://notion.so/your-database-id"
+                      value={notionPageUrl}
+                      onChange={(e) => setNotionPageUrl(e.target.value)}
+                      className="bg-neutral-800 border-neutral-700 text-white"
+                    />
+                    <p className="text-xs text-neutral-500 mt-2">
+                      Share your Notion database publicly and paste the link here
+                    </p>
+                  </div>
+                  
+                  <div className="bg-neutral-800 border border-neutral-700 rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-neutral-300 mb-2">Question Bank Format:</h4>
+                    <ul className="text-xs text-neutral-400 space-y-1">
+                      <li>• Each row = 1 question</li>
+                      <li>• Columns: Question, Choice A, Choice B, Choice C, Choice D, Correct Answer (A/B/C/D), Explanation</li>
+                      <li>• Optional: Subject, Unit, Difficulty (1-5)</li>
+                    </ul>
+                  </div>
+
+                  <Button onClick={handleLinkNotion} disabled={loading} className="w-full">
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Importing Questions...
+                      </>
+                    ) : (
+                      <>
+                        <LinkIcon className="w-4 h-4 mr-2" />
+                        Import Question Bank from Notion
+                      </>
+                    )}
+                  </Button>
                 </div>
-                <Button onClick={handleLinkNotion} disabled={loading}>
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Linking...
-                    </>
-                  ) : (
-                    <>
-                      <LinkIcon className="w-4 h-4 mr-2" />
-                      Link Notion Page
-                    </>
-                  )}
-                </Button>
               </div>
             )}
           </div>
