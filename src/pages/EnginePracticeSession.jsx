@@ -30,18 +30,36 @@ export default function EnginePracticeSession() {
   }, [sessionId]);
 
   async function loadSession() {
+    console.log('[LOAD] Starting session load for ID:', sessionId);
+    
+    if (!sessionId) {
+      console.error('[LOAD] ✗ No session ID in URL');
+      setSession(null);
+      setLoading(false);
+      return;
+    }
+
     try {
       const user = await base44.auth.me();
+      console.log('[LOAD] User authenticated:', user.email);
       
       // Get session by ID directly
+      console.log('[LOAD] Fetching session:', sessionId);
       const sessionData = await base44.entities.EnginePracticeSession.read(sessionId);
       
       if (!sessionData) {
-        console.error('Session not found:', sessionId);
+        console.error('[LOAD] ✗ Session not found in database:', sessionId);
         setSession(null);
         setLoading(false);
         return;
       }
+      
+      console.log('[LOAD] ✓ Session loaded:', {
+        id: sessionData.id,
+        status: sessionData.status,
+        questionCount: sessionData.question_count,
+        user: sessionData.user_email
+      });
       
       setSession(sessionData);
 
@@ -92,9 +110,10 @@ export default function EnginePracticeSession() {
         questionsData = generateMockQuestions(sessionData.question_count || 5);
       }
 
+      console.log('[LOAD] ✓ Loaded', questionsData.length, 'questions');
       setQuestions(questionsData);
     } catch (error) {
-      console.error('Error loading session:', error);
+      console.error('[LOAD] ✗ Error loading session:', error);
       setQuestions(generateMockQuestions(5));
     } finally {
       setLoading(false);
@@ -196,7 +215,7 @@ export default function EnginePracticeSession() {
     return (
       <PracticeErrorState 
         title="Session Not Found"
-        description="Unable to load this practice session. Please try again or start a new practice session."
+        description={`Session ID: ${sessionId || 'missing'} - The session could not be loaded. Please start a new practice session.`}
       />
     );
   }

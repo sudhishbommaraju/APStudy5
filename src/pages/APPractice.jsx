@@ -287,18 +287,27 @@ export default function APPractice() {
       let examId;
       
       if (!exams.length) {
-        console.log('[AP Practice] Creating AP exam record...');
+        console.log('[CREATE] Creating AP exam record...');
         const newExam = await base44.entities.Exam.create({
           exam_type: 'AP',
           name: 'Advanced Placement'
         });
         examId = newExam.id;
+        console.log('[CREATE] Exam created:', examId);
       } else {
         examId = exams[0].id;
+        console.log('[CREATE] Using existing exam:', examId);
       }
 
-      // Create practice session
-      console.log('[AP Practice] Creating session...');
+      // Create practice session - WAIT for full response
+      console.log('[CREATE] Creating session with:', {
+        user: user.email,
+        exam: examId,
+        subject,
+        unit,
+        questionCount: questions.length
+      });
+
       const session = await base44.entities.EnginePracticeSession.create({
         user_email: user.email,
         exam_id: examId,
@@ -310,14 +319,33 @@ export default function APPractice() {
         started_at: new Date().toISOString()
       });
 
-      console.log('[AP Practice] Session created:', session.id);
+      console.log('[CREATE] ✓ Session created successfully:', {
+        id: session.id,
+        status: session.status,
+        questionCount: session.question_count
+      });
 
+      // Validate session before redirect
       if (!session?.id) {
-        throw new Error('Session creation failed');
+        console.error('[CREATE] ✗ Session creation failed - no ID returned');
+        throw new Error('Session creation failed - no ID returned');
       }
 
-      console.log('[AP Practice] Navigating to practice session');
+      // Verify session exists by reading it back
+      console.log('[CREATE] Verifying session exists...');
+      const verifySession = await base44.entities.EnginePracticeSession.read(session.id);
+      
+      if (!verifySession) {
+        console.error('[CREATE] ✗ Session verification failed - cannot read back session');
+        throw new Error('Session verification failed');
+      }
+
+      console.log('[CREATE] ✓ Session verified, redirecting to:', session.id);
       toast.success('Starting practice...');
+      
+      // Add small delay to ensure DB consistency
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       navigate(createPageUrl('EnginePracticeSession') + `?session=${session.id}`);
     } catch (error) {
       console.error('[AP Practice] Error:', error);
