@@ -1,8 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import MarketingNavbar from '@/components/navigation/MarketingNavbar';
 import DashboardNavbar from '@/components/layout/DashboardNavbar';
 
 export default function Layout({ children, currentPageName }) {
+  // SYSTEM RESET - Clear all cached state on mount
+  React.useEffect(() => {
+    console.log('[RESET] Clearing cached state...');
+    localStorage.removeItem('dashboard_active_tab');
+    sessionStorage.clear();
+    
+    // ENV CHECK
+    console.log('[ENV CHECK]', {
+      BASE_URL: window.location.origin,
+      APP_INITIALIZED: true
+    });
+  }, []);
+
   // Pages that don't need the layout wrapper at all
   const noLayoutPages = ['Onboarding', 'Dashboard', 'Upload', 'Youtube', 'CreateNotes', 'SATPractice', 'SATFullTest', 'ACTPractice', 'ACTFullTest', 'APUpload', 'APYoutube', 'APCreate', 'APPractice', 'APFullTest', 'APProgress'];
   

@@ -266,7 +266,9 @@ export default function APPractice() {
         difficulty: 3,
         questionCount: questionCount,
         questionType: 'MCQ',
-        keywords: [subjectName, unitName].filter(Boolean)
+        keywords: [subjectName, unitName].filter(Boolean),
+        userEmail: user.email,
+        adaptiveDifficulty: true
       });
 
       console.log('[AP Practice] AI response:', { success: result.success, questionCount: result.questions?.length, error: result.error });
