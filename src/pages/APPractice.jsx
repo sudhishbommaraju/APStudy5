@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AuroraBackground } from '@/components/ui/animated-background';
 import { ArrowLeft, Database, Link as LinkIcon, Loader2, CheckCircle, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
+import APPracticeQuestion from '@/components/practice/APPracticeQuestion';
 
 export default function APPractice() {
   const navigate = useNavigate();
