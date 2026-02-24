@@ -24,12 +24,17 @@ export async function generateQuestionsOptimized({
   difficulty = 'mixed',
   count = 5
 }) {
-  const cacheKey = `${examType}_${subjectId}_${unitId}_${difficulty}_${count}`;
-  
-  // Check cache first
-  if (cache.questions.has(cacheKey)) {
-    return cache.questions.get(cacheKey);
+  // PHASE 1: ENFORCE SUBJECT LOCK
+  if (!subjectId) {
+    throw new Error('Subject ID is required for question generation');
   }
+
+  // PHASE 2: ADD SUBJECT + NONCE TO CACHE KEY
+  const nonce = Date.now();
+  const cacheKey = `${examType}_${subjectId}_${unitId}_${difficulty}_${nonce}`;
+  
+  // NEVER reuse cached questions across sessions
+  // Each generation must be fresh
 
   // Cancel previous request if still pending
   if (activeRequest) {
@@ -40,14 +45,22 @@ export async function generateQuestionsOptimized({
     setTimeout(() => reject(new Error('TIMEOUT')), 3000)
   );
 
-  const prompt = examType === 'AP' 
-    ? `Generate ${count} College Board AP-level practice questions. Format:\n{"questions":[{"stimulus":"Brief context/passage (1-2 sentences)","question":"Clear question prompt","options":["A","B","C","D"],"correctIndex":0}]}\n\nMake questions rigorous, curriculum-aligned, and realistic.`
-    : examType === 'SAT'
-    ? `Generate ${count} College Board SAT questions. Format:\n{"questions":[{"stimulus":"Context if needed","question":"Question text","options":["A","B","C","D"],"correctIndex":0}]}\n\nSAT-level difficulty, clear and concise.`
-    : `Generate ${count} ACT practice questions. Format:\n{"questions":[{"stimulus":"Passage/context","question":"Question","options":["A","B","C","D"],"correctIndex":0}]}\n\nACT-level rigor.`;
+  // PHASE 1: ENFORCE SUBJECT IN PROMPT
+  const subjectContext = subjectId ? `\n\nCRITICAL SUBJECT LOCK: You are generating questions STRICTLY for the subject: ${subjectId}.\nYou must ONLY generate content from this subject.\nAll terminology, concepts, and examples MUST match ${subjectId} curriculum.\nDo NOT mix subjects. If subject is Biology, generate ONLY Biology questions.\nIf subject is US History, generate ONLY US History questions.` : '';
 
+  // PHASE 3: ADD DYNAMIC NONCE FOR VARIATION
+  const generationSeed = `\n\nGeneration seed: ${nonce}`;
+
+  const prompt = examType === 'AP' 
+    ? `Generate ${count} College Board AP-level practice questions. Format:\n{"questions":[{"stimulus":"Brief context/passage (1-2 sentences)","question":"Clear question prompt","options":["A","B","C","D"],"correctIndex":0}]}\n\nMake questions rigorous, curriculum-aligned, and realistic.${subjectContext}${generationSeed}`
+    : examType === 'SAT'
+    ? `Generate ${count} College Board SAT questions. Format:\n{"questions":[{"stimulus":"Context if needed","question":"Question text","options":["A","B","C","D"],"correctIndex":0}]}\n\nSAT-level difficulty, clear and concise.${subjectContext}${generationSeed}`
+    : `Generate ${count} ACT practice questions. Format:\n{"questions":[{"stimulus":"Passage/context","question":"Question","options":["A","B","C","D"],"correctIndex":0}]}\n\nACT-level rigor.${subjectContext}${generationSeed}`;
+
+  // PHASE 3: INCREASE TEMPERATURE FOR VARIATION
   const requestPromise = base44.integrations.Core.InvokeLLM({
     prompt,
+    temperature: 0.8,
     response_json_schema: {
       type: "object",
       properties: {
@@ -71,22 +84,37 @@ export async function generateQuestionsOptimized({
 
   try {
     const result = await Promise.race([requestPromise, timeoutPromise]);
-    const questions = result.questions.map((q, idx) => ({
-      id: `q_${Date.now()}_${idx}`,
-      question_text: q.question,
-      stimulus: q.stimulus,
-      choice_a: q.options[0],
-      choice_b: q.options[1],
-      choice_c: q.options[2],
-      choice_d: q.options[3],
-      correct_answer: ['A', 'B', 'C', 'D'][q.correctIndex],
-      explanation: null,
-      difficulty,
-      subject_id: subjectId,
-      unit_id: unitId
-    }));
+    
+    // PHASE 1: VALIDATE SUBJECT MATCH
+    const subjectKeywords = getSubjectKeywords(subjectId);
+    
+    const questions = result.questions
+      .filter(q => {
+        // Check if question contains subject-relevant keywords
+        const text = `${q.stimulus} ${q.question}`.toLowerCase();
+        const hasKeyword = subjectKeywords.some(kw => text.includes(kw.toLowerCase()));
+        if (!hasKeyword) {
+          console.warn(`[SUBJECT VALIDATION] Question rejected - no ${subjectId} keywords found`);
+          return false;
+        }
+        return true;
+      })
+      .map((q, idx) => ({
+        id: `q_${nonce}_${idx}`,
+        question_text: q.question,
+        stimulus: q.stimulus,
+        choice_a: q.options[0],
+        choice_b: q.options[1],
+        choice_c: q.options[2],
+        choice_d: q.options[3],
+        correct_answer: ['A', 'B', 'C', 'D'][q.correctIndex],
+        explanation: null,
+        difficulty,
+        subject_id: subjectId,
+        unit_id: unitId
+      }));
 
-    cache.questions.set(cacheKey, questions);
+    // Don't cache to prevent reuse across sessions
     return questions;
   } catch (error) {
     if (error.message === 'TIMEOUT') {
@@ -172,7 +200,7 @@ export async function generateStrategy({ questionId, question }) {
 }
 
 /**
- * FALLBACK QUESTIONS (if AI fails or times out)
+ * PHASE 4: RANDOMIZED FALLBACK QUESTIONS (prevent reuse)
  */
 function getFallbackQuestions(count, examType, difficulty, subjectId, unitId) {
   const apFallbacks = [
@@ -202,6 +230,24 @@ function getFallbackQuestions(count, examType, difficulty, subjectId, unitId) {
       choice_c: "Reduced immigration from Europe",
       choice_d: "Expansion of agricultural employment",
       correct_answer: "A"
+    },
+    {
+      stimulus: "A researcher analyzes enzyme kinetics at different substrate concentrations.",
+      question: "As substrate concentration increases beyond saturation, what happens to reaction velocity?",
+      choice_a: "Remains constant at Vmax",
+      choice_b: "Continues to increase linearly",
+      choice_c: "Decreases due to product inhibition",
+      choice_d: "Fluctuates unpredictably",
+      correct_answer: "A"
+    },
+    {
+      stimulus: "The New Deal programs of the 1930s aimed to address economic depression through government intervention.",
+      question: "Which New Deal agency focused primarily on providing jobs through public works?",
+      choice_a: "Works Progress Administration (WPA)",
+      choice_b: "Securities and Exchange Commission (SEC)",
+      choice_c: "Federal Deposit Insurance Corporation (FDIC)",
+      choice_d: "National Labor Relations Board (NLRB)",
+      correct_answer: "A"
     }
   ];
 
@@ -223,6 +269,15 @@ function getFallbackQuestions(count, examType, difficulty, subjectId, unitId) {
       choice_c: "fabricated",
       choice_d: "dismissed",
       correct_answer: "A"
+    },
+    {
+      stimulus: "A function f(x) = 2x² - 8x + 6 has a vertex at x = 2.",
+      question: "What is the minimum value of the function?",
+      choice_a: "-2",
+      choice_b: "2",
+      choice_c: "6",
+      choice_d: "-6",
+      correct_answer: "A"
     }
   ];
 
@@ -235,15 +290,27 @@ function getFallbackQuestions(count, examType, difficulty, subjectId, unitId) {
       choice_c: "34",
       choice_d: "72",
       correct_answer: "A"
+    },
+    {
+      stimulus: "In triangle ABC, angle A = 60° and angle B = 80°.",
+      question: "What is the measure of angle C?",
+      choice_a: "40°",
+      choice_b: "50°",
+      choice_c: "60°",
+      choice_d: "70°",
+      correct_answer: "A"
     }
   ];
 
   const fallbackBank = examType === 'AP' ? apFallbacks : examType === 'SAT' ? satFallbacks : actFallbacks;
   
+  // RANDOMIZE fallback selection to prevent same questions every time
+  const shuffled = [...fallbackBank].sort(() => Math.random() - 0.5);
+  
   return Array.from({ length: count }, (_, idx) => {
-    const template = fallbackBank[idx % fallbackBank.length];
+    const template = shuffled[idx % shuffled.length];
     return {
-      id: `fallback_${Date.now()}_${idx}`,
+      id: `fallback_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       question_text: template.question,
       stimulus: template.stimulus,
       choice_a: template.choice_a,
@@ -261,10 +328,30 @@ function getFallbackQuestions(count, examType, difficulty, subjectId, unitId) {
 }
 
 /**
- * Clear cache (for testing or memory management)
+ * PHASE 5: FORCE FRESH GENERATION - Clear all caches
  */
 export function clearCache() {
   cache.questions.clear();
   cache.explanations.clear();
   cache.tutor.clear();
+  console.log('[CACHE] All caches cleared for fresh generation');
+}
+
+/**
+ * PHASE 1: Subject keyword validation
+ */
+function getSubjectKeywords(subjectId) {
+  const keywords = {
+    'Biology': ['cell', 'enzyme', 'DNA', 'protein', 'organism', 'photosynthesis', 'mitochondria', 'evolution', 'genetics'],
+    'Chemistry': ['atom', 'molecule', 'reaction', 'chemical', 'element', 'compound', 'bond', 'equation', 'solution'],
+    'Physics': ['force', 'energy', 'motion', 'velocity', 'acceleration', 'wave', 'mass', 'momentum', 'electric'],
+    'US History': ['constitution', 'president', 'congress', 'war', 'amendment', 'treaty', 'revolution', 'civil', 'government'],
+    'World History': ['civilization', 'empire', 'dynasty', 'culture', 'trade', 'religion', 'war', 'revolution', 'treaty'],
+    'Calculus': ['derivative', 'integral', 'limit', 'function', 'slope', 'rate', 'continuous', 'differential'],
+    'Statistics': ['mean', 'median', 'data', 'probability', 'sample', 'distribution', 'variance', 'correlation'],
+    'English': ['passage', 'author', 'tone', 'theme', 'sentence', 'paragraph', 'grammar', 'rhetorical'],
+    'Math': ['equation', 'solve', 'variable', 'graph', 'number', 'calculate', 'formula', 'expression']
+  };
+  
+  return keywords[subjectId] || ['question', 'answer', 'problem'];
 }

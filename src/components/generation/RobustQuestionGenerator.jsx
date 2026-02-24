@@ -94,8 +94,10 @@ export async function generateQuestionsWithRetry({
         keywords
       });
 
+      // PHASE 3: INCREASE TEMPERATURE FOR VARIATION
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
+        temperature: 0.8,
         response_json_schema: {
           type: 'object',
           properties: {
@@ -270,7 +272,15 @@ function buildQuestionPrompt({ examType, subjectId, topic, difficulty, questionC
     'AP': `AP-level rigor - align with Course & Exam Description (CED) learning objectives`
   };
 
-  return `Generate ${questionCount} RIGOROUS ${examType} practice questions with TRUE AP-LEVEL DEPTH.
+  // PHASE 1: ENFORCE SUBJECT LOCK
+  const subjectLock = subjectId 
+    ? `\n\n🔒 CRITICAL SUBJECT LOCK: You are generating questions STRICTLY for the subject: ${subjectId}.\nYou must ONLY generate content from this exact subject.\nAll terminology, concepts, examples, and contexts MUST match ${subjectId} curriculum.\nDo NOT mix subjects. Do NOT generate questions from other domains.\nIf subject is Biology, generate ONLY Biology questions.\nIf subject is US History, generate ONLY US History questions.\nREJECT any output that does not match ${subjectId}.`
+    : '';
+
+  // PHASE 3: ADD DYNAMIC NONCE
+  const generationSeed = `\n\nGeneration seed: ${Date.now()}_${Math.random().toString(36)}`;
+
+  return `Generate ${questionCount} RIGOROUS ${examType} practice questions with TRUE AP-LEVEL DEPTH.${subjectLock}${generationSeed}
 
 ${topic ? `Topic: ${topic}` : ''}
 ${subjectId ? `Subject: ${subjectId}` : ''}
