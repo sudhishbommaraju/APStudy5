@@ -62,47 +62,35 @@ export default function ACTPractice() {
       const sectionData = sections.find(s => s.id === selectedSection);
       const sectionName = sectionData?.name || 'ACT';
 
-      // Check for existing questions
-      let practiceQuestions = await base44.entities.ProoflyQuestion.filter({
-        is_active: true
-      }, '-created_date', questionCount);
+      // ALWAYS generate fresh AI questions (Proofly-original, aligned with ACT taxonomy)
+      console.log('[ACT Practice] Generating Proofly-original ACT questions...');
+      const { generateQuestionsWithRetry } = await import('@/components/generation/RobustQuestionGenerator');
+      
+      const result = await generateQuestionsWithRetry({
+        examType: 'ACT',
+        domainId: selectedSection,
+        difficulty: 3,
+        questionCount: questionCount,
+        questionType: 'MCQ',
+        keywords: [sectionName],
+        userEmail: user.email,
+        adaptiveDifficulty: true
+      });
 
-      // Filter for ACT questions
-      practiceQuestions = practiceQuestions.filter(q => 
-        q.generation_metadata?.exam_type === 'ACT' &&
-        (q.generation_metadata?.domain_id === selectedSection || !q.generation_metadata?.domain_id)
-      );
+      console.log('[ACT Practice] AI response:', { success: result.success, questionCount: result.questions?.length, isFallback: result.isFallback });
 
-      console.log('[ACT Practice] Existing questions found:', practiceQuestions.length);
-
-      // Generate if needed
-      if (practiceQuestions.length < questionCount) {
-        console.log('[ACT Practice] Calling AI generator...');
-        const { generateQuestionsWithRetry } = await import('@/components/generation/RobustQuestionGenerator');
-        
-        const result = await generateQuestionsWithRetry({
-          examType: 'ACT',
-          domainId: selectedSection,
-          difficulty: 3,
-          questionCount: questionCount,
-          keywords: [sectionName]
-        });
-
-        console.log('[ACT Practice] AI response:', { success: result.success, questionCount: result.questions?.length, error: result.error });
-
-        if (result.success && result.questions.length > 0) {
-          practiceQuestions = result.questions;
-          console.log('[ACT Practice] Questions generated successfully');
-          toast.success(`Generated ${result.questions.length} original questions`);
-        } else {
-          console.error('[ACT Practice] AI generation failed:', result.error);
-          throw new Error(result.error || 'AI returned empty result');
-        }
+      if (!result.success || result.questions.length === 0) {
+        console.error('[ACT Practice] AI generation failed:', result.error);
+        throw new Error(result.error || 'Question generation failed');
       }
 
-      if (practiceQuestions.length === 0) {
-        console.error('[ACT Practice] No questions available');
-        throw new Error('No questions available for practice');
+      const practiceQuestions = result.questions;
+      console.log('[ACT Practice] ✓ Generated', practiceQuestions.length, 'questions');
+      
+      if (result.isFallback) {
+        toast.info('Using fallback questions - AI temporarily unavailable');
+      } else {
+        toast.success(`Generated ${practiceQuestions.length} adaptive ACT questions`);
       }
 
       console.log('[ACT Practice] Creating session...');

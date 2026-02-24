@@ -40,46 +40,34 @@ export default function SATPractice() {
       }
       console.log('[SAT Practice] Exam found:', exams[0].id);
 
-      // Try to fetch existing questions
-      let practiceQuestions = await base44.entities.ProoflyQuestion.filter({
-        is_active: true
-      }, '-created_date', 10);
+      // ALWAYS generate fresh AI questions (Proofly-original, aligned with SAT taxonomy)
+      console.log('[SAT Practice] Generating Proofly-original SAT questions...');
+      const { generateQuestionsWithRetry } = await import('@/components/generation/RobustQuestionGenerator');
+      
+      const result = await generateQuestionsWithRetry({
+        examType: 'SAT',
+        difficulty: 3,
+        questionCount: 10,
+        questionType: 'MCQ',
+        keywords: ['Math', 'Reading and Writing'],
+        userEmail: user.email,
+        adaptiveDifficulty: true
+      });
 
-      // Filter for SAT questions if metadata available
-      practiceQuestions = practiceQuestions.filter(q => 
-        !q.generation_metadata?.exam_type || q.generation_metadata?.exam_type === 'SAT'
-      );
+      console.log('[SAT Practice] AI response:', { success: result.success, questionCount: result.questions?.length, isFallback: result.isFallback });
 
-      console.log('[SAT Practice] Existing questions found:', practiceQuestions.length);
-
-      // Generate new questions if needed
-      if (practiceQuestions.length < 10) {
-        console.log('[SAT Practice] Calling AI generator...');
-        const { generateQuestionsWithRetry } = await import('@/components/generation/RobustQuestionGenerator');
-        
-        const result = await generateQuestionsWithRetry({
-          examType: 'SAT',
-          difficulty: 3,
-          questionCount: 10,
-          questionType: 'MCQ',
-          keywords: ['Math', 'Reading', 'Writing']
-        });
-
-        console.log('[SAT Practice] AI response:', { success: result.success, questionCount: result.questions?.length, error: result.error });
-
-        if (result.success && result.questions.length > 0) {
-          practiceQuestions = result.questions;
-          console.log('[SAT Practice] Questions generated successfully');
-          toast.success(`Generated ${result.questions.length} new SAT questions`);
-        } else {
-          console.error('[SAT Practice] AI generation failed:', result.error);
-          throw new Error(result.error || 'AI returned empty result');
-        }
+      if (!result.success || result.questions.length === 0) {
+        console.error('[SAT Practice] AI generation failed:', result.error);
+        throw new Error(result.error || 'Question generation failed');
       }
 
-      if (practiceQuestions.length === 0) {
-        console.error('[SAT Practice] No questions available after generation');
-        throw new Error('No practice questions available');
+      const practiceQuestions = result.questions;
+      console.log('[SAT Practice] ✓ Generated', practiceQuestions.length, 'questions');
+      
+      if (result.isFallback) {
+        toast.info('Using fallback questions - AI temporarily unavailable');
+      } else {
+        toast.success(`Generated ${practiceQuestions.length} adaptive SAT questions`);
       }
 
       // Create practice session
