@@ -15,9 +15,11 @@ const MASTERY_LEVELS = {
 export default function FlashcardReview({ deck }) {
   const [cards, setCards] = useState([]);
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [isFlipped, setIsFlipped] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(null);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [completedCount, setCompletedCount] = useState(0);
+  const [score, setScore] = useState(0);
 
   useEffect(() => {
     loadCards();
@@ -29,16 +31,29 @@ export default function FlashcardReview({ deck }) {
         deck_id: deck.id
       });
 
-      // Filter for cards due for review (spaced repetition)
-      const now = new Date();
-      const dueCards = deckCards.filter(card => {
-        if (!card.next_review) return true;
-        return new Date(card.next_review) <= now;
+      // Convert to MCQ format with distractors
+      const mcqCards = deckCards.map(card => {
+        const distractors = deckCards
+          .filter(c => c.id !== card.id)
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 3)
+          .map(c => c.back);
+        
+        const allOptions = [card.back, ...distractors].sort(() => Math.random() - 0.5);
+        const correctIndex = allOptions.indexOf(card.back);
+        
+        return {
+          ...card,
+          options: allOptions,
+          correctIndex
+        };
       });
 
-      setCards(dueCards);
+      setCards(mcqCards);
       setCurrentIdx(0);
-      setIsFlipped(false);
+      setSelectedIndex(null);
+      setIsSubmitted(false);
+      setIsCorrect(null);
     } catch (error) {
       toast.error('Failed to load cards');
     } finally {
@@ -46,12 +61,24 @@ export default function FlashcardReview({ deck }) {
     }
   };
 
-  const handleMastery = async (level, isCorrect) => {
-    if (currentIdx >= cards.length) return;
-
+  const handleSubmit = () => {
+    if (selectedIndex === null) return;
+    
     const card = cards[currentIdx];
-    const newLevel = MASTERY_LEVELS[card.mastery_level]?.next || 'mastered';
-    const nextReviewDays = MASTERY_LEVELS[newLevel]?.days || 7;
+    const correct = selectedIndex === card.correctIndex;
+    
+    setIsCorrect(correct);
+    setIsSubmitted(true);
+    
+    if (correct) {
+      setScore(score + 1);
+    }
+  };
+
+  const handleNext = async () => {
+    const card = cards[currentIdx];
+    const newLevel = isCorrect ? MASTERY_LEVELS[card.mastery_level]?.next || 'mastered' : card.mastery_level;
+    const nextReviewDays = MASTERY_LEVELS[newLevel]?.days || 1;
 
     const nextReviewDate = new Date();
     nextReviewDate.setDate(nextReviewDate.getDate() + nextReviewDays);
@@ -64,13 +91,13 @@ export default function FlashcardReview({ deck }) {
         next_review: nextReviewDate.toISOString().split('T')[0]
       });
 
-      setCompletedCount(completedCount + 1);
-
       if (currentIdx < cards.length - 1) {
         setCurrentIdx(currentIdx + 1);
-        setIsFlipped(false);
+        setSelectedIndex(null);
+        setIsSubmitted(false);
+        setIsCorrect(null);
       } else {
-        toast.success('Deck review complete!');
+        toast.success(`Deck complete! Score: ${score + (isCorrect ? 1 : 0)}/${cards.length}`);
         loadCards();
       }
     } catch (error) {
@@ -96,15 +123,15 @@ export default function FlashcardReview({ deck }) {
   }
 
   const current = cards[currentIdx];
-  const progress = ((completedCount + 1) / cards.length) * 100;
+  const progress = ((currentIdx + 1) / cards.length) * 100;
 
   return (
     <div className="space-y-6">
-      {/* Progress */}
-      <div className="space-y-2">
-        <div className="flex justify-between text-sm">
-          <span className="text-neutral-300">{completedCount + 1} / {cards.length}</span>
-          <span className="text-neutral-500">{Math.round(progress)}%</span>
+      {/* Progress and Score */}
+      <div className="space-y-3">
+        <div className="flex justify-between items-center text-sm">
+          <span className="text-neutral-300 font-medium">Question {currentIdx + 1} of {cards.length}</span>
+          <span className="text-blue-400 font-semibold">Score: {score}/{cards.length}</span>
         </div>
         <div className="w-full bg-neutral-800 rounded-full h-2">
           <div
@@ -114,72 +141,87 @@ export default function FlashcardReview({ deck }) {
         </div>
       </div>
 
-      {/* Flashcard */}
+      {/* Question Card */}
       <AnimatePresence mode="wait">
         <motion.div
           key={currentIdx}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          onClick={() => setIsFlipped(!isFlipped)}
-          className="relative h-64 cursor-pointer perspective"
+          className="bg-neutral-900 border border-neutral-800 rounded-xl p-8"
         >
-          <motion.div
-            initial={false}
-            animate={{ rotateY: isFlipped ? 180 : 0 }}
-            transition={{ duration: 0.3 }}
-            style={{ transformStyle: 'preserve-3d' }}
-            className="w-full h-full"
-          >
-            {/* Front */}
-            <div
-              style={{ backfaceVisibility: 'hidden' }}
-              className="absolute w-full h-full bg-gradient-to-br from-blue-600/20 to-purple-600/20 border border-blue-500/50 rounded-lg p-8 flex flex-col items-center justify-center"
-            >
-              <p className="text-neutral-500 text-sm mb-4 uppercase tracking-wider">Question</p>
-              <p className="text-white text-2xl font-semibold text-center">{current.front}</p>
-              <p className="text-neutral-500 text-xs mt-8">Click to reveal answer</p>
-            </div>
+          <p className="text-neutral-400 text-sm mb-4 uppercase tracking-wider">Question</p>
+          <p className="text-white text-2xl font-semibold mb-8">{current.front}</p>
 
-            {/* Back */}
-            <div
-              style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
-              className="absolute w-full h-full bg-gradient-to-br from-green-600/20 to-emerald-600/20 border border-green-500/50 rounded-lg p-8 flex flex-col items-center justify-center"
-            >
-              <p className="text-neutral-500 text-sm mb-4 uppercase tracking-wider">Answer</p>
-              <p className="text-white text-2xl font-semibold text-center">{current.back}</p>
-              <p className="text-neutral-500 text-xs mt-8">Click to flip back</p>
-            </div>
-          </motion.div>
+          {/* Answer Options */}
+          <div className="space-y-3">
+            {current.options.map((option, idx) => {
+              const isSelected = selectedIndex === idx;
+              const isCorrectChoice = idx === current.correctIndex;
+              const showCorrect = isSubmitted && isCorrectChoice;
+              const showIncorrect = isSubmitted && isSelected && !isCorrect;
+
+              return (
+                <button
+                  key={idx}
+                  onClick={() => !isSubmitted && setSelectedIndex(idx)}
+                  disabled={isSubmitted}
+                  className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+                    showCorrect
+                      ? 'bg-green-900/20 border-green-600'
+                      : showIncorrect
+                      ? 'bg-red-900/20 border-red-600'
+                      : isSelected
+                      ? 'bg-blue-900/20 border-blue-600'
+                      : 'bg-neutral-800 border-neutral-700 hover:border-neutral-600'
+                  } ${isSubmitted ? 'cursor-default' : 'cursor-pointer'}`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className={`text-base ${
+                      showCorrect || showIncorrect ? 'text-white font-medium' : 'text-neutral-200'
+                    }`}>
+                      {option}
+                    </span>
+                    {showCorrect && <Check className="w-5 h-5 text-green-500" />}
+                    {showIncorrect && <X className="w-5 h-5 text-red-500" />}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </motion.div>
       </AnimatePresence>
 
-      {/* Controls */}
-      {isFlipped && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="grid grid-cols-2 gap-3"
-        >
+      {/* Submit/Next Button */}
+      <div className="flex items-center justify-between">
+        {!isSubmitted ? (
           <Button
-            onClick={() => handleMastery('incorrect', false)}
-            variant="outline"
-            className="border-red-500/50 text-red-400 hover:bg-red-500/10"
+            onClick={handleSubmit}
+            disabled={selectedIndex === null}
+            className="bg-blue-600 hover:bg-blue-700 w-full"
+            size="lg"
           >
-            <X className="w-4 h-4 mr-2" />
-            Incorrect
+            Submit Answer
           </Button>
-          <Button
-            onClick={() => handleMastery('correct', true)}
-            className="bg-green-600 hover:bg-green-700"
-          >
-            <Check className="w-4 h-4 mr-2" />
-            Correct
-          </Button>
-        </motion.div>
-      )}
+        ) : (
+          <>
+            <div className={`px-4 py-2 rounded-lg font-medium ${
+              isCorrect ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'
+            }`}>
+              {isCorrect ? '✓ Correct!' : '✗ Incorrect'}
+            </div>
+            <Button
+              onClick={handleNext}
+              className="bg-white hover:bg-neutral-100 text-black"
+              size="lg"
+            >
+              {currentIdx < cards.length - 1 ? 'Next Question' : 'Finish Review'}
+            </Button>
+          </>
+        )}
+      </div>
 
-      {/* Mastery Level */}
+      {/* Mastery Level Badge */}
       <div className="text-center">
         <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
           current.mastery_level === 'new' ? 'bg-gray-600/30 text-gray-300' :
