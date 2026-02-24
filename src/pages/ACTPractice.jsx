@@ -49,9 +49,6 @@ export default function ACTPractice() {
     }
   };
 
-  const [questions, setQuestions] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-
   const startPractice = async () => {
     if (!selectedSection) {
       toast.error('Please select a section');
