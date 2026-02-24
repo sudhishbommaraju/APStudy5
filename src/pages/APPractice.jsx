@@ -306,73 +306,44 @@ export default function APPractice() {
   };
 
   const handleNext = () => {
-    if (currentIndex < questions.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      setQuestions([]);
-      setCurrentIndex(0);
-      toast.success('Practice complete!');
-    }
+    setCurrentIndex(currentIndex + 1);
   };
 
-  const handleSubmit = (response) => {
-    console.log('Answer submitted:', response);
+  const handleComplete = () => {
+    setQuestions([]);
+    setCurrentIndex(0);
+    toast.success('Practice complete!');
   };
 
   if (questions.length > 0) {
     return (
       <AuroraBackground>
-      <div className="min-h-screen">
-        <div className="bg-neutral-900 border-b border-neutral-800 px-6 py-4">
-          <div className="flex items-center justify-between max-w-[1800px] mx-auto">
-            <div className="text-sm text-neutral-400">
-              Question {currentIndex + 1} of {questions.length}
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setQuestions([]);
-                setCurrentIndex(0);
-              }}
-            >
-              Exit Practice
-            </Button>
-          </div>
-        </div>
-        
-        <div className="max-w-4xl mx-auto px-6 py-12">
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 mb-6">
-            <div className="prose prose-invert max-w-none">
-              <p className="text-lg text-white mb-6">{questions[currentIndex].stem}</p>
-              
-              <div className="space-y-3">
-                {questions[currentIndex].answer_choices?.map((choice, idx) => (
-                  <button
-                    key={idx}
-                    className="w-full text-left p-4 rounded-lg border border-neutral-700 hover:border-neutral-500 hover:bg-neutral-800 transition-colors text-white"
-                  >
-                    <span className="font-medium mr-3">{String.fromCharCode(65 + idx)}.</span>
-                    {choice}
-                  </button>
-                ))}
-              </div>
+        <div className="min-h-screen">
+          <div className="bg-neutral-900 border-b border-neutral-800 px-6 py-4">
+            <div className="flex items-center justify-between max-w-[1800px] mx-auto">
+              <h2 className="text-lg font-medium text-white">AP Practice</h2>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setQuestions([]);
+                  setCurrentIndex(0);
+                }}
+              >
+                Exit Practice
+              </Button>
             </div>
           </div>
-
-          <div className="flex justify-between">
-            <Button
-              variant="outline"
-              onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
-              disabled={currentIndex === 0}
-            >
-              Previous
-            </Button>
-            <Button onClick={handleNext}>
-              {currentIndex === questions.length - 1 ? 'Finish' : 'Next'}
-            </Button>
+          
+          <div className="max-w-[1800px] mx-auto px-6 py-8">
+            <APPracticeQuestion
+              question={questions[currentIndex]}
+              questionIndex={currentIndex}
+              totalQuestions={questions.length}
+              onNext={handleNext}
+              onComplete={handleComplete}
+            />
           </div>
         </div>
-      </div>
       </AuroraBackground>
     );
   }
