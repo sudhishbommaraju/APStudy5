@@ -20,6 +20,7 @@ export default function FlashcardReview({ deck }) {
   const [isCorrect, setIsCorrect] = useState(null);
   const [loading, setLoading] = useState(true);
   const [score, setScore] = useState(0);
+  const [eliminatedChoices, setEliminatedChoices] = useState(new Set());
 
   useEffect(() => {
     loadCards();
@@ -75,6 +76,19 @@ export default function FlashcardReview({ deck }) {
     }
   };
 
+  const toggleEliminate = (idx, e) => {
+    e.stopPropagation();
+    if (isSubmitted) return;
+    
+    const newEliminated = new Set(eliminatedChoices);
+    if (newEliminated.has(idx)) {
+      newEliminated.delete(idx);
+    } else {
+      newEliminated.add(idx);
+    }
+    setEliminatedChoices(newEliminated);
+  };
+
   const handleNext = async () => {
     const card = cards[currentIdx];
     const newLevel = isCorrect ? MASTERY_LEVELS[card.mastery_level]?.next || 'mastered' : card.mastery_level;
@@ -96,6 +110,7 @@ export default function FlashcardReview({ deck }) {
         setSelectedIndex(null);
         setIsSubmitted(false);
         setIsCorrect(null);
+        setEliminatedChoices(new Set());
       } else {
         toast.success(`Deck complete! Score: ${score + (isCorrect ? 1 : 0)}/${cards.length}`);
         loadCards();
@@ -160,32 +175,52 @@ export default function FlashcardReview({ deck }) {
               const isCorrectChoice = idx === current.correctIndex;
               const showCorrect = isSubmitted && isCorrectChoice;
               const showIncorrect = isSubmitted && isSelected && !isCorrect;
+              const isEliminated = eliminatedChoices.has(idx);
 
               return (
-                <button
-                  key={idx}
-                  onClick={() => !isSubmitted && setSelectedIndex(idx)}
-                  disabled={isSubmitted}
-                  className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
-                    showCorrect
-                      ? 'bg-green-900/20 border-green-600'
-                      : showIncorrect
-                      ? 'bg-red-900/20 border-red-600'
-                      : isSelected
-                      ? 'bg-blue-900/20 border-blue-600'
-                      : 'bg-neutral-800 border-neutral-700 hover:border-neutral-600'
-                  } ${isSubmitted ? 'cursor-default' : 'cursor-pointer'}`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className={`text-base ${
-                      showCorrect || showIncorrect ? 'text-white font-medium' : 'text-neutral-200'
-                    }`}>
-                      {option}
-                    </span>
-                    {showCorrect && <Check className="w-5 h-5 text-green-500" />}
-                    {showIncorrect && <X className="w-5 h-5 text-red-500" />}
-                  </div>
-                </button>
+                <div key={idx} className="relative group">
+                  <button
+                    onClick={() => !isSubmitted && setSelectedIndex(idx)}
+                    disabled={isSubmitted}
+                    className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+                      showCorrect
+                        ? 'bg-green-900/20 border-green-600'
+                        : showIncorrect
+                        ? 'bg-red-900/20 border-red-600'
+                        : isSelected
+                        ? 'bg-blue-900/20 border-blue-600'
+                        : isEliminated
+                        ? 'bg-neutral-950/50 border-neutral-800'
+                        : 'bg-neutral-800 border-neutral-700 hover:border-neutral-600'
+                    } ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} ${
+                      isEliminated ? 'opacity-40' : ''
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className={`text-base ${
+                        showCorrect || showIncorrect ? 'text-white font-medium' : 'text-neutral-200'
+                      } ${isEliminated ? 'line-through' : ''}`}>
+                        {option}
+                      </span>
+                      {showCorrect && <Check className="w-5 h-5 text-green-500" />}
+                      {showIncorrect && <X className="w-5 h-5 text-red-500" />}
+                    </div>
+                  </button>
+                  
+                  {!isSubmitted && (
+                    <button
+                      onClick={(e) => toggleEliminate(idx, e)}
+                      className={`absolute top-3 right-3 p-1.5 rounded-lg transition-all ${
+                        isEliminated
+                          ? 'bg-red-600/20 text-red-400'
+                          : 'bg-neutral-800/0 group-hover:bg-neutral-800 text-neutral-500 hover:text-red-400'
+                      }`}
+                      title={isEliminated ? 'Un-eliminate' : 'Eliminate choice'}
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
               );
             })}
           </div>
