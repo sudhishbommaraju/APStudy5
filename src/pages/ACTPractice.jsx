@@ -60,7 +60,9 @@ export default function ACTPractice() {
     setPracticing(true);
 
     try {
-      const { generateQuestionsOptimized } = await import('@/components/generation/FastQuestionGenerator');
+      // PHASE 5: CLEAR ALL CACHES BEFORE NEW GENERATION
+      const { generateQuestionsOptimized, clearCache } = await import('@/components/generation/FastQuestionGenerator');
+      clearCache();
       
       const result = await generateQuestionsOptimized({
         examType: 'ACT',
