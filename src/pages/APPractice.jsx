@@ -16,6 +16,8 @@ export default function APPractice() {
   const [unit, setUnit] = useState('');
   const [questionCount, setQuestionCount] = useState(10);
   const [linkedPage, setLinkedPage] = useState(null);
+  const [questions, setQuestions] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const apSubjects = [
     { id: 'biology', name: 'AP Biology' },
@@ -243,11 +245,10 @@ export default function APPractice() {
       return;
     }
 
-    console.log("🚀 AP Practice generation started");
+    console.log("🚀 Practice generation started");
     setLoading(true);
     
     try {
-      const user = await base44.auth.me();
       const subjectName = apSubjects.find(s => s.id === subject)?.name || 'AP';
       const unitName = availableUnits.find(u => u.id === unit)?.name || '';
       
@@ -262,7 +263,6 @@ export default function APPractice() {
         questionType: 'MCQ',
         topic: `${subjectName} - ${unitName}`,
         keywords: [subjectName, unitName].filter(Boolean),
-        userEmail: user.email,
         adaptiveDifficulty: true
       });
 
@@ -272,68 +272,107 @@ export default function APPractice() {
         throw new Error("AI returned no questions");
       }
 
+      setQuestions(result.questions);
+      setCurrentIndex(0);
       toast.success(`Generated ${result.questions.length} AP questions`);
 
-      // Optional session tracking
-      try {
-        let exams = await base44.entities.Exam.filter({ exam_type: 'AP' });
-        let examId = exams.length > 0 ? exams[0].id : null;
-        
-        if (!examId) {
-          const newExam = await base44.entities.Exam.create({
-            exam_type: 'AP',
-            name: 'Advanced Placement'
-          });
-          examId = newExam.id;
-        }
-
-        const session = await base44.entities.EnginePracticeSession.create({
-          user_email: user.email,
-          exam_id: examId,
-          subject_id: subject,
-          unit_id: unit,
-          question_count: result.questions.length,
-          mode: 'untimed',
-          status: 'active',
-          started_at: new Date().toISOString()
-        });
-
-        if (session?.id) {
-          navigate(createPageUrl('EnginePracticeSession') + `?session=${session.id}`);
-          return;
-        }
-      } catch (sessionError) {
-        console.warn("Session tracking failed (non-critical):", sessionError);
-      }
-
-      // Fallback: show questions directly
-      navigate(createPageUrl('EnginePracticeSession') + `?direct=true`);
-
     } catch (error) {
-      console.error("❌ AI failed, using HARD FALLBACK:", error);
+      console.error("❌ Generation failed. Using HARD FALLBACK.", error);
       
+      const fallback = [
+        {
+          id: 'fallback-1',
+          stem: "What is 5 + 7?",
+          answer_choices: ["10", "11", "12", "13"],
+          correct_answer: 2,
+          explanation: "5 + 7 equals 12."
+        },
+        {
+          id: 'fallback-2',
+          stem: "What is the capital of France?",
+          answer_choices: ["Berlin", "Paris", "Rome", "Madrid"],
+          correct_answer: 1,
+          explanation: "Paris is the capital of France."
+        }
+      ];
+
+      setQuestions(fallback);
+      setCurrentIndex(0);
       toast.info("Using fallback questions - AI temporarily unavailable");
-      navigate(createPageUrl('EnginePracticeSession') + `?fallback=true`);
     } finally {
       setLoading(false);
     }
   };
 
-  const syncProgressToNotion = async () => {
-    try {
-      const user = await base44.auth.me();
-      const sessions = await base44.entities.EnginePracticeSession.filter({
-        user_email: user.email,
-        exam_id: 'AP'
-      }, '-completed_at', 10);
-
-      // Note: Actual Notion API integration would go here
-      // For now, we're just storing the reference
-      console.log('Syncing to Notion:', { sessions, linkedPage });
-    } catch (error) {
-      console.error('Sync to Notion failed:', error);
+  const handleNext = () => {
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    } else {
+      setQuestions([]);
+      setCurrentIndex(0);
+      toast.success('Practice complete!');
     }
   };
+
+  const handleSubmit = (response) => {
+    console.log('Answer submitted:', response);
+  };
+
+  if (questions.length > 0) {
+    return (
+      <div className="min-h-screen bg-black">
+        <div className="bg-neutral-900 border-b border-neutral-800 px-6 py-4">
+          <div className="flex items-center justify-between max-w-[1800px] mx-auto">
+            <div className="text-sm text-neutral-400">
+              Question {currentIndex + 1} of {questions.length}
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setQuestions([]);
+                setCurrentIndex(0);
+              }}
+            >
+              Exit Practice
+            </Button>
+          </div>
+        </div>
+        
+        <div className="max-w-4xl mx-auto px-6 py-12">
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 mb-6">
+            <div className="prose prose-invert max-w-none">
+              <p className="text-lg text-white mb-6">{questions[currentIndex].stem}</p>
+              
+              <div className="space-y-3">
+                {questions[currentIndex].answer_choices?.map((choice, idx) => (
+                  <button
+                    key={idx}
+                    className="w-full text-left p-4 rounded-lg border border-neutral-700 hover:border-neutral-500 hover:bg-neutral-800 transition-colors text-white"
+                  >
+                    <span className="font-medium mr-3">{String.fromCharCode(65 + idx)}.</span>
+                    {choice}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-between">
+            <Button
+              variant="outline"
+              onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
+              disabled={currentIndex === 0}
+            >
+              Previous
+            </Button>
+            <Button onClick={handleNext}>
+              {currentIndex === questions.length - 1 ? 'Finish' : 'Next'}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black py-16">
@@ -500,6 +539,13 @@ export default function APPractice() {
                   'Generate Practice'
                 )}
               </Button>
+
+              {/* Debug Panel */}
+              <div className="text-xs text-gray-400 mt-4 p-3 bg-neutral-800 rounded-lg">
+                <p>Loading: {loading ? "Yes" : "No"}</p>
+                <p>Practice Count: {questions?.length || 0}</p>
+                <p>Status: {questions.length > 0 ? "Ready" : "Click Generate to Begin"}</p>
+              </div>
             </div>
           </div>
         </div>
