@@ -242,27 +242,51 @@ export async function generateQuestionsWithRetry({
 }
 
 function buildQuestionPrompt({ examType, subjectId, topic, difficulty, questionCount, questionType, keywords }) {
-  const keywordText = keywords?.length > 0 ? `\nEmphasize: ${keywords.join(', ')}` : '';
+  const keywordText = keywords?.length > 0 ? `\nKey areas: ${keywords.join(', ')}` : '';
   
-  return `Generate ${questionCount} original ${examType} ${questionType} questions.
+  // Exam-specific guidance
+  const examGuidance = {
+    'SAT': `Follow College Board SAT skill taxonomy:
+- Reading & Writing: Craft & Structure, Information & Ideas, Standard English Conventions, Expression of Ideas
+- Math: Algebra, Advanced Math, Problem-Solving & Data Analysis, Geometry & Trigonometry`,
+    'ACT': `Follow ACT skill framework:
+- English: Production of Writing, Knowledge of Language, Conventions of Standard English
+- Math: Number & Quantity, Algebra, Functions, Geometry, Statistics & Probability
+- Reading: Key Ideas & Details, Craft & Structure, Integration of Knowledge
+- Science: Interpretation of Data, Scientific Investigation, Evaluation of Models`,
+    'AP': `Follow College Board AP skill practices and unit frameworks.
+Align with Course & Exam Description (CED) learning objectives.`
+  };
+
+  return `Generate ${questionCount} ORIGINAL ${examType} practice questions.
+
+CRITICAL: These are Proofly-generated questions, NOT from official College Board materials.
+Align with ${examType} skill taxonomy and exam format, but use entirely original content.
 
 ${topic ? `Topic: ${topic}` : ''}
 ${subjectId ? `Subject: ${subjectId}` : ''}
-Difficulty: ${difficulty}/5${keywordText}
+Difficulty: ${difficulty}/5 (1=beginner, 5=expert)${keywordText}
 
-Requirements:
-- Original content only (not from official materials)
-- ${questionType === 'MCQ' ? 'Exactly 4 answer choices (A, B, C, D)' : 'Free response format'}
-- One clear correct answer
-- Realistic distractors based on common misconceptions
-- Detailed explanation for correct answer
-- Match ${examType} exam style and rigor
+${examGuidance[examType] || ''}
 
-Return valid JSON with "questions" array. Each question must have:
-- stem: question text (string, non-empty)
-- choices: array of exactly 4 strings
-- correctAnswerIndex: number 0-3
-- explanation: string explaining the correct answer
+Question Requirements:
+- ${questionType === 'MCQ' ? 'Exactly 4 answer choices' : 'Free response format'}
+- One definitively correct answer
+- Realistic distractors based on common student misconceptions
+- Clear, educational explanation
+- Match ${examType} style, rigor, and cognitive demand
 
-Validate all fields before returning.`;
+Return valid JSON:
+{
+  "questions": [
+    {
+      "stem": "question text (clear, complete)",
+      "choices": ["A option", "B option", "C option", "D option"],
+      "correctAnswerIndex": 0-3,
+      "explanation": "why the correct answer is right and others are wrong"
+    }
+  ]
+}
+
+Validate all fields before returning. No placeholders or incomplete questions.`;
 }
