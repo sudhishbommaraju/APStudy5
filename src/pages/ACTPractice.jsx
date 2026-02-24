@@ -18,6 +18,10 @@ export default function ACTPractice() {
   const [practicing, setPracticing] = useState(false);
 
   useEffect(() => {
+    // Clear any cached state
+    setError(null);
+    setSelectedSection('');
+    
     loadSections();
   }, []);
 
@@ -95,6 +99,7 @@ export default function ACTPractice() {
         exam_id: examId,
         domain_id: selectedSection,
         mode: 'untimed',
+        status: 'active',
         question_count: practiceQuestions.length,
         started_at: new Date().toISOString()
       });
