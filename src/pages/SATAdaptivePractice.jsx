@@ -15,28 +15,35 @@ export default function SATAdaptivePractice() {
   const [generationCount, setGenerationCount] = useState(0);
 
   useEffect(() => {
-    // Clear any stale state
-    checkDailyLimit();
-  }, []);
+    let mounted = true;
+    
+    async function checkDailyLimit() {
+      try {
+        const user = await base44.auth.me();
+        const today = new Date().toISOString().split('T')[0];
+        
+        const todaySessions = await base44.entities.EnginePracticeSession.filter({
+          user_email: user.email
+        }, '-created_date', 100);
 
-  async function checkDailyLimit() {
-    try {
-      const user = await base44.auth.me();
-      const today = new Date().toISOString().split('T')[0];
-      
-      const todaySessions = await base44.entities.EnginePracticeSession.filter({
-        user_email: user.email
-      }, '-created_date', 100);
+        if (mounted) {
+          const todayCount = todaySessions.filter(s => 
+            s.created_date && s.created_date.startsWith(today)
+          ).length;
 
-      const todayCount = todaySessions.filter(s => 
-        s.created_date && s.created_date.startsWith(today)
-      ).length;
-
-      setGenerationCount(todayCount);
-    } catch (error) {
-      console.error('Failed to check daily limit:', error);
+          setGenerationCount(todayCount);
+        }
+      } catch (error) {
+        console.error('Failed to check daily limit:', error);
+      }
     }
-  }
+    
+    checkDailyLimit();
+    
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   async function handleStartPractice(settings) {
     // Check daily limit for free users
