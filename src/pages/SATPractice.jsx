@@ -175,6 +175,21 @@ export default function SATPractice() {
   return (
     <AuroraBackground>
     <div className="min-h-screen">
+      <div className="bg-neutral-900 border-b border-neutral-800 px-6 py-4">
+        <div className="flex items-center justify-between max-w-[1800px] mx-auto">
+          <h2 className="text-lg font-medium text-white">SAT Practice</h2>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setQuestions([]);
+              setCurrentIndex(0);
+              setSessionId(null);
+            }}
+          >
+            Exit Practice
+          </Button>
+        </div>
+      </div>
       <ExamShell
         question={questions[currentIndex]}
         questionNumber={currentIndex + 1}

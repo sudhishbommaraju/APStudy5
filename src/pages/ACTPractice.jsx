@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AuroraBackground } from '@/components/ui/animated-background';
 import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import APPracticeQuestion from '@/components/practice/APPracticeQuestion';
 
 export default function ACTPractice() {
   const navigate = useNavigate();
@@ -17,6 +18,8 @@ export default function ACTPractice() {
   const [error, setError] = useState(null);
   const [examId, setExamId] = useState(null);
   const [practicing, setPracticing] = useState(false);
+  const [questions, setQuestions] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     // Always clear state to allow new generation
@@ -45,6 +48,9 @@ export default function ACTPractice() {
       setLoading(false);
     }
   };
+
+  const [questions, setQuestions] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const startPractice = async () => {
     if (!selectedSection) {
@@ -79,36 +85,26 @@ export default function ACTPractice() {
         throw new Error("AI returned no questions");
       }
 
-      // Optional session tracking
-      try {
-        const session = await base44.entities.EnginePracticeSession.create({
-          user_email: user.email,
-          exam_id: examId,
-          domain_id: selectedSection,
-          mode: 'untimed',
-          status: 'active',
-          question_count: result.questions.length,
-          started_at: new Date().toISOString()
-        });
-        
-        if (session?.id) {
-          navigate(createPageUrl('EnginePracticeSession') + `?session=${session.id}`);
-          return;
-        }
-      } catch (sessionError) {
-        console.warn("Session creation failed (non-critical):", sessionError);
-      }
-
-      // Fallback: show questions directly without session
+      setQuestions(result.questions);
+      setCurrentIndex(0);
       toast.success(`Generated ${result.questions.length} ACT questions`);
-      navigate(createPageUrl('EnginePracticeSession') + `?direct=true`);
 
     } catch (error) {
       console.error("❌ AI failed, using HARD FALLBACK:", error);
       
-      // GUARANTEED FALLBACK PRACTICE
+      const fallback = [
+        {
+          id: 'fallback-1',
+          stem: "What is 8 × 7?",
+          answer_choices: ["48", "54", "56", "63"],
+          correct_answer: 2,
+          explanation: "8 × 7 = 56"
+        }
+      ];
+      
+      setQuestions(fallback);
+      setCurrentIndex(0);
       toast.info("Using fallback questions - AI temporarily unavailable");
-      navigate(createPageUrl('EnginePracticeSession') + `?fallback=true`);
     } finally {
       setPracticing(false);
     }
@@ -119,6 +115,43 @@ export default function ACTPractice() {
       <div className="min-h-screen bg-black flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
       </div>
+    );
+  }
+
+  if (questions.length > 0) {
+    return (
+      <AuroraBackground>
+        <div className="min-h-screen">
+          <div className="bg-neutral-900 border-b border-neutral-800 px-6 py-4">
+            <div className="flex items-center justify-between max-w-[1800px] mx-auto">
+              <h2 className="text-lg font-medium text-white">ACT Practice</h2>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setQuestions([]);
+                  setCurrentIndex(0);
+                }}
+              >
+                Exit Practice
+              </Button>
+            </div>
+          </div>
+          
+          <div className="max-w-[1800px] mx-auto px-6 py-8">
+            <APPracticeQuestion
+              question={questions[currentIndex]}
+              questionIndex={currentIndex}
+              totalQuestions={questions.length}
+              onNext={() => setCurrentIndex(currentIndex + 1)}
+              onComplete={() => {
+                setQuestions([]);
+                setCurrentIndex(0);
+                toast.success('Practice complete!');
+              }}
+            />
+          </div>
+        </div>
+      </AuroraBackground>
     );
   }
 
