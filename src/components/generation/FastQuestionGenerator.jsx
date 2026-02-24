@@ -40,8 +40,14 @@ export async function generateQuestionsOptimized({
     setTimeout(() => reject(new Error('TIMEOUT')), 3000)
   );
 
+  const prompt = examType === 'AP' 
+    ? `Generate ${count} College Board AP-level practice questions. Format:\n{"questions":[{"stimulus":"Brief context/passage (1-2 sentences)","question":"Clear question prompt","options":["A","B","C","D"],"correctIndex":0}]}\n\nMake questions rigorous, curriculum-aligned, and realistic.`
+    : examType === 'SAT'
+    ? `Generate ${count} College Board SAT questions. Format:\n{"questions":[{"stimulus":"Context if needed","question":"Question text","options":["A","B","C","D"],"correctIndex":0}]}\n\nSAT-level difficulty, clear and concise.`
+    : `Generate ${count} ACT practice questions. Format:\n{"questions":[{"stimulus":"Passage/context","question":"Question","options":["A","B","C","D"],"correctIndex":0}]}\n\nACT-level rigor.`;
+
   const requestPromise = base44.integrations.Core.InvokeLLM({
-    prompt: `${count} ${examType} ${difficulty} Q's. JSON:\n{"questions":[{"stimulus":"2 sent max","question":"1 sent","options":["A","B","C","D"],"correctIndex":0}]}`,
+    prompt,
     response_json_schema: {
       type: "object",
       properties: {
@@ -169,21 +175,89 @@ export async function generateStrategy({ questionId, question }) {
  * FALLBACK QUESTIONS (if AI fails or times out)
  */
 function getFallbackQuestions(count, examType, difficulty, subjectId, unitId) {
-  return Array.from({ length: count }, (_, idx) => ({
-    id: `fallback_${Date.now()}_${idx}`,
-    question_text: "Practice question (generated offline)",
-    stimulus: "This is a sample practice question.",
-    choice_a: "Option A",
-    choice_b: "Option B",
-    choice_c: "Option C",
-    choice_d: "Option D",
-    correct_answer: "A",
-    explanation: null,
-    difficulty,
-    subject_id: subjectId,
-    unit_id: unitId,
-    isFallback: true
-  }));
+  const apFallbacks = [
+    {
+      stimulus: "A cell biologist observes that a particular organelle contains enzymes that break down macromolecules into their component parts.",
+      question: "Which organelle is most likely being observed?",
+      choice_a: "Lysosome",
+      choice_b: "Ribosome",
+      choice_c: "Smooth endoplasmic reticulum",
+      choice_d: "Golgi apparatus",
+      correct_answer: "A"
+    },
+    {
+      stimulus: "In a laboratory experiment, researchers measured the rate of photosynthesis in plant cells under varying light intensities.",
+      question: "Which of the following would most likely increase as light intensity increases, up to a certain point?",
+      choice_a: "ATP production in the chloroplast",
+      choice_b: "Oxygen consumption by mitochondria",
+      choice_c: "Carbon dioxide release",
+      choice_d: "Water absorption by roots",
+      correct_answer: "A"
+    },
+    {
+      stimulus: "During the 1920s, the United States experienced significant economic growth and cultural change.",
+      question: "Which of the following best describes the social impact of mass production during this period?",
+      choice_a: "Increased access to consumer goods for the middle class",
+      choice_b: "Decreased urbanization",
+      choice_c: "Reduced immigration from Europe",
+      choice_d: "Expansion of agricultural employment",
+      correct_answer: "A"
+    }
+  ];
+
+  const satFallbacks = [
+    {
+      stimulus: "If 3x + 5 = 20, what is the value of x?",
+      question: "Solve for x.",
+      choice_a: "5",
+      choice_b: "8",
+      choice_c: "10",
+      choice_d: "15",
+      correct_answer: "A"
+    },
+    {
+      stimulus: "The scientist's findings were _____ by multiple independent studies.",
+      question: "Which word best completes the sentence?",
+      choice_a: "corroborated",
+      choice_b: "contradicted",
+      choice_c: "fabricated",
+      choice_d: "dismissed",
+      correct_answer: "A"
+    }
+  ];
+
+  const actFallbacks = [
+    {
+      stimulus: "A rectangle has a length of 12 and a width of 5.",
+      question: "What is the area of the rectangle?",
+      choice_a: "60",
+      choice_b: "17",
+      choice_c: "34",
+      choice_d: "72",
+      correct_answer: "A"
+    }
+  ];
+
+  const fallbackBank = examType === 'AP' ? apFallbacks : examType === 'SAT' ? satFallbacks : actFallbacks;
+  
+  return Array.from({ length: count }, (_, idx) => {
+    const template = fallbackBank[idx % fallbackBank.length];
+    return {
+      id: `fallback_${Date.now()}_${idx}`,
+      question_text: template.question,
+      stimulus: template.stimulus,
+      choice_a: template.choice_a,
+      choice_b: template.choice_b,
+      choice_c: template.choice_c,
+      choice_d: template.choice_d,
+      correct_answer: template.correct_answer,
+      explanation: null,
+      difficulty,
+      subject_id: subjectId,
+      unit_id: unitId,
+      isFallback: true
+    };
+  });
 }
 
 /**
