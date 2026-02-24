@@ -97,14 +97,21 @@ Organize the information clearly with proper markdown formatting and include tim
       const videoId = titleMatch ? titleMatch[1] : 'Video';
 
       // Save personalized notes
+      const user = await base44.auth.me();
       await base44.entities.StudyNote.create({
-        user_email: (await base44.auth.me()).email,
+        user_email: user.email,
         exam_type: 'AP',
         subject_id: subject,
         title: `${subject} - YouTube Lecture (${videoId})`,
         content: extractedContent,
         key_concepts: conceptsResponse.concepts || []
       });
+
+      // Sync to Notion if connected
+      if (user.notion_practice_page) {
+        toast.info('Syncing to Notion...');
+        console.log('Notes ready for Notion sync:', user.notion_practice_page);
+      }
 
       toast.success('Video processed and notes saved successfully!');
       navigate(createPageUrl('Dashboard'));

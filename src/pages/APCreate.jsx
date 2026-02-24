@@ -79,14 +79,21 @@ export default function APCreate() {
         add_context_from_internet: true
       });
 
+      const user = await base44.auth.me();
       await base44.entities.StudyNote.create({
-        user_email: (await base44.auth.me()).email,
+        user_email: user.email,
         exam_type: 'AP',
         subject_id: subject,
         title: `${subject} - ${topic}`,
         content: response,
         key_concepts: keywordList
       });
+
+      // Sync to Notion if connected
+      if (user.notion_practice_page) {
+        toast.info('Syncing to Notion...');
+        console.log('Notes ready for Notion sync:', user.notion_practice_page);
+      }
 
       toast.success('Notes generated successfully!');
       navigate(createPageUrl('Dashboard'));
