@@ -13,8 +13,32 @@ export async function generateQuestionsWithRetry({
   questionCount = 10,
   questionType = 'MCQ',
   topic = null,
-  keywords = []
+  keywords = [],
+  userEmail = null,
+  adaptiveDifficulty = false
 }) {
+  // Adaptive difficulty adjustment
+  if (adaptiveDifficulty && userEmail) {
+    try {
+      const skillPerf = await base44.entities.EngineUserSkillPerformance.filter({
+        user_email: userEmail
+      }, '-accuracy', 10);
+
+      if (skillPerf.length > 0) {
+        const avgAccuracy = skillPerf.reduce((sum, s) => sum + s.accuracy, 0) / skillPerf.length;
+        
+        if (avgAccuracy >= 85) difficulty = 5;
+        else if (avgAccuracy >= 70) difficulty = 4;
+        else if (avgAccuracy >= 55) difficulty = 3;
+        else if (avgAccuracy >= 40) difficulty = 2;
+        else difficulty = 1;
+        
+        console.log(`Adaptive difficulty: ${difficulty} (based on ${avgAccuracy.toFixed(1)}% accuracy)`);
+      }
+    } catch (error) {
+      console.warn('Failed to calculate adaptive difficulty:', error);
+    }
+  }
   const user = await base44.auth.me();
   let lastError = null;
 

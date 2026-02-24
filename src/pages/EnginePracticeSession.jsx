@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
@@ -8,6 +8,8 @@ import { selectAdaptiveQuestions } from '@/components/engine/AdaptiveDifficultyE
 import LatexRenderer from '@/components/ui/LatexRenderer';
 import PracticeErrorState from '@/components/error/PracticeErrorState';
 import { Clock, ArrowRight, Check, X } from 'lucide-react';
+
+const AITutorPanel = React.lazy(() => import('@/components/tutor/AITutorPanel'));
 
 export default function EnginePracticeSession() {
   const navigate = useNavigate();
@@ -297,18 +299,30 @@ export default function EnginePracticeSession() {
 
         {/* Explanation */}
         {answered && (
-          <div className={`bg-neutral-900 border-2 rounded-2xl p-6 mb-6 ${
-            isCorrect ? 'border-green-500' : 'border-red-500'
-          }`}>
-            <div className={`font-semibold mb-3 ${
-              isCorrect ? 'text-green-500' : 'text-red-500'
+          <>
+            <div className={`bg-neutral-900 border-2 rounded-2xl p-6 mb-6 ${
+              isCorrect ? 'border-green-500' : 'border-red-500'
             }`}>
-              {isCorrect ? '✓ Correct!' : '✗ Incorrect'}
+              <div className={`font-semibold mb-3 ${
+                isCorrect ? 'text-green-500' : 'text-red-500'
+              }`}>
+                {isCorrect ? '✓ Correct!' : '✗ Incorrect'}
+              </div>
+              <div className="text-neutral-300 leading-relaxed">
+                <LatexRenderer content={current.explanation} />
+              </div>
             </div>
-            <div className="text-neutral-300 leading-relaxed">
-              <LatexRenderer content={current.explanation} />
-            </div>
-          </div>
+
+            {/* AI Tutor */}
+            {!isCorrect && (
+              <>
+                {React.createElement(
+                  React.lazy(() => import('@/components/tutor/AITutorPanel')),
+                  { question: current, userAnswer: selectedAnswer, isCorrect }
+                )}
+              </>
+            )}
+          </>
         )}
 
         {/* Action Button */}
