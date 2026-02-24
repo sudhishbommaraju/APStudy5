@@ -53,7 +53,10 @@ export default function ACTPractice() {
 
     try {
       setPracticing(true);
+      console.log('[ACT Practice] Starting practice:', { selectedSection, questionCount });
+      
       const user = await base44.auth.me();
+      console.log('[ACT Practice] User authenticated:', user.email);
       
       // Get section info for question generation
       const sectionData = sections.find(s => s.id === selectedSection);
@@ -70,31 +73,39 @@ export default function ACTPractice() {
         (q.generation_metadata?.domain_id === selectedSection || !q.generation_metadata?.domain_id)
       );
 
+      console.log('[ACT Practice] Existing questions found:', practiceQuestions.length);
+
       // Generate if needed
       if (practiceQuestions.length < questionCount) {
-        console.log(`Generating ${questionCount} ACT questions for ${sectionName}...`);
-        const { generateQuestions } = await import('@/components/generation/RobustQuestionGenerator');
+        console.log('[ACT Practice] Calling AI generator...');
+        const { generateQuestionsWithRetry } = await import('@/components/generation/RobustQuestionGenerator');
         
-        const result = await generateQuestions({
-          exam_type: 'ACT',
-          domain_id: selectedSection,
+        const result = await generateQuestionsWithRetry({
+          examType: 'ACT',
+          domainId: selectedSection,
           difficulty: 3,
-          count: questionCount,
+          questionCount: questionCount,
           keywords: [sectionName]
         });
 
+        console.log('[ACT Practice] AI response:', { success: result.success, questionCount: result.questions?.length, error: result.error });
+
         if (result.success && result.questions.length > 0) {
           practiceQuestions = result.questions;
+          console.log('[ACT Practice] Questions generated successfully');
           toast.success(`Generated ${result.questions.length} original questions`);
         } else {
-          throw new Error(result.error || 'Question generation failed');
+          console.error('[ACT Practice] AI generation failed:', result.error);
+          throw new Error(result.error || 'AI returned empty result');
         }
       }
 
       if (practiceQuestions.length === 0) {
+        console.error('[ACT Practice] No questions available');
         throw new Error('No questions available for practice');
       }
 
+      console.log('[ACT Practice] Creating session...');
       const session = await base44.entities.EnginePracticeSession.create({
         user_email: user.email,
         exam_id: examId,
@@ -106,14 +117,15 @@ export default function ACTPractice() {
       });
 
       if (!session || !session.id) {
+        console.error('[ACT Practice] Session creation failed');
         throw new Error('Session creation failed');
       }
 
-      console.log('✓ ACT session created:', session.id);
+      console.log('[ACT Practice] Session created:', session.id);
       navigate(createPageUrl('EnginePracticeSession') + `?session=${session.id}`);
     } catch (err) {
-      console.error('Failed to start practice:', err);
-      toast.error(err.message || 'Failed to start practice');
+      console.error('[ACT Practice] Practice start failed:', err);
+      toast.error(err.message || 'Practice generation failed. Check console.');
     } finally {
       setPracticing(false);
     }

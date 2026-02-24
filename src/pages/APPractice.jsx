@@ -267,6 +267,7 @@ export default function APPractice() {
         const subjectName = apSubjects.find(s => s.id === subject)?.name || 'AP';
         const unitName = availableUnits.find(u => u.id === unit)?.name || '';
         
+        console.log('[AP Practice] Calling AI generator...');
         toast.info(`Generating ${questionCount} original questions...`);
         
         const { generateQuestionsWithRetry } = await import('@/components/generation/RobustQuestionGenerator');
@@ -281,15 +282,20 @@ export default function APPractice() {
           keywords: [subjectName, unitName].filter(Boolean)
         });
 
+        console.log('[AP Practice] AI response:', { success: result.success, questionCount: result.questions?.length, error: result.error });
+
         if (!result.success) {
-          throw new Error(result.error || 'Failed to generate questions');
+          console.error('[AP Practice] AI generation failed:', result.error);
+          throw new Error(result.error || 'AI returned empty result');
         }
 
         questions = result.questions;
+        console.log('[AP Practice] Questions generated successfully');
         toast.success(`Generated ${questions.length} original AP questions`);
       }
 
       // Create practice session
+      console.log('[AP Practice] Creating session in database...');
       const exams = await base44.entities.Exam.filter({ exam_type: 'AP' });
       if (!exams.length) throw new Error('AP exam not found');
 
@@ -304,13 +310,15 @@ export default function APPractice() {
         started_at: new Date().toISOString()
       });
 
+      console.log('[AP Practice] Session created:', session.id);
+
       // Verify session was created successfully
       if (!session || !session.id) {
+        console.error('[AP Practice] Session creation failed - no ID returned');
         throw new Error('Session creation failed - no ID returned');
       }
 
-      console.log('✓ Session created:', { id: session.id, questions: questions.length });
-
+      console.log('[AP Practice] Generation complete, navigating to session');
       toast.success('Starting practice session...');
       navigate(createPageUrl('EnginePracticeSession') + `?session=${session.id}`);
     } catch (error) {

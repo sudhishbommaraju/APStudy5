@@ -27,12 +27,18 @@ export default function SATPractice() {
   const initializePractice = async () => {
     try {
       setLoading(true);
+      console.log('[SAT Practice] Initializing practice...');
+      
       const user = await base44.auth.me();
+      console.log('[SAT Practice] User authenticated:', user.email);
+      
       const exams = await base44.entities.Exam.filter({ exam_type: 'SAT' });
       
       if (!exams.length) {
+        console.error('[SAT Practice] SAT exam not configured');
         throw new Error('SAT exam not found');
       }
+      console.log('[SAT Practice] Exam found:', exams[0].id);
 
       // Try to fetch existing questions
       let practiceQuestions = await base44.entities.ProoflyQuestion.filter({
@@ -44,8 +50,11 @@ export default function SATPractice() {
         !q.generation_metadata?.exam_type || q.generation_metadata?.exam_type === 'SAT'
       );
 
+      console.log('[SAT Practice] Existing questions found:', practiceQuestions.length);
+
       // Generate new questions if needed
       if (practiceQuestions.length < 10) {
+        console.log('[SAT Practice] Calling AI generator...');
         const { generateQuestionsWithRetry } = await import('@/components/generation/RobustQuestionGenerator');
         
         const result = await generateQuestionsWithRetry({
@@ -56,19 +65,25 @@ export default function SATPractice() {
           keywords: ['Math', 'Reading', 'Writing']
         });
 
+        console.log('[SAT Practice] AI response:', { success: result.success, questionCount: result.questions?.length, error: result.error });
+
         if (result.success && result.questions.length > 0) {
           practiceQuestions = result.questions;
+          console.log('[SAT Practice] Questions generated successfully');
           toast.success(`Generated ${result.questions.length} new SAT questions`);
         } else {
-          throw new Error(result.error || 'Failed to generate questions');
+          console.error('[SAT Practice] AI generation failed:', result.error);
+          throw new Error(result.error || 'AI returned empty result');
         }
       }
 
       if (practiceQuestions.length === 0) {
+        console.error('[SAT Practice] No questions available after generation');
         throw new Error('No practice questions available');
       }
 
       // Create practice session
+      console.log('[SAT Practice] Creating session...');
       const session = await base44.entities.EnginePracticeSession.create({
         user_email: user.email,
         exam_id: exams[0].id,
@@ -79,15 +94,16 @@ export default function SATPractice() {
       });
 
       if (!session || !session.id) {
+        console.error('[SAT Practice] Session creation failed');
         throw new Error('Failed to create practice session');
       }
 
-      console.log('✓ SAT practice session created:', session.id);
+      console.log('[SAT Practice] Session created:', session.id);
       setSessionId(session.id);
       setQuestions(practiceQuestions);
     } catch (error) {
-      console.error('Failed to load practice:', error);
-      toast.error(error.message);
+      console.error('[SAT Practice] Initialization failed:', error);
+      toast.error(error.message || 'Practice generation failed. Check console.');
     } finally {
       setLoading(false);
     }
