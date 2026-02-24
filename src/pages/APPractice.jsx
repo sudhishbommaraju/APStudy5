@@ -250,61 +250,56 @@ export default function APPractice() {
       const user = await base44.auth.me();
       console.log('[AP Practice] User authenticated:', user.email);
 
-      // Fetch existing Proofly-generated questions
-      let questions = [];
-      const existingQuestions = await base44.entities.ProoflyQuestion.filter({
-        is_active: true
-      }, '-created_date', questionCount * 2);
+      // ALWAYS generate fresh questions - no checks, no blocks
+      const subjectName = apSubjects.find(s => s.id === subject)?.name || 'AP';
+      const unitName = availableUnits.find(u => u.id === unit)?.name || '';
+      
+      console.log('[AP Practice] Generating fresh questions...');
+      toast.info(`Generating ${questionCount} original questions...`);
+      
+      const { generateQuestionsWithRetry } = await import('@/components/generation/RobustQuestionGenerator');
+      
+      const result = await generateQuestionsWithRetry({
+        examType: 'AP',
+        subjectId: subject,
+        unitId: unit,
+        difficulty: 3,
+        questionCount: questionCount,
+        questionType: 'MCQ',
+        keywords: [subjectName, unitName].filter(Boolean)
+      });
 
-      questions = existingQuestions.filter(q => 
-        q.generation_metadata?.exam_type === 'AP' &&
-        q.generation_metadata?.source !== 'official' &&
-        (!q.generation_metadata?.subject_id || q.generation_metadata?.subject_id === subject) &&
-        (!q.generation_metadata?.unit_id || q.generation_metadata?.unit_id === unit)
-      ).slice(0, questionCount);
+      console.log('[AP Practice] AI response:', { success: result.success, questionCount: result.questions?.length, error: result.error });
 
-      console.log('[AP Practice] Found', questions.length, 'existing Proofly questions');
+      if (!result.success || !result.questions || result.questions.length === 0) {
+        console.error('[AP Practice] Generation failed:', result.error);
+        throw new Error(result.error || 'Failed to generate questions');
+      }
 
-      // Generate new questions if needed
-      if (questions.length < questionCount) {
-        const subjectName = apSubjects.find(s => s.id === subject)?.name || 'AP';
-        const unitName = availableUnits.find(u => u.id === unit)?.name || '';
-        
-        console.log('[AP Practice] Calling AI generator...');
-        toast.info(`Generating ${questionCount} original questions...`);
-        
-        const { generateQuestionsWithRetry } = await import('@/components/generation/RobustQuestionGenerator');
-        
-        const result = await generateQuestionsWithRetry({
-          examType: 'AP',
-          subjectId: subject,
-          unitId: unit,
-          difficulty: 3,
-          questionCount: questionCount,
-          questionType: 'MCQ',
-          keywords: [subjectName, unitName].filter(Boolean)
+      const questions = result.questions;
+      console.log('[AP Practice] Generated', questions.length, 'questions successfully');
+      toast.success(`Generated ${questions.length} original AP questions`);
+
+      // Get or create AP exam
+      let exams = await base44.entities.Exam.filter({ exam_type: 'AP' });
+      let examId;
+      
+      if (!exams.length) {
+        console.log('[AP Practice] Creating AP exam record...');
+        const newExam = await base44.entities.Exam.create({
+          exam_type: 'AP',
+          name: 'Advanced Placement'
         });
-
-        console.log('[AP Practice] AI response:', { success: result.success, questionCount: result.questions?.length, error: result.error });
-
-        if (!result.success) {
-          console.error('[AP Practice] AI generation failed:', result.error);
-          throw new Error(result.error || 'AI returned empty result');
-        }
-
-        questions = result.questions;
-        console.log('[AP Practice] Questions generated successfully');
-        toast.success(`Generated ${questions.length} original AP questions`);
+        examId = newExam.id;
+      } else {
+        examId = exams[0].id;
       }
 
       // Create practice session
-      console.log('[AP Practice] Creating session in database...');
-      const exams = await base44.entities.Exam.filter({ exam_type: 'AP' });
-      if (!exams.length) throw new Error('AP exam not found');
-
+      console.log('[AP Practice] Creating session...');
       const session = await base44.entities.EnginePracticeSession.create({
         user_email: user.email,
-        exam_id: exams[0].id,
+        exam_id: examId,
         subject_id: subject,
         unit_id: unit,
         question_count: questions.length,
@@ -315,28 +310,30 @@ export default function APPractice() {
 
       console.log('[AP Practice] Session created:', session.id);
 
-      // Verify session was created successfully
-      if (!session || !session.id) {
-        console.error('[AP Practice] Session creation failed - no ID returned');
-        throw new Error('Session creation failed - no ID returned');
+      if (!session?.id) {
+        throw new Error('Session creation failed');
       }
 
-      console.log('[AP Practice] Generation complete, navigating to session');
-      toast.success('Starting practice session...');
+      console.log('[AP Practice] Navigating to practice session');
+      toast.success('Starting practice...');
       navigate(createPageUrl('EnginePracticeSession') + `?session=${session.id}`);
     } catch (error) {
-      toast.error(error.message || 'Failed to start practice');
-      console.error('Practice start error:', error);
+      console.error('[AP Practice] Error:', error);
+      toast.error(error.message || 'Failed to generate practice');
       
-      // Log failure
-      await base44.entities.GenerationLog.create({
-        user_email: (await base44.auth.me()).email,
-        type: 'QUESTIONS',
-        status: 'FAIL',
-        error_message: error.message
-      });
+      try {
+        await base44.entities.GenerationLog.create({
+          user_email: user.email,
+          type: 'QUESTIONS',
+          status: 'FAIL',
+          error_message: error.message
+        });
+      } catch (logError) {
+        console.error('[AP Practice] Failed to log error:', logError);
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const syncProgressToNotion = async () => {
