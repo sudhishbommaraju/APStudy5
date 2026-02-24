@@ -4,6 +4,7 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AuroraBackground } from '@/components/ui/animated-background';
 import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -122,7 +123,8 @@ export default function ACTPractice() {
   }
 
   return (
-    <div className="min-h-screen bg-black py-16">
+    <AuroraBackground>
+    <div className="min-h-screen py-16">
       <div className="max-w-3xl mx-auto px-6">
         <Button
           variant="ghost"
@@ -192,5 +194,6 @@ export default function ACTPractice() {
         </div>
       </div>
     </div>
+    </AuroraBackground>
   );
 }

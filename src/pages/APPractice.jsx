@@ -5,6 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AuroraBackground } from '@/components/ui/animated-background';
 import { ArrowLeft, Database, Link as LinkIcon, Loader2, CheckCircle, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -320,7 +321,8 @@ export default function APPractice() {
 
   if (questions.length > 0) {
     return (
-      <div className="min-h-screen bg-black">
+      <AuroraBackground>
+      <div className="min-h-screen">
         <div className="bg-neutral-900 border-b border-neutral-800 px-6 py-4">
           <div className="flex items-center justify-between max-w-[1800px] mx-auto">
             <div className="text-sm text-neutral-400">
@@ -371,11 +373,13 @@ export default function APPractice() {
           </div>
         </div>
       </div>
+      </AuroraBackground>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black py-16">
+    <AuroraBackground>
+    <div className="min-h-screen py-16">
       <div className="max-w-4xl mx-auto px-6">
         <button
           onClick={() => navigate(createPageUrl('Dashboard'))}
@@ -551,5 +555,6 @@ export default function APPractice() {
         </div>
       </div>
     </div>
+    </AuroraBackground>
   );
 }

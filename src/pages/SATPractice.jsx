@@ -5,6 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import ExamShell from '@/components/exam/ExamShell';
 import { Button } from '@/components/ui/button';
+import { AuroraBackground } from '@/components/ui/animated-background';
 import { ArrowLeft, Loader2, Play } from 'lucide-react';
 
 export default function SATPractice() {
@@ -122,7 +123,8 @@ export default function SATPractice() {
 
   if (questions.length === 0) {
     return (
-      <div className="min-h-screen bg-black py-16">
+      <AuroraBackground>
+      <div className="min-h-screen py-16">
         <div className="max-w-3xl mx-auto px-6">
           <button
             onClick={() => navigate(createPageUrl('Dashboard'))}
@@ -166,11 +168,13 @@ export default function SATPractice() {
           </div>
         </div>
       </div>
+      </AuroraBackground>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black">
+    <AuroraBackground>
+    <div className="min-h-screen">
       <ExamShell
         question={questions[currentIndex]}
         questionNumber={currentIndex + 1}
@@ -182,5 +186,6 @@ export default function SATPractice() {
         onNext={handleNext}
       />
     </div>
+    </AuroraBackground>
   );
 }
