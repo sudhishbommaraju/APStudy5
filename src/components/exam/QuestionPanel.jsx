@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import AIExplanation from './AIExplanation';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, XCircle } from 'lucide-react';
+import { CheckCircle2, XCircle, X } from 'lucide-react';
 
 export default function QuestionPanel({
   question,
@@ -15,6 +15,25 @@ export default function QuestionPanel({
   onSubmit,
   onNext
 }) {
+  const [eliminatedChoices, setEliminatedChoices] = useState(new Set());
+
+  useEffect(() => {
+    setEliminatedChoices(new Set());
+  }, [question]);
+
+  const toggleEliminate = (index, e) => {
+    e.stopPropagation();
+    if (isSubmitted) return;
+    
+    const newEliminated = new Set(eliminatedChoices);
+    if (newEliminated.has(index)) {
+      newEliminated.delete(index);
+    } else {
+      newEliminated.add(index);
+    }
+    setEliminatedChoices(newEliminated);
+  };
+
   const getChoiceLabel = (index) => String.fromCharCode(65 + index);
 
   return (
@@ -49,49 +68,67 @@ export default function QuestionPanel({
           const isCorrectChoice = index === question.correct_answer;
           const showCorrect = isSubmitted && isCorrectChoice;
           const showIncorrect = isSubmitted && isSelected && !isCorrect;
+          const isEliminated = eliminatedChoices.has(index);
 
           return (
-            <button
-              key={index}
-              onClick={() => !isSubmitted && onSelectAnswer(index)}
-              disabled={isSubmitted}
-              className={`w-full text-left p-6 rounded-xl border-2 transition-all ${
-                showCorrect
-                  ? 'bg-green-900/20 border-green-600'
-                  : showIncorrect
-                  ? 'bg-red-900/20 border-red-600'
-                  : isSelected
-                  ? 'bg-blue-900/20 border-blue-600'
-                  : 'bg-neutral-900 border-neutral-800 hover:border-neutral-700'
-              } ${isSubmitted ? 'cursor-default' : 'cursor-pointer'}`}
-            >
-              <div className="flex items-start gap-4">
-                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-semibold ${
+            <div key={index} className="relative group">
+              <button
+                onClick={() => !isSubmitted && !isEliminated && onSelectAnswer(index)}
+                disabled={isSubmitted || isEliminated}
+                className={`w-full text-left p-6 rounded-xl border-2 transition-all ${
                   showCorrect
-                    ? 'bg-green-600 text-white'
+                    ? 'bg-green-900/20 border-green-600'
                     : showIncorrect
-                    ? 'bg-red-600 text-white'
+                    ? 'bg-red-900/20 border-red-600'
                     : isSelected
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-neutral-800 text-neutral-400'
-                }`}>
-                  {getChoiceLabel(index)}
+                    ? 'bg-blue-900/20 border-blue-600'
+                    : isEliminated
+                    ? 'bg-neutral-950/50 border-neutral-800 opacity-40'
+                    : 'bg-neutral-900 border-neutral-800 hover:border-neutral-700'
+                } ${isSubmitted || isEliminated ? 'cursor-default' : 'cursor-pointer'}`}
+              >
+                <div className="flex items-start gap-4">
+                  <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-semibold ${
+                    showCorrect
+                      ? 'bg-green-600 text-white'
+                      : showIncorrect
+                      ? 'bg-red-600 text-white'
+                      : isSelected
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-neutral-800 text-neutral-400'
+                  }`}>
+                    {getChoiceLabel(index)}
+                  </div>
+                  <div className={`flex-1 prose prose-invert ${isEliminated ? 'line-through' : ''}`}>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkMath]}
+                      rehypePlugins={[rehypeKatex]}
+                      components={{
+                        p: ({ children }) => <p className="text-neutral-100 m-0">{children}</p>,
+                      }}
+                    >
+                      {choice}
+                    </ReactMarkdown>
+                  </div>
+                  {showCorrect && <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />}
+                  {showIncorrect && <XCircle className="w-5 h-5 text-red-600 flex-shrink-0" />}
                 </div>
-                <div className="flex-1 prose prose-invert">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkMath]}
-                    rehypePlugins={[rehypeKatex]}
-                    components={{
-                      p: ({ children }) => <p className="text-neutral-100 m-0">{children}</p>,
-                    }}
-                  >
-                    {choice}
-                  </ReactMarkdown>
-                </div>
-                {showCorrect && <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />}
-                {showIncorrect && <XCircle className="w-5 h-5 text-red-600 flex-shrink-0" />}
-              </div>
-            </button>
+              </button>
+              
+              {!isSubmitted && (
+                <button
+                  onClick={(e) => toggleEliminate(index, e)}
+                  className={`absolute top-3 right-3 p-1.5 rounded-lg transition-all ${
+                    isEliminated
+                      ? 'bg-red-600/20 text-red-400'
+                      : 'bg-neutral-800/0 group-hover:bg-neutral-800 text-neutral-500 hover:text-red-400'
+                  }`}
+                  title={isEliminated ? 'Un-eliminate' : 'Eliminate choice'}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           );
         })}
       </div>

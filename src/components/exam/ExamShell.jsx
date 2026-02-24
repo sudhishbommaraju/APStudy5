@@ -26,6 +26,7 @@ export default function ExamShell({
   const [timeRemaining, setTimeRemaining] = useState(timeLimit || 0);
   const [showAIPanel, setShowAIPanel] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [aiPanelWidth, setAIPanelWidth] = useState(35);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
@@ -137,7 +138,10 @@ export default function ExamShell({
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Question Panel */}
-        <div className={`${isMobile ? 'w-full' : 'w-[70%]'} overflow-y-auto`}>
+        <div 
+          className={`${isMobile ? 'w-full' : ''} overflow-y-auto`}
+          style={!isMobile ? { width: `${100 - aiPanelWidth}%` } : {}}
+        >
           <QuestionPanel
             question={question}
             selectedAnswer={selectedAnswer}
@@ -149,23 +153,51 @@ export default function ExamShell({
           />
         </div>
 
-        {/* AI Tutor Panel */}
+        {/* AI Tutor Panel - Always visible on desktop */}
         {(!isMobile || showAIPanel) && (
-          <div className={`${
-            isMobile 
-              ? 'fixed inset-0 z-50 bg-neutral-950' 
-              : 'w-[30%] border-l border-neutral-800'
-          } overflow-hidden`}>
-            <AITutorPanel
-              question={question}
-              userAnswer={selectedAnswer}
-              correctAnswer={question.correct_answer}
-              isSubmitted={isSubmitted}
-              examType={examType}
-              subject={subject}
-              unit={unit}
-              onClose={isMobile ? () => setShowAIPanel(false) : undefined}
-            />
+          <div 
+            className={`${
+              isMobile 
+                ? 'fixed inset-0 z-50 bg-neutral-950' 
+                : 'border-l border-neutral-800'
+            } overflow-hidden flex flex-col bg-neutral-950`}
+            style={!isMobile ? { width: `${aiPanelWidth}%` } : {}}
+          >
+            {/* Panel Header */}
+            {!isMobile && (
+              <div className="bg-neutral-900 border-b border-neutral-800 px-4 py-3 flex items-center justify-between">
+                <h3 className="text-sm font-medium text-white">AI Tutor</h3>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setAIPanelWidth(Math.max(25, aiPanelWidth - 5))}
+                    className="text-xs text-neutral-400 hover:text-white px-2 py-1 rounded hover:bg-neutral-800"
+                  >
+                    −
+                  </button>
+                  <span className="text-xs text-neutral-500">{aiPanelWidth}%</span>
+                  <button
+                    onClick={() => setAIPanelWidth(Math.min(50, aiPanelWidth + 5))}
+                    className="text-xs text-neutral-400 hover:text-white px-2 py-1 rounded hover:bg-neutral-800"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {/* AI Panel Content */}
+            <div className="flex-1 overflow-hidden">
+              <AITutorPanel
+                question={question}
+                userAnswer={selectedAnswer}
+                correctAnswer={question.correct_answer}
+                isSubmitted={isSubmitted}
+                examType={examType}
+                subject={subject}
+                unit={unit}
+                onClose={isMobile ? () => setShowAIPanel(false) : undefined}
+              />
+            </div>
           </div>
         )}
       </div>
