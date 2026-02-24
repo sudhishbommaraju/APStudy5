@@ -218,21 +218,112 @@ export default function APPractice() {
 
   const handleLinkNotion = async () => {
     if (!notionPageUrl) {
-      toast.error('Please enter a Notion page URL');
+      toast.error('Please enter a Notion database URL');
       return;
     }
 
     setLoading(true);
     try {
+      console.log('[Notion] Importing question bank from:', notionPageUrl);
+      toast.info('Extracting questions from Notion...');
+
+      // Extract questions from Notion database using AI
+      const extractionPrompt = `Extract ALL practice questions from this Notion database: ${notionPageUrl}
+
+Look for a table/database with questions. Each row should have:
+- Question text
+- 4 answer choices (A, B, C, D)
+- Correct answer indicator
+- Explanation (optional)
+- Subject/topic (optional)
+- Difficulty 1-5 (optional)
+
+Return JSON with this exact structure:
+{
+  "questions": [
+    {
+      "stem": "full question text",
+      "choices": ["choice A", "choice B", "choice C", "choice D"],
+      "correctAnswerIndex": 0,
+      "explanation": "why correct",
+      "subject": "AP Biology",
+      "unit": "Cell Structure",
+      "difficulty": 3
+    }
+  ]
+}
+
+If you cannot access the page or no questions found, return {"questions": []}`;
+
+      const extracted = await base44.integrations.Core.InvokeLLM({
+        prompt: extractionPrompt,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            questions: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  stem: { type: 'string' },
+                  choices: { type: 'array', items: { type: 'string' } },
+                  correctAnswerIndex: { type: 'number' },
+                  explanation: { type: 'string' },
+                  subject: { type: 'string' },
+                  unit: { type: 'string' },
+                  difficulty: { type: 'number' }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      console.log('[Notion] Extracted questions:', extracted?.questions?.length || 0);
+
+      if (!extracted?.questions || extracted.questions.length === 0) {
+        toast.error('No questions found. Make sure your Notion page is public and has a question bank table.');
+        setLoading(false);
+        return;
+      }
+
+      // Save to database
+      let savedCount = 0;
+      for (const q of extracted.questions) {
+        if (q.choices?.length === 4 && q.stem) {
+          await base44.entities.ProoflyQuestion.create({
+            stem: q.stem,
+            answer_choices: q.choices,
+            correct_answer: q.correctAnswerIndex,
+            explanation: q.explanation || 'No explanation provided',
+            skill_id: q.subject || 'AP',
+            difficulty: q.difficulty || 3,
+            is_active: true,
+            generation_metadata: {
+              exam_type: 'AP',
+              subject_id: q.subject,
+              unit_id: q.unit,
+              source: 'notion',
+              notion_url: notionPageUrl,
+              imported_at: new Date().toISOString()
+            }
+          });
+          savedCount++;
+        }
+      }
+
       await base44.auth.updateMe({
-        notion_practice_page: notionPageUrl
+        notion_practice_page: notionPageUrl,
+        notion_questions_imported: savedCount,
+        notion_last_sync: new Date().toISOString()
       });
       
       setLinkedPage(notionPageUrl);
-      toast.success('Notion page linked successfully!');
+      toast.success(`Imported ${savedCount} questions from Notion!`);
     } catch (error) {
-      toast.error('Failed to link Notion page');
-      console.error(error);
+      toast.error('Failed to import from Notion');
+      console.error('[Notion] Import error:', error);
     }
     setLoading(false);
   };
