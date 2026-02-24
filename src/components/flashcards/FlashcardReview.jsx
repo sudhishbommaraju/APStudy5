@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { RotateCw, Check, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import FlashcardTutor from './FlashcardTutor';
 
 const MASTERY_LEVELS = {
   new: { next: 'learning', days: 0 },
@@ -141,7 +142,9 @@ export default function FlashcardReview({ deck }) {
   const progress = ((currentIdx + 1) / cards.length) * 100;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col lg:flex-row gap-6 h-full">
+      {/* Question Panel - 60% on desktop */}
+      <div className="flex-1 lg:w-[60%] space-y-6">
       {/* Progress and Score */}
       <div className="space-y-3">
         <div className="flex justify-between items-center text-sm">
@@ -256,16 +259,25 @@ export default function FlashcardReview({ deck }) {
         )}
       </div>
 
-      {/* Mastery Level Badge */}
-      <div className="text-center">
-        <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-          current.mastery_level === 'new' ? 'bg-gray-600/30 text-gray-300' :
-          current.mastery_level === 'learning' ? 'bg-yellow-600/30 text-yellow-300' :
-          current.mastery_level === 'familiar' ? 'bg-blue-600/30 text-blue-300' :
-          'bg-green-600/30 text-green-300'
-        }`}>
-          {current.mastery_level.charAt(0).toUpperCase() + current.mastery_level.slice(1)}
-        </span>
+        {/* Mastery Level Badge */}
+        <div className="text-center">
+          <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+            current.mastery_level === 'new' ? 'bg-gray-600/30 text-gray-300' :
+            current.mastery_level === 'learning' ? 'bg-yellow-600/30 text-yellow-300' :
+            current.mastery_level === 'familiar' ? 'bg-blue-600/30 text-blue-300' :
+            'bg-green-600/30 text-green-300'
+          }`}>
+            {current.mastery_level.charAt(0).toUpperCase() + current.mastery_level.slice(1)}
+          </span>
+        </div>
+      </div>
+
+      {/* Tutor Panel - 40% on desktop */}
+      <div className="lg:w-[40%] bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden">
+        <FlashcardTutor 
+          question={current.front} 
+          isSubmitted={isSubmitted}
+        />
       </div>
     </div>
   );
