@@ -94,10 +94,10 @@ export async function generateQuestionsWithRetry({
         keywords
       });
 
-      // PHASE 3: INCREASE TEMPERATURE FOR VARIATION
+      // PHASE 6: INCREASE TEMPERATURE FOR MAXIMUM VARIATION
       const response = await base44.integrations.Core.InvokeLLM({
         prompt,
-        temperature: 0.8,
+        temperature: 0.85,
         response_json_schema: {
           type: 'object',
           properties: {
@@ -272,15 +272,39 @@ function buildQuestionPrompt({ examType, subjectId, topic, difficulty, questionC
     'AP': `AP-level rigor - align with Course & Exam Description (CED) learning objectives`
   };
 
-  // PHASE 1: ENFORCE SUBJECT LOCK
+  // PHASE 1: HARD SUBJECT LOCK WITH EXPLICIT RULES
   const subjectLock = subjectId 
-    ? `\n\n🔒 CRITICAL SUBJECT LOCK: You are generating questions STRICTLY for the subject: ${subjectId}.\nYou must ONLY generate content from this exact subject.\nAll terminology, concepts, examples, and contexts MUST match ${subjectId} curriculum.\nDo NOT mix subjects. Do NOT generate questions from other domains.\nIf subject is Biology, generate ONLY Biology questions.\nIf subject is US History, generate ONLY US History questions.\nREJECT any output that does not match ${subjectId}.`
+    ? `\n\n🔒 CRITICAL SUBJECT LOCK: You are generating STRICTLY ${examType}-level questions for: ${subjectId}
+You must ONLY generate content from this exact subject.
+
+SUBJECT VALIDATION:
+- AP Biology: cells, genetics, evolution, metabolism, ecology, enzymes, DNA, proteins, organisms
+- AP Human Geography: urban, migration, population, economic, cultural, demographic, political, regions
+- AP US History: constitution, president, congress, war, amendments, treaties, revolution, civil rights
+- AP Chemistry: atoms, molecules, reactions, bonds, equations, solutions, thermodynamics
+- AP Physics: force, energy, motion, velocity, waves, electricity, momentum
+- AP Calculus: derivatives, integrals, limits, functions, rates of change
+
+DO NOT mix subjects. Content from other domains is INVALID.`
     : '';
 
-  // PHASE 3: ADD DYNAMIC NONCE
-  const generationSeed = `\n\nGeneration seed: ${Date.now()}_${Math.random().toString(36)}`;
+  // PHASE 6: DYNAMIC NONCE FOR VARIATION
+  const generationSeed = `\n\nGeneration ID: ${Date.now()}_${Math.random().toString(36)}`;
 
-  return `Generate ${questionCount} RIGOROUS ${examType} practice questions with TRUE AP-LEVEL DEPTH.${subjectLock}${generationSeed}
+  return `Generate ${questionCount} RIGOROUS ${examType} practice questions with TRUE AP-LEVEL DEPTH.
+
+PHASE 5 — MANDATORY STRUCTURE:
+- Stimulus: 2-4 sentences (context, data, scenario)
+- Application-based question (NOT recall/definition)
+- 4 plausible distractors
+- NO vocabulary questions
+
+FORBIDDEN:
+- "What is the definition of..."
+- "Which term means..."
+- Pure recall questions
+
+${subjectLock}${generationSeed}
 
 ${topic ? `Topic: ${topic}` : ''}
 ${subjectId ? `Subject: ${subjectId}` : ''}

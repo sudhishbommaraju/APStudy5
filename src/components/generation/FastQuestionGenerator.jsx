@@ -45,22 +45,51 @@ export async function generateQuestionsOptimized({
     setTimeout(() => reject(new Error('TIMEOUT')), 3000)
   );
 
-  // PHASE 1: ENFORCE SUBJECT IN PROMPT
-  const subjectContext = subjectId ? `\n\nCRITICAL SUBJECT LOCK: You are generating questions STRICTLY for the subject: ${subjectId}.\nYou must ONLY generate content from this subject.\nAll terminology, concepts, and examples MUST match ${subjectId} curriculum.\nDo NOT mix subjects. If subject is Biology, generate ONLY Biology questions.\nIf subject is US History, generate ONLY US History questions.` : '';
+  // PHASE 1: HARD SUBJECT LOCK WITH EXPLICIT EXAMPLES
+  const subjectContext = subjectId ? `\n\n🔒 CRITICAL SUBJECT LOCK: You are generating STRICTLY ${examType}-level questions for the subject: ${subjectId}.
+You must ONLY generate content from this exact subject.
 
-  // PHASE 3: ADD DYNAMIC NONCE FOR VARIATION
-  const generationSeed = `\n\nGeneration seed: ${nonce}`;
+SUBJECT VALIDATION RULES:
+- If subject is AP Biology: content MUST relate to cells, genetics, evolution, metabolism, ecology, enzymes, DNA, proteins, organisms.
+- If subject is AP Human Geography: content MUST relate to urban, migration, population, economic, cultural, demographic, political, regions.
+- If subject is AP US History: content MUST relate to constitution, president, congress, war, amendments, treaties, revolution, civil rights.
+- If subject is AP World History: content MUST relate to civilizations, empires, dynasties, culture, trade, religion, global interactions.
+- If subject is AP Chemistry: content MUST relate to atoms, molecules, reactions, bonds, equations, solutions, thermodynamics.
+- If subject is AP Physics: content MUST relate to force, energy, motion, velocity, waves, electricity, momentum.
+- If subject is AP Calculus: content MUST relate to derivatives, integrals, limits, functions, rates of change.
+
+DO NOT mix subjects. DO NOT generate questions from other domains.
+If content relates to a different subject, the response is INVALID.` : '';
+
+  // PHASE 6: DYNAMIC NONCE FOR VARIATION
+  const generationSeed = `\n\nGeneration ID: ${nonce}`;
 
   const prompt = examType === 'AP' 
-    ? `Generate ${count} College Board AP-level practice questions. Format:\n{"questions":[{"stimulus":"Brief context/passage (1-2 sentences)","question":"Clear question prompt","options":["A","B","C","D"],"correctIndex":0}]}\n\nMake questions rigorous, curriculum-aligned, and realistic.${subjectContext}${generationSeed}`
+    ? `Generate ${count} College Board AP-level practice questions.
+
+PHASE 5 — MANDATORY AP RIGOR STRUCTURE:
+Every question MUST include:
+- Stimulus (2-4 sentences of context, data, or scenario)
+- Application-based question (NOT definition recall)
+- 4 plausible distractors
+- NO pure vocabulary or definition questions
+
+EXPLICITLY FORBIDDEN:
+- "What is the definition of..."
+- "Which term means..."
+- Pure recall questions
+
+Format: {"questions":[{"stimulus":"2-4 sentence context/scenario","question":"Application-based prompt","options":["A","B","C","D"],"correctIndex":0}]}
+
+${subjectContext}${generationSeed}`
     : examType === 'SAT'
     ? `Generate ${count} College Board SAT questions. Format:\n{"questions":[{"stimulus":"Context if needed","question":"Question text","options":["A","B","C","D"],"correctIndex":0}]}\n\nSAT-level difficulty, clear and concise.${subjectContext}${generationSeed}`
     : `Generate ${count} ACT practice questions. Format:\n{"questions":[{"stimulus":"Passage/context","question":"Question","options":["A","B","C","D"],"correctIndex":0}]}\n\nACT-level rigor.${subjectContext}${generationSeed}`;
 
-  // PHASE 3: INCREASE TEMPERATURE FOR VARIATION
+  // PHASE 6: INCREASE TEMPERATURE FOR MAXIMUM VARIATION
   const requestPromise = base44.integrations.Core.InvokeLLM({
     prompt,
-    temperature: 0.8,
+    temperature: 0.85,
     response_json_schema: {
       type: "object",
       properties: {
@@ -85,21 +114,60 @@ export async function generateQuestionsOptimized({
   try {
     const result = await Promise.race([requestPromise, timeoutPromise]);
     
-    // PHASE 1: VALIDATE SUBJECT MATCH
+    // PHASE 2: VALIDATE SUBJECT MATCH WITH REGENERATION
     const subjectKeywords = getSubjectKeywords(subjectId);
+    let validQuestions = [];
+    let retryCount = 0;
+    const MAX_RETRIES = 2;
+
+    // PHASE 3: SESSION-LEVEL DUPLICATE TRACKING
+    const sessionQuestions = getSessionQuestions();
     
-    const questions = result.questions
-      .filter(q => {
-        // Check if question contains subject-relevant keywords
-        const text = `${q.stimulus} ${q.question}`.toLowerCase();
-        const hasKeyword = subjectKeywords.some(kw => text.includes(kw.toLowerCase()));
-        if (!hasKeyword) {
-          console.warn(`[SUBJECT VALIDATION] Question rejected - no ${subjectId} keywords found`);
-          return false;
+    for (const q of result.questions) {
+      const text = `${q.stimulus} ${q.question}`.toLowerCase();
+      const hasKeyword = subjectKeywords.some(kw => text.includes(kw.toLowerCase()));
+      
+      // PHASE 2: Subject validation
+      if (!hasKeyword) {
+        console.warn(`[SUBJECT VALIDATION] Question rejected - no ${subjectId} keywords found`);
+        if (retryCount < MAX_RETRIES) {
+          retryCount++;
+          console.log(`[REGENERATION] Attempting regeneration ${retryCount}/${MAX_RETRIES}`);
+          continue;
         }
-        return true;
-      })
-      .map((q, idx) => ({
+      }
+      
+      // PHASE 3: Check for duplicate in current session
+      const questionHash = hashQuestion(q.question);
+      if (sessionQuestions.has(questionHash)) {
+        console.warn(`[DUPLICATE] Question repeated in session, skipping`);
+        continue;
+      }
+      
+      // PHASE 4: Check for duplicate across previous practices
+      if (isDuplicateAcrossPractices(questionHash, subjectId)) {
+        console.warn(`[DUPLICATE] Question used in previous practice, skipping`);
+        continue;
+      }
+      
+      validQuestions.push(q);
+    }
+
+    // PHASE 7: If not enough valid questions, throw error instead of returning wrong subject
+    if (validQuestions.length < Math.floor(count * 0.7)) {
+      throw new Error(`Subject validation failed: generated ${validQuestions.length} valid questions, expected ${count}`);
+    }
+
+    const questions = validQuestions.map((q, idx) => {
+      const questionHash = hashQuestion(q.question);
+      
+      // PHASE 3: Add to session registry
+      addToSessionQuestions(questionHash);
+      
+      // PHASE 4: Add to cross-practice history
+      addToQuestionHistory(questionHash, subjectId);
+      
+      return {
         id: `q_${nonce}_${idx}`,
         question_text: q.question,
         stimulus: q.stimulus,
@@ -112,9 +180,9 @@ export async function generateQuestionsOptimized({
         difficulty,
         subject_id: subjectId,
         unit_id: unitId
-      }));
+      };
+    });
 
-    // Don't cache to prevent reuse across sessions
     return questions;
   } catch (error) {
     if (error.message === 'TIMEOUT') {
@@ -328,30 +396,90 @@ function getFallbackQuestions(count, examType, difficulty, subjectId, unitId) {
 }
 
 /**
- * PHASE 5: FORCE FRESH GENERATION - Clear all caches
+ * PHASE 5: FORCE FRESH GENERATION - Clear all caches and session tracking
  */
 export function clearCache() {
   cache.questions.clear();
   cache.explanations.clear();
   cache.tutor.clear();
-  console.log('[CACHE] All caches cleared for fresh generation');
+  clearSessionQuestions();
+  console.log('[CACHE] All caches and session questions cleared for fresh generation');
 }
 
 /**
- * PHASE 1: Subject keyword validation
+ * PHASE 2: Enhanced subject keyword validation with comprehensive lists
  */
 function getSubjectKeywords(subjectId) {
   const keywords = {
-    'Biology': ['cell', 'enzyme', 'DNA', 'protein', 'organism', 'photosynthesis', 'mitochondria', 'evolution', 'genetics'],
-    'Chemistry': ['atom', 'molecule', 'reaction', 'chemical', 'element', 'compound', 'bond', 'equation', 'solution'],
-    'Physics': ['force', 'energy', 'motion', 'velocity', 'acceleration', 'wave', 'mass', 'momentum', 'electric'],
-    'US History': ['constitution', 'president', 'congress', 'war', 'amendment', 'treaty', 'revolution', 'civil', 'government'],
-    'World History': ['civilization', 'empire', 'dynasty', 'culture', 'trade', 'religion', 'war', 'revolution', 'treaty'],
-    'Calculus': ['derivative', 'integral', 'limit', 'function', 'slope', 'rate', 'continuous', 'differential'],
-    'Statistics': ['mean', 'median', 'data', 'probability', 'sample', 'distribution', 'variance', 'correlation'],
-    'English': ['passage', 'author', 'tone', 'theme', 'sentence', 'paragraph', 'grammar', 'rhetorical'],
-    'Math': ['equation', 'solve', 'variable', 'graph', 'number', 'calculate', 'formula', 'expression']
+    'Biology': ['cell', 'enzyme', 'DNA', 'RNA', 'protein', 'organism', 'photosynthesis', 'mitochondria', 'evolution', 'genetics', 'metabolism', 'ecology', 'gene', 'chromosome'],
+    'Human Geography': ['urban', 'migration', 'population', 'economic', 'cultural', 'demographic', 'political', 'region', 'spatial', 'development', 'settlement', 'globalization'],
+    'Chemistry': ['atom', 'molecule', 'reaction', 'chemical', 'element', 'compound', 'bond', 'equation', 'solution', 'thermodynamics', 'equilibrium', 'acid', 'base'],
+    'Physics': ['force', 'energy', 'motion', 'velocity', 'acceleration', 'wave', 'mass', 'momentum', 'electric', 'magnetic', 'kinematics', 'dynamics'],
+    'US History': ['constitution', 'president', 'congress', 'war', 'amendment', 'treaty', 'revolution', 'civil', 'government', 'colonial', 'reconstruction'],
+    'World History': ['civilization', 'empire', 'dynasty', 'culture', 'trade', 'religion', 'war', 'revolution', 'treaty', 'imperialism', 'renaissance'],
+    'Calculus': ['derivative', 'integral', 'limit', 'function', 'slope', 'rate', 'continuous', 'differential', 'tangent', 'optimization'],
+    'Statistics': ['mean', 'median', 'data', 'probability', 'sample', 'distribution', 'variance', 'correlation', 'hypothesis', 'regression'],
+    'English': ['passage', 'author', 'tone', 'theme', 'sentence', 'paragraph', 'grammar', 'rhetorical', 'syntax', 'diction'],
+    'Math': ['equation', 'solve', 'variable', 'graph', 'number', 'calculate', 'formula', 'expression', 'algebraic'],
+    'SAT': ['equation', 'passage', 'author', 'solve', 'calculate', 'interpret', 'analyze'],
+    'ACT': ['equation', 'passage', 'data', 'solve', 'interpret', 'analyze', 'science']
   };
   
-  return keywords[subjectId] || ['question', 'answer', 'problem'];
+  return keywords[subjectId] || keywords[subjectId?.replace('AP ', '')] || ['question', 'answer', 'problem'];
+}
+
+/**
+ * PHASE 3: Session-level duplicate tracking (in-memory Set)
+ */
+let sessionQuestionsSet = new Set();
+
+function getSessionQuestions() {
+  return sessionQuestionsSet;
+}
+
+function addToSessionQuestions(hash) {
+  sessionQuestionsSet.add(hash);
+}
+
+function clearSessionQuestions() {
+  sessionQuestionsSet.clear();
+}
+
+/**
+ * PHASE 3 & 4: Question hashing for duplicate detection
+ */
+function hashQuestion(text) {
+  // Simple hash function for question deduplication
+  return text.toLowerCase()
+    .replace(/[^a-z0-9]/g, '')
+    .substring(0, 50);
+}
+
+/**
+ * PHASE 4: Cross-practice duplicate prevention (localStorage)
+ */
+function getQuestionHistory(subjectId) {
+  try {
+    const history = localStorage.getItem(`question_history_${subjectId}`);
+    return history ? JSON.parse(history) : [];
+  } catch {
+    return [];
+  }
+}
+
+function addToQuestionHistory(hash, subjectId) {
+  try {
+    const history = getQuestionHistory(subjectId);
+    history.push(hash);
+    // Keep only last 100 questions
+    const trimmed = history.slice(-100);
+    localStorage.setItem(`question_history_${subjectId}`, JSON.stringify(trimmed));
+  } catch (e) {
+    console.warn('Failed to store question history:', e);
+  }
+}
+
+function isDuplicateAcrossPractices(hash, subjectId) {
+  const history = getQuestionHistory(subjectId);
+  return history.includes(hash);
 }
