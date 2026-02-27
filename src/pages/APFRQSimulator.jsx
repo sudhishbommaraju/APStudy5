@@ -218,39 +218,36 @@ STRICT JSON FORMAT:
         </div>
 
         {/* Selection */}
-        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 mb-8">
-          <div className="grid grid-cols-2 gap-4">
+        <div className="bg-[#0a0f1e] border border-blue-900/40 rounded-2xl p-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="text-sm text-neutral-400 mb-2 block">AP Subject</label>
-              <Select value={selectedSubject} onValueChange={setSelectedSubject}>
-                <SelectTrigger className="bg-black border-neutral-700 text-white">
-                  <SelectValue placeholder="Select subject" />
-                </SelectTrigger>
-                <SelectContent>
-                  {AP_SUBJECTS.map((s) => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <label className="text-sm text-blue-300/80 mb-2 block font-medium">AP Subject</label>
+              <select
+                value={selectedSubject}
+                onChange={handleSubjectChange}
+                className={SELECT_CLASS}
+              >
+                <option value="" disabled>Select subject</option>
+                {Object.keys(SUBJECTS).map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
             </div>
 
-            {selectedSubject && (
-              <div>
-                <label className="text-sm text-neutral-400 mb-2 block">Unit</label>
-                <Select value={selectedUnit} onValueChange={setSelectedUnit}>
-                  <SelectTrigger className="bg-black border-neutral-700 text-white">
-                    <SelectValue placeholder="Select unit" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {units.map((u) => (
-                      <SelectItem key={u.id} value={u.id}>
-                        Unit {u.order_index}: {u.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+            <div>
+              <label className="text-sm text-blue-300/80 mb-2 block font-medium">Unit</label>
+              <select
+                value={selectedUnit}
+                onChange={handleUnitChange}
+                disabled={!selectedSubject}
+                className={SELECT_CLASS}
+              >
+                <option value="" disabled>{selectedSubject ? 'Select unit' : 'Select a subject first'}</option>
+                {units.map((u) => (
+                  <option key={u.id} value={u.id}>{u.name}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
