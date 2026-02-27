@@ -286,7 +286,7 @@ Generate exactly ${count} flashcards as JSON:`;
       <Button
         onClick={generate}
         disabled={loading || !subjectId || !unitNumber}
-        className="w-full bg-[#D6B98C] hover:bg-[#C9A96A] text-black font-semibold h-11"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold h-11"
       >
         {loading ? (
           <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating {count} cards...</>
