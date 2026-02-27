@@ -68,20 +68,66 @@ function enforceDistribution(options, correctIndex) {
   return { shuffled, newCorrectIndex };
 }
 
+// PHASE 3: Reject flashcard-style questions in practice mode
+const DEFINITION_PHRASES = [
+  'what is the definition',
+  'which term means',
+  'what is the function of',
+  'define the term',
+  'what does the term',
+  'which of the following is defined as',
+  'what is a',
+];
+
+function isPracticeQuestionValid(q) {
+  const questionText = (q.question || '').toLowerCase();
+  const wordCount = (q.question || '').trim().split(/\s+/).length;
+
+  // Reject if < 12 words
+  if (wordCount < 12) {
+    console.warn(`[PRACTICE FILTER] Rejected short question (${wordCount} words): "${q.question}"`);
+    return false;
+  }
+
+  // Reject if no stimulus
+  if (!q.stimulus || q.stimulus.trim().length < 20) {
+    console.warn(`[PRACTICE FILTER] Rejected — no stimulus provided`);
+    return false;
+  }
+
+  // Reject definition-style questions
+  const isDefinition = DEFINITION_PHRASES.some(phrase => questionText.includes(phrase));
+  if (isDefinition) {
+    console.warn(`[PRACTICE FILTER] Rejected definition-style question: "${q.question}"`);
+    return false;
+  }
+
+  return true;
+}
+
 /**
- * STAGE 1: ULTRA-FAST QUESTION GENERATION
- * - Single API call
- * - Minimal tokens
- * - No explanations
- * - <2s target
+ * PHASE 1: REQUIRE mode — "practice" or "flashcard"
+ */
+function requireMode(mode) {
+  if (!mode) throw new Error('mode is required ("practice" or "flashcard")');
+  if (mode !== 'practice' && mode !== 'flashcard') throw new Error(`Invalid mode: "${mode}". Must be "practice" or "flashcard".`);
+}
+
+/**
+ * STAGE 1: PRACTICE QUESTION GENERATION (mode="practice" only)
+ * College Board exam style — stimulus + MCQ, no definition recall.
  */
 export async function generateQuestionsOptimized({
   examType = 'AP',
   subjectId,
   unitId,
   difficulty = 'mixed',
-  count = 5
+  count = 5,
+  mode = 'practice'
 }) {
+  // PHASE 1: Hard mode check
+  requireMode(mode);
+  if (mode !== 'practice') throw new Error('generateQuestionsOptimized is only for mode="practice". Use generateFlashcardsForSubject for flashcards.');
   // Import subject bank system
   const { 
     validateGenerationParams, 
@@ -120,8 +166,17 @@ export async function generateQuestionsOptimized({
     setTimeout(() => reject(new Error('TIMEOUT')), 3000)
   );
 
-  // PHASE 3: USE SUBJECT-SPECIFIC SYSTEM PROMPT
-  const prompt = bank.systemPrompt(unitData, count);
+  // PHASE 2: USE SUBJECT-SPECIFIC PRACTICE PROMPT with enforced structure
+  const basePrompt = bank.systemPrompt(unitData, count);
+  const practiceEnforcement = `
+
+PRACTICE MODE ENFORCEMENT (CRITICAL):
+- Every question MUST have a 2-4 sentence stimulus providing context, data, or scenario
+- Questions must be application/analysis based — NOT definition recall
+- Minimum 12 words per question stem
+- FORBIDDEN question starters: "What is the definition", "Which term means", "What is the function of", "Define the term"
+- Must resemble College Board AP exam questions in rigor and format`;
+  const prompt = basePrompt + practiceEnforcement;
   
   // PHASE 6: ADD GENERATION ID FOR VARIATION
   const generationSeed = `\n\nGeneration ID: ${nonce}_${Math.random().toString(36)}`;
@@ -162,6 +217,15 @@ export async function generateQuestionsOptimized({
     const MAX_RETRIES = 2;
     
     for (const q of result.questions) {
+      // PHASE 3: Reject flashcard-style / non-stimulus questions
+      if (!isPracticeQuestionValid(q)) {
+        if (retryCount < MAX_RETRIES) {
+          retryCount++;
+          console.log(`[REGENERATION] Practice structure failure, attempt ${retryCount}/${MAX_RETRIES}`);
+        }
+        continue;
+      }
+
       // PHASE 4: HARD UNIT + CROSS-SUBJECT VALIDATION
       if (!validateUnitMatch(q, unitData, bankKey)) {
         console.warn(`[UNIT VALIDATION] Question rejected - no Unit ${unitData.id} keywords found`);
