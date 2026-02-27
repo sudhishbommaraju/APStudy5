@@ -81,12 +81,20 @@ export async function generateQuestionsOptimized({
   } = await import('./SubjectBanks');
 
   const { bank, unitData, bankKey } = validateGenerationParams(subjectId, unitId);
-  console.log(`[PRACTICE ENGINE] subject="${subjectId}" → bank="${bankKey}" unit="${unitData.name}"`);
+  console.log(`[PRACTICE ENGINE] subject="${subjectId}" → bank="${bankKey}" unit="${unitData.name}" count=${count}`);
 
   const nonce = Date.now();
+  const usedInSession = getUsedQuestions(subjectId, unitData.id);
+  const collectedQuestions = [];
+  let attempts = 0;
+  const MAX_ATTEMPTS = count * 3;
 
-  // PHASE 2: Scenario-based MCQ prompt (NOT definition-style)
-  const prompt = `You are generating AP-level ${bank.name} practice questions for Unit ${unitData.id}: ${unitData.name}.
+  // PHASE 2: Loop until count is met or attempt cap hit
+  while (collectedQuestions.length < count && attempts < MAX_ATTEMPTS) {
+    attempts++;
+    const batchSize = Math.min(count - collectedQuestions.length + 2, count); // request a few extra for buffer
+
+    const prompt = `You are generating AP-level ${bank.name} practice questions for Unit ${unitData.id}: ${unitData.name}.
 
 PRACTICE ENGINE RULES — MANDATORY:
 - Every question MUST open with a 2-4 sentence stimulus (scenario, data, experiment, or primary source)
@@ -104,71 +112,73 @@ ABSOLUTELY FORBIDDEN:
 - Content from subjects other than ${bank.name}
 
 College Board AP exam rigor required.
-Generation ID: ${nonce}_${Math.random().toString(36)}
+Generation ID: ${nonce}_${attempts}_${Math.random().toString(36)}
 
-Return ${count} questions as JSON:`;
+Return EXACTLY ${batchSize} questions as JSON:`;
 
-  const result = await base44.integrations.Core.InvokeLLM({
-    prompt,
-    response_json_schema: {
-      type: 'object',
-      properties: {
-        questions: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              stimulus:     { type: 'string' },
-              question:     { type: 'string' },
-              options:      { type: 'array', items: { type: 'string' } },
-              correctIndex: { type: 'number' }
+    const result = await base44.integrations.Core.InvokeLLM({
+      prompt,
+      response_json_schema: {
+        type: 'object',
+        properties: {
+          questions: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                stimulus:     { type: 'string' },
+                question:     { type: 'string' },
+                options:      { type: 'array', items: { type: 'string' } },
+                correctIndex: { type: 'number' }
+              }
             }
           }
         }
       }
-    }
-  });
+    });
 
-  const usedInSession = getUsedQuestions(subjectId, unitData.id);
-  const validQuestions = [];
+    for (const q of (result.questions || [])) {
+      if (collectedQuestions.length >= count) break;
 
-  for (const q of (result.questions || [])) {
-    // Structure check
-    const wordCount = (q.question || '').trim().split(/\s+/).length;
-    if (wordCount < 12 || !q.stimulus || q.stimulus.trim().length < 20) {
-      console.warn('[PRACTICE ENGINE] Rejected — short/no stimulus');
-      continue;
-    }
-    const lower = (q.question || '').toLowerCase();
-    const isDefinition = ['what is the definition','which term means','what is the function of','define the term'].some(p => lower.includes(p));
-    if (isDefinition) {
-      console.warn('[PRACTICE ENGINE] Rejected — definition-style question');
-      continue;
-    }
+      // Structure check
+      const wordCount = (q.question || '').trim().split(/\s+/).length;
+      if (wordCount < 12 || !q.stimulus || q.stimulus.trim().length < 20) {
+        console.warn('[PRACTICE ENGINE] Rejected — short/no stimulus');
+        continue;
+      }
+      const lower = (q.question || '').toLowerCase();
+      const isDefinition = ['what is the definition','which term means','what is the function of','define the term'].some(p => lower.includes(p));
+      if (isDefinition) {
+        console.warn('[PRACTICE ENGINE] Rejected — definition-style question');
+        continue;
+      }
+      if (!validateUnitMatch(q, unitData, bankKey)) continue;
 
-    // Subject/unit validation
-    if (!validateUnitMatch(q, unitData, bankKey)) continue;
+      const hash = hashQuestion(q.question);
+      if (usedInSession.has(hash) || isDuplicateAcrossPractices(subjectId, unitData.id, hash)) {
+        console.warn('[PRACTICE ENGINE] Rejected — duplicate');
+        continue;
+      }
 
-    // Deduplication
-    const hash = hashQuestion(q.question);
-    if (usedInSession.has(hash) || isDuplicateAcrossPractices(subjectId, unitData.id, hash)) {
-      console.warn('[PRACTICE ENGINE] Rejected — duplicate');
-      continue;
+      collectedQuestions.push(q);
     }
 
-    validQuestions.push(q);
+    console.log(`[PRACTICE ENGINE] After attempt ${attempts}: ${collectedQuestions.length}/${count} valid questions`);
+
+    // If we got enough, exit the loop
+    if (collectedQuestions.length >= count) break;
   }
 
-  if (validQuestions.length === 0) {
-    throw new Error(`Practice engine returned 0 valid questions for ${bank.name} Unit ${unitData.name}`);
+  // PHASE 2: Fail loudly if count not met
+  if (collectedQuestions.length < count) {
+    throw new Error(`[PRACTICE ENGINE] Failed to generate ${count} questions for ${bank.name} Unit ${unitData.name}. Got ${collectedQuestions.length} after ${attempts} attempts.`);
   }
 
-  return validQuestions.map((q, idx) => {
+  return collectedQuestions.slice(0, count).map((q, idx) => {
     const hash = hashQuestion(q.question);
     addUsedQuestion(subjectId, unitData.id, hash);
     addToQuestionHistory(subjectId, unitData.id, hash);
 
-    // PHASE 2: Shuffle + enforce answer distribution
     const { shuffled, newCorrectIndex } = enforceDistribution(q.options, q.correctIndex ?? 0);
 
     return {
