@@ -273,7 +273,7 @@ Generate exactly ${count} flashcards as JSON:`;
               onClick={() => setCount(n)}
               className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
                 count === n
-                  ? 'bg-[#D6B98C] text-black'
+                  ? 'bg-blue-600 text-white'
                   : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
               }`}
             >
