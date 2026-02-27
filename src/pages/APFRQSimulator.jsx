@@ -59,7 +59,7 @@ export default function APFRQSimulator() {
     const unit = units.find(u => u.id === selectedUnit);
     
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Generate 1 AP-style Free Response Question for ${unit?.name}.
+      prompt: `Generate 1 AP-style Free Response Question for ${selectedSubject} - ${unit?.name || unit?.unit_name}.
 
 STRICT JSON FORMAT:
 {
