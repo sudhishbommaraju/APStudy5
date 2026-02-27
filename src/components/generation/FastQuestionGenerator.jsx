@@ -197,16 +197,19 @@ export async function generateQuestionsOptimized({
       
       // PHASE 6: Add to subject/unit-scoped cross-practice history
       addToQuestionHistory(subjectId, unitData.id, questionHash);
+
+      // PHASE 1 & 2: Shuffle options and enforce distribution
+      const { shuffled, newCorrectIndex } = enforceDistribution(q.options, q.correctIndex ?? 0);
       
       return {
         id: `q_${subjectId}_${unitData.id}_${nonce}_${idx}`,
         question_text: q.question,
         stimulus: q.stimulus,
-        choice_a: q.options[0],
-        choice_b: q.options[1],
-        choice_c: q.options[2],
-        choice_d: q.options[3],
-        correct_answer: ['A', 'B', 'C', 'D'][q.correctIndex],
+        choice_a: shuffled[0],
+        choice_b: shuffled[1],
+        choice_c: shuffled[2],
+        choice_d: shuffled[3],
+        correct_answer: ['A', 'B', 'C', 'D'][newCorrectIndex],
         explanation: null,
         difficulty,
         subject_id: subjectId,
