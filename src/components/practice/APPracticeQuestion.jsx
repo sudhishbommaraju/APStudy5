@@ -143,24 +143,30 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
           className="bg-neutral-900 border border-neutral-800 rounded-xl p-8"
         >
           {question.stimulus?.trim() && (
-            <div className="bg-neutral-800/30 rounded-lg p-4 mb-8">
+            <div className="bg-neutral-800/30 rounded-lg p-4 mb-6">
               <div className="text-neutral-400 leading-relaxed text-sm md:text-base">
-                {String(question.stimulus)
+                <LatexText text={String(question.stimulus)
                   .replace(/^\*\*Stimulus:\*\*\s*/i, '')
                   .replace(/^\*\*\s*/, '')
                   .replace(/\*\*$/, '')
-                  .trim()}
+                  .trim()} />
               </div>
             </div>
           )}
 
+          {question.visual && (
+            <div className="mb-6">
+              <QuestionVisual visual={question.visual} />
+            </div>
+          )}
+
           <h2 className="text-lg md:text-xl font-semibold text-white mb-6 leading-relaxed">
-            {String(question.question_text || question.stem || '')
+            <LatexText text={String(question.question_text || question.stem || '')
               .replace(/^\*\*Question:\*\*\s*/i, '')
               .replace(/^\*\*\s*/, '')
               .replace(/\*\*$/, '')
               .replace(/^##\s*/, '')
-              .trim() || 'Question prompt missing'}
+              .trim() || 'Question prompt missing'} />
           </h2>
 
           <div className="space-y-3">
