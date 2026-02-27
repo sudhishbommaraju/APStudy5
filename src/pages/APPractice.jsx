@@ -294,9 +294,13 @@ export default function APPractice() {
         stem: q.question_text || '',
         answer_choices: [q.choice_a, q.choice_b, q.choice_c, q.choice_d],
         correct_answer: ['A', 'B', 'C', 'D'].indexOf(q.correct_answer),
-        explanation: q.explanation
+        explanation: q.explanation,
+        subject_id: subject,
+        unit_id: unit
       })));
       setCurrentIndex(0);
+      setCorrectCount(0);
+      sessionStartRef.current = Date.now();
 
     } catch (error) {
       // PHASE 2: Fail loudly — never silently return partial/wrong content
