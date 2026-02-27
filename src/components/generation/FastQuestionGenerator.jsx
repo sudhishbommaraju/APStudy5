@@ -153,7 +153,14 @@ Return EXACTLY ${batchSize} questions as JSON:`;
                 stimulus:     { type: 'string' },
                 question:     { type: 'string' },
                 options:      { type: 'array', items: { type: 'string' } },
-                correctIndex: { type: 'number' }
+                correctIndex: { type: 'number' },
+                visual: {
+                  type: 'object',
+                  properties: {
+                    type: { type: 'string' },
+                    spec: { type: 'object' }
+                  }
+                }
               }
             }
           }
