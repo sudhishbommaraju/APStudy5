@@ -3,7 +3,8 @@ import { base44 } from '@/api/base44Client';
 // ─── Caches ───────────────────────────────────────────────────────────────────
 const cache = {
   explanations: new Map(),
-  tutor: new Map()
+  tutor: new Map(),
+  questions: new Map()   // Phase 3: per subject+unit+difficulty question cache
 };
 
 // ─── Answer distribution (practice only) ─────────────────────────────────────
