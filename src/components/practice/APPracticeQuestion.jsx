@@ -195,7 +195,7 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
                         (showCorrect || showWrong) ? 'text-white font-medium' : 'text-neutral-200'
                       } ${isEliminated ? 'line-through' : ''}`}>
                         <span className="font-semibold mr-3">{String.fromCharCode(65 + idx)}.</span>
-                        {choice}
+                        <LatexText text={choice} />
                       </span>
                       {showCorrect && <Check className="w-5 h-5 text-green-500 shrink-0" />}
                       {showWrong   && <X    className="w-5 h-5 text-red-500 shrink-0" />}
