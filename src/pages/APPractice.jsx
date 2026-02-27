@@ -525,7 +525,7 @@ export default function APPractice() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-2">Unit</label>
+                <label className="block text-sm font-medium text-neutral-300 mb-2">Unit <span className="text-red-400">*</span></label>
                 <Select value={unit} onValueChange={setUnit} disabled={!subject}>
                   <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
                     <SelectValue placeholder={subject ? "Select Unit" : "Select subject first"} />
