@@ -58,7 +58,14 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
   const handleSubmit = async () => {
     if (selectedIndex === null) return;
 
-    const correct = selectedIndex === correctIndex;
+    const selectedLetter = ['A', 'B', 'C', 'D'][selectedIndex];
+    const correct = selectedLetter === correctLetter;
+
+    // Deterministic grading logs
+    console.log('Correct:', correctLetter);
+    console.log('Selected:', selectedLetter);
+    console.log('Result:', correct);
+
     setIsCorrect(correct);
     setIsSubmitted(true);
 
