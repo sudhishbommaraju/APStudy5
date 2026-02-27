@@ -198,6 +198,18 @@ export default function APPractice() {
 
   const availableUnits = subject ? (subjectUnits[subject] || Array.from({ length: 8 }, (_, i) => ({ id: `unit_${i + 1}`, name: `Unit ${i + 1}` }))) : [];
 
+  // PHASE 5: Clear all caches when subject changes
+  const handleSubjectChange = async (val) => {
+    setSubject(val);
+    setUnit('');
+    setQuestions([]);
+    try {
+      const { clearCache } = await import('@/components/generation/FastQuestionGenerator');
+      await clearCache();
+      console.log(`[SUBJECT CHANGE] Cleared cache. New subject: ${val}`);
+    } catch {}
+  };
+
   useEffect(() => {
     // Clear any cached state - always reset to allow new generation
     setSubject('');
@@ -252,10 +264,13 @@ export default function APPractice() {
     setLoading(true);
     
     try {
+      // PHASE 1: Log subject before request
+      console.log(`[AP PRACTICE] Generating subject: "${subject}", unit: "${unit}", count: ${questionCount}`);
+
       // PHASE 5: CLEAR ALL CACHES BEFORE NEW GENERATION
       const { generateQuestionsOptimized, clearCache } = await import('@/components/generation/FastQuestionGenerator');
-      clearCache();
-      
+      await clearCache();
+
       const result = await generateQuestionsOptimized({
         examType: 'AP',
         subjectId: subject,
@@ -451,7 +466,7 @@ export default function APPractice() {
             <div className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-neutral-300 mb-2">Subject</label>
-                <Select value={subject} onValueChange={(val) => { setSubject(val); setUnit(''); }}>
+                <Select value={subject} onValueChange={handleSubjectChange}>
                   <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
                     <SelectValue placeholder="Select AP Subject" />
                   </SelectTrigger>
