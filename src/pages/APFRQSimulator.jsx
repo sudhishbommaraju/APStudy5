@@ -295,6 +295,12 @@ STRICT JSON FORMAT:
           </div>
         )}
 
+        {!selectedSubject && (
+          <div className="text-center py-8 text-neutral-500 text-sm">
+            Select a subject above to get started
+          </div>
+        )}
+
         {prompts.length === 0 && selectedUnit && (
           <div className="text-center py-12 text-neutral-400">
             No FRQ prompts available for this unit yet
