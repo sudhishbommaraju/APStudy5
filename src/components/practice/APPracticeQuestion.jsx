@@ -93,8 +93,8 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
   };
 
   const handleNext = () => {
-    if (questionIndex < totalQuestions - 1) onNext();
-    else onComplete();
+    if (questionIndex < totalQuestions - 1) onNext(isCorrect);
+    else onComplete(isCorrect);
   };
 
   return (
