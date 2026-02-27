@@ -56,8 +56,7 @@ function requireParams(subjectId, unitId, mode) {
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-// PHASE 1 & 2 — NEW PRACTICE ENGINE (promoted from flashcard base)
-// Subject-scoped, MCQ, scenario-based, no definition recall.
+// PRACTICE ENGINE — Single-batch generation, lazy explanations, per-session cache
 // ═════════════════════════════════════════════════════════════════════════════
 export async function generateQuestionsOptimized({
   examType = 'AP',
@@ -65,37 +64,27 @@ export async function generateQuestionsOptimized({
   unitId,
   difficulty = 'mixed',
   count = 5,
-  mode = 'practice'
+  mode = 'practice',
+  forceRefresh = false
 }) {
-  // PHASE 4: Hard routing — only practice engine handles practice
   requireParams(subjectId, unitId, mode);
   if (mode !== 'practice') throw new Error('generateQuestionsOptimized handles mode="practice" only.');
 
-  const {
-    validateGenerationParams,
-    validateUnitMatch,
-    getUsedQuestions,
-    addUsedQuestion,
-    addToQuestionHistory,
-    isDuplicateAcrossPractices,
-    hashQuestion
-  } = await import('./SubjectBanks');
+  // Phase 3: serve from cache instantly if available
+  const cacheKey = `${subjectId}_${unitId}_${difficulty}`;
+  if (!forceRefresh && cache.questions.has(cacheKey)) {
+    const cached = cache.questions.get(cacheKey);
+    console.log(`[PRACTICE ENGINE] Cache hit: ${cacheKey} (${cached.length} questions)`);
+    return cached;
+  }
 
+  const { validateGenerationParams } = await import('./SubjectBanks');
   const { bank, unitData, bankKey } = validateGenerationParams(subjectId, unitId);
-  console.log(`[PRACTICE ENGINE] subject="${subjectId}" → bank="${bankKey}" unit="${unitData.name}" count=${count}`);
+  console.log(`[PRACTICE ENGINE] Generating — subject="${subjectId}" unit="${unitData.name}" count=${count}`);
 
   const nonce = Date.now();
-  const usedInSession = getUsedQuestions(subjectId, unitData.id);
-  const collectedQuestions = [];
-  let attempts = 0;
-  const MAX_ATTEMPTS = count * 3;
 
-  // PHASE 2: Loop until count is met or attempt cap hit
-  while (collectedQuestions.length < count && attempts < MAX_ATTEMPTS) {
-    attempts++;
-    const batchSize = Math.min(count - collectedQuestions.length + 2, count); // request a few extra for buffer
-
-    // Determine visual rules per subject
+  // Visual rules per subject
   const visualRule = (() => {
     if (['calc_ab', 'calc_bc', 'statistics'].includes(subjectId)) {
       return `- For math questions involving functions or graphs, include a "visual" field with type="graph" and spec={function:"f(x)=...", xRange:[-5,5], yRange:[-10,10]}
@@ -114,105 +103,76 @@ export async function generateQuestionsOptimized({
     return `- Set visual to {type: null, spec: null}`;
   })();
 
+  // Phase 1: Single batch request for all questions at once
   const prompt = `You are generating AP-level ${bank.name} practice questions for Unit ${unitData.id}: ${unitData.name}.
 
-PRACTICE ENGINE RULES — MANDATORY:
+RULES — MANDATORY:
 - Every question MUST open with a 2-4 sentence stimulus (scenario, data, experiment, or primary source)
 - Question stem must require application or analysis — NOT definition recall
 - Question stem minimum 12 words
-- 4 plausible distractors based on common student misconceptions
-- correctIndex = 0-3 index of correct option in the options array
-- Topics to draw from: ${unitData.keywords.join(', ')}
+- 4 plausible answer options (options array index 0-3)
+- correctIndex = 0-3 integer pointing to the correct option
+- Topics: ${unitData.keywords.join(', ')}
 
 VISUAL RULES:
 ${visualRule}
-- Only include a visual when it genuinely aids the question — not randomly
+- Only include a visual when it genuinely aids the question
 - Do NOT reference external images
 
-ABSOLUTELY FORBIDDEN:
-- "What is the definition of..."
-- "Which term means..."
-- "What is the function of..."
+FORBIDDEN:
+- "What is the definition of..." / "Which term means..." / "What is the function of..."
 - Any question without a stimulus
-- Content from subjects other than ${bank.name}
 
-College Board AP exam rigor required.
-Generation ID: ${nonce}_${attempts}_${Math.random().toString(36)}
+Generation ID: ${nonce}_${Math.random().toString(36)}
+Return EXACTLY ${count} questions as JSON:`;
 
-Return EXACTLY ${batchSize} questions as JSON:`;
-
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt,
-      response_json_schema: {
-        type: 'object',
-        properties: {
-          questions: {
-            type: 'array',
-            items: {
-              type: 'object',
-              properties: {
-                stimulus:     { type: 'string' },
-                question:     { type: 'string' },
-                options:      { type: 'array', items: { type: 'string' } },
-                correctIndex: { type: 'number' },
-                visual: {
-                  type: 'object',
-                  properties: {
-                    type: { type: 'string' },
-                    spec: { type: 'object' }
-                  }
+  const result = await base44.integrations.Core.InvokeLLM({
+    prompt,
+    response_json_schema: {
+      type: 'object',
+      properties: {
+        questions: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              stimulus:     { type: 'string' },
+              question:     { type: 'string' },
+              options:      { type: 'array', items: { type: 'string' } },
+              correctIndex: { type: 'number' },
+              visual: {
+                type: 'object',
+                properties: {
+                  type: { type: 'string' },
+                  spec: { type: 'object' }
                 }
               }
             }
           }
         }
       }
-    });
-
-    for (const q of (result.questions || [])) {
-      if (collectedQuestions.length >= count) break;
-
-      // Structure check
-      const wordCount = (q.question || '').trim().split(/\s+/).length;
-      if (wordCount < 12 || !q.stimulus || q.stimulus.trim().length < 20) {
-        console.warn('[PRACTICE ENGINE] Rejected — short/no stimulus');
-        continue;
-      }
-      const lower = (q.question || '').toLowerCase();
-      const isDefinition = ['what is the definition','which term means','what is the function of','define the term'].some(p => lower.includes(p));
-      if (isDefinition) {
-        console.warn('[PRACTICE ENGINE] Rejected — definition-style question');
-        continue;
-      }
-      if (!validateUnitMatch(q, unitData, bankKey)) continue;
-
-      const hash = hashQuestion(q.question);
-      if (usedInSession.has(hash) || isDuplicateAcrossPractices(subjectId, unitData.id, hash)) {
-        console.warn('[PRACTICE ENGINE] Rejected — duplicate');
-        continue;
-      }
-
-      collectedQuestions.push(q);
     }
+  });
 
-    console.log(`[PRACTICE ENGINE] After attempt ${attempts}: ${collectedQuestions.length}/${count} valid questions`);
+  const raw = result.questions || [];
 
-    // If we got enough, exit the loop
-    if (collectedQuestions.length >= count) break;
+  // Phase 4: Single-pass validation, no retry loop
+  const valid = raw.filter(q => {
+    if (!q.stimulus || q.stimulus.trim().length < 20) return false;
+    const wordCount = (q.question || '').trim().split(/\s+/).length;
+    if (wordCount < 8) return false;
+    const lower = (q.question || '').toLowerCase();
+    if (['what is the definition','which term means','define the term'].some(p => lower.includes(p))) return false;
+    if (!Array.isArray(q.options) || q.options.length < 4) return false;
+    return true;
+  });
+
+  if (valid.length === 0) {
+    throw new Error(`[PRACTICE ENGINE] No valid questions returned for ${bank.name} ${unitData.name}.`);
   }
 
-  // PHASE 2: Fail loudly if count not met
-  if (collectedQuestions.length < count) {
-    throw new Error(`[PRACTICE ENGINE] Failed to generate ${count} questions for ${bank.name} Unit ${unitData.name}. Got ${collectedQuestions.length} after ${attempts} attempts.`);
-  }
-
-  return collectedQuestions.slice(0, count).map((q, idx) => {
-    const hash = hashQuestion(q.question);
-    addUsedQuestion(subjectId, unitData.id, hash);
-    addToQuestionHistory(subjectId, unitData.id, hash);
-
+  const questions = valid.slice(0, count).map((q, idx) => {
     const { shuffled, newCorrectIndex } = enforceDistribution(q.options, q.correctIndex ?? 0);
-
     return {
       id: `q_${subjectId}_${unitData.id}_${nonce}_${idx}`,
       question_text: q.question,
@@ -222,13 +182,19 @@ Return EXACTLY ${batchSize} questions as JSON:`;
       choice_c: shuffled[2],
       choice_d: shuffled[3],
       correct_answer: ['A', 'B', 'C', 'D'][newCorrectIndex],
-      explanation: null,
+      explanation: null,   // Phase 2: lazy — generated on submit
       difficulty,
       subject_id: subjectId,
       unit_id: unitData.id,
       visual: (q.visual?.type && q.visual?.spec) ? q.visual : null
     };
   });
+
+  // Phase 3: store in cache
+  cache.questions.set(cacheKey, questions);
+  console.log(`[PRACTICE ENGINE] Generated ${questions.length} questions, cached as "${cacheKey}"`);
+
+  return questions;
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
