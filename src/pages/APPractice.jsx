@@ -573,12 +573,7 @@ export default function APPractice() {
                 )}
               </Button>
 
-              {/* Debug Panel */}
-              <div className="text-xs text-gray-400 mt-4 p-3 bg-neutral-800 rounded-lg">
-                <p>Loading: {loading ? "Yes" : "No"}</p>
-                <p>Practice Count: {questions?.length || 0}</p>
-                <p>Status: {questions.length > 0 ? "Ready" : "Click Generate to Begin"}</p>
-              </div>
+
             </div>
           </div>
         </div>
