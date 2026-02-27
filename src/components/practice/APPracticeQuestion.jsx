@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Check, X } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Check, X, Loader2, Lightbulb, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import FlashcardTutor from '@/components/flashcards/FlashcardTutor';
+import { generateExplanation, generateWrongAnswerFeedback } from '@/components/generation/FastQuestionGenerator';
+import { recordAnswer } from '@/components/generation/AdaptivePracticeEngine';
 
 export default function APPracticeQuestion({ question, questionIndex, totalQuestions, onNext, onComplete }) {
   const [selectedIndex, setSelectedIndex] = useState(null);
@@ -10,49 +12,97 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
   const [isCorrect, setIsCorrect] = useState(null);
   const [eliminatedChoices, setEliminatedChoices] = useState(new Set());
 
+  // AI features state
+  const [explanation, setExplanation] = useState(null);
+  const [wrongFeedback, setWrongFeedback] = useState(null);
+  const [loadingExplanation, setLoadingExplanation] = useState(false);
+  const [loadingFeedback, setLoadingFeedback] = useState(false);
+
+  // Adaptive difficulty: track start time
+  const startTimeRef = useRef(Date.now());
+
   useEffect(() => {
-    // Reset state when question changes
     setSelectedIndex(null);
     setIsSubmitted(false);
     setIsCorrect(null);
     setEliminatedChoices(new Set());
+    setExplanation(null);
+    setWrongFeedback(null);
+    startTimeRef.current = Date.now();
   }, [questionIndex]);
 
-  const handleSubmit = () => {
+  const choices = question.answer_choices || [];
+  const correctLetter = question.correct_answer; // 'A','B','C','D'
+  const correctIndex = ['A', 'B', 'C', 'D'].indexOf(correctLetter);
+
+  const handleSubmit = async () => {
     if (selectedIndex === null) return;
-    
-    const correct = selectedIndex === question.correct_answer;
+
+    const correct = selectedIndex === correctIndex;
     setIsCorrect(correct);
     setIsSubmitted(true);
+
+    // Record for adaptive difficulty
+    const timeSpentMs = Date.now() - startTimeRef.current;
+    recordAnswer(question.subject_id, question.unit_id, correct, timeSpentMs);
+
+    // Lazily fetch AI explanation
+    setLoadingExplanation(true);
+    try {
+      const exp = await generateExplanation({
+        questionId: question.id,
+        stimulus: question.stimulus || '',
+        question: question.question_text || question.stem || '',
+        options: choices,
+        correctAnswer: correctLetter
+      });
+      setExplanation(exp);
+    } catch (e) {
+      setExplanation(question.explanation || null);
+    } finally {
+      setLoadingExplanation(false);
+    }
+
+    // If wrong: fetch personalized wrong-answer feedback
+    if (!correct) {
+      setLoadingFeedback(true);
+      try {
+        const fb = await generateWrongAnswerFeedback({
+          questionId: question.id,
+          stimulus: question.stimulus || '',
+          question: question.question_text || question.stem || '',
+          selectedOptionText: choices[selectedIndex],
+          correctOptionText: choices[correctIndex],
+          correctAnswer: correctLetter
+        });
+        setWrongFeedback(fb);
+      } catch (e) {
+        setWrongFeedback(null);
+      } finally {
+        setLoadingFeedback(false);
+      }
+    }
   };
 
   const toggleEliminate = (idx, e) => {
     e.stopPropagation();
     if (isSubmitted) return;
-    
-    const newEliminated = new Set(eliminatedChoices);
-    if (newEliminated.has(idx)) {
-      newEliminated.delete(idx);
-    } else {
-      newEliminated.add(idx);
-    }
-    setEliminatedChoices(newEliminated);
+    const next = new Set(eliminatedChoices);
+    next.has(idx) ? next.delete(idx) : next.add(idx);
+    setEliminatedChoices(next);
   };
 
   const handleNext = () => {
-    if (questionIndex < totalQuestions - 1) {
-      onNext();
-    } else {
-      onComplete();
-    }
+    if (questionIndex < totalQuestions - 1) onNext();
+    else onComplete();
   };
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 h-full">
-      {/* Question Panel - 60% on desktop */}
+      {/* Question Panel */}
       <div className="flex-1 lg:w-[60%] space-y-6">
         {/* Progress */}
-        <div className="space-y-3">
+        <div className="space-y-2">
           <div className="flex justify-between items-center text-sm">
             <span className="text-neutral-300 font-medium">
               Question {questionIndex + 1} of {totalQuestions}
@@ -73,11 +123,10 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
           animate={{ opacity: 1, y: 0 }}
           className="bg-neutral-900 border border-neutral-800 rounded-xl p-8"
         >
-          {/* Stimulus Section */}
-          {question.stimulus && question.stimulus.trim() && (
+          {question.stimulus?.trim() && (
             <div className="bg-neutral-800/30 rounded-lg p-4 mb-8">
               <div className="text-neutral-400 leading-relaxed text-sm md:text-base">
-                {String(question.stimulus || '')
+                {String(question.stimulus)
                   .replace(/^\*\*Stimulus:\*\*\s*/i, '')
                   .replace(/^\*\*\s*/, '')
                   .replace(/\*\*$/, '')
@@ -86,7 +135,6 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
             </div>
           )}
 
-          {/* Question Prompt */}
           <h2 className="text-lg md:text-xl font-semibold text-white mb-6 leading-relaxed">
             {String(question.question_text || question.stem || '')
               .replace(/^\*\*Question:\*\*\s*/i, '')
@@ -96,13 +144,12 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
               .trim() || 'Question prompt missing'}
           </h2>
 
-          {/* Answer Options */}
           <div className="space-y-3">
-            {question.answer_choices?.map((choice, idx) => {
-              const isSelected = selectedIndex === idx;
-              const isCorrectChoice = idx === question.correct_answer;
-              const showCorrect = isSubmitted && isCorrectChoice;
-              const showIncorrect = isSubmitted && isSelected && !isCorrect;
+            {choices.map((choice, idx) => {
+              const isSelected   = selectedIndex === idx;
+              const isCorrectChoice = idx === correctIndex;
+              const showCorrect  = isSubmitted && isCorrectChoice;
+              const showWrong    = isSubmitted && isSelected && !isCorrect;
               const isEliminated = eliminatedChoices.has(idx);
 
               return (
@@ -111,31 +158,25 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
                     onClick={() => !isSubmitted && setSelectedIndex(idx)}
                     disabled={isSubmitted}
                     className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
-                      showCorrect
-                        ? 'bg-green-900/20 border-green-600'
-                        : showIncorrect
-                        ? 'bg-red-900/20 border-red-600'
-                        : isSelected
-                        ? 'bg-blue-900/20 border-blue-600'
-                        : isEliminated
-                        ? 'bg-neutral-950/50 border-neutral-800'
-                        : 'bg-neutral-800 border-neutral-700 hover:border-neutral-600'
-                    } ${isSubmitted ? 'cursor-default' : 'cursor-pointer'} ${
-                      isEliminated ? 'opacity-40' : ''
-                    }`}
+                      showCorrect  ? 'bg-green-900/20 border-green-600' :
+                      showWrong    ? 'bg-red-900/20 border-red-600'     :
+                      isSelected   ? 'bg-blue-900/20 border-blue-600'   :
+                      isEliminated ? 'bg-neutral-950/50 border-neutral-800 opacity-40' :
+                                     'bg-neutral-800 border-neutral-700 hover:border-neutral-600'
+                    } ${isSubmitted ? 'cursor-default' : 'cursor-pointer'}`}
                   >
                     <div className="flex items-center justify-between">
                       <span className={`text-base ${
-                        showCorrect || showIncorrect ? 'text-white font-medium' : 'text-neutral-200'
+                        (showCorrect || showWrong) ? 'text-white font-medium' : 'text-neutral-200'
                       } ${isEliminated ? 'line-through' : ''}`}>
                         <span className="font-semibold mr-3">{String.fromCharCode(65 + idx)}.</span>
                         {choice}
                       </span>
-                      {showCorrect && <Check className="w-5 h-5 text-green-500" />}
-                      {showIncorrect && <X className="w-5 h-5 text-red-500" />}
+                      {showCorrect && <Check className="w-5 h-5 text-green-500 shrink-0" />}
+                      {showWrong   && <X    className="w-5 h-5 text-red-500 shrink-0" />}
                     </div>
                   </button>
-                  
+
                   {!isSubmitted && (
                     <button
                       onClick={(e) => toggleEliminate(idx, e)}
@@ -144,7 +185,6 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
                           ? 'bg-red-600/20 text-red-400'
                           : 'bg-neutral-800/0 group-hover:bg-neutral-800 text-neutral-500 hover:text-red-400'
                       }`}
-                      title={isEliminated ? 'Un-eliminate' : 'Eliminate choice'}
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -155,8 +195,8 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
           </div>
         </motion.div>
 
-        {/* Submit/Next Button */}
-        <div className="flex items-center justify-between">
+        {/* Submit / Next */}
+        <div className="flex items-center justify-between gap-4">
           {!isSubmitted ? (
             <Button
               onClick={handleSubmit}
@@ -184,23 +224,59 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
           )}
         </div>
 
-        {/* Explanation after submission */}
-        {isSubmitted && question.explanation && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-neutral-900 border border-neutral-800 rounded-xl p-6"
-          >
-            <p className="text-neutral-400 text-sm mb-2 uppercase tracking-wider">Explanation</p>
-            <p className="text-neutral-200 leading-relaxed">{question.explanation}</p>
-          </motion.div>
-        )}
+        <AnimatePresence>
+          {/* Wrong-answer personalized feedback */}
+          {isSubmitted && !isCorrect && (
+            <motion.div
+              key="wrong-feedback"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-red-950/30 border border-red-800/50 rounded-xl p-5"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                <span className="text-red-300 text-sm font-semibold uppercase tracking-wider">Why that's incorrect</span>
+              </div>
+              {loadingFeedback ? (
+                <div className="flex items-center gap-2 text-neutral-400 text-sm">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Analyzing your answer…
+                </div>
+              ) : (
+                <p className="text-neutral-200 leading-relaxed text-sm">{wrongFeedback || 'Review the correct answer above.'}</p>
+              )}
+            </motion.div>
+          )}
+
+          {/* AI Explanation */}
+          {isSubmitted && (
+            <motion.div
+              key="explanation"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-neutral-900 border border-neutral-800 rounded-xl p-6"
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <Lightbulb className="w-4 h-4 text-yellow-400 shrink-0" />
+                <span className="text-neutral-400 text-sm font-semibold uppercase tracking-wider">Explanation</span>
+              </div>
+              {loadingExplanation ? (
+                <div className="flex items-center gap-2 text-neutral-400 text-sm">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Generating explanation…
+                </div>
+              ) : (
+                <p className="text-neutral-200 leading-relaxed">{explanation || 'No explanation available.'}</p>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* Tutor Panel - 40% on desktop */}
+      {/* Tutor Panel */}
       <div className="lg:w-[40%] bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden">
-        <FlashcardTutor 
-          question={question.stem} 
+        <FlashcardTutor
+          question={question.stem || question.question_text}
           isSubmitted={isSubmitted}
         />
       </div>
