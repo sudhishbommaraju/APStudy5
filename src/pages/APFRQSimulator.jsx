@@ -21,11 +21,8 @@ export default function APFRQSimulator() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    loadSubjects();
-  }, []);
-
-  useEffect(() => {
     if (selectedSubject) {
+      console.log("FRQ Subject:", selectedSubject);
       loadUnits();
     }
   }, [selectedSubject]);
