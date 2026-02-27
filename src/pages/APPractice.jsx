@@ -292,18 +292,27 @@ export default function APPractice() {
         return;
       }
 
-      setQuestions(result.map(q => ({
-        id: q.id,
-        stimulus: q.stimulus || '',
-        question_text: q.question_text || '',
-        stem: q.question_text || '',
-        visual: q.visual || null,
-        answer_choices: [q.choice_a, q.choice_b, q.choice_c, q.choice_d],
-        correct_answer: ['A', 'B', 'C', 'D'].indexOf(q.correct_answer),
-        explanation: q.explanation,
-        subject_id: subject,
-        unit_id: unit
-      })));
+      const subjectLabel = apSubjects.find(s => s.id === subject)?.name || subject;
+      const unitLabel = availableUnits.find(u => u.id === unit)?.name || unit;
+
+      setQuestions(result.map(q => {
+        // q.correct_answer is already a letter "A"–"D" from FastQuestionGenerator
+        console.log('[GRADING SETUP] question:', q.question_text?.slice(0, 40), '| correctAnswer:', q.correct_answer);
+        return {
+          id: q.id,
+          stimulus: q.stimulus || '',
+          question_text: q.question_text || '',
+          stem: q.question_text || '',
+          visual: q.visual || null,
+          answer_choices: [q.choice_a, q.choice_b, q.choice_c, q.choice_d],
+          correct_answer: q.correct_answer,  // keep as letter: "A", "B", "C", "D"
+          explanation: q.explanation,
+          subject_id: subject,
+          unit_id: unit,
+          subject_name: subjectLabel,
+          unit_name: unitLabel
+        };
+      }));
       setCurrentIndex(0);
       setCorrectCount(0);
       sessionStartRef.current = Date.now();
