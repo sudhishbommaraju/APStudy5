@@ -157,7 +157,7 @@ export default function Flashcards() {
                             <Button
                               onClick={(e) => { e.stopPropagation(); setSelectedDeck(deck); }}
                               size="sm"
-                              className="bg-[#D6B98C] hover:bg-[#C9A96A] text-black text-xs font-semibold"
+                              className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold"
                             >
                               <Play className="w-3 h-3 mr-1" />
                               Study
