@@ -51,7 +51,8 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
   }, [questionIndex]);
 
   const choices = question.answer_choices || [];
-  const correctLetter = question.correct_answer; // 'A','B','C','D'
+  // correct_answer is always a letter "A"–"D"
+  const correctLetter = question.correct_answer;
   const correctIndex = ['A', 'B', 'C', 'D'].indexOf(correctLetter);
 
   const handleSubmit = async () => {
