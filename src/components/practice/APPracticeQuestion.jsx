@@ -291,7 +291,9 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
                   Generating explanation…
                 </div>
               ) : (
-                <p className="text-neutral-200 leading-relaxed">{explanation || 'No explanation available.'}</p>
+                <p className="text-neutral-200 leading-relaxed">
+                  <LatexText text={explanation || 'No explanation available.'} />
+                </p>
               )}
             </motion.div>
           )}
