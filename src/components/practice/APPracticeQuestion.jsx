@@ -301,9 +301,14 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
       </div>
 
       {/* Tutor Panel */}
-      <div className="lg:w-[40%] bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden">
-        <FlashcardTutor
-          question={question.stem || question.question_text}
+      <div className="lg:w-[40%] min-h-[500px]">
+        <TutorPanel
+          subject={question.subject_name || question.subject_id || ''}
+          unit={question.unit_name || question.unit_id || ''}
+          questionText={question.question_text || question.stem || ''}
+          options={choices}
+          correctAnswer={correctLetter}
+          userAnswer={isSubmitted && selectedIndex !== null ? choices[selectedIndex] : undefined}
           isSubmitted={isSubmitted}
         />
       </div>
