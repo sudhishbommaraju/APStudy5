@@ -94,7 +94,26 @@ export async function generateQuestionsOptimized({
     attempts++;
     const batchSize = Math.min(count - collectedQuestions.length + 2, count); // request a few extra for buffer
 
-    const prompt = `You are generating AP-level ${bank.name} practice questions for Unit ${unitData.id}: ${unitData.name}.
+    // Determine visual rules per subject
+  const visualRule = (() => {
+    if (['calc_ab', 'calc_bc', 'statistics'].includes(subjectId)) {
+      return `- For math questions involving functions or graphs, include a "visual" field with type="graph" and spec={function:"f(x)=...", xRange:[-5,5], yRange:[-10,10]}
+- Wrap ALL math expressions in LaTeX: $$ ... $$ (e.g. $$ f(x) = x^2 - 4x + 3 $$)`;
+    }
+    if (['physics_1','physics_2','physics_c_mech','physics_c_em'].includes(subjectId)) {
+      return `- For kinematics/motion questions include a "visual" field with type="graph" and spec={type:"velocity-time"|"position-time", dataPoints:[[x,y],...]}
+- Wrap ALL equations in LaTeX: $$ ... $$ (e.g. $$ v = v_0 + at $$)`;
+    }
+    if (subjectId === 'biology') {
+      return `- For cell structure, mitosis, or ecology questions include a "visual" field with type="diagram" and spec={diagramType:"cell"|"mitosis"|"food_web", highlightedPart:"..."}`;
+    }
+    if (subjectId === 'human_geo') {
+      return `- For spatial/diffusion questions include a "visual" field with type="map" and spec={diffusionType:"hierarchical"|"contagious"|"stimulus", cities:[{name:"..."},...]}`;
+    }
+    return `- Set visual to {type: null, spec: null}`;
+  })();
+
+  const prompt = `You are generating AP-level ${bank.name} practice questions for Unit ${unitData.id}: ${unitData.name}.
 
 PRACTICE ENGINE RULES — MANDATORY:
 - Every question MUST open with a 2-4 sentence stimulus (scenario, data, experiment, or primary source)
@@ -103,6 +122,11 @@ PRACTICE ENGINE RULES — MANDATORY:
 - 4 plausible distractors based on common student misconceptions
 - correctIndex = 0-3 index of correct option in the options array
 - Topics to draw from: ${unitData.keywords.join(', ')}
+
+VISUAL RULES:
+${visualRule}
+- Only include a visual when it genuinely aids the question — not randomly
+- Do NOT reference external images
 
 ABSOLUTELY FORBIDDEN:
 - "What is the definition of..."
