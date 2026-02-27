@@ -4,15 +4,83 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, FileText, Send } from 'lucide-react';
 import { generateFRQFeedback } from '@/components/engine/AIExplanationEngine';
-import { AP_SUBJECTS } from '@/components/config/subjects';
+
+const SUBJECTS = {
+  "AP Human Geography": [
+    { id: "unit1", name: "Unit 1: Thinking Geographically" },
+    { id: "unit2", name: "Unit 2: Population & Migration" },
+    { id: "unit3", name: "Unit 3: Cultural Patterns & Processes" },
+    { id: "unit4", name: "Unit 4: Political Organization of Space" },
+    { id: "unit5", name: "Unit 5: Agriculture & Rural Land Use" },
+    { id: "unit6", name: "Unit 6: Cities & Urban Land Use" },
+    { id: "unit7", name: "Unit 7: Industrial & Economic Development" }
+  ],
+  "AP Biology": [
+    { id: "unit1", name: "Unit 1: Chemistry of Life" },
+    { id: "unit2", name: "Unit 2: Cell Structure & Function" },
+    { id: "unit3", name: "Unit 3: Cellular Energetics" },
+    { id: "unit4", name: "Unit 4: Cell Communication & Cycle" },
+    { id: "unit5", name: "Unit 5: Heredity" },
+    { id: "unit6", name: "Unit 6: Gene Expression & Regulation" },
+    { id: "unit7", name: "Unit 7: Natural Selection" },
+    { id: "unit8", name: "Unit 8: Ecology" }
+  ],
+  "AP US History": [
+    { id: "unit1", name: "Unit 1: Period 1 (1491–1607)" },
+    { id: "unit2", name: "Unit 2: Period 2 (1607–1754)" },
+    { id: "unit3", name: "Unit 3: Period 3 (1754–1800)" },
+    { id: "unit4", name: "Unit 4: Period 4 (1800–1848)" },
+    { id: "unit5", name: "Unit 5: Period 5 (1844–1877)" },
+    { id: "unit6", name: "Unit 6: Period 6 (1865–1898)" },
+    { id: "unit7", name: "Unit 7: Period 7 (1890–1945)" },
+    { id: "unit8", name: "Unit 8: Period 8 (1945–1980)" },
+    { id: "unit9", name: "Unit 9: Period 9 (1980–Present)" }
+  ],
+  "AP World History": [
+    { id: "unit1", name: "Unit 1: The Global Tapestry" },
+    { id: "unit2", name: "Unit 2: Networks of Exchange" },
+    { id: "unit3", name: "Unit 3: Land-Based Empires" },
+    { id: "unit4", name: "Unit 4: Transoceanic Interconnections" },
+    { id: "unit5", name: "Unit 5: Revolutions" },
+    { id: "unit6", name: "Unit 6: Consequences of Industrialization" },
+    { id: "unit7", name: "Unit 7: Global Conflict" },
+    { id: "unit8", name: "Unit 8: Cold War & Decolonization" },
+    { id: "unit9", name: "Unit 9: Globalization" }
+  ],
+  "AP Calculus AB": [
+    { id: "unit1", name: "Unit 1: Limits & Continuity" },
+    { id: "unit2", name: "Unit 2: Differentiation — Definition" },
+    { id: "unit3", name: "Unit 3: Differentiation — Composite, Implicit, Inverse" },
+    { id: "unit4", name: "Unit 4: Contextual Applications of Differentiation" },
+    { id: "unit5", name: "Unit 5: Analytical Applications of Differentiation" },
+    { id: "unit6", name: "Unit 6: Integration & Accumulation of Change" },
+    { id: "unit7", name: "Unit 7: Differential Equations" },
+    { id: "unit8", name: "Unit 8: Applications of Integration" }
+  ],
+  "AP English Language": [
+    { id: "unit1", name: "Unit 1: Claims & Evidence" },
+    { id: "unit2", name: "Unit 2: Reasoning & Organization" },
+    { id: "unit3", name: "Unit 3: Rhetorical Situation" },
+    { id: "unit4", name: "Unit 4: Style" },
+    { id: "unit5", name: "Unit 5: Composition" }
+  ],
+  "AP English Literature": [
+    { id: "unit1", name: "Unit 1: Short Fiction I" },
+    { id: "unit2", name: "Unit 2: Poetry I" },
+    { id: "unit3", name: "Unit 3: Longer Fiction or Drama I" },
+    { id: "unit4", name: "Unit 4: Short Fiction II" },
+    { id: "unit5", name: "Unit 5: Poetry II" },
+    { id: "unit6", name: "Unit 6: Longer Fiction or Drama II" }
+  ]
+};
+
+const SELECT_CLASS = "w-full bg-[#0f172a] border border-blue-600/40 text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 appearance-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed";
 
 export default function APFRQSimulator() {
   const navigate = useNavigate();
   const [selectedSubject, setSelectedSubject] = useState('');
-  const [units, setUnits] = useState([]);
   const [selectedUnit, setSelectedUnit] = useState('');
   const [prompts, setPrompts] = useState([]);
   const [currentPrompt, setCurrentPrompt] = useState(null);
@@ -20,23 +88,26 @@ export default function APFRQSimulator() {
   const [feedback, setFeedback] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (selectedSubject) {
-      console.log("FRQ Subject:", selectedSubject);
-      loadUnits();
-    }
-  }, [selectedSubject]);
+  const units = SUBJECTS[selectedSubject] || [];
+
+  function handleSubjectChange(e) {
+    setSelectedSubject(e.target.value);
+    setSelectedUnit('');
+    setCurrentPrompt(null);
+    setPrompts([]);
+    setFeedback(null);
+    setResponse('');
+  }
+
+  function handleUnitChange(e) {
+    setSelectedUnit(e.target.value);
+  }
 
   useEffect(() => {
     if (selectedUnit) {
       loadPrompts();
     }
   }, [selectedUnit]);
-
-  async function loadUnits() {
-    const unitList = await base44.entities.APUnit.filter({ subject_id: selectedSubject });
-    setUnits(unitList.sort((a, b) => a.order_index - b.order_index));
-  }
 
   async function loadPrompts() {
     const promptList = await base44.entities.APFRQPrompt.filter({
