@@ -437,14 +437,6 @@ export async function clearCache() {
   cache.questions.clear();
   cache.explanations.clear();
   cache.tutor.clear();
-  
-  // Clear all subject/unit-scoped memories
-  try {
-    const { clearUsedQuestions } = await import('./SubjectBanks');
-    // This will be handled per subject/unit on next generation
-  } catch (e) {
-    console.warn('Could not clear subject banks:', e);
-  }
-  
-  console.log('[CACHE] All caches cleared for fresh generation');
+  resetAnswerDistribution();
+  console.log('[CACHE] All caches and answer distribution cleared for fresh generation');
 }
