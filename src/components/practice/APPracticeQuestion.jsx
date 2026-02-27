@@ -315,8 +315,8 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
           unit={question.unit_name || question.unit_id || ''}
           questionText={question.question_text || question.stem || ''}
           options={choices}
-          correctAnswer={correctLetter}
-          userAnswer={isSubmitted && selectedIndex !== null ? choices[selectedIndex] : undefined}
+          correctAnswer={isSubmitted ? correctLetter : undefined}
+          userAnswer={isSubmitted && selectedIndex !== null ? `${['A','B','C','D'][selectedIndex]}. ${choices[selectedIndex]}` : undefined}
           isSubmitted={isSubmitted}
         />
       </div>
