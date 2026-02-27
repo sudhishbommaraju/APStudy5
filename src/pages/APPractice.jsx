@@ -22,6 +22,9 @@ export default function APPractice() {
   const [linkedPage, setLinkedPage] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [correctCount, setCorrectCount] = useState(0);
+  const [showHistory, setShowHistory] = useState(false);
+  const sessionStartRef = useRef(null);
 
   const apSubjects = [
     { id: 'biology', name: 'AP Biology' },
