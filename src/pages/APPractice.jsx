@@ -311,14 +311,42 @@ export default function APPractice() {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = (wasCorrect) => {
+    if (wasCorrect) setCorrectCount(c => c + 1);
     setCurrentIndex(currentIndex + 1);
   };
 
-  const handleComplete = () => {
+  const handleComplete = async (wasCorrect) => {
+    const finalCorrect = correctCount + (wasCorrect ? 1 : 0);
+    const pct = Math.round((finalCorrect / questions.length) * 100);
+    const durationSec = sessionStartRef.current ? Math.round((Date.now() - sessionStartRef.current) / 1000) : 0;
+
+    try {
+      const user = await base44.auth.me();
+      const subjectLabel = apSubjects.find(s => s.id === subject)?.name || subject;
+      const unitLabel = availableUnits.find(u => u.id === unit)?.name || unit;
+
+      await base44.entities.PracticeHistory.create({
+        user_email: user.email,
+        subject_id: subject,
+        subject_name: subjectLabel,
+        unit_id: unit,
+        unit_name: unitLabel,
+        total_questions: questions.length,
+        correct_count: finalCorrect,
+        score_pct: pct,
+        completed_at: new Date().toISOString(),
+        duration_seconds: durationSec,
+        mode: 'practice'
+      });
+    } catch (e) {
+      console.error('[PracticeHistory] Failed to save', e);
+    }
+
     setQuestions([]);
     setCurrentIndex(0);
-    toast.success('Practice complete!');
+    setCorrectCount(0);
+    toast.success(`Practice complete! Score: ${finalCorrect}/${questions.length} (${pct}%)`);
   };
 
   if (questions.length > 0) {
