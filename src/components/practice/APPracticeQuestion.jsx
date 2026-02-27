@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import FlashcardTutor from '@/components/flashcards/FlashcardTutor';
 import { generateExplanation, generateWrongAnswerFeedback } from '@/components/generation/FastQuestionGenerator';
 import { recordAnswer } from '@/components/generation/AdaptivePracticeEngine';
+import QuestionVisual from '@/components/practice/QuestionVisual';
+import { InlineMath, BlockMath } from 'react-katex';
 
 export default function APPracticeQuestion({ question, questionIndex, totalQuestions, onNext, onComplete }) {
   const [selectedIndex, setSelectedIndex] = useState(null);
