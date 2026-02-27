@@ -7,10 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, FileText, Send } from 'lucide-react';
 import { generateFRQFeedback } from '@/components/engine/AIExplanationEngine';
+import { AP_SUBJECTS } from '@/components/config/subjects';
 
 export default function APFRQSimulator() {
   const navigate = useNavigate();
-  const [subjects, setSubjects] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState('');
   const [units, setUnits] = useState([]);
   const [selectedUnit, setSelectedUnit] = useState('');
