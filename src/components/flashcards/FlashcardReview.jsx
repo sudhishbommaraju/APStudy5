@@ -6,12 +6,20 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import FlashcardTutor from './FlashcardTutor';
 
-const MASTERY_LEVELS = {
-  new: { next: 'learning', days: 0 },
-  learning: { next: 'familiar', days: 1 },
-  familiar: { next: 'mastered', days: 3 },
-  mastered: { next: 'mastered', days: 7 }
-};
+// SuperMemo 2 — easiness factor per card, stored in `sm2_ef` field
+// Performance rating: 0=again, 1=hard, 2=good, 3=easy
+function sm2(card, rating) {
+  const ef = Math.max(1.3, (card.sm2_ef || 2.5) + (0.1 - (3 - rating) * (0.08 + (3 - rating) * 0.02)));
+  const reps = rating < 1 ? 0 : (card.sm2_reps || 0) + 1;
+  let interval = 1;
+  if (reps === 1) interval = 1;
+  else if (reps === 2) interval = 6;
+  else interval = Math.round((card.sm2_interval || 1) * ef);
+
+  const masteryMap = interval >= 21 ? 'mastered' : interval >= 7 ? 'familiar' : interval >= 2 ? 'learning' : 'new';
+
+  return { ef, reps, interval, mastery_level: masteryMap };
+}
 
 export default function FlashcardReview({ deck }) {
   const [cards, setCards] = useState([]);
@@ -92,18 +100,22 @@ export default function FlashcardReview({ deck }) {
 
   const handleNext = async () => {
     const card = cards[currentIdx];
-    const newLevel = isCorrect ? MASTERY_LEVELS[card.mastery_level]?.next || 'mastered' : card.mastery_level;
-    const nextReviewDays = MASTERY_LEVELS[newLevel]?.days || 1;
+    // SM2 rating: correct=3(easy), incorrect=0(again)
+    const rating = isCorrect ? 3 : 0;
+    const { ef, reps, interval, mastery_level } = sm2(card, rating);
 
     const nextReviewDate = new Date();
-    nextReviewDate.setDate(nextReviewDate.getDate() + nextReviewDays);
+    nextReviewDate.setDate(nextReviewDate.getDate() + interval);
 
     try {
       await base44.entities.Flashcard.update(card.id, {
-        mastery_level: newLevel,
+        mastery_level,
         times_reviewed: (card.times_reviewed || 0) + 1,
         last_reviewed: new Date().toISOString(),
-        next_review: nextReviewDate.toISOString().split('T')[0]
+        next_review: nextReviewDate.toISOString().split('T')[0],
+        sm2_ef: ef,
+        sm2_reps: reps,
+        sm2_interval: interval
       });
 
       if (currentIdx < cards.length - 1) {
