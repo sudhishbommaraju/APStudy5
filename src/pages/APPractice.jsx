@@ -259,25 +259,24 @@ export default function APPractice() {
   };
 
   const handleStartPractice = async () => {
-    if (!subject || !unit) {
-      toast.error('Please select subject and unit');
+    // PHASE 1: Validate before API call
+    if (!subject) {
+      toast.error('Please select a subject.');
       return;
     }
-    
-    if (loading) return; // Prevent duplicate calls
+    if (!unit) {
+      toast.error('Please select a unit.');
+      return;
+    }
+
+    if (loading) return;
 
     setLoading(true);
-    
-    try {
-      // PHASE 1: Log subject before request
-      console.log(`[AP PRACTICE] Generating subject: "${subject}", unit: "${unit}", count: ${questionCount}`);
 
-      // PHASE 5: CLEAR ALL CACHES BEFORE NEW GENERATION
+    try {
       const { generateQuestionsOptimized, clearCache } = await import('@/components/generation/FastQuestionGenerator');
       await clearCache();
 
-      // PHASE 1: Explicit count + mode in every request
-      console.log(`[AP PRACTICE] Request: subject="${subject}" unit="${unit}" count=${questionCount} mode="practice"`);
       const result = await generateQuestionsOptimized({
         examType: 'AP',
         subjectId: subject,
@@ -286,6 +285,12 @@ export default function APPractice() {
         count: questionCount,
         mode: 'practice'
       });
+
+      if (!result || result.length === 0) {
+        toast.error('No questions were generated. Please try again.');
+        setLoading(false);
+        return;
+      }
 
       setQuestions(result.map(q => ({
         id: q.id,
@@ -303,9 +308,9 @@ export default function APPractice() {
       sessionStartRef.current = Date.now();
 
     } catch (error) {
-      // PHASE 2: Fail loudly — never silently return partial/wrong content
+      // PHASE 3: Never fail silently
       console.error(`[AP PRACTICE] Generation failed: ${error.message}`);
-      toast.error(`Failed to generate ${questionCount} questions. Please try again.`);
+      toast.error(error.message || 'Server error. Please try again.');
     } finally {
       setLoading(false);
     }
