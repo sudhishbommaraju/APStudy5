@@ -322,10 +322,11 @@ export async function generateStrategy({ questionId, question }) {
   return result.strategy;
 }
 
-// ─── PHASE 6: Clear all state on mode switch ──────────────────────────────────
-export async function clearCache() {
+// ─── Clear all caches ────────────────────────────────────────────────────────
+export async function clearCache(includeQuestions = false) {
   cache.explanations.clear();
   cache.tutor.clear();
   resetAnswerDistribution();
-  console.log('[CACHE] All caches cleared for fresh generation');
+  if (includeQuestions) cache.questions.clear();
+  console.log('[CACHE] Caches cleared', includeQuestions ? '(including questions)' : '');
 }
