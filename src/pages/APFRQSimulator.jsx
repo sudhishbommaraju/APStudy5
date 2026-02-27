@@ -33,11 +33,6 @@ export default function APFRQSimulator() {
     }
   }, [selectedUnit]);
 
-  async function loadSubjects() {
-    const apSubjects = await base44.entities.APSubject.list();
-    setSubjects(apSubjects);
-  }
-
   async function loadUnits() {
     const unitList = await base44.entities.APUnit.filter({ subject_id: selectedSubject });
     setUnits(unitList.sort((a, b) => a.order_index - b.order_index));
