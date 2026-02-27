@@ -3,6 +3,42 @@
  * Each subject has dedicated prompts, validation, and memory
  */
 
+// PHASE 3: Map APPractice subject IDs → bank keys
+export const SUBJECT_ID_MAP = {
+  'biology':          'Biology',
+  'human_geo':        'Human Geography',
+  'us_history':       'US History',
+  'chemistry':        'Chemistry',
+  'calc_ab':          'Calculus',
+  'calc_bc':          'Calculus',
+  'world_history':    'World History',
+  'european_history': 'European History',
+  'us_gov':           'US Government',
+  'macro':            'Economics',
+  'micro':            'Economics',
+  'statistics':       'Statistics',
+  'psychology':       'Psychology',
+  'english_lang':     'English',
+  'english_lit':      'English',
+  'physics_1':        'Physics',
+  'physics_2':        'Physics',
+  'physics_c_mech':   'Physics',
+  'physics_c_em':     'Physics',
+  'environmental_science': 'Environmental Science',
+  'cs_a':             'Computer Science',
+  'cs_principles':    'Computer Science',
+};
+
+// PHASE 4: Cross-subject contamination filters
+// These terms must NOT appear in the named subject's questions
+export const CROSS_SUBJECT_FILTERS = {
+  'Human Geography': ['cell', 'organelle', 'DNA', 'enzyme', 'ribosome', 'mitochondria', 'photosynthesis', 'chromosome', 'allele', 'protein synthesis'],
+  'Biology':         ['urban', 'migration rate', 'demographic', 'New Deal', 'geopolitical', 'urbanization', 'surplus value', 'colonialism'],
+  'US History':      ['cell membrane', 'photosynthesis', 'enzyme', 'DNA replication', 'ribosome'],
+  'Calculus':        ['cell', 'organism', 'urban', 'migration', 'New Deal', 'election'],
+  'Chemistry':       ['urban', 'migration', 'demographic', 'election', 'civil war'],
+};
+
 export const SUBJECT_BANKS = {
   'Biology': {
     name: 'AP Biology',
@@ -164,42 +200,94 @@ Generate ${count} questions in JSON format:
   }
 };
 
-/**
- * PHASE 2: Validate required parameters
- */
-export function validateGenerationParams(subject, unit) {
-  if (!subject) {
-    throw new Error('Subject is required for question generation');
-  }
-  if (!unit) {
-    throw new Error('Unit is required for question generation');
-  }
-  
-  const bank = SUBJECT_BANKS[subject];
-  if (!bank) {
-    throw new Error(`Unknown subject: ${subject}`);
-  }
-  
-  const unitData = bank.units.find(u => u.id === parseInt(unit) || u.name === unit);
-  if (!unitData) {
-    throw new Error(`Unknown unit ${unit} for subject ${subject}`);
-  }
-  
-  return { bank, unitData };
+// Generic bank for subjects not yet in SUBJECT_BANKS
+function buildGenericBank(subjectName) {
+  return {
+    name: subjectName,
+    units: Array.from({ length: 10 }, (_, i) => ({
+      id: i + 1,
+      name: `Unit ${i + 1}`,
+      keywords: ['concept', 'principle', 'theory', 'analysis', 'application']
+    })),
+    systemPrompt: (unit, count) => `You are generating STRICTLY AP-level ${subjectName} questions for Unit ${unit.id}: ${unit.name}.
+
+You must ONLY generate questions that are directly relevant to ${subjectName}.
+Do NOT include content from other subjects.
+
+MANDATORY STRUCTURE:
+- Stimulus: 2-4 sentences of context
+- Application-based question (NOT definition recall)
+- 4 plausible distractors
+
+FORBIDDEN:
+- Pure vocabulary recall
+- Content from unrelated subjects
+
+Generate ${count} questions:
+{"questions":[{"stimulus":"context","question":"prompt","options":["A","B","C","D"],"correctIndex":0}]}`
+  };
 }
 
 /**
- * PHASE 4: Unit-specific validation
+ * PHASE 2 & 3: Validate required parameters, resolve subject ID to bank
  */
-export function validateUnitMatch(question, unitData) {
-  const text = `${question.stimulus} ${question.question}`.toLowerCase();
-  const hasKeyword = unitData.keywords.some(kw => text.includes(kw.toLowerCase()));
-  
-  if (!hasKeyword) {
-    console.warn(`[UNIT VALIDATION] Question rejected - no keywords from Unit ${unitData.id} found`);
+export function validateGenerationParams(subjectId, unitInput) {
+  // PHASE 1: Hard requirement
+  if (!subjectId) {
+    throw new Error('Subject is required for question generation');
+  }
+  if (!unitInput) {
+    throw new Error('Unit is required for question generation');
+  }
+
+  // PHASE 3: Resolve subject ID → bank key (switch-style mapping)
+  const bankKey = SUBJECT_ID_MAP[subjectId] ?? subjectId;
+  console.log(`[GENERATION] Resolving subject: "${subjectId}" → bank: "${bankKey}"`);
+
+  let bank = SUBJECT_BANKS[bankKey];
+  if (!bank) {
+    // Build a generic bank for unsupported subjects rather than hard-crashing
+    console.warn(`[GENERATION] No dedicated bank for "${bankKey}", using generic prompt`);
+    bank = buildGenericBank(bankKey);
+  }
+
+  // Resolve unit: supports numeric id, "unit_3" string, or full name
+  let unitId = unitInput;
+  if (typeof unitInput === 'string' && unitInput.startsWith('unit_')) {
+    unitId = parseInt(unitInput.replace('unit_', ''), 10);
+  }
+  const unitData = bank.units.find(u => u.id === parseInt(unitId) || u.name === unitInput);
+  if (!unitData) {
+    // Fall back to first unit rather than crashing
+    console.warn(`[GENERATION] Unknown unit "${unitInput}" for "${bankKey}", falling back to unit 1`);
+    return { bank, unitData: bank.units[0], bankKey };
+  }
+
+  return { bank, unitData, bankKey };
+}
+
+/**
+ * PHASE 4: Unit-specific AND cross-subject contamination validation
+ */
+export function validateUnitMatch(question, unitData, bankKey) {
+  const text = `${question.stimulus || ''} ${question.question || ''}`.toLowerCase();
+
+  // Check unit keywords
+  const hasUnitKeyword = unitData.keywords.some(kw => text.includes(kw.toLowerCase()));
+  if (!hasUnitKeyword) {
+    console.warn(`[UNIT VALIDATION] Rejected - no Unit ${unitData.id} keywords in question`);
     return false;
   }
-  
+
+  // PHASE 4: Cross-subject contamination check
+  const forbiddenTerms = CROSS_SUBJECT_FILTERS[bankKey] || [];
+  const hasForbidden = forbiddenTerms.some(term => text.includes(term.toLowerCase()));
+  if (hasForbidden) {
+    const found = forbiddenTerms.find(term => text.includes(term.toLowerCase()));
+    console.warn(`[SUBJECT FILTER] Rejected - forbidden term "${found}" found in ${bankKey} question`);
+    return false;
+  }
+
   return true;
 }
 
