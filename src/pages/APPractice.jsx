@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
@@ -6,9 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AuroraBackground } from '@/components/ui/animated-background';
-import { ArrowLeft, Database, Link as LinkIcon, Loader2, CheckCircle, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Database, Link as LinkIcon, Loader2, CheckCircle, ExternalLink, History } from 'lucide-react';
 import { toast } from 'sonner';
 import APPracticeQuestion from '@/components/practice/APPracticeQuestion';
+import PracticeHistoryList from '@/components/practice/PracticeHistoryList';
+import SpacedRepetitionWidget from '@/components/flashcards/SpacedRepetitionWidget';
 
 export default function APPractice() {
   const navigate = useNavigate();
