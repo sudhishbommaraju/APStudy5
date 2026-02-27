@@ -274,8 +274,7 @@ export default function APPractice() {
     setLoading(true);
 
     try {
-      const { generateQuestionsOptimized, clearCache } = await import('@/components/generation/FastQuestionGenerator');
-      await clearCache();
+      const { generateQuestionsOptimized } = await import('@/components/generation/FastQuestionGenerator');
 
       const result = await generateQuestionsOptimized({
         examType: 'AP',
@@ -283,7 +282,8 @@ export default function APPractice() {
         unitId: unit,
         difficulty: 'mixed',
         count: questionCount,
-        mode: 'practice'
+        mode: 'practice',
+        forceRefresh: false   // serve from cache if available
       });
 
       if (!result || result.length === 0) {
