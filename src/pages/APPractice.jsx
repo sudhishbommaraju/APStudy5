@@ -297,6 +297,7 @@ export default function APPractice() {
         stimulus: q.stimulus || '',
         question_text: q.question_text || '',
         stem: q.question_text || '',
+        visual: q.visual || null,
         answer_choices: [q.choice_a, q.choice_b, q.choice_c, q.choice_d],
         correct_answer: ['A', 'B', 'C', 'D'].indexOf(q.correct_answer),
         explanation: q.explanation,
