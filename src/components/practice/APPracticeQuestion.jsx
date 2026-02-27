@@ -8,6 +8,23 @@ import { recordAnswer } from '@/components/generation/AdaptivePracticeEngine';
 import QuestionVisual from '@/components/practice/QuestionVisual';
 import { InlineMath, BlockMath } from 'react-katex';
 
+// Render text with $$ ... $$ LaTeX blocks
+function LatexText({ text }) {
+  if (!text) return null;
+  const parts = String(text).split(/(\$\$[^$]+\$\$)/g);
+  return (
+    <>
+      {parts.map((part, i) => {
+        const match = part.match(/^\$\$(.+)\$\$$/s);
+        if (match) {
+          try { return <BlockMath key={i} math={match[1].trim()} />; } catch { return <span key={i}>{part}</span>; }
+        }
+        return <span key={i}>{part}</span>;
+      })}
+    </>
+  );
+}
+
 export default function APPracticeQuestion({ question, questionIndex, totalQuestions, onNext, onComplete }) {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
