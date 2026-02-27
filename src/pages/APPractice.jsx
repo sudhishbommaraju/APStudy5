@@ -210,8 +210,8 @@ export default function APPractice() {
     setQuestions([]);
     try {
       const { clearCache } = await import('@/components/generation/FastQuestionGenerator');
-      await clearCache();
-      console.log(`[SUBJECT CHANGE] Cleared cache. New subject: ${val}`);
+      await clearCache(true);  // clear question cache too on subject change
+      console.log(`[SUBJECT CHANGE] Cleared all caches. New subject: ${val}`);
     } catch {}
   };
 
