@@ -229,24 +229,33 @@ export async function generateQuestionsOptimized({
 }
 
 /**
- * STAGE 2: LAZY LOAD EXPLANATION
- * Only called after user submits answer
+ * STAGE 2: DETAILED AI EXPLANATION (lazy-loaded after submission)
  */
 export async function generateExplanation({
   questionId,
   stimulus,
   question,
   options,
-  selectedAnswer,
   correctAnswer
 }) {
-  // Check cache
   if (cache.explanations.has(questionId)) {
     return cache.explanations.get(questionId);
   }
 
   const result = await base44.integrations.Core.InvokeLLM({
-    prompt: `${stimulus} ${question}\nA)${options[0]} B)${options[1]} C)${options[2]} D)${options[3]}\nWhy ${correctAnswer}? Max 3 sent.`,
+    prompt: `You are an expert AP tutor. Analyze this question and provide a comprehensive explanation.
+
+Stimulus: ${stimulus}
+Question: ${question}
+Options: A) ${options[0]}  B) ${options[1]}  C) ${options[2]}  D) ${options[3]}
+Correct Answer: ${correctAnswer}
+
+Write 3-5 sentences that:
+1. Explain WHY the correct answer is right
+2. Clarify the underlying concept being tested
+3. Help a student understand the reasoning deeply
+
+Be direct and educational. Do not repeat the question.`,
     response_json_schema: {
       type: "object",
       properties: {
@@ -257,6 +266,46 @@ export async function generateExplanation({
 
   cache.explanations.set(questionId, result.explanation);
   return result.explanation;
+}
+
+/**
+ * WRONG-ANSWER FEEDBACK: Personalized explanation for the specific wrong choice
+ */
+export async function generateWrongAnswerFeedback({
+  questionId,
+  stimulus,
+  question,
+  selectedOptionText,
+  correctOptionText,
+  correctAnswer
+}) {
+  const cacheKey = `wrong_${questionId}_${selectedOptionText?.substring(0, 10)}`;
+  if (cache.explanations.has(cacheKey)) {
+    return cache.explanations.get(cacheKey);
+  }
+
+  const result = await base44.integrations.Core.InvokeLLM({
+    prompt: `You are an expert AP tutor giving personalized feedback to a student who answered incorrectly.
+
+Stimulus: ${stimulus}
+Question: ${question}
+Student chose: "${selectedOptionText}" (WRONG)
+Correct answer: "${correctOptionText}" (${correctAnswer})
+
+In 2-3 sentences:
+1. Explain specifically why "${selectedOptionText}" is incorrect
+2. Guide the student toward the correct concept
+3. Be encouraging and clear, not condescending`,
+    response_json_schema: {
+      type: "object",
+      properties: {
+        feedback: { type: "string" }
+      }
+    }
+  });
+
+  cache.explanations.set(cacheKey, result.feedback);
+  return result.feedback;
 }
 
 /**
