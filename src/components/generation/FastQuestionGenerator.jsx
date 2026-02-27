@@ -224,7 +224,8 @@ Return EXACTLY ${batchSize} questions as JSON:`;
       explanation: null,
       difficulty,
       subject_id: subjectId,
-      unit_id: unitData.id
+      unit_id: unitData.id,
+      visual: (q.visual?.type && q.visual?.spec) ? q.visual : null
     };
   });
 }
