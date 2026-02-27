@@ -547,6 +547,74 @@ function getFallbackQuestions(count, examType, difficulty, subjectId, unitId) {
 }
 
 /**
+ * PHASE 4 & 5: FLASHCARD GENERATION — completely separate path, mode="flashcard" only
+ * Returns: [{ term, definition, example }]
+ */
+export async function generateFlashcardsForSubject({
+  subjectId,
+  unitId,
+  count = 10,
+  mode = 'flashcard'
+}) {
+  // PHASE 1 & 5: Hard mode isolation
+  requireMode(mode);
+  if (mode !== 'flashcard') throw new Error('generateFlashcardsForSubject is only for mode="flashcard".');
+
+  if (!subjectId) throw new Error('Subject missing from flashcard request');
+  if (!unitId)    throw new Error('Unit missing from flashcard request');
+
+  const { validateGenerationParams } = await import('./SubjectBanks');
+  const { bank, unitData, bankKey } = validateGenerationParams(subjectId, unitId);
+
+  console.log(`[FLASHCARD] Generating: "${bankKey}" Unit ${unitData.id}: "${unitData.name}"`);
+
+  // PHASE 2: Flashcard-specific prompt — no MCQ, no stimulus
+  const flashcardPrompt = `You are generating AP ${bank.name} study flashcards for Unit ${unitData.id}: ${unitData.name}.
+
+FLASHCARD MODE — study review style:
+- Each flashcard must be a TERM + DEFINITION pair
+- Definition recall is allowed and expected
+- Keep term short (1-5 words)
+- Keep definition clear and concise (1-2 sentences)
+- Include a brief example where helpful
+- Topics: ${unitData.keywords.join(', ')}
+- Do NOT generate multiple choice questions
+- Do NOT include a stimulus passage
+
+Generate ${count} flashcards as JSON:`;
+
+  const result = await base44.integrations.Core.InvokeLLM({
+    prompt: flashcardPrompt,
+    response_json_schema: {
+      type: 'object',
+      properties: {
+        flashcards: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              term:       { type: 'string' },
+              definition: { type: 'string' },
+              example:    { type: 'string' }
+            }
+          }
+        }
+      }
+    }
+  });
+
+  return (result.flashcards || []).map((fc, idx) => ({
+    id: `fc_${subjectId}_${unitData.id}_${Date.now()}_${idx}`,
+    term: fc.term,
+    definition: fc.definition,
+    example: fc.example || null,
+    subject_id: subjectId,
+    unit_id: unitData.id,
+    mode: 'flashcard'
+  }));
+}
+
+/**
  * PHASE 5 & 6: FORCE FRESH GENERATION
  * Clear caches and import subject bank utilities for cleanup
  */
