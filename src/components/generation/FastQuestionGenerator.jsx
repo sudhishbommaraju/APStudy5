@@ -10,6 +10,64 @@ const cache = {
 // Active request tracker to prevent duplicates
 let activeRequest = null;
 
+// PHASE 2: Session-level answer distribution tracker
+const sessionAnswerCounts = { A: 0, B: 0, C: 0, D: 0 };
+const sessionAnswerHistory = [];
+
+export function resetAnswerDistribution() {
+  sessionAnswerCounts.A = 0;
+  sessionAnswerCounts.B = 0;
+  sessionAnswerCounts.C = 0;
+  sessionAnswerCounts.D = 0;
+  sessionAnswerHistory.length = 0;
+}
+
+/**
+ * PHASE 1: Fisher-Yates shuffle of options, returns new correct index
+ */
+function shuffleOptions(options, correctIndex) {
+  const correctAnswer = options[correctIndex];
+  const shuffled = [...options];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  const newCorrectIndex = shuffled.indexOf(correctAnswer);
+  return { shuffled, newCorrectIndex };
+}
+
+/**
+ * PHASE 2: Enforce controlled answer distribution
+ * - No 3 identical letters in a row
+ * - No letter exceeds 40% frequency
+ */
+function enforceDistribution(options, correctIndex) {
+  const letters = ['A', 'B', 'C', 'D'];
+  let { shuffled, newCorrectIndex } = shuffleOptions(options, correctIndex);
+  let attempts = 0;
+
+  while (attempts < 10) {
+    const letter = letters[newCorrectIndex];
+    const total = Object.values(sessionAnswerCounts).reduce((a, b) => a + b, 0);
+    const last2 = sessionAnswerHistory.slice(-2);
+    const lastTwoSame = last2.length === 2 && last2[0] === letter && last2[1] === letter;
+    const exceedsFreq = total >= 4 && (sessionAnswerCounts[letter] + 1) / (total + 1) > 0.4;
+
+    if (!lastTwoSame && !exceedsFreq) break;
+
+    const reshuffled = shuffleOptions(options, correctIndex);
+    shuffled = reshuffled.shuffled;
+    newCorrectIndex = reshuffled.newCorrectIndex;
+    attempts++;
+  }
+
+  const letter = letters[newCorrectIndex];
+  sessionAnswerCounts[letter]++;
+  sessionAnswerHistory.push(letter);
+
+  return { shuffled, newCorrectIndex };
+}
+
 /**
  * STAGE 1: ULTRA-FAST QUESTION GENERATION
  * - Single API call
