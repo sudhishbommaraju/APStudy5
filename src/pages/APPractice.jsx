@@ -394,6 +394,25 @@ export default function APPractice() {
           Back to Dashboard
         </button>
 
+        {/* Spaced Repetition Widget */}
+        <div className="flex items-center justify-between mb-4">
+          <SpacedRepetitionWidget />
+          <button
+            onClick={() => setShowHistory(h => !h)}
+            className="flex items-center gap-2 text-neutral-400 hover:text-white text-sm transition-colors"
+          >
+            <History className="w-4 h-4" />
+            {showHistory ? 'Hide History' : 'Practice History'}
+          </button>
+        </div>
+
+        {showHistory && (
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 mb-6">
+            <h3 className="text-lg font-medium text-white mb-4">Recent Sessions</h3>
+            <PracticeHistoryList />
+          </div>
+        )}
+
         <div className="space-y-6">
           {/* Notion Integration Card */}
           <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
