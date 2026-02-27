@@ -167,7 +167,7 @@ export default function Flashcards() {
                           {/* Mastery progress */}
                           <div className="mt-3 h-1 bg-neutral-800 rounded-full overflow-hidden">
                             <div
-                              className="h-full bg-gradient-to-r from-[#D6B98C] to-yellow-500"
+                              className="h-full bg-gradient-to-r from-blue-500 to-blue-400"
                               style={{
                                 width: `${deck.cardCount > 0 ? (deck.masteredCount / deck.cardCount) * 100 : 0}%`
                               }}
