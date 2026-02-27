@@ -95,10 +95,14 @@ export async function generateQuestionsOptimized({
     SUBJECT_BANKS
   } = await import('./SubjectBanks');
 
-  // PHASE 2: REQUIRE SUBJECT + UNIT
-  const { bank, unitData } = validateGenerationParams(subjectId, unitId);
-  
-  console.log(`[GENERATION] Subject: ${bank.name}, Unit ${unitData.id}: ${unitData.name}`);
+  // PHASE 1 & 2: REQUIRE SUBJECT + UNIT, resolve via switch-style map
+  if (!subjectId) throw new Error('Subject missing from request');
+  if (!unitId)    throw new Error('Unit missing from request');
+
+  const { bank, unitData, bankKey } = validateGenerationParams(subjectId, unitId);
+
+  // PHASE 2: Log every generation
+  console.log(`[GENERATION] Subject ID: "${subjectId}" → Bank: "${bankKey}", Unit ${unitData.id}: "${unitData.name}"`);
 
   // PHASE 6: Subject-scoped cache key
   const nonce = Date.now();
@@ -158,8 +162,8 @@ export async function generateQuestionsOptimized({
     const MAX_RETRIES = 2;
     
     for (const q of result.questions) {
-      // PHASE 4: HARD UNIT VALIDATION
-      if (!validateUnitMatch(q, unitData)) {
+      // PHASE 4: HARD UNIT + CROSS-SUBJECT VALIDATION
+      if (!validateUnitMatch(q, unitData, bankKey)) {
         console.warn(`[UNIT VALIDATION] Question rejected - no Unit ${unitData.id} keywords found`);
         if (retryCount < MAX_RETRIES) {
           retryCount++;
