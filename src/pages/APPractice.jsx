@@ -271,12 +271,15 @@ export default function APPractice() {
       const { generateQuestionsOptimized, clearCache } = await import('@/components/generation/FastQuestionGenerator');
       await clearCache();
 
+      // PHASE 1: Explicit count + mode in every request
+      console.log(`[AP PRACTICE] Request: subject="${subject}" unit="${unit}" count=${questionCount} mode="practice"`);
       const result = await generateQuestionsOptimized({
         examType: 'AP',
         subjectId: subject,
         unitId: unit,
         difficulty: 'mixed',
-        count: questionCount
+        count: questionCount,
+        mode: 'practice'
       });
 
       setQuestions(result.map(q => ({
@@ -291,29 +294,9 @@ export default function APPractice() {
       setCurrentIndex(0);
 
     } catch (error) {
-      console.error("Generation failed:", error);
-      
-      setQuestions([
-        {
-          id: 'fallback-1',
-          stimulus: "A cell biologist observes that a particular organelle contains enzymes that break down macromolecules.",
-          question_text: "Which organelle is most likely being observed?",
-          stem: "Which organelle is most likely being observed?",
-          answer_choices: ["Lysosome", "Ribosome", "Smooth ER", "Golgi apparatus"],
-          correct_answer: 0,
-          explanation: null
-        },
-        {
-          id: 'fallback-2',
-          stimulus: "During photosynthesis, light energy is converted into chemical energy.",
-          question_text: "What is the primary product of the light-dependent reactions?",
-          stem: "What is the primary product of the light-dependent reactions?",
-          answer_choices: ["Glucose", "ATP and NADPH", "Carbon dioxide", "Oxygen only"],
-          correct_answer: 1,
-          explanation: null
-        }
-      ]);
-      setCurrentIndex(0);
+      // PHASE 2: Fail loudly — never silently return partial/wrong content
+      console.error(`[AP PRACTICE] Generation failed: ${error.message}`);
+      toast.error(`Failed to generate ${questionCount} questions. Please try again.`);
     } finally {
       setLoading(false);
     }
