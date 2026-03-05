@@ -6,6 +6,7 @@ import { createPageUrl } from '@/utils';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { ArrowRight, TrendingUp, Target, BarChart3, Activity, Search, Clock } from 'lucide-react';
 import { AuroraBackground } from '@/components/ui/animated-background';
+import AboutBuilder from '@/components/home/AboutBuilder';
 import { base44 } from '@/api/base44Client';
 
 const satData = [
