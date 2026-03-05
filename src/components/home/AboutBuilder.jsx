@@ -70,17 +70,33 @@ export default function AboutBuilder() {
         {/* Label */}
         <div
           style={{
-            display: 'inline-block',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
             color: '#2F6DF6',
             fontFamily: 'Inter, sans-serif',
             fontSize: '13px',
-            fontWeight: '500',
-            letterSpacing: '0.12em',
+            fontWeight: '600',
+            letterSpacing: '0.14em',
             textTransform: 'uppercase',
             marginBottom: '20px'
           }}
         >
-          About the Builder
+          <span style={{
+            display: 'inline-block',
+            width: '20px',
+            height: '2px',
+            background: '#2F6DF6',
+            borderRadius: '2px'
+          }} />
+          The Builder
+          <span style={{
+            display: 'inline-block',
+            width: '20px',
+            height: '2px',
+            background: '#2F6DF6',
+            borderRadius: '2px'
+          }} />
         </div>
 
         {/* Title */}
@@ -88,15 +104,27 @@ export default function AboutBuilder() {
           style={{
             color: '#F3F4F6',
             fontFamily: 'Space Grotesk, sans-serif',
-            fontSize: '40px',
-            fontWeight: '400',
+            fontSize: '44px',
+            fontWeight: '500',
             lineHeight: '1.1',
-            letterSpacing: '0.02em',
-            marginBottom: '40px'
+            letterSpacing: '0.01em',
+            marginBottom: '8px'
           }}
         >
-          About Me
+          About the Builder
         </h2>
+
+        {/* Name highlight */}
+        <p style={{
+          color: '#2F6DF6',
+          fontFamily: 'Inter, sans-serif',
+          fontSize: '17px',
+          fontWeight: '500',
+          marginBottom: '36px',
+          letterSpacing: '0.01em'
+        }}>
+          Sudhish Bommaraju — Founder & Developer
+        </p>
 
         {/* Body paragraphs */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -107,9 +135,10 @@ export default function AboutBuilder() {
                 color: i === 2 ? '#F3F4F6' : '#9CA3AF',
                 fontFamily: 'Inter, sans-serif',
                 fontSize: i === 2 ? '20px' : '17px',
-                fontWeight: i === 2 ? '500' : '400',
+                fontWeight: i === 2 ? '600' : '400',
                 lineHeight: '1.75',
-                margin: 0
+                margin: 0,
+                fontStyle: i === 2 ? 'italic' : 'normal'
               }}
             >
               {text}
