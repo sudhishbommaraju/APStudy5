@@ -30,12 +30,12 @@ export default function AboutBuilder() {
   }, []);
 
   const paragraphs = [
-    `I built Proofly because I was frustrated with how inefficient studying felt. Most study platforms either overwhelm you with information or give you random practice questions without helping you actually understand what you're doing wrong.`,
-    `As a student preparing for AP exams and other challenging classes, I realized that the biggest problem wasn't access to information—it was having the right kind of practice and feedback. I wanted a tool that could analyze mistakes, focus on weak areas, and help students improve faster instead of wasting time on things they already know.`,
+    `My name is Sudhish Bommaraju, and I built Proofly because I was frustrated with how inefficient studying felt. Most study platforms either overwhelm students with information or give random practice questions without actually helping them understand what they're doing wrong.`,
+    `As a student preparing for AP exams and other challenging classes, I realized the biggest problem wasn't access to information — it was having the right kind of practice and feedback. I wanted a tool that could analyze mistakes, focus on weak areas, and help students improve faster instead of wasting time on things they already know.`,
     `That's why I created Proofly.`,
-    `Proofly combines AI tutoring, personalized practice questions, flashcards, exam simulations, and progress tracking in one place. The goal is to make studying more adaptive and efficient so students can focus on understanding concepts rather than memorizing answers.`,
+    `Proofly combines AI tutoring, personalized practice questions, flashcards, exam simulations, and progress tracking into one platform. The goal is to make studying more adaptive and efficient so students can focus on understanding concepts rather than memorizing answers.`,
     `I'm continuously building and improving the platform, adding new features that make learning more interactive and effective.`,
-    `At the end of the day, Proofly is built around a simple idea: students should be able to study smarter, not just longer.`
+    `At its core, Proofly is built around a simple idea: students should be able to study smarter, not just longer.`
   ];
 
   return (
