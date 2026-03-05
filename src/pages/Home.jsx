@@ -725,6 +725,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ABOUT THE BUILDER */}
+      <AboutBuilder />
+
       {/* FINAL CTA */}
       <section style={{ 
         minHeight: '70vh', 
