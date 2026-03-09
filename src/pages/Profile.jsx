@@ -214,8 +214,15 @@ export default function ProfilePage() {
 
           {/* Info */}
           <p className="text-xs text-neutral-500 mt-8 text-center">
-            Changes are saved automatically. Update your profile to help us personalize your experience.
+            Update your profile to help us personalize your experience.
           </p>
+
+          {/* Account Management — Danger Zone */}
+          {user && (
+            <div className="mt-12">
+              <AccountManagement user={user} />
+            </div>
+          )}
         </div>
       </div>
     </ProtectedRoute>
