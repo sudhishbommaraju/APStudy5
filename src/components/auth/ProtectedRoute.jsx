@@ -45,6 +45,17 @@ export default function ProtectedRoute({ children, isOnboardingPage = false, req
         return;
       }
 
+      // Reactivate deactivated accounts on login
+      if (user.account_status === 'deactivated') {
+        await base44.auth.updateMe({ account_status: 'active' });
+      }
+
+      // Fully deleted accounts get logged out
+      if (user.account_status === 'deleted') {
+        base44.auth.logout('/');
+        return;
+      }
+
       setAuthorized(true);
     } catch {
       base44.auth.redirectToLogin();

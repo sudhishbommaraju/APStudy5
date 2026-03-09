@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Database, Bell, Layout, User, Loader2, Save, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import AccountManagement from '@/components/settings/AccountManagement';
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -252,6 +253,9 @@ export default function Settings() {
               ))}
             </div>
           </div>
+
+          {/* Account Management */}
+          <AccountManagement user={user} />
 
           {/* Save Button */}
           <Button
