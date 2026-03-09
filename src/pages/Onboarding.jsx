@@ -341,31 +341,33 @@ export default function OnboardingPage() {
           )}
 
           {/* Navigation (steps 1-5 only) */}
-          {step >= 1 && <div className="flex justify-between mt-12 gap-4">
-            <Button
-              onClick={() => setStep(step > 1 ? step - 1 : 1)}
-              variant="outline"
-              disabled={step === 1}
-              className="flex-1"
-            >
-              Back
-            </Button>
-            <Button
-              onClick={handleNext}
-              disabled={loading}
-              className="flex-1 bg-white text-black hover:bg-neutral-100"
-            >
-              {step === 5 ? (
-                <>
-                  Complete <ArrowRight className="ml-2 w-4 h-4" />
-                </>
-              ) : (
-                <>
-                  Next <ArrowRight className="ml-2 w-4 h-4" />
-                </>
-              )}
-            </Button>
-          </div>
+          {step >= 1 && (
+            <div className="flex justify-between mt-12 gap-4">
+              <Button
+                onClick={() => setStep(step > 1 ? step - 1 : 1)}
+                variant="outline"
+                disabled={step === 1}
+                className="flex-1"
+              >
+                Back
+              </Button>
+              <Button
+                onClick={handleNext}
+                disabled={loading}
+                className="flex-1 bg-white text-black hover:bg-neutral-100"
+              >
+                {step === 5 ? (
+                  <>
+                    Complete <ArrowRight className="ml-2 w-4 h-4" />
+                  </>
+                ) : (
+                  <>
+                    Next <ArrowRight className="ml-2 w-4 h-4" />
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </ProtectedRoute>
