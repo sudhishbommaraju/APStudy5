@@ -166,28 +166,30 @@ export default function OnboardingPage() {
           )}
 
           {/* Progress (steps 1-5) */}
-          {step >= 1 && <div className="mb-12">
-            <div className="flex justify-between items-center mb-6">
-              {[1, 2, 3, 4, 5].map(num => (
+          {step >= 1 && (
+            <div className="mb-12">
+              <div className="flex justify-between items-center mb-6">
+                {[1, 2, 3, 4, 5].map(num => (
+                  <div
+                    key={num}
+                    className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
+                      num <= step
+                        ? 'bg-white text-black'
+                        : 'bg-neutral-800 text-neutral-400'
+                    }`}
+                  >
+                    {num < step ? <CheckCircle2 className="w-6 h-6" /> : num}
+                  </div>
+                ))}
+              </div>
+              <div className="w-full bg-neutral-800 rounded-full h-1">
                 <div
-                  key={num}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
-                    num <= step
-                      ? 'bg-white text-black'
-                      : 'bg-neutral-800 text-neutral-400'
-                  }`}
-                >
-                  {num < step ? <CheckCircle2 className="w-6 h-6" /> : num}
-                </div>
-              ))}
+                  className="bg-white h-1 rounded-full transition-all"
+                  style={{ width: `${(step / 5) * 100}%` }}
+                />
+              </div>
             </div>
-            <div className="w-full bg-neutral-800 rounded-full h-1">
-              <div
-                className="bg-white h-1 rounded-full transition-all"
-                style={{ width: `${(step / 5) * 100}%` }}
-              />
-            </div>
-          </div>
+          )}
 
           {/* Step 1: Exam Selection */}
           {step === 1 && (
