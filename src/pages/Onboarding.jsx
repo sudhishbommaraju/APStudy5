@@ -11,7 +11,8 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0); // 0 = age verification
+  const [ageBlocked, setAgeBlocked] = useState(false);
   const [loading, setLoading] = useState(false);
   
   const [examGoal, setExamGoal] = useState('');
@@ -30,6 +31,15 @@ export default function OnboardingPage() {
     setSelectedSubjects(prev =>
       prev.includes(subject) ? prev.filter(s => s !== subject) : [...prev, subject]
     );
+  };
+
+  const handleAgeVerification = async (isOldEnough) => {
+    if (!isOldEnough) {
+      setAgeBlocked(true);
+      return;
+    }
+    await base44.auth.updateMe({ age_verified: true });
+    setStep(1);
   };
 
   const handleNext = async () => {
@@ -70,7 +80,8 @@ export default function OnboardingPage() {
         target_score: targetScore,
         grade_level: gradeLevel,
         study_frequency: studyFrequency,
-        onboarding_complete: true
+        onboarding_complete: true,
+        account_status: 'active'
       });
 
       toast.success('Onboarding complete!');
@@ -83,12 +94,79 @@ export default function OnboardingPage() {
     }
   };
 
+  // Age blocked screen
+  if (ageBlocked) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center p-6">
+        <div className="max-w-md w-full text-center rounded-2xl p-10"
+          style={{ background: '#171717', border: '1px solid #2A2A2A' }}>
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"
+            style={{ background: 'rgba(47,109,246,0.1)', border: '1px solid rgba(47,109,246,0.2)' }}>
+            <span style={{ fontSize: '28px' }}>🔒</span>
+          </div>
+          <h2 className="text-2xl font-semibold text-white mb-4">Age Requirement</h2>
+          <p className="text-neutral-400 mb-8 leading-relaxed">
+            Proofly is only available for users who are 13 years or older.
+          </p>
+          <Button
+            onClick={() => base44.auth.logout('/')}
+            className="w-full"
+            style={{ background: '#2F6DF6', color: '#fff', border: 'none', padding: '12px' }}
+          >
+            Exit
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <ProtectedRoute requireOnboarding={true}>
+    <ProtectedRoute isOnboardingPage={true}>
       <div className="min-h-screen bg-black py-16">
         <div className="max-w-2xl mx-auto px-6">
-          {/* Progress */}
-          <div className="mb-12">
+
+          {/* Age Verification Step */}
+          {step === 0 && (
+            <div className="min-h-screen flex items-center justify-center -mt-16">
+              <div className="max-w-md w-full text-center rounded-2xl p-10"
+                style={{ background: '#171717', border: '1px solid #2A2A2A' }}>
+                <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"
+                  style={{ background: 'rgba(47,109,246,0.1)', border: '1px solid rgba(47,109,246,0.3)' }}>
+                  <span style={{ fontSize: '28px' }}>🎓</span>
+                </div>
+                <div className="inline-block px-3 py-1 rounded-full text-xs font-medium mb-4"
+                  style={{ background: 'rgba(47,109,246,0.1)', color: '#2F6DF6', border: '1px solid rgba(47,109,246,0.2)' }}>
+                  Age Verification
+                </div>
+                <h2 className="text-2xl font-semibold text-white mb-3">
+                  Are you 13 years or older?
+                </h2>
+                <p className="text-neutral-400 text-sm mb-8 leading-relaxed">
+                  Proofly requires users to be at least 13 years old in compliance with privacy regulations.
+                </p>
+                <div className="flex flex-col gap-3">
+                  <Button
+                    onClick={() => handleAgeVerification(true)}
+                    className="w-full py-4 text-lg font-semibold"
+                    style={{ background: '#2F6DF6', color: '#fff', border: 'none' }}
+                  >
+                    Yes, I am 13 or older
+                  </Button>
+                  <Button
+                    onClick={() => handleAgeVerification(false)}
+                    variant="outline"
+                    className="w-full py-4 text-lg"
+                    style={{ borderColor: '#2A2A2A', color: '#9CA3AF' }}
+                  >
+                    No, I am under 13
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Progress (steps 1-5) */}
+          {step >= 1 && <div className="mb-12">
             <div className="flex justify-between items-center mb-6">
               {[1, 2, 3, 4, 5].map(num => (
                 <div
