@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Database, CheckCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, Database, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
 export default function SeedTaxonomy() {
   const navigate = useNavigate();
   const [seeding, setSeeding] = useState(false);
   const [result, setResult] = useState(null);
-  const [user, setUser] = React.useState(null);
-  const [checking, setChecking] = React.useState(true);
+  const [user, setUser] = useState(null);
+  const [checking, setChecking] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     base44.auth.me().then(u => {
       if (u?.role !== 'admin') navigate(createPageUrl('Dashboard'));
       else { setUser(u); setChecking(false); }
