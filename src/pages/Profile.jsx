@@ -37,7 +37,8 @@ export default function ProfilePage() {
 
   const loadUserData = async () => {
     try {
-      const user = await base44.auth.me();
+      const u = await base44.auth.me();
+      setUser(u);
       setFormData({
         full_name: user.full_name || '',
         target_score: user.target_score || '',
