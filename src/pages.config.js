@@ -106,6 +106,8 @@ import Tier from './pages/Tier';
 import Upload from './pages/Upload';
 import ValidationDashboard from './pages/ValidationDashboard';
 import Youtube from './pages/Youtube';
+import TermsOfService from './pages/TermsOfService';
+import PrivacyPolicy from './pages/PrivacyPolicy';
 import __Layout from './Layout.jsx';
 
 
@@ -169,6 +171,8 @@ export const PAGES = {
     "Upload": Upload,
     "ValidationDashboard": ValidationDashboard,
     "Youtube": Youtube,
+    "TermsOfService": TermsOfService,
+    "PrivacyPolicy": PrivacyPolicy,
 }
 
 export const pagesConfig = {
