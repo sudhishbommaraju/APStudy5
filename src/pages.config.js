@@ -108,6 +108,8 @@ import ValidationDashboard from './pages/ValidationDashboard';
 import Youtube from './pages/Youtube';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import Privacy from './pages/Privacy';
+import Terms from './pages/Terms';
 import __Layout from './Layout.jsx';
 
 
@@ -173,6 +175,8 @@ export const PAGES = {
     "Youtube": Youtube,
     "TermsOfService": TermsOfService,
     "PrivacyPolicy": PrivacyPolicy,
+    "Privacy": Privacy,
+    "Terms": Terms,
 }
 
 export const pagesConfig = {
