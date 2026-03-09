@@ -9,6 +9,7 @@ import { ArrowLeft, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import DashboardNavbar from '@/components/layout/DashboardNavbar';
+import AccountManagement from '@/components/settings/AccountManagement';
 
 export default function ProfilePage() {
   const navigate = useNavigate();

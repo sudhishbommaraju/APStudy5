@@ -1,9 +1,56 @@
 /**
- * Input Sanitization Utilities
- * 
- * NOTE: React and React-Markdown provide automatic XSS protection.
- * These utilities add an extra layer for specific use cases.
+ * Input Sanitization Utilities — Security Hardened
+ *
+ * Layers of defense:
+ * 1. React JSX auto-escapes output (primary XSS defense)
+ * 2. These utilities validate + sanitize before storage/API calls
+ * 3. Server-side validation is always the final authority
+ *
+ * NOTE: Client-side validation is UX; server-side validation is security.
  */
+
+// ─── Prompt Injection Detection ───────────────────────────────────────────────
+const INJECTION_PATTERNS = [
+  /ignore (previous|all|above|prior) instructions/gi,
+  /you are now/gi,
+  /forget (your|all|previous) (instructions|rules|role)/gi,
+  /\bsystem prompt\b/gi,
+  /act as (a|an) (different|new|other)/gi,
+  /\bDAN\b/g,
+  /jailbreak/gi,
+  /pretend (you are|to be)/gi,
+  /override (your|the) (rules|instructions|policy)/gi,
+  /disregard (your|the) (training|guidelines|rules)/gi,
+];
+
+export function containsPromptInjection(text) {
+  if (!text) return false;
+  return INJECTION_PATTERNS.some(p => p.test(text));
+}
+
+export function stripPromptInjection(text) {
+  if (!text) return '';
+  let cleaned = text;
+  INJECTION_PATTERNS.forEach(p => {
+    cleaned = cleaned.replace(p, '[REMOVED]');
+  });
+  return cleaned;
+}
+
+// ─── XSS Protection ───────────────────────────────────────────────────────────
+/**
+ * Escape HTML entities to prevent XSS when rendering raw HTML
+ * Prefer React JSX over dangerouslySetInnerHTML; use this only as last resort.
+ */
+export function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
 
 /**
  * Sanitize text input by removing potentially dangerous characters
