@@ -1,19 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
+const TOS_VERSION = '1.0';
+const PP_VERSION = '1.0';
+
 export default function OnboardingPage() {
   const navigate = useNavigate();
-  const [step, setStep] = useState(0); // 0 = age verification
+  const [step, setStep] = useState(0); // 0 = consent, 1 = age verification, 2+ = onboarding
   const [ageBlocked, setAgeBlocked] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // Consent step
+  const [tosAccepted, setTosAccepted] = useState(false);
+  const [ppAccepted, setPpAccepted] = useState(false);
   
   const [examGoal, setExamGoal] = useState('');
   const [selectedSubjects, setSelectedSubjects] = useState([]);
@@ -33,38 +40,61 @@ export default function OnboardingPage() {
     );
   };
 
+  const handleConsentAccept = async () => {
+    if (!tosAccepted || !ppAccepted) {
+      toast.error('You must accept both the Terms of Service and Privacy Policy to continue.');
+      return;
+    }
+    const user = await base44.auth.me();
+    await base44.entities.ConsentLog.create({
+      user_email: user.email,
+      tos_version: TOS_VERSION,
+      pp_version: PP_VERSION,
+      accepted_at: new Date().toISOString(),
+      context: 'signup',
+      age_verified: false
+    });
+    setStep(1);
+  };
+
   const handleAgeVerification = async (isOldEnough) => {
     if (!isOldEnough) {
       setAgeBlocked(true);
       return;
     }
+    const user = await base44.auth.me();
     await base44.auth.updateMe({ age_verified: true });
-    setStep(1);
+    // Update consent log with age_verified = true
+    const logs = await base44.entities.ConsentLog.filter({ user_email: user.email });
+    if (logs.length > 0) {
+      await base44.entities.ConsentLog.update(logs[logs.length - 1].id, { age_verified: true });
+    }
+    setStep(2);
   };
 
   const handleNext = async () => {
-    if (step === 1 && !examGoal) {
+    if (step === 2 && !examGoal) {
       toast.error('Please select an exam');
       return;
     }
-    if (step === 2 && examGoal === 'AP' && selectedSubjects.length === 0) {
+    if (step === 3 && examGoal === 'AP' && selectedSubjects.length === 0) {
       toast.error('Please select at least one subject');
       return;
     }
-    if (step === 3 && !targetScore) {
+    if (step === 4 && !targetScore) {
       toast.error('Please enter your target score');
       return;
     }
-    if (step === 4 && !gradeLevel) {
+    if (step === 5 && !gradeLevel) {
       toast.error('Please select your grade level');
       return;
     }
-    if (step === 5 && !studyFrequency) {
+    if (step === 6 && !studyFrequency) {
       toast.error('Please select your study frequency');
       return;
     }
 
-    if (step < 5) {
+    if (step < 6) {
       setStep(step + 1);
     } else {
       await completeOnboarding();
@@ -125,8 +155,68 @@ export default function OnboardingPage() {
       <div className="min-h-screen bg-black py-16">
         <div className="max-w-2xl mx-auto px-6">
 
-          {/* Age Verification Step */}
+          {/* Step 0: Legal Consent */}
           {step === 0 && (
+            <div className="min-h-screen flex items-center justify-center -mt-16">
+              <div className="max-w-md w-full rounded-2xl p-10" style={{ background: '#171717', border: '1px solid #2A2A2A' }}>
+                <div className="flex items-center justify-center w-14 h-14 rounded-full mx-auto mb-6 bg-[#D6B98C]/10 border border-[#D6B98C]/20">
+                  <Shield className="w-7 h-7 text-[#D6B98C]" />
+                </div>
+                <h2 className="text-2xl font-semibold text-white mb-2 text-center">Before you begin</h2>
+                <p className="text-neutral-400 text-sm text-center mb-8 leading-relaxed">
+                  Please review and accept Proofly's legal agreements to create your account.
+                </p>
+
+                <div className="space-y-4 mb-8">
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={tosAccepted}
+                      onChange={e => setTosAccepted(e.target.checked)}
+                      className="mt-1 w-4 h-4 accent-blue-500 cursor-pointer"
+                    />
+                    <span className="text-sm text-neutral-300 leading-relaxed">
+                      I have read and agree to the{' '}
+                      <Link to={createPageUrl('TermsOfService')} target="_blank" className="text-[#D6B98C] hover:underline">
+                        Terms of Service
+                      </Link>{' '}
+                      <span className="text-neutral-500">(v{TOS_VERSION})</span>
+                    </span>
+                  </label>
+
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={ppAccepted}
+                      onChange={e => setPpAccepted(e.target.checked)}
+                      className="mt-1 w-4 h-4 accent-blue-500 cursor-pointer"
+                    />
+                    <span className="text-sm text-neutral-300 leading-relaxed">
+                      I have read and agree to the{' '}
+                      <Link to={createPageUrl('PrivacyPolicy')} target="_blank" className="text-[#D6B98C] hover:underline">
+                        Privacy Policy
+                      </Link>{' '}
+                      <span className="text-neutral-500">(v{PP_VERSION})</span>
+                    </span>
+                  </label>
+                </div>
+
+                <Button
+                  onClick={handleConsentAccept}
+                  disabled={!tosAccepted || !ppAccepted}
+                  className="w-full py-4 bg-[#D6B98C] text-black hover:bg-[#C9A96A] font-semibold disabled:opacity-40"
+                >
+                  Continue <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+                <p className="text-xs text-neutral-600 text-center mt-4">
+                  Your acceptance is timestamped and recorded at {new Date().toLocaleDateString()}.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Step 1: Age Verification */}
+          {step === 1 && (
             <div className="min-h-screen flex items-center justify-center -mt-16">
               <div className="max-w-md w-full text-center rounded-2xl p-10"
                 style={{ background: '#171717', border: '1px solid #2A2A2A' }}>
@@ -139,10 +229,10 @@ export default function OnboardingPage() {
                   Age Verification
                 </div>
                 <h2 className="text-2xl font-semibold text-white mb-3">
-                  Are you 13 years or older?
+                  Are you 13 years of age or older?
                 </h2>
                 <p className="text-neutral-400 text-sm mb-8 leading-relaxed">
-                  Proofly requires users to be at least 13 years old in compliance with privacy regulations.
+                  Proofly is only available to users 13 years or older in compliance with COPPA and GDPR privacy regulations.
                 </p>
                 <div className="flex flex-col gap-3">
                   <Button
@@ -165,11 +255,11 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Progress (steps 1-5) */}
-          {step >= 1 && (
+          {/* Progress (steps 2-6) */}
+          {step >= 2 && (
             <div className="mb-12">
               <div className="flex justify-between items-center mb-6">
-                {[1, 2, 3, 4, 5].map(num => (
+                {[2, 3, 4, 5, 6].map(num => (
                   <div
                     key={num}
                     className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
@@ -178,21 +268,21 @@ export default function OnboardingPage() {
                         : 'bg-neutral-800 text-neutral-400'
                     }`}
                   >
-                    {num < step ? <CheckCircle2 className="w-6 h-6" /> : num}
+                    {num < step ? <CheckCircle2 className="w-6 h-6" /> : num - 1}
                   </div>
                 ))}
               </div>
               <div className="w-full bg-neutral-800 rounded-full h-1">
                 <div
                   className="bg-white h-1 rounded-full transition-all"
-                  style={{ width: `${(step / 5) * 100}%` }}
+                  style={{ width: `${((step - 2) / 4) * 100}%` }}
                 />
               </div>
             </div>
           )}
 
-          {/* Step 1: Exam Selection */}
-          {step === 1 && (
+          {/* Step 2: Exam Selection */}
+          {step === 2 && (
             <div className="space-y-6">
               <div>
                 <h1 className="text-3xl font-light text-white mb-2">Which exam are you preparing for?</h1>
