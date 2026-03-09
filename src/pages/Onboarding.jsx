@@ -286,6 +286,7 @@ export default function OnboardingPage() {
             <div className="space-y-6">
               <div>
                 <h1 className="text-3xl font-light text-white mb-2">Which exam are you preparing for?</h1>
+
                 <p className="text-neutral-400">We'll tailor your experience accordingly.</p>
               </div>
 
@@ -312,8 +313,8 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Step 2: AP Subjects */}
-          {step === 2 && (
+          {/* Step 3: AP Subjects */}
+          {step === 3 && (
             <div className="space-y-6">
               <div>
                 <h1 className="text-3xl font-light text-white mb-2">
@@ -346,8 +347,8 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Step 3: Target Score */}
-          {step === 3 && (
+          {/* Step 4: Target Score */}
+          {step === 4 && (
             <div className="space-y-6">
               <div>
                 <h1 className="text-3xl font-light text-white mb-2">What's your target score?</h1>
@@ -374,8 +375,8 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Step 4: Grade Level */}
-          {step === 4 && (
+          {/* Step 5: Grade Level */}
+          {step === 5 && (
             <div className="space-y-6">
               <div>
                 <h1 className="text-3xl font-light text-white mb-2">What's your current grade level?</h1>
@@ -399,8 +400,8 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Step 5: Study Frequency */}
-          {step === 5 && (
+          {/* Step 6: Study Frequency */}
+          {step === 6 && (
             <div className="space-y-6">
               <div>
                 <h1 className="text-3xl font-light text-white mb-2">How often can you study?</h1>
@@ -430,13 +431,13 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Navigation (steps 1-5 only) */}
-          {step >= 1 && (
+          {/* Navigation (steps 2-6 only) */}
+          {step >= 2 && (
             <div className="flex justify-between mt-12 gap-4">
               <Button
-                onClick={() => setStep(step > 1 ? step - 1 : 1)}
+                onClick={() => setStep(step > 2 ? step - 1 : 2)}
                 variant="outline"
-                disabled={step === 1}
+                disabled={step === 2}
                 className="flex-1"
               >
                 Back
@@ -446,14 +447,10 @@ export default function OnboardingPage() {
                 disabled={loading}
                 className="flex-1 bg-white text-black hover:bg-neutral-100"
               >
-                {step === 5 ? (
-                  <>
-                    Complete <ArrowRight className="ml-2 w-4 h-4" />
-                  </>
+                {step === 6 ? (
+                  <>Complete <ArrowRight className="ml-2 w-4 h-4" /></>
                 ) : (
-                  <>
-                    Next <ArrowRight className="ml-2 w-4 h-4" />
-                  </>
+                  <>Next <ArrowRight className="ml-2 w-4 h-4" /></>
                 )}
               </Button>
             </div>
