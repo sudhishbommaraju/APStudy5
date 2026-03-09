@@ -40,11 +40,11 @@ export default function ProfilePage() {
       const u = await base44.auth.me();
       setUser(u);
       setFormData({
-        full_name: user.full_name || '',
-        target_score: user.target_score || '',
-        exam_goal: user.exam_goal || '',
-        grade_level: user.grade_level || '',
-        study_frequency: user.study_frequency || ''
+        full_name: u.full_name || '',
+        target_score: u.target_score || '',
+        exam_goal: u.exam_goal || '',
+        grade_level: u.grade_level || '',
+        study_frequency: u.study_frequency || ''
       });
     } catch (error) {
       toast.error('Failed to load profile');
