@@ -340,8 +340,8 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {/* Navigation */}
-          <div className="flex justify-between mt-12 gap-4">
+          {/* Navigation (steps 1-5 only) */}
+          {step >= 1 && <div className="flex justify-between mt-12 gap-4">
             <Button
               onClick={() => setStep(step > 1 ? step - 1 : 1)}
               variant="outline"
