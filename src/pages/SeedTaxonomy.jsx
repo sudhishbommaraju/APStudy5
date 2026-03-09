@@ -9,6 +9,17 @@ export default function SeedTaxonomy() {
   const navigate = useNavigate();
   const [seeding, setSeeding] = useState(false);
   const [result, setResult] = useState(null);
+  const [user, setUser] = React.useState(null);
+  const [checking, setChecking] = React.useState(true);
+
+  React.useEffect(() => {
+    base44.auth.me().then(u => {
+      if (u?.role !== 'admin') navigate(createPageUrl('Dashboard'));
+      else { setUser(u); setChecking(false); }
+    }).catch(() => navigate(createPageUrl('Dashboard')));
+  }, []);
+
+  if (checking || !user) return null;
 
   async function seedDatabase() {
     setSeeding(true);

@@ -3,7 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 
-export default function ProtectedRoute({ children, requireOnboarding = false }) {
+// isOnboardingPage=true  → this IS the onboarding page: redirect away if already onboarded
+// isOnboardingPage=false → normal protected page: redirect to onboarding if not yet onboarded
+// requireAdmin=true      → page requires admin role: redirect to Dashboard if not admin
+export default function ProtectedRoute({ children, isOnboardingPage = false, requireAdmin = false }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
@@ -15,7 +18,7 @@ export default function ProtectedRoute({ children, requireOnboarding = false }) 
   const checkAuth = async () => {
     try {
       const isAuthenticated = await base44.auth.isAuthenticated();
-      
+
       if (!isAuthenticated) {
         base44.auth.redirectToLogin();
         return;
@@ -24,19 +27,26 @@ export default function ProtectedRoute({ children, requireOnboarding = false }) 
       const user = await base44.auth.me();
       const onboardingComplete = user.onboarding_complete || false;
 
-      if (requireOnboarding && onboardingComplete) {
+      // On the onboarding page: kick out users who already completed onboarding
+      if (isOnboardingPage && onboardingComplete) {
         navigate(createPageUrl('Dashboard'));
         return;
       }
 
-      if (!requireOnboarding && !onboardingComplete) {
+      // On a normal page: kick out users who haven't completed onboarding yet
+      if (!isOnboardingPage && !onboardingComplete) {
         navigate(createPageUrl('Onboarding'));
         return;
       }
 
+      // Admin-only pages
+      if (requireAdmin && user.role !== 'admin') {
+        navigate(createPageUrl('Dashboard'));
+        return;
+      }
+
       setAuthorized(true);
-    } catch (error) {
-      console.error('Auth check failed:', error);
+    } catch {
       base44.auth.redirectToLogin();
     } finally {
       setLoading(false);
