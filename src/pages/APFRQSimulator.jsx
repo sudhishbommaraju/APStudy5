@@ -4,181 +4,100 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, FileText, Send } from 'lucide-react';
+import { ArrowLeft, FileText, Send, RefreshCw, BookOpen, Target, Award } from 'lucide-react';
 import { generateFRQFeedback } from '@/components/engine/AIExplanationEngine';
+import { generateFrameworkFRQ } from '@/components/frq/FrameworkFRQGenerator';
+import { getSubjectList, getUnitsForSubject, RUBRIC_TEMPLATES, getArchetypeForSubject } from '@/components/frq/FRQSubjectData';
 
-const SUBJECTS = {
-  "AP Human Geography": [
-    { id: "unit1", name: "Unit 1: Thinking Geographically" },
-    { id: "unit2", name: "Unit 2: Population & Migration" },
-    { id: "unit3", name: "Unit 3: Cultural Patterns & Processes" },
-    { id: "unit4", name: "Unit 4: Political Organization of Space" },
-    { id: "unit5", name: "Unit 5: Agriculture & Rural Land Use" },
-    { id: "unit6", name: "Unit 6: Cities & Urban Land Use" },
-    { id: "unit7", name: "Unit 7: Industrial & Economic Development" }
-  ],
-  "AP Biology": [
-    { id: "unit1", name: "Unit 1: Chemistry of Life" },
-    { id: "unit2", name: "Unit 2: Cell Structure & Function" },
-    { id: "unit3", name: "Unit 3: Cellular Energetics" },
-    { id: "unit4", name: "Unit 4: Cell Communication & Cycle" },
-    { id: "unit5", name: "Unit 5: Heredity" },
-    { id: "unit6", name: "Unit 6: Gene Expression & Regulation" },
-    { id: "unit7", name: "Unit 7: Natural Selection" },
-    { id: "unit8", name: "Unit 8: Ecology" }
-  ],
-  "AP US History": [
-    { id: "unit1", name: "Unit 1: Period 1 (1491–1607)" },
-    { id: "unit2", name: "Unit 2: Period 2 (1607–1754)" },
-    { id: "unit3", name: "Unit 3: Period 3 (1754–1800)" },
-    { id: "unit4", name: "Unit 4: Period 4 (1800–1848)" },
-    { id: "unit5", name: "Unit 5: Period 5 (1844–1877)" },
-    { id: "unit6", name: "Unit 6: Period 6 (1865–1898)" },
-    { id: "unit7", name: "Unit 7: Period 7 (1890–1945)" },
-    { id: "unit8", name: "Unit 8: Period 8 (1945–1980)" },
-    { id: "unit9", name: "Unit 9: Period 9 (1980–Present)" }
-  ],
-  "AP World History": [
-    { id: "unit1", name: "Unit 1: The Global Tapestry" },
-    { id: "unit2", name: "Unit 2: Networks of Exchange" },
-    { id: "unit3", name: "Unit 3: Land-Based Empires" },
-    { id: "unit4", name: "Unit 4: Transoceanic Interconnections" },
-    { id: "unit5", name: "Unit 5: Revolutions" },
-    { id: "unit6", name: "Unit 6: Consequences of Industrialization" },
-    { id: "unit7", name: "Unit 7: Global Conflict" },
-    { id: "unit8", name: "Unit 8: Cold War & Decolonization" },
-    { id: "unit9", name: "Unit 9: Globalization" }
-  ],
-  "AP Calculus AB": [
-    { id: "unit1", name: "Unit 1: Limits & Continuity" },
-    { id: "unit2", name: "Unit 2: Differentiation — Definition" },
-    { id: "unit3", name: "Unit 3: Differentiation — Composite, Implicit, Inverse" },
-    { id: "unit4", name: "Unit 4: Contextual Applications of Differentiation" },
-    { id: "unit5", name: "Unit 5: Analytical Applications of Differentiation" },
-    { id: "unit6", name: "Unit 6: Integration & Accumulation of Change" },
-    { id: "unit7", name: "Unit 7: Differential Equations" },
-    { id: "unit8", name: "Unit 8: Applications of Integration" }
-  ],
-  "AP English Language": [
-    { id: "unit1", name: "Unit 1: Claims & Evidence" },
-    { id: "unit2", name: "Unit 2: Reasoning & Organization" },
-    { id: "unit3", name: "Unit 3: Rhetorical Situation" },
-    { id: "unit4", name: "Unit 4: Style" },
-    { id: "unit5", name: "Unit 5: Composition" }
-  ],
-  "AP English Literature": [
-    { id: "unit1", name: "Unit 1: Short Fiction I" },
-    { id: "unit2", name: "Unit 2: Poetry I" },
-    { id: "unit3", name: "Unit 3: Longer Fiction or Drama I" },
-    { id: "unit4", name: "Unit 4: Short Fiction II" },
-    { id: "unit5", name: "Unit 5: Poetry II" },
-    { id: "unit6", name: "Unit 6: Longer Fiction or Drama II" }
-  ]
-};
+const DIFFICULTY_OPTIONS = [
+  { value: 'easy', label: 'Easy', desc: 'Recall & basic application' },
+  { value: 'medium', label: 'Medium', desc: 'Analytical reasoning' },
+  { value: 'hard', label: 'Hard', desc: 'Complex argumentation' }
+];
 
-const SELECT_CLASS = "w-full bg-[#0f172a] border border-blue-600/40 text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 appearance-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed";
+const SELECT_CLASS = "w-full bg-[#111] border border-neutral-700 text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all appearance-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed";
 
 export default function APFRQSimulator() {
   const navigate = useNavigate();
   const [selectedSubject, setSelectedSubject] = useState('');
   const [selectedUnit, setSelectedUnit] = useState('');
-  const [prompts, setPrompts] = useState([]);
+  const [difficulty, setDifficulty] = useState('medium');
   const [currentPrompt, setCurrentPrompt] = useState(null);
   const [response, setResponse] = useState('');
   const [feedback, setFeedback] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [wordCount, setWordCount] = useState(0);
 
-  const units = SUBJECTS[selectedSubject] || [];
+  const subjects = getSubjectList();
+  const units = getUnitsForSubject(selectedSubject);
 
   function handleSubjectChange(e) {
     setSelectedSubject(e.target.value);
     setSelectedUnit('');
     setCurrentPrompt(null);
-    setPrompts([]);
     setFeedback(null);
     setResponse('');
   }
 
-  function handleUnitChange(e) {
-    setSelectedUnit(e.target.value);
+  function handleResponseChange(e) {
+    const val = e.target.value;
+    setResponse(val);
+    setWordCount(val.trim() ? val.trim().split(/\s+/).length : 0);
   }
 
-  useEffect(() => {
-    if (selectedUnit) {
-      loadPrompts();
-    }
-  }, [selectedUnit]);
-
-  async function loadPrompts() {
-    const promptList = await base44.entities.APFRQPrompt.filter({
-      unit_id: selectedUnit,
-      is_active: true
-    });
-    setPrompts(promptList);
-    if (promptList.length > 0) {
-      setCurrentPrompt(promptList[0]);
-    } else {
-      // Generate FRQ if none exist
-      await generateFRQ();
-    }
-  }
-
-  async function generateFRQ() {
+  async function handleGeneratePrompt() {
     if (!selectedSubject || !selectedUnit) return;
-    
-    setSubmitting(true);
-    const unit = units.find(u => u.id === selectedUnit) || { name: selectedUnit };
-    
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Generate 1 AP-style Free Response Question for ${selectedSubject} - ${unit?.name}.
+    setLoading(true);
+    setFeedback(null);
+    setResponse('');
+    setWordCount(0);
 
-STRICT JSON FORMAT:
-{
-  "prompt_text": "The FRQ prompt (2-3 paragraphs max)",
-  "total_points": 6,
-  "rubric_criteria": [
-    {"criterion": "Description", "points": 2},
-    {"criterion": "Description", "points": 2},
-    {"criterion": "Description", "points": 2}
-  ]
-}`,
-      response_json_schema: {
-        type: "object",
-        properties: {
-          prompt_text: { type: "string" },
-          total_points: { type: "number" },
-          rubric_criteria: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                criterion: { type: "string" },
-                points: { type: "number" }
-              }
-            }
-          }
-        }
-      }
-    });
+    const unit = units.find(u => u.id === selectedUnit);
 
-    const created = await base44.entities.APFRQPrompt.create({
+    // Check for cached prompt first
+    const cached = await base44.entities.APFRQPrompt.filter({
       subject_id: selectedSubject,
       unit_id: selectedUnit,
-      prompt_text: result.prompt_text,
-      total_points: result.total_points,
-      rubric_criteria: result.rubric_criteria,
-      difficulty: 'medium',
+      difficulty,
       is_active: true
     });
 
-    setCurrentPrompt(created);
-    setPrompts([created]);
-    setSubmitting(false);
+    if (cached.length > 0) {
+      // Pick a random cached one for variety
+      const pick = cached[Math.floor(Math.random() * cached.length)];
+      setCurrentPrompt(pick);
+    } else {
+      const generated = await generateFrameworkFRQ({
+        subject: selectedSubject,
+        unitId: selectedUnit,
+        unitTitle: unit?.name,
+        difficulty
+      });
+      setCurrentPrompt(generated);
+    }
+    setLoading(false);
+  }
+
+  async function handleNewQuestion() {
+    if (!selectedSubject || !selectedUnit) return;
+    setLoading(true);
+    setFeedback(null);
+    setResponse('');
+    setWordCount(0);
+    const unit = units.find(u => u.id === selectedUnit);
+    const generated = await generateFrameworkFRQ({
+      subject: selectedSubject,
+      unitId: selectedUnit,
+      unitTitle: unit?.name,
+      difficulty
+    });
+    setCurrentPrompt(generated);
+    setLoading(false);
   }
 
   async function submitResponse() {
     if (!response.trim()) return;
-    
     setSubmitting(true);
     const user = await base44.auth.me();
 
@@ -200,8 +119,11 @@ STRICT JSON FORMAT:
     setSubmitting(false);
   }
 
+  const archetype = selectedSubject ? getArchetypeForSubject(selectedSubject) : null;
+  const archetypeLabel = archetype ? RUBRIC_TEMPLATES[archetype]?.label : null;
+
   return (
-    <div className="min-h-screen bg-black py-16">
+    <div className="min-h-screen bg-black py-12">
       <div className="max-w-4xl mx-auto px-6">
         <Button
           variant="ghost"
@@ -212,166 +134,309 @@ STRICT JSON FORMAT:
           Back to AP Study Kit
         </Button>
 
-        <div className="mb-12">
+        {/* Header */}
+        <div className="mb-10">
           <h1 className="text-3xl font-light text-white mb-2">AP FRQ Simulator</h1>
-          <p className="text-neutral-400">Practice free-response questions with AI feedback</p>
+          <p className="text-neutral-400">Framework-aligned free-response practice with AP-style rubrics and AI scoring feedback</p>
         </div>
 
-        {/* Selection */}
-        <div className="bg-[#0a0f1e] border border-blue-900/40 rounded-2xl p-8 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Configuration Panel */}
+        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 mb-8">
+          <h2 className="text-sm font-medium text-neutral-400 uppercase tracking-wider mb-6">Configure Your FRQ</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            {/* Subject */}
             <div>
-              <label className="text-sm text-blue-300/80 mb-2 block font-medium">AP Subject</label>
-              <select
-                value={selectedSubject}
-                onChange={handleSubjectChange}
-                className={SELECT_CLASS}
-              >
+              <label className="text-sm text-neutral-300 mb-2 block font-medium">AP Subject</label>
+              <select value={selectedSubject} onChange={handleSubjectChange} className={SELECT_CLASS}>
                 <option value="" disabled>Select subject</option>
-                {Object.keys(SUBJECTS).map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
+                {subjects.map(s => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
 
+            {/* Unit */}
             <div>
-              <label className="text-sm text-blue-300/80 mb-2 block font-medium">Unit</label>
+              <label className="text-sm text-neutral-300 mb-2 block font-medium">Unit</label>
               <select
                 value={selectedUnit}
-                onChange={handleUnitChange}
+                onChange={e => setSelectedUnit(e.target.value)}
                 disabled={!selectedSubject}
                 className={SELECT_CLASS}
               >
                 <option value="" disabled>{selectedSubject ? 'Select unit' : 'Select a subject first'}</option>
-                {units.map((u) => (
-                  <option key={u.id} value={u.id}>{u.name}</option>
-                ))}
+                {units.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
               </select>
             </div>
           </div>
+
+          {/* Difficulty */}
+          <div className="mb-6">
+            <label className="text-sm text-neutral-300 mb-3 block font-medium">Difficulty</label>
+            <div className="flex gap-3">
+              {DIFFICULTY_OPTIONS.map(opt => (
+                <button
+                  key={opt.value}
+                  onClick={() => setDifficulty(opt.value)}
+                  className={`flex-1 p-3 rounded-lg border-2 text-left transition-all ${
+                    difficulty === opt.value
+                      ? 'border-blue-500 bg-blue-500/10'
+                      : 'border-neutral-700 hover:border-neutral-600'
+                  }`}
+                >
+                  <div className="text-white font-medium text-sm">{opt.label}</div>
+                  <div className="text-neutral-500 text-xs mt-0.5">{opt.desc}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Archetype badge */}
+          {archetypeLabel && (
+            <div className="flex items-center gap-2 mb-6">
+              <BookOpen className="w-4 h-4 text-blue-400" />
+              <span className="text-xs text-blue-300">Rubric template: <span className="font-medium">{archetypeLabel}</span></span>
+            </div>
+          )}
+
+          <Button
+            onClick={handleGeneratePrompt}
+            disabled={!selectedSubject || !selectedUnit || loading}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5"
+          >
+            {loading ? (
+              <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Generating framework-aligned FRQ...</>
+            ) : (
+              <><FileText className="w-4 h-4 mr-2" /> Generate FRQ Prompt</>
+            )}
+          </Button>
         </div>
 
-        {/* Prompt Display */}
+        {/* FRQ Prompt + Response */}
         {currentPrompt && !feedback && (
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 mb-6">
-            <div className="flex items-start gap-4 mb-6">
-              <FileText className="w-6 h-6 text-blue-400 mt-1" />
-              <div className="flex-1">
-                <h2 className="text-xl font-medium text-white mb-4">Free Response Question</h2>
-                <div className="text-neutral-300 leading-relaxed whitespace-pre-wrap">
-                  {currentPrompt.prompt_text}
+          <div className="space-y-6">
+            {/* Prompt Card */}
+            <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
+              {/* Meta row */}
+              <div className="flex flex-wrap items-center gap-3 mb-6">
+                <span className="px-2 py-1 rounded text-xs font-medium bg-blue-900/40 text-blue-300 border border-blue-800">
+                  {currentPrompt.subject_id}
+                </span>
+                {currentPrompt.unit_title && (
+                  <span className="px-2 py-1 rounded text-xs bg-neutral-800 text-neutral-300">
+                    {currentPrompt.unit_title}
+                  </span>
+                )}
+                {currentPrompt.command_verb && (
+                  <span className="px-2 py-1 rounded text-xs font-mono bg-purple-900/30 text-purple-300 border border-purple-800">
+                    {currentPrompt.command_verb}
+                  </span>
+                )}
+                <span className={`px-2 py-1 rounded text-xs font-medium ${
+                  currentPrompt.difficulty === 'hard' ? 'bg-red-900/30 text-red-400' :
+                  currentPrompt.difficulty === 'easy' ? 'bg-green-900/30 text-green-400' :
+                  'bg-yellow-900/30 text-yellow-400'
+                }`}>
+                  {currentPrompt.difficulty}
+                </span>
+              </div>
+
+              <h2 className="text-lg font-medium text-white mb-4 flex items-center gap-2">
+                <FileText className="w-5 h-5 text-blue-400" />
+                Free Response Question
+              </h2>
+
+              <div className="text-neutral-200 leading-relaxed text-base whitespace-pre-wrap mb-6 p-4 bg-black/30 rounded-xl border border-neutral-800">
+                {currentPrompt.prompt_text}
+              </div>
+
+              {/* Skills assessed */}
+              {currentPrompt.skills_assessed?.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-6">
+                  <span className="text-xs text-neutral-500 self-center">Skills:</span>
+                  {currentPrompt.skills_assessed.map((skill, i) => (
+                    <span key={i} className="px-2 py-0.5 rounded-full text-xs bg-neutral-800 text-neutral-300">
+                      {skill}
+                    </span>
+                  ))}
                 </div>
-              </div>
-            </div>
-
-            <div className="bg-neutral-800/50 rounded-xl p-4 mb-6">
-              <div className="text-sm text-neutral-400 mb-2">Rubric: {currentPrompt.total_points} points total</div>
-              <div className="space-y-2">
-                {currentPrompt.rubric_criteria.map((criterion, idx) => (
-                  <div key={idx} className="text-sm text-neutral-300">
-                    • {criterion.criterion} ({criterion.points} pts)
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <Textarea
-              value={response}
-              onChange={(e) => setResponse(e.target.value)}
-              placeholder="Type your response here..."
-              className="min-h-[300px] bg-black border-neutral-700 text-white mb-4"
-            />
-
-            <Button
-              onClick={submitResponse}
-              disabled={!response.trim() || submitting}
-              className="w-full bg-blue-600 text-white hover:bg-blue-700 py-6"
-            >
-              {submitting ? 'Analyzing...' : (
-                <>
-                  <Send className="w-5 h-5 mr-2" />
-                  Submit for AI Feedback
-                </>
               )}
-            </Button>
+
+              {/* Rubric */}
+              <div className="bg-neutral-800/60 rounded-xl p-5 mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <Target className="w-4 h-4 text-amber-400" />
+                  <span className="text-sm font-medium text-amber-300">Scoring Rubric — {currentPrompt.total_points} points total</span>
+                </div>
+                <div className="space-y-3">
+                  {currentPrompt.rubric_criteria?.map((criterion, idx) => (
+                    <div key={idx} className="flex items-start gap-3">
+                      <span className="text-xs font-bold text-amber-400 bg-amber-900/30 px-2 py-0.5 rounded shrink-0 mt-0.5">
+                        {criterion.points} pt{criterion.points !== 1 ? 's' : ''}
+                      </span>
+                      <div>
+                        <div className="text-sm text-neutral-200 font-medium">{criterion.criterion}</div>
+                        {criterion.description && (
+                          <div className="text-xs text-neutral-400 mt-0.5">{criterion.description}</div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {currentPrompt.scoring_note && (
+                  <div className="mt-4 pt-4 border-t border-neutral-700">
+                    <p className="text-xs text-neutral-400">
+                      <span className="text-neutral-300 font-medium">Full credit note: </span>
+                      {currentPrompt.scoring_note}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Response area */}
+              <div className="mb-2">
+                <div className="flex justify-between items-center mb-2">
+                  <label className="text-sm text-neutral-300 font-medium">Your Response</label>
+                  <span className="text-xs text-neutral-500">{wordCount} words</span>
+                </div>
+                <Textarea
+                  value={response}
+                  onChange={handleResponseChange}
+                  placeholder="Write your response here. Be specific — reference evidence, use the command verb directive, and address all rubric criteria..."
+                  className="min-h-[280px] bg-black border-neutral-700 text-white text-sm leading-relaxed"
+                />
+              </div>
+
+              <div className="flex gap-3 mt-4">
+                <Button
+                  variant="outline"
+                  onClick={handleNewQuestion}
+                  disabled={loading}
+                  className="border-neutral-700"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" /> New Question
+                </Button>
+                <Button
+                  onClick={submitResponse}
+                  disabled={!response.trim() || submitting || wordCount < 10}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-5"
+                >
+                  {submitting ? 'Analyzing your response...' : (
+                    <><Send className="w-4 h-4 mr-2" /> Submit for AI Feedback</>
+                  )}
+                </Button>
+              </div>
+            </div>
           </div>
         )}
 
         {/* Feedback Display */}
         {feedback && (
           <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
-            <h2 className="text-2xl font-medium text-white mb-6">AI Feedback</h2>
+            <h2 className="text-2xl font-medium text-white mb-6 flex items-center gap-3">
+              <Award className="w-6 h-6 text-amber-400" />
+              AI Feedback
+            </h2>
 
-            <div className="bg-blue-900/20 border border-blue-800 rounded-xl p-6 mb-6">
-              <div className="text-center">
-                <div className="text-4xl font-bold text-blue-400 mb-2">
-                  {feedback.estimated_score}/{currentPrompt.total_points}
-                </div>
-                <div className="text-sm text-blue-300">Estimated Score</div>
+            {/* Score */}
+            <div className="bg-blue-900/20 border border-blue-800 rounded-xl p-6 mb-8 text-center">
+              <div className="text-5xl font-bold text-blue-400 mb-1">
+                {feedback.estimated_score}<span className="text-2xl text-blue-500">/{currentPrompt.total_points}</span>
+              </div>
+              <div className="text-sm text-blue-300">Estimated Score</div>
+              <div className="text-xs text-neutral-500 mt-1">
+                {Math.round((feedback.estimated_score / currentPrompt.total_points) * 100)}% — {
+                  feedback.estimated_score / currentPrompt.total_points >= 0.8 ? 'Excellent' :
+                  feedback.estimated_score / currentPrompt.total_points >= 0.6 ? 'Developing' : 'Needs Work'
+                }
               </div>
             </div>
 
+            {/* Original prompt for reference */}
+            <div className="bg-black/30 border border-neutral-800 rounded-xl p-4 mb-6">
+              <p className="text-xs text-neutral-500 mb-2 font-medium uppercase tracking-wider">Prompt</p>
+              <p className="text-sm text-neutral-300 leading-relaxed">{currentPrompt.prompt_text}</p>
+            </div>
+
+            {/* Feedback sections */}
             <div className="space-y-6">
-              <div>
-                <h3 className="text-lg font-medium text-green-400 mb-3">Strengths</h3>
-                <ul className="space-y-2">
-                  {feedback.strengths.map((strength, idx) => (
-                    <li key={idx} className="text-neutral-300 flex items-start gap-2">
-                      <span className="text-green-400">✓</span>
-                      {strength}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {feedback.strengths?.length > 0 && (
+                <div>
+                  <h3 className="text-base font-medium text-green-400 mb-3 flex items-center gap-2">
+                    <span className="text-green-400">✓</span> Strengths
+                  </h3>
+                  <ul className="space-y-2">
+                    {feedback.strengths.map((s, i) => (
+                      <li key={i} className="text-neutral-300 text-sm flex items-start gap-2 pl-2">
+                        <span className="text-green-500 mt-0.5">•</span>{s}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
-              <div>
-                <h3 className="text-lg font-medium text-orange-400 mb-3">Areas to Improve</h3>
-                <ul className="space-y-2">
-                  {feedback.areas_to_improve.map((area, idx) => (
-                    <li key={idx} className="text-neutral-300 flex items-start gap-2">
-                      <span className="text-orange-400">•</span>
-                      {area}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              {feedback.areas_to_improve?.length > 0 && (
+                <div>
+                  <h3 className="text-base font-medium text-orange-400 mb-3">Areas to Improve</h3>
+                  <ul className="space-y-2">
+                    {feedback.areas_to_improve.map((a, i) => (
+                      <li key={i} className="text-neutral-300 text-sm flex items-start gap-2 pl-2">
+                        <span className="text-orange-400 mt-0.5">•</span>{a}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
-              <div>
-                <h3 className="text-lg font-medium text-purple-400 mb-3">Revision Suggestions</h3>
-                <p className="text-neutral-300 leading-relaxed">{feedback.revision_suggestions}</p>
-              </div>
+              {feedback.revision_suggestions && (
+                <div>
+                  <h3 className="text-base font-medium text-purple-400 mb-3">Revision Suggestions</h3>
+                  <p className="text-neutral-300 text-sm leading-relaxed pl-2">{feedback.revision_suggestions}</p>
+                </div>
+              )}
             </div>
+
+            {/* Per-rubric breakdown if available */}
+            {currentPrompt.rubric_criteria?.length > 0 && (
+              <div className="mt-8 bg-neutral-800/50 rounded-xl p-5">
+                <h3 className="text-sm font-medium text-neutral-300 mb-4">Rubric Reference</h3>
+                <div className="space-y-2">
+                  {currentPrompt.rubric_criteria.map((c, i) => (
+                    <div key={i} className="flex items-start gap-3 text-sm">
+                      <span className="text-amber-400 font-bold text-xs bg-amber-900/20 px-2 py-0.5 rounded shrink-0">{c.points}pt</span>
+                      <span className="text-neutral-400">{c.criterion}</span>
+                    </div>
+                  ))}
+                </div>
+                {currentPrompt.scoring_note && (
+                  <p className="text-xs text-neutral-500 mt-3 pt-3 border-t border-neutral-700">
+                    <span className="text-neutral-400 font-medium">Full credit requires: </span>
+                    {currentPrompt.scoring_note}
+                  </p>
+                )}
+              </div>
+            )}
 
             <div className="flex gap-4 mt-8">
               <Button
-                onClick={() => {
-                  setResponse('');
-                  setFeedback(null);
-                }}
+                onClick={() => { setResponse(''); setFeedback(null); setWordCount(0); }}
                 variant="outline"
-                className="flex-1"
+                className="flex-1 border-neutral-700"
               >
-                Try Another Question
+                Try Same Prompt Again
               </Button>
               <Button
-                onClick={() => navigate(createPageUrl('APStudyKit'))}
-                className="flex-1 bg-white text-black hover:bg-neutral-100"
+                onClick={handleNewQuestion}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
               >
-                Back to Study Kit
+                <RefreshCw className="w-4 h-4 mr-2" /> New Question
               </Button>
             </div>
           </div>
         )}
 
         {!selectedSubject && (
-          <div className="text-center py-8 text-neutral-500 text-sm">
-            Select a subject above to get started
-          </div>
-        )}
-
-        {prompts.length === 0 && selectedUnit && (
-          <div className="text-center py-12 text-neutral-400">
-            No FRQ prompts available for this unit yet
+          <div className="text-center py-12 text-neutral-500 text-sm">
+            Select a subject and unit above to generate a framework-aligned FRQ prompt
           </div>
         )}
       </div>
