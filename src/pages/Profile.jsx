@@ -16,6 +16,7 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  const [user, setUser] = useState(null);
   const [formData, setFormData] = useState({
     full_name: '',
     target_score: '',
