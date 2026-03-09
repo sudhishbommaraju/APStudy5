@@ -4,9 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Loader2, AlertTriangle, CheckCircle2, Download, RefreshCw } from 'lucide-react';
 import { QuestionValidator } from '@/components/validation/QuestionValidator';
-import ReactMarkdown from 'react-markdown';
-import remarkMath from 'remark-math';
-import rehypeKatex from 'rehype-katex';
+// rehype-raw intentionally excluded to prevent XSS from AI-generated content
 
 export default function QuestionValidation() {
   const [user, setUser] = useState(null);
@@ -66,6 +64,10 @@ export default function QuestionValidation() {
     
     try {
       await base44.entities.Question.delete(questionId);
+      // Audit log
+      await base44.functions.invoke('adminAuditLog', {
+        action: 'DELETE_INVALID_QUESTION', entity: 'Question', entity_id: questionId
+      });
       refetch();
       runValidation();
     } catch (e) {

@@ -71,6 +71,10 @@ export default function ValidationDashboard() {
     
     try {
       await base44.entities.Question.delete(questionId);
+      // Audit log
+      await base44.functions.invoke('adminAuditLog', {
+        action: 'DELETE_INVALID_QUESTION', entity: 'Question', entity_id: questionId
+      });
       alert('Question deleted');
       runValidation();
     } catch (e) {
