@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import MarketingNavbar from '@/components/navigation/MarketingNavbar';
 import DashboardNavbar from '@/components/layout/DashboardNavbar';
+import CookieConsentBanner from '@/components/legal/CookieConsentBanner';
+import LegalFooter from '@/components/legal/LegalFooter';
 
 export default function Layout({ children, currentPageName }) {
   // SYSTEM RESET - Clear all cached state on mount
@@ -18,6 +20,8 @@ export default function Layout({ children, currentPageName }) {
 
   // Pages that don't need the layout wrapper at all
   const noLayoutPages = ['Onboarding', 'Dashboard', 'Upload', 'Youtube', 'CreateNotes', 'SATPractice', 'SATFullTest', 'ACTPractice', 'ACTFullTest', 'APUpload', 'APYoutube', 'APCreate', 'APPractice', 'APFullTest', 'APProgress'];
+  // Pages with their own full legal layout (policy pages)
+  const legalPages = ['TermsOfService', 'PrivacyPolicy'];
   
   // Marketing pages (use MarketingNavbar)
   const marketingPages = ['Home', 'Diagnostic', 'Results', 'Engine'];
@@ -27,7 +31,12 @@ export default function Layout({ children, currentPageName }) {
 
   // No layout wrapper for dashboard pages
   if (noLayoutPages.includes(currentPageName)) {
-    return children;
+    return (
+      <>
+        {children}
+        <CookieConsentBanner />
+      </>
+    );
   }
 
   // Dashboard pages with navbar
@@ -36,6 +45,18 @@ export default function Layout({ children, currentPageName }) {
       <div>
         <DashboardNavbar />
         {children}
+        <CookieConsentBanner />
+      </div>
+    );
+  }
+
+  // Policy/legal pages — simple layout with footer
+  if (legalPages.includes(currentPageName)) {
+    return (
+      <div className="min-h-screen flex flex-col bg-[#0C0C0C]">
+        {children}
+        <LegalFooter />
+        <CookieConsentBanner />
       </div>
     );
   }
@@ -44,11 +65,13 @@ export default function Layout({ children, currentPageName }) {
   const isMarketingPage = marketingPages.includes(currentPageName);
 
   return (
-    <div className="min-h-screen bg-[#0C0C0C]">
+    <div className="min-h-screen flex flex-col bg-[#0C0C0C]">
       {isMarketingPage && <MarketingNavbar />}
-      <main>
+      <main className="flex-1">
         {children}
       </main>
+      <LegalFooter />
+      <CookieConsentBanner />
     </div>
   );
 }
