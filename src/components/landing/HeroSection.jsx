@@ -1,171 +1,161 @@
 import React, { useEffect, useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import {
-  AreaChart, Area, ResponsiveContainer, Tooltip, XAxis, YAxis
-} from 'recharts';
-import { Flame, Target, TrendingUp, BookOpen } from 'lucide-react';
+import { LineChart, Line, ResponsiveContainer, Tooltip } from 'recharts';
+import { Flame, Target, TrendingUp } from 'lucide-react';
 
 const masteryData = [
-  { week: 'W1', score: 42 }, { week: 'W2', score: 51 }, { week: 'W3', score: 60 },
-  { week: 'W4', score: 67 }, { week: 'W5', score: 74 }, { week: 'W6', score: 82 },
+  { w: 'W1', score: 42 }, { w: 'W2', score: 55 }, { w: 'W3', score: 61 },
+  { w: 'W4', score: 68 }, { w: 'W5', score: 74 }, { w: 'W6', score: 81 },
 ];
 
 const subjects = [
-  { name: 'AP Bio', pct: 84, color: '#3b82f6' },
-  { name: 'Calc AB', pct: 71, color: '#8b5cf6' },
-  { name: 'APUSH', pct: 63, color: '#10b981' },
+  { name: 'AP Calculus', pct: 78, color: '#3b82f6' },
+  { name: 'AP Biology', pct: 64, color: '#10b981' },
+  { name: 'SAT Math', pct: 89, color: '#8b5cf6' },
 ];
 
-export default function HeroSection({ isDark }) {
-  const [animated, setAnimated] = useState(false);
-  const bg = isDark ? '#0b0f14' : '#ffffff';
-  const card = isDark ? '#111827' : '#f8fafc';
-  const text = isDark ? '#e5e7eb' : '#0f172a';
-  const muted = isDark ? '#6b7280' : '#64748b';
-  const border = isDark ? '#1f2937' : '#e2e8f0';
-  const accent = isDark ? '#3b82f6' : '#2563eb';
+export default function HeroSection({ theme }) {
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const t = setTimeout(() => setAnimated(true), 200);
+    const t = setTimeout(() => setVisible(true), 100);
     return () => clearTimeout(t);
   }, []);
 
+  const fade = {
+    transition: 'opacity 600ms ease, transform 600ms ease',
+    opacity: visible ? 1 : 0,
+    transform: visible ? 'translateY(0)' : 'translateY(24px)',
+  };
+
   return (
-    <section
-      className="min-h-screen flex items-center pt-16"
-      style={{ background: bg }}
-      id="features"
-    >
-      <div className="max-w-[1200px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center py-20">
+    <section style={{ paddingTop: 120, paddingBottom: 80 }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'center' }} className="hero-grid">
         {/* Left */}
-        <div
-          className="transition-all duration-700"
-          style={{ opacity: animated ? 1 : 0, transform: animated ? 'translateY(0)' : 'translateY(24px)' }}
-        >
-          <div
-            className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full mb-6"
-            style={{ background: isDark ? 'rgba(59,130,246,0.12)' : 'rgba(37,99,235,0.08)', color: accent }}
-          >
-            <Flame className="w-3.5 h-3.5" /> AI-Powered Study Platform
+        <div>
+          <div style={{ ...fade, transitionDelay: '0ms' }}>
+            <span style={{
+              display: 'inline-block', fontSize: 12, fontWeight: 600, letterSpacing: '0.08em',
+              color: theme.accent, background: theme.isDark ? 'rgba(59,130,246,0.12)' : 'rgba(37,99,235,0.08)',
+              padding: '4px 12px', borderRadius: 999, marginBottom: 20, textTransform: 'uppercase',
+            }}>
+              AI-Powered Learning
+            </span>
           </div>
-          <h1
-            className="text-5xl lg:text-6xl font-bold leading-tight mb-6"
-            style={{ color: text, fontFamily: 'Inter, sans-serif', letterSpacing: '-0.02em' }}
-          >
-            Your AI-Powered<br />
-            <span style={{ color: accent }}>Study System</span>
+          <h1 style={{
+            ...fade, transitionDelay: '80ms',
+            fontSize: 52, fontWeight: 700, lineHeight: 1.1,
+            letterSpacing: '-0.03em', marginBottom: 20, color: theme.text,
+          }}>
+            Your AI-Powered<br />Study System
           </h1>
-          <p className="text-lg leading-relaxed mb-10" style={{ color: muted, maxWidth: '480px' }}>
-            Practice, notes, exams, analytics, and planning — all in one platform built for serious students.
+          <p style={{
+            ...fade, transitionDelay: '160ms',
+            fontSize: 18, color: theme.textMuted, lineHeight: 1.7, marginBottom: 36, maxWidth: 460,
+          }}>
+            Practice, notes, exams, analytics, and planning — all in one platform built to make you study smarter.
           </p>
-          <div className="flex flex-wrap gap-4">
+          <div style={{ ...fade, transitionDelay: '240ms', display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <button
               onClick={() => base44.auth.redirectToLogin()}
-              className="px-7 py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 hover:scale-105 active:scale-95"
               style={{
-                background: accent, color: '#fff',
-                boxShadow: isDark ? '0 0 24px rgba(59,130,246,0.4)' : '0 6px 20px rgba(37,99,235,0.3)',
+                background: theme.accent, color: '#fff', border: 'none',
+                borderRadius: 12, padding: '13px 28px', fontSize: 15, fontWeight: 600,
+                cursor: 'pointer', transition: 'all 200ms',
               }}
+              onMouseEnter={e => { e.target.style.transform = 'scale(1.03)'; }}
+              onMouseLeave={e => { e.target.style.transform = 'scale(1)'; }}
             >
               Start Studying Free
             </button>
-            <a
-              href="#how-it-works"
-              className="px-7 py-3.5 rounded-xl font-semibold text-sm transition-all duration-200 hover:scale-105 border"
-              style={{ color: text, borderColor: border, background: card }}
-            >
-              See How It Works
+            <a href="#how-it-works">
+              <button style={{
+                background: 'transparent', color: theme.text,
+                border: `1.5px solid ${theme.border}`, borderRadius: 12,
+                padding: '13px 28px', fontSize: 15, fontWeight: 500,
+                cursor: 'pointer', transition: 'all 200ms',
+              }}
+                onMouseEnter={e => { e.target.style.borderColor = theme.accent; }}
+                onMouseLeave={e => { e.target.style.borderColor = theme.border; }}
+              >
+                See How It Works
+              </button>
             </a>
           </div>
         </div>
 
-        {/* Right — Dashboard mockup */}
-        <div
-          className="transition-all duration-700 delay-200"
-          style={{ opacity: animated ? 1 : 0, transform: animated ? 'translateY(0)' : 'translateY(32px)' }}
-        >
-          <div
-            className="rounded-2xl p-6 space-y-5"
-            style={{
-              background: card,
-              border: `1px solid ${border}`,
-              boxShadow: isDark ? '0 0 40px rgba(59,130,246,0.1)' : '0 20px 60px rgba(0,0,0,0.08)',
-            }}
-          >
-            {/* Top stats */}
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { icon: TrendingUp, label: 'Mastery', value: '82%', color: '#10b981' },
-                { icon: Flame, label: 'Streak', value: '14 days', color: '#f59e0b' },
-                { icon: Target, label: 'Accuracy', value: '91%', color: accent },
-              ].map(({ icon: Icon, label, value, color }) => (
-                <div
-                  key={label}
-                  className="rounded-xl p-3 text-center"
-                  style={{ background: isDark ? 'rgba(255,255,255,0.04)' : '#fff', border: `1px solid ${border}` }}
-                >
-                  <Icon className="w-4 h-4 mx-auto mb-1" style={{ color }} />
-                  <div className="text-xs font-bold" style={{ color: text }}>{value}</div>
-                  <div className="text-xs mt-0.5" style={{ color: muted }}>{label}</div>
+        {/* Right: Dashboard Mockup */}
+        <div style={{
+          ...fade, transitionDelay: '300ms',
+          background: theme.bgCard,
+          borderRadius: 20,
+          boxShadow: theme.shadow,
+          border: `1px solid ${theme.border}`,
+          padding: 24,
+          overflow: 'hidden',
+        }}>
+          {/* Header */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <span style={{ fontWeight: 600, fontSize: 14, color: theme.text }}>Study Dashboard</span>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {[{ icon: Flame, label: '7', color: '#f97316' }, { icon: Target, label: '84%', color: '#10b981' }, { icon: TrendingUp, label: '+18', color: theme.accent }].map(({ icon: Icon, label, color }, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, fontWeight: 600, color }}>
+                  <Icon size={13} color={color} /> {label}
                 </div>
               ))}
             </div>
+          </div>
 
-            {/* Mastery chart */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-semibold" style={{ color: text }}>Mastery Over Time</span>
-                <BookOpen className="w-3.5 h-3.5" style={{ color: muted }} />
-              </div>
-              <ResponsiveContainer width="100%" height={120}>
-                <AreaChart data={masteryData}>
-                  <defs>
-                    <linearGradient id="masteryGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={accent} stopOpacity={0.25} />
-                      <stop offset="95%" stopColor={accent} stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <XAxis dataKey="week" tick={{ fontSize: 10, fill: muted }} axisLine={false} tickLine={false} />
-                  <YAxis hide domain={[30, 100]} />
-                  <Tooltip
-                    contentStyle={{ background: card, border: `1px solid ${border}`, borderRadius: 8, fontSize: 12 }}
-                    labelStyle={{ color: text }}
-                    itemStyle={{ color: accent }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="score"
-                    stroke={accent}
-                    strokeWidth={2.5}
-                    fill="url(#masteryGrad)"
-                    animationDuration={1500}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
+          {/* Mastery Graph */}
+          <div style={{ marginBottom: 20 }}>
+            <p style={{ fontSize: 12, color: theme.textMuted, marginBottom: 8, fontWeight: 500 }}>Mastery Progress</p>
+            <ResponsiveContainer width="100%" height={100}>
+              <LineChart data={masteryData}>
+                <Line type="monotone" dataKey="score" stroke={theme.accent} strokeWidth={2.5} dot={false} animationDuration={1500} />
+                <Tooltip
+                  contentStyle={{ background: theme.bgCard, border: `1px solid ${theme.border}`, borderRadius: 8, fontSize: 12, color: theme.text }}
+                  formatter={(v) => [`${v}%`, 'Mastery']}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
 
-            {/* Subject breakdown */}
-            <div>
-              <p className="text-xs font-semibold mb-3" style={{ color: text }}>Subject Breakdown</p>
-              <div className="space-y-2">
-                {subjects.map(s => (
-                  <div key={s.name}>
-                    <div className="flex justify-between text-xs mb-1" style={{ color: muted }}>
-                      <span>{s.name}</span><span style={{ color: text }}>{s.pct}%</span>
-                    </div>
-                    <div className="h-1.5 rounded-full" style={{ background: isDark ? '#1f2937' : '#e2e8f0' }}>
-                      <div
-                        className="h-1.5 rounded-full transition-all duration-1000"
-                        style={{ width: animated ? `${s.pct}%` : '0%', background: s.color }}
-                      />
-                    </div>
-                  </div>
-                ))}
+          {/* Subject Breakdown */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {subjects.map(s => (
+              <div key={s.name}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                  <span style={{ fontSize: 12, color: theme.textMuted, fontWeight: 500 }}>{s.name}</span>
+                  <span style={{ fontSize: 12, color: s.color, fontWeight: 600 }}>{s.pct}%</span>
+                </div>
+                <div style={{ height: 6, borderRadius: 999, background: theme.isDark ? '#1f2937' : '#e2e8f0' }}>
+                  <div style={{ height: '100%', width: `${s.pct}%`, borderRadius: 999, background: s.color, transition: 'width 1s ease' }} />
+                </div>
               </div>
+            ))}
+          </div>
+
+          {/* Streak */}
+          <div style={{
+            marginTop: 20, padding: '12px 16px', borderRadius: 12,
+            background: theme.isDark ? '#1a2234' : '#eff6ff',
+            display: 'flex', alignItems: 'center', gap: 10,
+          }}>
+            <Flame size={18} color="#f97316" />
+            <div>
+              <p style={{ fontSize: 12, fontWeight: 600, color: theme.text, margin: 0 }}>7-day streak 🔥</p>
+              <p style={{ fontSize: 11, color: theme.textMuted, margin: 0 }}>Keep it up! Study today to maintain your streak.</p>
             </div>
           </div>
         </div>
       </div>
+
+      <style>{`
+        @media (max-width: 768px) {
+          .hero-grid { grid-template-columns: 1fr !important; }
+          .hidden-mobile { display: none !important; }
+        }
+      `}</style>
     </section>
   );
 }

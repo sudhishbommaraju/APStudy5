@@ -1,82 +1,87 @@
 import React, { useState, useEffect } from 'react';
-import { Sun, Moon } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { Sun, Moon } from 'lucide-react';
 
-export default function LandingNavbar({ isDark, onToggle }) {
+const NAV_LINKS = [
+  { label: 'Features', href: '#features' },
+  { label: 'How it Works', href: '#how-it-works' },
+  { label: 'Analytics', href: '#analytics' },
+  { label: 'About', href: '#about' },
+  { label: 'Pricing', href: '#pricing' },
+];
+
+export default function LandingNavbar({ theme, onToggle }) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handler);
-    return () => window.removeEventListener('scroll', handler);
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const navLinks = ['Features', 'How it Works', 'Analytics', 'About', 'Pricing'];
-
   return (
-    <nav
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-200"
-      style={{
-        background: scrolled
-          ? isDark ? 'rgba(11,15,20,0.85)' : 'rgba(255,255,255,0.85)'
-          : 'transparent',
-        backdropFilter: scrolled ? 'blur(12px)' : 'none',
-        borderBottom: scrolled ? `1px solid ${isDark ? '#1f2937' : '#e2e8f0'}` : '1px solid transparent',
-      }}
-    >
-      <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
+    <nav style={{
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
+      borderBottom: scrolled ? `1px solid ${theme.border}` : '1px solid transparent',
+      background: scrolled
+        ? theme.isDark ? 'rgba(11,15,20,0.9)' : 'rgba(255,255,255,0.9)'
+        : 'transparent',
+      transition: 'all 200ms ease-in-out',
+    }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', display: 'flex', alignItems: 'center', height: 64 }}>
         {/* Logo */}
-        <span className="font-bold text-lg" style={{ color: isDark ? '#e5e7eb' : '#0f172a' }}>
+        <a href="#" style={{ fontWeight: 700, fontSize: 20, color: theme.text, textDecoration: 'none', marginRight: 48, letterSpacing: '-0.02em' }}>
           Proofly
-        </span>
+        </a>
 
         {/* Links */}
-        <div className="hidden md:flex items-center gap-8">
-          {navLinks.map(link => (
-            <a
-              key={link}
-              href={`#${link.toLowerCase().replace(/\s+/g, '-')}`}
-              className="text-sm font-medium transition-colors duration-200"
-              style={{ color: isDark ? '#9ca3af' : '#64748b' }}
-              onMouseEnter={e => e.target.style.color = isDark ? '#e5e7eb' : '#0f172a'}
-              onMouseLeave={e => e.target.style.color = isDark ? '#9ca3af' : '#64748b'}
+        <div style={{ display: 'flex', gap: 32, flex: 1 }} className="hidden-mobile">
+          {NAV_LINKS.map(link => (
+            <a key={link.label} href={link.href} style={{
+              fontSize: 14, fontWeight: 500, color: theme.textMuted,
+              textDecoration: 'none', transition: 'color 150ms',
+            }}
+              onMouseEnter={e => e.target.style.color = theme.text}
+              onMouseLeave={e => e.target.style.color = theme.textMuted}
             >
-              {link}
+              {link.label}
             </a>
           ))}
         </div>
 
-        {/* Right */}
-        <div className="flex items-center gap-4">
-          {/* Theme toggle */}
+        {/* Right side */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginLeft: 'auto' }}>
+          {/* Toggle */}
           <button
             onClick={onToggle}
-            className="relative w-12 h-6 rounded-full transition-all duration-300 flex items-center focus-visible:outline-none focus-visible:ring-2"
-            style={{ background: isDark ? '#3b82f6' : '#cbd5e1' }}
-            aria-label="Toggle theme"
+            style={{
+              width: 40, height: 40, borderRadius: 10,
+              background: theme.bgSecondary,
+              border: `1px solid ${theme.border}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', transition: 'all 200ms',
+            }}
           >
-            <div
-              className="absolute w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm"
-              style={{
-                background: '#fff',
-                left: isDark ? '26px' : '2px',
-              }}
-            >
-              {isDark
-                ? <Moon className="w-3 h-3 text-blue-600" />
-                : <Sun className="w-3 h-3 text-amber-500" />
-              }
-            </div>
+            {theme.isDark
+              ? <Sun size={16} color={theme.textMuted} />
+              : <Moon size={16} color={theme.textMuted} />
+            }
           </button>
 
+          {/* CTA */}
           <button
             onClick={() => base44.auth.redirectToLogin()}
-            className="text-sm font-semibold px-5 py-2.5 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95"
             style={{
-              background: isDark ? '#3b82f6' : '#2563eb',
-              color: '#fff',
-              boxShadow: isDark ? '0 0 20px rgba(59,130,246,0.35)' : '0 4px 14px rgba(37,99,235,0.25)',
+              background: theme.accent, color: '#fff',
+              border: 'none', borderRadius: 10,
+              padding: '9px 18px', fontSize: 14, fontWeight: 600,
+              cursor: 'pointer', transition: 'all 200ms',
+              whiteSpace: 'nowrap',
             }}
+            onMouseEnter={e => { e.target.style.transform = 'scale(1.03)'; e.target.style.opacity = '0.92'; }}
+            onMouseLeave={e => { e.target.style.transform = 'scale(1)'; e.target.style.opacity = '1'; }}
           >
             Start Studying Free
           </button>

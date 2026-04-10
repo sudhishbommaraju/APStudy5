@@ -1,15 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-export default function AboutSection({ isDark }) {
+export default function AboutSection({ theme }) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
-
-  const bg = isDark ? '#0d1117' : '#f8fafc';
-  const card = isDark ? '#111827' : '#ffffff';
-  const text = isDark ? '#e5e7eb' : '#0f172a';
-  const muted = isDark ? '#6b7280' : '#64748b';
-  const border = isDark ? '#1f2937' : '#e2e8f0';
-  const accent = isDark ? '#3b82f6' : '#2563eb';
 
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true); }, { threshold: 0.2 });
@@ -18,59 +11,55 @@ export default function AboutSection({ isDark }) {
   }, []);
 
   return (
-    <section ref={ref} className="py-24" style={{ background: bg }} id="about">
-      <div className="max-w-[1200px] mx-auto px-6">
-        <div
-          className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center transition-all duration-700"
-          style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(24px)' }}
-        >
-          <div>
-            <h2
-              className="text-4xl font-bold mb-6"
-              style={{ color: text, fontFamily: 'Inter, sans-serif', letterSpacing: '-0.02em' }}
-            >
-              Why we built Proofly
-            </h2>
-            <p className="text-base leading-relaxed mb-4" style={{ color: muted }}>
-              Students jump between too many tools — notes app, flashcard app, YouTube, practice tests, score trackers. 
-              None of them talk to each other. None of them tell you <em>what</em> to study next.
-            </p>
-            <p className="text-base leading-relaxed mb-4" style={{ color: muted }}>
-              Proofly was built to unify studying into one intelligent system that adapts to each learner. 
-              Not a content library. Not a passive tool. An active study partner that identifies your gaps and closes them.
-            </p>
-            <p className="text-base leading-relaxed" style={{ color: muted }}>
-              Built by a student who struggled — not for lack of effort, but for lack of feedback. 
-              Proofly gives every student the structured, measurable approach that top tutors provide.
-            </p>
-          </div>
+    <section id="about" ref={ref} style={{ padding: '80px 24px', background: theme.bgSecondary }}>
+      <div style={{ maxWidth: 900, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'center' }} className="about-grid">
+        <div style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(24px)', transition: 'all 600ms ease' }}>
+          <span style={{
+            fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase',
+            color: theme.accent, marginBottom: 16, display: 'block',
+          }}>Our Story</span>
+          <h2 style={{ fontSize: 30, fontWeight: 700, color: theme.text, marginBottom: 20, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+            Why We Built Proofly
+          </h2>
+          <p style={{ fontSize: 15, color: theme.textMuted, lineHeight: 1.8, marginBottom: 16 }}>
+            Students today jump between too many tools — YouTube, Quizlet, Khan Academy, random PDFs — with no unified system and no feedback loop. They study hard, but they don't know what's actually working.
+          </p>
+          <p style={{ fontSize: 15, color: theme.textMuted, lineHeight: 1.8 }}>
+            Proofly was built to solve that problem: one intelligent platform that analyzes what you know, identifies exactly where you're weak, and generates targeted practice to close the gap — measurably.
+          </p>
+        </div>
 
-          {/* Founder card */}
-          <div
-            className="rounded-2xl p-8"
-            style={{
-              background: card,
-              border: `1px solid ${border}`,
-              boxShadow: isDark ? '0 0 30px rgba(59,130,246,0.08)' : '0 8px 32px rgba(0,0,0,0.06)',
-            }}
-          >
-            <div className="text-4xl mb-4">🎓</div>
-            <h3 className="text-lg font-semibold mb-2" style={{ color: text }}>Built with students in mind</h3>
-            <p className="text-sm leading-relaxed mb-6" style={{ color: muted }}>
-              Every feature in Proofly exists because a real student needed it. 
-              From adaptive difficulty to AI-generated notes — each tool solves a specific problem in the study process.
-            </p>
-            <div className="grid grid-cols-3 gap-4 pt-4" style={{ borderTop: `1px solid ${border}` }}>
-              {[['1,000+', 'Students'], ['50+', 'AP Subjects'], ['4.8★', 'Avg. Rating']].map(([val, label]) => (
-                <div key={label} className="text-center">
-                  <div className="text-xl font-bold mb-0.5" style={{ color: accent }}>{val}</div>
-                  <div className="text-xs" style={{ color: muted }}>{label}</div>
-                </div>
-              ))}
+        {/* Founder card */}
+        <div style={{
+          opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(24px)',
+          transition: 'all 600ms ease 150ms',
+          background: theme.bgCard,
+          border: `1px solid ${theme.border}`, borderRadius: 16, padding: 28,
+          boxShadow: theme.shadow,
+        }}>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 16 }}>
+            <div style={{ width: 44, height: 44, borderRadius: '50%', background: theme.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ color: '#fff', fontWeight: 700, fontSize: 16 }}>P</span>
             </div>
+            <div>
+              <p style={{ fontWeight: 600, color: theme.text, fontSize: 15, margin: 0 }}>Proofly Team</p>
+              <p style={{ fontSize: 13, color: theme.textMuted, margin: 0 }}>Builders & Students</p>
+            </div>
+          </div>
+          <p style={{ fontSize: 14, color: theme.textMuted, lineHeight: 1.7, fontStyle: 'italic', margin: 0 }}>
+            "We built the platform we wish existed when we were studying. The goal is simple: make every hour of study count."
+          </p>
+          <div style={{ marginTop: 20, display: 'flex', gap: 20 }}>
+            {[{ label: '1,000+', sub: 'Students' }, { label: '40+', sub: 'AP Subjects' }, { label: '+200pts', sub: 'Avg SAT Gain' }].map((s, i) => (
+              <div key={i}>
+                <p style={{ fontSize: 18, fontWeight: 700, color: theme.text, margin: 0 }}>{s.label}</p>
+                <p style={{ fontSize: 12, color: theme.textMuted, margin: 0 }}>{s.sub}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
+      <style>{`@media(max-width:768px){ .about-grid { grid-template-columns: 1fr !important; gap: 32px !important; } }`}</style>
     </section>
   );
 }

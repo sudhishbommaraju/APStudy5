@@ -4,14 +4,15 @@ const AVATARS = [
   'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&h=40&fit=crop&crop=face',
   'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face',
   'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face',
-  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&h=40&fit=crop&crop=face',
-  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=40&h=40&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face',
+  'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=40&h=40&fit=crop&crop=face',
 ];
 
-function useCountUp(target, duration = 2000, active) {
+function useCountUp(target, duration = 1800) {
   const [count, setCount] = useState(0);
+  const [started, setStarted] = useState(false);
   useEffect(() => {
-    if (!active) return;
+    if (!started) return;
     let start = null;
     const step = (ts) => {
       if (!start) start = ts;
@@ -20,55 +21,62 @@ function useCountUp(target, duration = 2000, active) {
       if (progress < 1) requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
-  }, [active, target, duration]);
-  return count;
+  }, [started, target, duration]);
+  return [count, setStarted];
 }
 
-export default function TrustSection({ isDark }) {
+export default function TrustSection({ theme }) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
-  const count = useCountUp(1000, 2000, visible);
-
-  const bg = isDark ? '#0b0f14' : '#ffffff';
-  const text = isDark ? '#e5e7eb' : '#0f172a';
-  const muted = isDark ? '#6b7280' : '#64748b';
-  const accent = isDark ? '#3b82f6' : '#2563eb';
+  const [count, setStarted] = useCountUp(1000);
 
   useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true); }, { threshold: 0.4 });
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setVisible(true); setStarted(true); }
+    }, { threshold: 0.3 });
     if (ref.current) obs.observe(ref.current);
     return () => obs.disconnect();
   }, []);
 
   return (
-    <section ref={ref} className="py-20 text-center" style={{ background: bg }}>
-      <div
-        className="transition-all duration-700"
-        style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(20px)' }}
-      >
-        <p className="text-sm font-medium mb-4" style={{ color: muted }}>Trusted by students worldwide</p>
-        <div className="text-6xl font-bold mb-2" style={{ color: text, fontFamily: 'Inter, sans-serif', letterSpacing: '-0.03em' }}>
+    <section ref={ref} style={{
+      padding: '60px 24px', textAlign: 'center',
+      borderTop: `1px solid ${theme.border}`,
+      borderBottom: `1px solid ${theme.border}`,
+    }}>
+      <div style={{ maxWidth: 600, margin: '0 auto' }}>
+        <p style={{
+          fontSize: 14, fontWeight: 600, color: theme.textMuted, letterSpacing: '0.06em',
+          textTransform: 'uppercase', marginBottom: 16,
+          opacity: visible ? 1 : 0, transform: visible ? 'none' : 'translateY(16px)',
+          transition: 'all 600ms ease',
+        }}>
+          Trusted by students worldwide
+        </p>
+        <div style={{
+          fontSize: 48, fontWeight: 800, color: theme.text, letterSpacing: '-0.03em', marginBottom: 8,
+          opacity: visible ? 1 : 0, transition: 'opacity 600ms ease 200ms',
+        }}>
           {count.toLocaleString()}+
         </div>
-        <p className="text-base mb-8" style={{ color: muted }}>students already studying smarter</p>
+        <p style={{ color: theme.textMuted, fontSize: 15, marginBottom: 24 }}>students improving their scores every day</p>
 
-        {/* Avatar row */}
-        <div className="flex items-center justify-center gap-1">
+        {/* Avatars */}
+        <div style={{
+          display: 'flex', justifyContent: 'center', alignItems: 'center', gap: -8,
+          opacity: visible ? 1 : 0, transition: 'opacity 600ms ease 400ms',
+        }}>
           {AVATARS.map((src, i) => (
-            <img
-              key={i}
-              src={src}
-              alt="student"
-              className="w-9 h-9 rounded-full border-2 object-cover"
-              style={{
-                borderColor: isDark ? '#0b0f14' : '#fff',
-                marginLeft: i > 0 ? '-10px' : '0',
-                zIndex: AVATARS.length - i,
-                position: 'relative',
-              }}
-            />
+            <img key={i} src={src} alt="student" style={{
+              width: 36, height: 36, borderRadius: '50%',
+              border: `2px solid ${theme.bg}`,
+              marginLeft: i === 0 ? 0 : -10,
+              objectFit: 'cover',
+            }} />
           ))}
-          <span className="ml-4 text-sm font-medium" style={{ color: accent }}>and counting →</span>
+          <span style={{ marginLeft: 12, fontSize: 13, color: theme.textMuted, fontWeight: 500 }}>
+            and many more
+          </span>
         </div>
       </div>
     </section>

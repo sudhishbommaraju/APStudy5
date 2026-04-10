@@ -1,21 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Search, Sparkles, TrendingUp } from 'lucide-react';
+import { Search, Zap, TrendingUp } from 'lucide-react';
 
 const STEPS = [
-  { icon: Search, step: '01', title: 'AI Analyzes Weaknesses', desc: 'Take a diagnostic session. The AI maps exactly which skills need the most work.' },
-  { icon: Sparkles, step: '02', title: 'Generates Personalized Practice', desc: 'Questions, notes, and flashcards are generated specifically for your gaps — not a generic curriculum.' },
-  { icon: TrendingUp, step: '03', title: 'Tracks Mastery Over Time', desc: 'Every session feeds the model. Watch mastery rise week over week with clear data.' },
+  { num: '01', icon: Search, title: 'AI Analyzes Weaknesses', desc: 'Answer a short diagnostic. Our AI identifies exactly where your knowledge gaps are.' },
+  { num: '02', icon: Zap, title: 'Generates Personalized Practice', desc: 'Adaptive questions and study materials targeted at your specific weak areas.' },
+  { num: '03', icon: TrendingUp, title: 'Tracks Mastery Over Time', desc: 'Visual progress tracking shows your improvement with every session.' },
 ];
 
-export default function HowItWorks({ isDark }) {
+export default function HowItWorks({ theme }) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
-
-  const bg = isDark ? '#0b0f14' : '#ffffff';
-  const text = isDark ? '#e5e7eb' : '#0f172a';
-  const muted = isDark ? '#6b7280' : '#64748b';
-  const border = isDark ? '#1f2937' : '#e2e8f0';
-  const accent = isDark ? '#3b82f6' : '#2563eb';
 
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true); }, { threshold: 0.2 });
@@ -24,60 +18,58 @@ export default function HowItWorks({ isDark }) {
   }, []);
 
   return (
-    <section ref={ref} id="how-it-works" className="py-24" style={{ background: bg }}>
-      <div className="max-w-[1200px] mx-auto px-6">
-        <div
-          className="text-center mb-16 transition-all duration-700"
-          style={{ opacity: visible ? 1 : 0, transform: visible ? 'translateY(0)' : 'translateY(20px)' }}
-        >
-          <h2
-            className="text-4xl font-bold mb-3"
-            style={{ color: text, fontFamily: 'Inter, sans-serif', letterSpacing: '-0.02em' }}
-          >
-            How it works
-          </h2>
-          <p style={{ color: muted }}>Three steps from scattered studying to measurable mastery.</p>
-        </div>
+    <section id="how-it-works" ref={ref} style={{ padding: '80px 24px', background: theme.bgSecondary }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <h2 style={{ fontSize: 32, fontWeight: 700, color: theme.text, textAlign: 'center', marginBottom: 8, letterSpacing: '-0.02em' }}>
+          How it works
+        </h2>
+        <p style={{ color: theme.textMuted, textAlign: 'center', marginBottom: 64, fontSize: 16 }}>
+          Three steps to measurable improvement
+        </p>
 
-        {/* Timeline */}
-        <div className="relative flex flex-col md:flex-row items-start md:items-stretch gap-8 md:gap-0">
-          {STEPS.map(({ icon: Icon, step, title, desc }, i) => (
-            <div
-              key={step}
-              className="flex-1 relative transition-all duration-700"
-              style={{
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0, position: 'relative' }} className="steps-grid">
+          {/* Connector line */}
+          <div style={{
+            position: 'absolute', top: 32, left: '16.5%', right: '16.5%', height: 2,
+            background: `linear-gradient(90deg, ${theme.accent}, ${theme.isDark ? '#1f2937' : '#e2e8f0'})`,
+            opacity: visible ? 1 : 0, transition: 'opacity 800ms ease 400ms',
+          }} className="connector-line" />
+
+          {STEPS.map((step, i) => {
+            const Icon = step.icon;
+            return (
+              <div key={i} style={{
+                textAlign: 'center', padding: '0 32px',
                 opacity: visible ? 1 : 0,
-                transform: visible ? 'translateY(0)' : 'translateY(28px)',
-                transitionDelay: `${i * 150}ms`,
-              }}
-            >
-              {/* Connector line */}
-              {i < STEPS.length - 1 && (
-                <div
-                  className="hidden md:block absolute top-8 left-1/2 w-full h-px"
-                  style={{ background: border, zIndex: 0 }}
-                />
-              )}
-
-              <div className="relative flex flex-col items-center text-center px-6 z-10">
-                <div
-                  className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5"
-                  style={{
-                    background: isDark ? 'rgba(59,130,246,0.12)' : 'rgba(37,99,235,0.08)',
-                    border: `2px solid ${accent}`,
-                    boxShadow: isDark ? `0 0 20px rgba(59,130,246,0.2)` : 'none',
-                  }}
-                >
-                  <Icon className="w-7 h-7" style={{ color: accent }} />
+                transform: visible ? 'translateY(0)' : 'translateY(24px)',
+                transition: `all 600ms ease ${i * 120}ms`,
+              }}>
+                {/* Icon circle */}
+                <div style={{
+                  width: 64, height: 64, borderRadius: '50%',
+                  background: theme.bgCard,
+                  border: `2px solid ${theme.accent}`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  margin: '0 auto 24px',
+                  boxShadow: `0 0 0 6px ${theme.isDark ? 'rgba(59,130,246,0.08)' : 'rgba(37,99,235,0.06)'}`,
+                  position: 'relative', zIndex: 1,
+                }}>
+                  <Icon size={24} color={theme.accent} />
                 </div>
-                <span className="text-xs font-bold mb-2" style={{ color: accent }}>STEP {step}</span>
-                <h3 className="text-base font-semibold mb-2" style={{ color: text }}>{title}</h3>
-                <p className="text-sm leading-relaxed" style={{ color: muted, maxWidth: '240px' }}>{desc}</p>
+
+                <div style={{ fontSize: 11, fontWeight: 700, color: theme.accent, letterSpacing: '0.1em', marginBottom: 8 }}>
+                  STEP {step.num}
+                </div>
+                <h3 style={{ fontSize: 17, fontWeight: 600, color: theme.text, marginBottom: 10 }}>{step.title}</h3>
+                <p style={{ fontSize: 14, color: theme.textMuted, lineHeight: 1.7, margin: 0 }}>{step.desc}</p>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
+      <style>{`
+        @media(max-width:768px){ .steps-grid { grid-template-columns: 1fr !important; } .connector-line { display: none; } }
+      `}</style>
     </section>
   );
 }
