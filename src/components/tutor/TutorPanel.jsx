@@ -124,43 +124,43 @@ Explain:
         <Loader2 className={`w-5 h-5 animate-spin text-${color}-400`} />
       </div>
     );
-    if (!content[key]) return <p className="text-neutral-500 text-sm">Loading...</p>;
+    if (!content[key]) return <p className="text-gray-400 text-sm">Loading...</p>;
     return (
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-        <div className={`bg-${color}-900/20 border border-${color}-600/30 rounded-lg p-4`}>
-          <p className={`text-${color}-300 text-xs font-semibold mb-2 flex items-center gap-1.5`}>
+        <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
+          <p className="text-blue-600 text-xs font-semibold mb-2 flex items-center gap-1.5">
             <Icon className="w-3.5 h-3.5" /> {label}
           </p>
-          <div className="text-neutral-200 text-sm leading-relaxed whitespace-pre-wrap">{content[key]}</div>
+          <div className="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">{content[key]}</div>
         </div>
       </motion.div>
     );
   };
 
   return (
-    <div className="h-full flex flex-col bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden">
-      <div className="px-4 py-3 border-b border-neutral-800">
-        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">AI Tutor</p>
+    <div className="h-full flex flex-col bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+      <div className="px-4 py-3 border-b border-gray-200">
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">AI Tutor</p>
         {!isSubmitted && (
-          <p className="text-xs text-neutral-600 mt-0.5">Hints available · Answer locked until submission</p>
+          <p className="text-xs text-gray-400 mt-0.5">Hints available · Answer locked until submission</p>
         )}
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
-        <TabsList className="grid w-full grid-cols-4 bg-neutral-900 rounded-none border-b border-neutral-800 h-10">
-          <TabsTrigger value="hint" className="text-xs data-[state=active]:bg-blue-600 data-[state=active]:text-white rounded-none">
+        <TabsList className="grid w-full grid-cols-4 bg-gray-50 rounded-none border-b border-gray-200 h-10">
+          <TabsTrigger value="hint" className="text-xs data-[state=active]:bg-blue-500 data-[state=active]:text-white rounded-none text-gray-600">
             <Lightbulb className="w-3.5 h-3.5 mr-1" /> Hint
           </TabsTrigger>
-          <TabsTrigger value="strategy" className="text-xs data-[state=active]:bg-purple-600 data-[state=active]:text-white rounded-none">
+          <TabsTrigger value="strategy" className="text-xs data-[state=active]:bg-blue-500 data-[state=active]:text-white rounded-none text-gray-600">
             <Target className="w-3.5 h-3.5 mr-1" /> Strategy
           </TabsTrigger>
-          <TabsTrigger value="concept" className="text-xs data-[state=active]:bg-yellow-600 data-[state=active]:text-white rounded-none">
+          <TabsTrigger value="concept" className="text-xs data-[state=active]:bg-blue-500 data-[state=active]:text-white rounded-none text-gray-600">
             <HelpCircle className="w-3.5 h-3.5 mr-1" /> Concept
           </TabsTrigger>
           <TabsTrigger
             value="explain"
             disabled={!isSubmitted}
-            className="text-xs data-[state=active]:bg-green-600 data-[state=active]:text-white rounded-none disabled:opacity-30 disabled:cursor-not-allowed"
+            className="text-xs data-[state=active]:bg-blue-500 data-[state=active]:text-white rounded-none text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <BookOpen className="w-3.5 h-3.5 mr-1" /> Explain
           </TabsTrigger>
@@ -168,13 +168,13 @@ Explain:
 
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
           {activeTab === 'hint'     && renderContent('hint',     'blue',   'Think about this:', Lightbulb)}
-          {activeTab === 'strategy' && renderContent('strategy', 'purple', 'Approach Strategy:', Target)}
-          {activeTab === 'concept'  && renderContent('concept',  'yellow', 'Concept Tested:', HelpCircle)}
+          {activeTab === 'strategy' && renderContent('strategy', 'blue',   'Approach Strategy:', Target)}
+          {activeTab === 'concept'  && renderContent('concept',  'blue',   'Concept Tested:', HelpCircle)}
           {activeTab === 'explain'  && (
             !isSubmitted ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <BookOpen className="w-10 h-10 text-neutral-700 mb-3" />
-                <p className="text-neutral-500 text-sm">Submit your answer to unlock the full explanation.</p>
+                <BookOpen className="w-10 h-10 text-gray-300 mb-3" />
+                <p className="text-gray-400 text-sm">Submit your answer to unlock the full explanation.</p>
               </div>
             ) : renderContent('explain', 'green', 'Full Explanation:', BookOpen)
           )}

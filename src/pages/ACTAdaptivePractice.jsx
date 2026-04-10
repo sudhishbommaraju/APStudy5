@@ -58,28 +58,28 @@ export default function ACTAdaptivePractice() {
   }
 
   return (
-    <div className="min-h-screen bg-black py-16">
+    <div className="min-h-screen bg-[#f8fafc] py-16">
       <div className="max-w-3xl mx-auto px-6">
         <Button
           variant="ghost"
           onClick={() => navigate(createPageUrl('Dashboard'))}
-          className="mb-8 text-neutral-400 hover:text-white"
+          className="mb-8 text-gray-500 hover:text-gray-900"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back
         </Button>
 
         <div className="mb-12 text-center">
-          <Zap className="w-16 h-16 text-purple-400 mx-auto mb-4" />
-          <h1 className="text-3xl font-light text-white mb-2">ACT Adaptive Practice</h1>
-          <p className="text-neutral-400">Questions that adapt to your performance</p>
+          <Zap className="w-16 h-16 text-blue-500 mx-auto mb-4" />
+          <h1 className="text-3xl font-semibold text-gray-900 mb-2">ACT Adaptive Practice</h1>
+          <p className="text-gray-500">Questions that adapt to your performance</p>
         </div>
 
-        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 space-y-6">
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8 space-y-6">
           <div>
-            <label className="text-sm text-neutral-400 mb-2 block">Section</label>
+            <label className="text-sm font-medium text-gray-700 mb-2 block">Section</label>
             <Select value={selectedDomain} onValueChange={setSelectedDomain}>
-              <SelectTrigger className="bg-black border-neutral-700 text-white">
+              <SelectTrigger className="bg-white border-gray-200 text-gray-900">
                 <SelectValue placeholder="Select section" />
               </SelectTrigger>
               <SelectContent>
@@ -91,9 +91,9 @@ export default function ACTAdaptivePractice() {
           </div>
 
           <div>
-            <label className="text-sm text-neutral-400 mb-2 block">Question Count</label>
+            <label className="text-sm font-medium text-gray-700 mb-2 block">Question Count</label>
             <Select value={String(questionCount)} onValueChange={(v) => setQuestionCount(Number(v))}>
-              <SelectTrigger className="bg-black border-neutral-700 text-white">
+              <SelectTrigger className="bg-white border-gray-200 text-gray-900">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -106,14 +106,14 @@ export default function ACTAdaptivePractice() {
           </div>
 
           <div>
-            <label className="text-sm text-neutral-400 mb-2 block">Mode</label>
+            <label className="text-sm font-medium text-gray-700 mb-2 block">Mode</label>
             <div className="flex gap-4">
               <button
                 onClick={() => setMode('untimed')}
                 className={`flex-1 py-3 px-4 rounded-lg border transition-all ${
                   mode === 'untimed'
-                    ? 'border-white bg-white text-black'
-                    : 'border-neutral-700 text-neutral-400 hover:border-neutral-600'
+                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                    : 'border-gray-200 text-gray-500 hover:border-gray-300'
                 }`}
               >
                 Untimed
@@ -122,8 +122,8 @@ export default function ACTAdaptivePractice() {
                 onClick={() => setMode('timed')}
                 className={`flex-1 py-3 px-4 rounded-lg border transition-all ${
                   mode === 'timed'
-                    ? 'border-white bg-white text-black'
-                    : 'border-neutral-700 text-neutral-400 hover:border-neutral-600'
+                    ? 'border-blue-500 bg-blue-50 text-blue-700'
+                    : 'border-gray-200 text-gray-500 hover:border-gray-300'
                 }`}
               >
                 Timed
@@ -134,7 +134,7 @@ export default function ACTAdaptivePractice() {
           <Button
             onClick={startPractice}
             disabled={!selectedDomain}
-            className="w-full bg-purple-600 text-white hover:bg-purple-700 py-6 text-lg"
+            className="w-full bg-blue-500 text-white hover:bg-blue-600 py-6 text-lg shadow-sm"
           >
             <Target className="w-5 h-5 mr-2" />
             Start Adaptive Practice

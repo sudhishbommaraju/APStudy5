@@ -366,44 +366,42 @@ export default function APPractice() {
 
   if (questions.length > 0) {
     return (
-      <AuroraBackground>
-        <div className="min-h-screen">
-          <div className="bg-neutral-900 border-b border-neutral-800 px-6 py-4">
-            <div className="flex items-center justify-between max-w-[1800px] mx-auto">
-              <h2 className="text-lg font-medium text-white">AP Practice</h2>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setQuestions([]);
-                  setCurrentIndex(0);
-                }}
-              >
-                Exit Practice
-              </Button>
-            </div>
-          </div>
-          
-          <div className="max-w-[1800px] mx-auto px-6 py-8">
-            <APPracticeQuestion
-              question={questions[currentIndex]}
-              questionIndex={currentIndex}
-              totalQuestions={questions.length}
-              onNext={handleNext}
-              onComplete={handleComplete}
-            />
+      <div className="min-h-screen bg-[#f8fafc]">
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
+          <div className="flex items-center justify-between max-w-[1800px] mx-auto">
+            <h2 className="text-lg font-semibold text-gray-900">AP Practice</h2>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setQuestions([]);
+                setCurrentIndex(0);
+              }}
+              className="border-gray-200 text-gray-700 hover:bg-gray-50"
+            >
+              Exit Practice
+            </Button>
           </div>
         </div>
-      </AuroraBackground>
+        
+        <div className="max-w-[1800px] mx-auto px-6 py-8">
+          <APPracticeQuestion
+            question={questions[currentIndex]}
+            questionIndex={currentIndex}
+            totalQuestions={questions.length}
+            onNext={handleNext}
+            onComplete={handleComplete}
+          />
+        </div>
+      </div>
     );
   }
 
   return (
-    <AuroraBackground>
-    <div className="min-h-screen py-16">
+    <div className="min-h-screen bg-[#f8fafc] py-16">
       <div className="max-w-4xl mx-auto px-6">
         <button
           onClick={() => navigate(createPageUrl('Dashboard'))}
-          className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors mb-12"
+          className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors mb-12"
         >
           <ArrowLeft className="w-5 h-5" />
           Back to Dashboard
@@ -414,7 +412,7 @@ export default function APPractice() {
           <SpacedRepetitionWidget />
           <button
             onClick={() => setShowHistory(h => !h)}
-            className="flex items-center gap-2 text-neutral-400 hover:text-white text-sm transition-colors"
+            className="flex items-center gap-2 text-gray-500 hover:text-gray-900 text-sm transition-colors"
           >
             <History className="w-4 h-4" />
             {showHistory ? 'Hide History' : 'Practice History'}
@@ -422,31 +420,31 @@ export default function APPractice() {
         </div>
 
         {showHistory && (
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 mb-6">
-            <h3 className="text-lg font-medium text-white mb-4">Recent Sessions</h3>
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6 mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Sessions</h3>
             <PracticeHistoryList />
           </div>
         )}
 
         <div className="space-y-6">
           {/* Notion Integration Card */}
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
             <div className="flex items-center gap-3 mb-6">
               <Database className="w-8 h-8 text-blue-500" />
               <div>
-                <h2 className="text-2xl font-light text-white">Notion Progress Tracker (Optional)</h2>
-                <p className="text-neutral-400 mt-1">Link Notion to track your practice sessions</p>
+                <h2 className="text-2xl font-semibold text-gray-900">Notion Progress Tracker (Optional)</h2>
+                <p className="text-gray-500 mt-1">Link Notion to track your practice sessions</p>
               </div>
             </div>
 
             {linkedPage ? (
               <div className="space-y-4">
-                <div className="bg-neutral-800 border border-neutral-700 rounded-lg p-4 flex items-center justify-between">
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-500" />
                     <div>
-                      <p className="text-white font-medium">Notion Tracker Linked</p>
-                      <p className="text-sm text-neutral-400">Progress will sync to your Notion page</p>
+                      <p className="text-gray-900 font-medium">Notion Tracker Linked</p>
+                      <p className="text-sm text-gray-500">Progress will sync to your Notion page</p>
                     </div>
                   </div>
                   <Button
@@ -458,7 +456,7 @@ export default function APPractice() {
                     View in Notion
                   </Button>
                 </div>
-                <div className="text-sm text-neutral-400 mt-2">
+                <div className="text-sm text-gray-500 mt-2">
                   All practice questions are Proofly-original content aligned to College Board skill taxonomies.
                 </div>
               </div>
@@ -466,16 +464,16 @@ export default function APPractice() {
               <div className="space-y-4">
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-neutral-300 mb-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
                       Notion Page URL (Optional)
                     </label>
                     <Input
                       placeholder="https://notion.so/your-tracker-page"
                       value={notionPageUrl}
                       onChange={(e) => setNotionPageUrl(e.target.value)}
-                      className="bg-neutral-800 border-neutral-700 text-white"
+                      className="bg-white border-gray-200 text-gray-900"
                     />
-                    <p className="text-xs text-neutral-500 mt-2">
+                    <p className="text-xs text-gray-400 mt-2">
                       Link a Notion page to track your practice sessions and progress
                     </p>
                   </div>
@@ -494,16 +492,16 @@ export default function APPractice() {
                     )}
                   </Button>
 
-                  <div className="bg-neutral-800 border border-neutral-700 rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-neutral-300 mb-2">📚 Official Resources</h4>
-                    <div className="space-y-2 text-xs text-neutral-400">
-                      <a href="https://apcentral.collegeboard.org/courses/past-exam-questions" target="_blank" rel="noopener" className="block hover:text-white">
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">📚 Official Resources</h4>
+                    <div className="space-y-2 text-xs text-gray-500">
+                      <a href="https://apcentral.collegeboard.org/courses/past-exam-questions" target="_blank" rel="noopener" className="block hover:text-gray-900">
                         → AP Past Free-Response Questions
                       </a>
-                      <a href="https://apcentral.collegeboard.org/media/pdf/ap-biology-course-and-exam-description.pdf" target="_blank" rel="noopener" className="block hover:text-white">
+                      <a href="https://apcentral.collegeboard.org/media/pdf/ap-biology-course-and-exam-description.pdf" target="_blank" rel="noopener" className="block hover:text-gray-900">
                         → AP Course & Exam Descriptions
                       </a>
-                      <p className="text-xs text-neutral-500 mt-2 italic">
+                      <p className="text-xs text-gray-400 mt-2 italic">
                         Proofly generates original questions aligned to official skill taxonomies. Official materials are linked for reference only.
                       </p>
                     </div>
@@ -514,14 +512,14 @@ export default function APPractice() {
           </div>
 
           {/* Practice Session Configuration */}
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
-            <h2 className="text-2xl font-light text-white mb-6">Start Practice Session</h2>
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6">Start Practice Session</h2>
             
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-2">Subject</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
                 <Select value={subject} onValueChange={handleSubjectChange}>
-                  <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
+                  <SelectTrigger className="bg-white border-gray-200 text-gray-900">
                     <SelectValue placeholder="Select AP Subject" />
                   </SelectTrigger>
                   <SelectContent>
@@ -535,9 +533,9 @@ export default function APPractice() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-2">Unit <span className="text-red-400">*</span></label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Unit <span className="text-red-500">*</span></label>
                 <Select value={unit} onValueChange={setUnit} disabled={!subject}>
-                  <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
+                  <SelectTrigger className="bg-white border-gray-200 text-gray-900">
                     <SelectValue placeholder={subject ? "Select Unit" : "Select subject first"} />
                   </SelectTrigger>
                   <SelectContent>
@@ -551,11 +549,11 @@ export default function APPractice() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Number of Questions
                 </label>
                 <Select value={questionCount.toString()} onValueChange={(v) => setQuestionCount(parseInt(v))}>
-                  <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
+                  <SelectTrigger className="bg-white border-gray-200 text-gray-900">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -589,6 +587,5 @@ export default function APPractice() {
         </div>
       </div>
     </div>
-    </AuroraBackground>
   );
 }

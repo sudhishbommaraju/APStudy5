@@ -102,27 +102,27 @@ export default function SATAdaptivePractice() {
   const canGenerate = generationCount < 3;
 
   return (
-    <div className="min-h-screen bg-black py-16">
+    <div className="min-h-screen bg-[#f8fafc] py-16">
       <div className="max-w-4xl mx-auto px-6">
         <button
           onClick={() => navigate(createPageUrl('Dashboard'))}
-          className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors mb-12"
+          className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors mb-12"
         >
           <ArrowLeft className="w-5 h-5" />
           Back to Dashboard
         </button>
 
         <div className="mb-8">
-          <h1 className="text-4xl font-light text-white mb-2">SAT Adaptive Practice</h1>
-          <p className="text-neutral-400">Generate personalized SAT practice based on your performance</p>
+          <h1 className="text-3xl font-semibold text-gray-900 mb-2">SAT Adaptive Practice</h1>
+          <p className="text-gray-500">Generate personalized SAT practice based on your performance</p>
           
           {!canGenerate && (
-            <Card className="bg-orange-900/20 border-orange-500/30 p-4 mt-4">
-              <p className="text-orange-400 text-sm">
-                Daily limit reached ({generationCount}/3 practices today). 
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mt-4">
+              <p className="text-orange-700 text-sm">
+                Daily limit reached ({generationCount}/3 practices today).
                 You can still review past sessions.
               </p>
-            </Card>
+            </div>
           )}
         </div>
 
@@ -132,29 +132,30 @@ export default function SATAdaptivePractice() {
             onStart={handleStartPractice}
           />
         ) : (
-          <Card className="bg-neutral-900 border-neutral-800 p-8 text-center">
-            <BookOpen className="w-16 h-16 text-neutral-600 mx-auto mb-4" />
-            <h3 className="text-xl font-medium text-white mb-2">Daily Limit Reached</h3>
-            <p className="text-neutral-400 mb-6">
-              You've generated {generationCount} practice sessions today. 
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8 text-center">
+            <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Daily Limit Reached</h3>
+            <p className="text-gray-500 mb-6">
+              You've generated {generationCount} practice sessions today.
               Come back tomorrow for more!
             </p>
             <Button
               onClick={() => navigate(createPageUrl('Dashboard'))}
               variant="outline"
+              className="border-gray-200 text-gray-700"
             >
               View Past Sessions
             </Button>
-          </Card>
+          </div>
         )}
 
         {loading && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <Card className="bg-neutral-900 border-neutral-800 p-8 text-center">
-              <Loader2 className="w-12 h-12 animate-spin text-blue-400 mx-auto mb-4" />
-              <p className="text-white text-lg">Generating your practice session...</p>
-              <p className="text-neutral-400 text-sm mt-2">This may take a few seconds</p>
-            </Card>
+          <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+            <div className="bg-white border border-gray-200 rounded-xl shadow-lg p-8 text-center">
+              <Loader2 className="w-12 h-12 animate-spin text-blue-500 mx-auto mb-4" />
+              <p className="text-gray-900 text-lg font-medium">Generating your practice session...</p>
+              <p className="text-gray-500 text-sm mt-2">This may take a few seconds</p>
+            </div>
           </div>
         )}
       </div>

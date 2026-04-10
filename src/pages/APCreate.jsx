@@ -105,30 +105,30 @@ export default function APCreate() {
   };
 
   return (
-    <div className="min-h-screen bg-black py-16">
+    <div className="min-h-screen bg-[#f8fafc] py-16">
       <div className="max-w-3xl mx-auto px-6">
         <button
           onClick={() => navigate(createPageUrl('Dashboard'))}
-          className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors mb-12"
+          className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors mb-12"
         >
           <ArrowLeft className="w-5 h-5" />
           Back to Dashboard
         </button>
 
-        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
           <div className="flex items-center gap-3 mb-8">
             <Sparkles className="w-8 h-8 text-blue-500" />
             <div>
-              <h1 className="text-3xl font-light text-white">AI-Generated Custom Notes</h1>
-              <p className="text-neutral-400 mt-1">Personalized study materials tailored to your needs</p>
+              <h1 className="text-3xl font-semibold text-gray-900">AI-Generated Custom Notes</h1>
+              <p className="text-gray-500 mt-1">Personalized study materials tailored to your needs</p>
             </div>
           </div>
 
           <div className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-neutral-300 mb-2">AP Subject</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">AP Subject</label>
               <Select value={subject} onValueChange={setSubject}>
-                <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
+                <SelectTrigger className="bg-white border-gray-200 text-gray-900">
                   <SelectValue placeholder="Select AP Subject" />
                 </SelectTrigger>
                 <SelectContent>
@@ -142,22 +142,22 @@ export default function APCreate() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-neutral-300 mb-2">Topic</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Topic</label>
               <Input
                 placeholder="e.g., Cell Respiration, Derivatives, Progressive Era"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
-                className="bg-neutral-800 border-neutral-700 text-white"
+                className="bg-white border-gray-200 text-gray-900"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-neutral-300 mb-2 flex items-center gap-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                 <BookOpen className="w-4 h-4" />
                 Detail Level
               </label>
               <Select value={detailLevel} onValueChange={setDetailLevel}>
-                <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
+                <SelectTrigger className="bg-white border-gray-200 text-gray-900">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -169,9 +169,9 @@ export default function APCreate() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-neutral-300 mb-2">Output Format</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Output Format</label>
               <Select value={outputFormat} onValueChange={setOutputFormat}>
-                <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
+                <SelectTrigger className="bg-white border-gray-200 text-gray-900">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -183,7 +183,7 @@ export default function APCreate() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-neutral-300 mb-2 flex items-center gap-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                 <Tags className="w-4 h-4" />
                 Emphasize Keywords (optional)
               </label>
@@ -191,16 +191,16 @@ export default function APCreate() {
                 placeholder="Enter keywords or concepts separated by commas (e.g., ATP, mitochondria, electron transport chain)"
                 value={keywords}
                 onChange={(e) => setKeywords(e.target.value)}
-                className="bg-neutral-800 border-neutral-700 text-white"
+                className="bg-white border-gray-200 text-gray-900"
                 rows={3}
               />
-              <p className="text-xs text-neutral-500 mt-1">AI will focus on these specific terms and concepts</p>
+              <p className="text-xs text-gray-400 mt-1">AI will focus on these specific terms and concepts</p>
             </div>
 
             <Button
               onClick={handleGenerate}
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white shadow-sm"
               size="lg"
             >
               {loading ? (

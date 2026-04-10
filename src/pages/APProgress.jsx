@@ -123,11 +123,11 @@ export default function APProgress() {
   };
 
   return (
-    <div className="min-h-screen bg-black py-16">
+    <div className="min-h-screen bg-[#f8fafc] py-16">
       <div className="max-w-5xl mx-auto px-6">
         <button
           onClick={() => navigate(createPageUrl('Dashboard'))}
-          className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors mb-12"
+          className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors mb-12"
         >
           <ArrowLeft className="w-5 h-5" />
           Back to Dashboard
@@ -135,43 +135,30 @@ export default function APProgress() {
 
         <div className="space-y-6">
           {/* Notion Integration Card */}
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
             <div className="flex items-center gap-3 mb-6">
               <Database className="w-8 h-8 text-blue-500" />
               <div>
-                <h2 className="text-2xl font-light text-white">Link Notion Progress Tracker</h2>
-                <p className="text-neutral-400 mt-1">Bidirectional sync for real-time progress tracking</p>
+                <h2 className="text-2xl font-semibold text-gray-900">Link Notion Progress Tracker</h2>
+                <p className="text-gray-500 mt-1">Bidirectional sync for real-time progress tracking</p>
               </div>
             </div>
 
             {linkedPage ? (
               <div className="space-y-4">
-                <div className="bg-neutral-800 border border-neutral-700 rounded-lg p-4 flex items-center justify-between">
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <CheckCircle className="w-5 h-5 text-green-500" />
                     <div>
-                      <p className="text-white font-medium">Notion Page Linked</p>
-                      <p className="text-sm text-neutral-400">Auto-sync enabled</p>
+                      <p className="text-gray-900 font-medium">Notion Page Linked</p>
+                      <p className="text-sm text-gray-500">Auto-sync enabled</p>
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={syncProgressToNotion}
-                      disabled={syncing}
-                    >
-                      {syncing ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <RefreshCw className="w-4 h-4" />
-                      )}
+                    <Button variant="outline" size="sm" onClick={syncProgressToNotion} disabled={syncing} className="border-gray-200">
+                      {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => window.open(linkedPage, '_blank')}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => window.open(linkedPage, '_blank')} className="border-gray-200">
                       <ExternalLink className="w-4 h-4 mr-2" />
                       View in Notion
                     </Button>
@@ -181,14 +168,14 @@ export default function APProgress() {
             ) : (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-neutral-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Notion Page URL
                   </label>
                   <Input
                     placeholder="https://notion.so/your-progress-page-id"
                     value={notionPageUrl}
                     onChange={(e) => setNotionPageUrl(e.target.value)}
-                    className="bg-neutral-800 border-neutral-700 text-white"
+                    className="bg-white border-gray-200 text-gray-900"
                   />
                 </div>
                 <Button onClick={handleLinkNotion} disabled={syncing}>
@@ -210,46 +197,46 @@ export default function APProgress() {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-3 gap-6">
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6">
+            <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
               <div className="flex items-center gap-3 mb-2">
                 <BarChart className="w-5 h-5 text-blue-500" />
-                <p className="text-sm text-neutral-400">Total Sessions</p>
+                <p className="text-sm text-gray-500">Total Sessions</p>
               </div>
-              <p className="text-3xl font-semibold text-white">{stats.totalSessions}</p>
+              <p className="text-3xl font-semibold text-gray-900">{stats.totalSessions}</p>
             </div>
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6">
+            <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
               <div className="flex items-center gap-3 mb-2">
                 <TrendingUp className="w-5 h-5 text-green-500" />
-                <p className="text-sm text-neutral-400">Avg Accuracy</p>
+                <p className="text-sm text-gray-500">Avg Accuracy</p>
               </div>
-              <p className="text-3xl font-semibold text-white">{stats.averageAccuracy}%</p>
+              <p className="text-3xl font-semibold text-gray-900">{stats.averageAccuracy}%</p>
             </div>
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6">
+            <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
               <div className="flex items-center gap-3 mb-2">
                 <CheckCircle className="w-5 h-5 text-purple-500" />
-                <p className="text-sm text-neutral-400">Mastery Score</p>
+                <p className="text-sm text-gray-500">Mastery Score</p>
               </div>
-              <p className="text-3xl font-semibold text-white">{stats.masteryScore}%</p>
+              <p className="text-3xl font-semibold text-gray-900">{stats.masteryScore}%</p>
             </div>
           </div>
 
           {/* Progress Chart */}
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
-            <h2 className="text-2xl font-light text-white mb-6">Progress Over Time</h2>
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-6">Progress Over Time</h2>
             {loading ? (
               <div className="h-64 flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+                <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
               </div>
             ) : progressData.length > 0 ? (
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={progressData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#2A2A2A" />
-                  <XAxis dataKey="session" stroke="#9CA3AF" />
-                  <YAxis stroke="#9CA3AF" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="session" stroke="#6b7280" />
+                  <YAxis stroke="#6b7280" />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#171717',
-                      border: '1px solid #2A2A2A',
+                      backgroundColor: '#ffffff',
+                      border: '1px solid #e5e7eb',
                       borderRadius: '8px'
                     }}
                   />

@@ -130,11 +130,11 @@ export default function APFullTest() {
   };
 
   return (
-    <div className="min-h-screen bg-black py-16">
+    <div className="min-h-screen bg-[#f8fafc] py-16">
       <div className="max-w-4xl mx-auto px-6">
         <button
           onClick={() => navigate(createPageUrl('Dashboard'))}
-          className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors mb-12"
+          className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors mb-12"
         >
           <ArrowLeft className="w-5 h-5" />
           Back to Dashboard
@@ -142,29 +142,25 @@ export default function APFullTest() {
 
         <div className="space-y-6">
           {/* Notion Integration Card */}
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
             <div className="flex items-center gap-3 mb-6">
               <Database className="w-8 h-8 text-blue-500" />
               <div>
-                <h2 className="text-2xl font-light text-white">Link Notion Test Bank</h2>
-                <p className="text-neutral-400 mt-1">Connect your Notion database for full-length tests</p>
+                <h2 className="text-2xl font-semibold text-gray-900">Link Notion Test Bank</h2>
+                <p className="text-gray-500 mt-1">Connect your Notion database for full-length tests</p>
               </div>
             </div>
 
             {linkedPage ? (
-              <div className="bg-neutral-800 border border-neutral-700 rounded-lg p-4 flex items-center justify-between">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <CheckCircle className="w-5 h-5 text-green-500" />
                   <div>
-                    <p className="text-white font-medium">Notion Page Linked</p>
-                    <p className="text-sm text-neutral-400">Test results sync automatically</p>
+                    <p className="text-gray-900 font-medium">Notion Page Linked</p>
+                    <p className="text-sm text-gray-500">Test results sync automatically</p>
                   </div>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.open(linkedPage, '_blank')}
-                >
+                <Button variant="outline" size="sm" onClick={() => window.open(linkedPage, '_blank')} className="border-gray-200">
                   <ExternalLink className="w-4 h-4 mr-2" />
                   View in Notion
                 </Button>
@@ -172,14 +168,14 @@ export default function APFullTest() {
             ) : (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-neutral-300 mb-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Notion Page URL
                   </label>
                   <Input
                     placeholder="https://notion.so/your-test-bank-page-id"
                     value={notionPageUrl}
                     onChange={(e) => setNotionPageUrl(e.target.value)}
-                    className="bg-neutral-800 border-neutral-700 text-white"
+                    className="bg-white border-gray-200 text-gray-900"
                   />
                 </div>
                 <Button onClick={handleLinkNotion} disabled={loading}>
@@ -200,21 +196,21 @@ export default function APFullTest() {
           </div>
 
           {/* Full Test Configuration */}
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8">
             <div className="flex items-center gap-3 mb-6">
               <Timer className="w-8 h-8 text-orange-500" />
               <div>
-                <h2 className="text-2xl font-light text-white">Full-Length Practice Test</h2>
-                <p className="text-neutral-400 mt-1">Simulated AP exam using Notion content</p>
+                <h2 className="text-2xl font-semibold text-gray-900">Full-Length Practice Test</h2>
+                <p className="text-gray-500 mt-1">Simulated AP exam using Notion content</p>
               </div>
             </div>
 
-            <div className="bg-orange-900/20 border border-orange-800 rounded-lg p-4 mb-6">
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-orange-500 mt-0.5" />
                 <div>
-                  <p className="text-orange-300 font-medium">Timed Test Conditions</p>
-                  <p className="text-sm text-orange-300/70 mt-1">
+                  <p className="text-orange-700 font-medium">Timed Test Conditions</p>
+                  <p className="text-sm text-orange-600 mt-1">
                     This will be a timed test simulating real AP exam conditions. Your progress will sync to Notion.
                   </p>
                 </div>
@@ -223,9 +219,9 @@ export default function APFullTest() {
             
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-2">Subject</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Subject</label>
                 <Select value={subject} onValueChange={setSubject}>
-                  <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
+                  <SelectTrigger className="bg-white border-gray-200 text-gray-900">
                     <SelectValue placeholder="Select AP Subject" />
                   </SelectTrigger>
                   <SelectContent>
@@ -241,7 +237,7 @@ export default function APFullTest() {
               <Button
                 onClick={handleStartFullTest}
                 disabled={loading}
-                className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white shadow-sm"
                 size="lg"
               >
                 {loading ? (
