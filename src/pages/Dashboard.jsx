@@ -7,6 +7,7 @@ import KPIRow from '@/components/dashboard/KPIRow';
 import ScoreChart from '@/components/dashboard/ScoreChart';
 import ContinuePractice from '@/components/dashboard/ContinuePractice';
 import ModuleGrid from '@/components/dashboard/ModuleGrid';
+import AIChat from '@/components/dashboard/AIChat';
 
 export default function Dashboard() {
   const [isDark, setIsDark] = useState(() => localStorage.getItem('proofly_theme') === 'dark');
@@ -153,6 +154,7 @@ export default function Dashboard() {
             <ModuleGrid theme={theme} examType={activeTab} />
           </div>
         </div>
+        <AIChat theme={theme} />
       </div>
     </ProtectedRoute>
   );

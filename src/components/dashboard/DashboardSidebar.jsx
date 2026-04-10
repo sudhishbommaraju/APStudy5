@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { BarChart2, BookOpen, ClipboardList, Layers, Calendar, Settings, LayoutDashboard, Sun, Moon, Flame } from 'lucide-react';
+import { BarChart2, BookOpen, ClipboardList, Layers, Calendar, Settings, LayoutDashboard, Sun, Moon, Flame, Map } from 'lucide-react';
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { id: 'analytics', label: 'Analytics', icon: BarChart2 },
   { id: 'exams', label: 'Exams', icon: ClipboardList },
   { id: 'flashcards', label: 'Flashcards', icon: Layers },
+  { id: 'roadmap', label: 'Roadmap', icon: Map },
   { id: 'planner', label: 'Planner', icon: Calendar },
   { id: 'settings', label: 'Settings', icon: Settings },
 ];
@@ -17,6 +18,7 @@ const NAV_ROUTES = {
   practice: 'SATPractice',
   exams: 'SATFullTest',
   flashcards: 'Flashcards',
+  roadmap: 'Roadmap',
   planner: 'StudyPlans',
   settings: 'Settings',
 };

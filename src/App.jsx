@@ -11,6 +11,7 @@ import StudyAssistant from './pages/StudyAssistant';
 import LandingPage from './pages/LandingPage';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
+import Roadmap from './pages/Roadmap';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -64,6 +65,7 @@ const AuthenticatedApp = () => {
       <Route path="/study-assistant" element={<StudyAssistant />} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/terms" element={<Terms />} />
+      <Route path="/Roadmap" element={<Roadmap />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
