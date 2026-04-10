@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, Sparkles, BookOpen, FileQuestion, CreditCard, RotateCcw, ChevronDown, ChevronUp, CheckCircle2 } from 'lucide-react';
+import { Loader2, Sparkles, BookOpen, FileQuestion, CreditCard, RotateCcw, ChevronDown, ChevronUp, CheckCircle2, Upload, FileText, X } from 'lucide-react';
 import { toast } from 'sonner';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import DashboardNavbar from '@/components/layout/DashboardNavbar';
@@ -14,12 +14,30 @@ export default function StudyMaterialsGenerator() {
   const [results, setResults] = useState(null);
   const [flippedCards, setFlippedCards] = useState({});
   const [expandedQuestions, setExpandedQuestions] = useState({});
+  const [uploadedFile, setUploadedFile] = useState(null); // { name, url }
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.includes('pdf') && !file.type.includes('text')) {
+      toast.error('Please upload a PDF or text file.');
+      return;
+    }
+    setUploading(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setUploadedFile({ name: file.name, url: file_url });
+    setInputText('');
+    setUploading(false);
+    toast.success('File uploaded! Click Generate to analyze it.');
+  };
 
   const wordCount = inputText.trim() ? inputText.trim().split(/\s+/).length : 0;
 
   const handleGenerate = async () => {
-    if (wordCount < 30) {
-      toast.error('Please enter at least 30 words of study material.');
+    if (!uploadedFile && wordCount < 30) {
+      toast.error('Please upload a PDF or enter at least 30 words.');
       return;
     }
     setLoading(true);
@@ -27,8 +45,14 @@ export default function StudyMaterialsGenerator() {
     setFlippedCards({});
     setExpandedQuestions({});
 
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are an expert tutor. A student has provided the following study material. Generate:
+    const prompt = uploadedFile
+      ? `You are an expert tutor. A student has uploaded a study document (PDF). Carefully read the entire document and generate:
+1. A concise summary (4-6 sentences capturing the key ideas)
+2. 8 practice questions with multiple choice answers (A-D) and the correct answer
+3. 10 flashcards (term/definition pairs) covering the most important concepts
+
+Return structured JSON.`
+      : `You are an expert tutor. A student has provided the following study material. Generate:
 1. A concise summary (3-5 sentences)
 2. 5 practice questions with multiple choice answers (A-D) and the correct answer
 3. 6 flashcards (term/definition pairs)
@@ -38,7 +62,11 @@ Study Material:
 ${inputText}
 ---
 
-Return structured JSON.`,
+Return structured JSON.`;
+
+    const result = await base44.integrations.Core.InvokeLLM({
+      prompt,
+      ...(uploadedFile ? { file_urls: [uploadedFile.url] } : {}),
       response_json_schema: {
         type: 'object',
         properties: {
@@ -94,7 +122,48 @@ Return structured JSON.`,
             </p>
           </div>
 
-          {/* Input */}
+          {/* Upload area */}
+          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 mb-4">
+            <p className="text-sm font-medium text-neutral-300 mb-3">Upload a PDF</p>
+            <input ref={fileInputRef} type="file" accept=".pdf,.txt" onChange={handleFileUpload} className="hidden" />
+            {uploadedFile ? (
+              <div className="flex items-center justify-between bg-neutral-800 rounded-xl px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <FileText className="w-5 h-5 text-[#D6B98C]" />
+                  <span className="text-sm text-white font-medium truncate max-w-xs">{uploadedFile.name}</span>
+                  <span className="text-xs text-green-400 bg-green-900/30 px-2 py-0.5 rounded-full">Ready</span>
+                </div>
+                <button onClick={() => setUploadedFile(null)} className="text-neutral-500 hover:text-white transition-colors">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="w-full border-2 border-dashed border-neutral-700 hover:border-neutral-600 rounded-xl py-8 flex flex-col items-center gap-3 transition-colors cursor-pointer bg-transparent"
+              >
+                {uploading ? (
+                  <Loader2 className="w-6 h-6 text-neutral-500 animate-spin" />
+                ) : (
+                  <Upload className="w-6 h-6 text-neutral-500" />
+                )}
+                <span className="text-sm text-neutral-500">{uploading ? 'Uploading…' : 'Click to upload PDF or text file'}</span>
+              </button>
+            )}
+          </div>
+
+          {/* Divider */}
+          {!uploadedFile && (
+            <div className="flex items-center gap-4 mb-4">
+              <div className="flex-1 h-px bg-neutral-800" />
+              <span className="text-xs text-neutral-600 uppercase tracking-wider">or paste text</span>
+              <div className="flex-1 h-px bg-neutral-800" />
+            </div>
+          )}
+
+          {/* Text Input */}
+          {!uploadedFile && (
           <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 mb-6">
             <label className="block text-sm font-medium text-neutral-300 mb-3">
               Your Study Material
@@ -109,30 +178,28 @@ Return structured JSON.`,
               <span className={`text-xs ${wordCount < 30 ? 'text-neutral-600' : 'text-neutral-400'}`}>
                 {wordCount} word{wordCount !== 1 ? 's' : ''} {wordCount < 30 ? `· ${30 - wordCount} more needed` : '· ready'}
               </span>
-              <div className="flex gap-3">
-                {inputText && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => { setInputText(''); setResults(null); }}
-                    className="text-neutral-500 hover:text-white"
-                  >
-                    <RotateCcw className="w-4 h-4 mr-1" /> Clear
-                  </Button>
-                )}
-                <Button
-                  onClick={handleGenerate}
-                  disabled={loading || wordCount < 30}
-                  className="bg-[#D6B98C] text-black hover:bg-[#C9A96A] font-medium px-6"
-                >
-                  {loading ? (
-                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating…</>
-                  ) : (
-                    <><Sparkles className="w-4 h-4 mr-2" /> Generate</>
-                  )}
+              {inputText && (
+                <Button variant="ghost" size="sm" onClick={() => { setInputText(''); setResults(null); }} className="text-neutral-500 hover:text-white">
+                  <RotateCcw className="w-4 h-4 mr-1" /> Clear
                 </Button>
-              </div>
+              )}
             </div>
+          </div>
+          )}
+
+          {/* Generate button */}
+          <div className="flex justify-end mb-6">
+            <Button
+              onClick={handleGenerate}
+              disabled={loading || uploading || (!uploadedFile && wordCount < 30)}
+              className="bg-[#D6B98C] text-black hover:bg-[#C9A96A] font-medium px-8"
+            >
+              {loading ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {uploadedFile ? 'Analyzing PDF…' : 'Generating…'}</>
+              ) : (
+                <><Sparkles className="w-4 h-4 mr-2" /> {uploadedFile ? 'Analyze PDF' : 'Generate'}</>
+              )}
+            </Button>
           </div>
 
           {/* Loading state */}
