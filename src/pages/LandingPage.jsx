@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { base44 } from '@/api/base44Client';
 import LandingNavbar from '@/components/landing/LandingNavbar';
 import HeroSection from '@/components/landing/HeroSection';
 import TrustSection from '@/components/landing/TrustSection';
@@ -12,6 +14,15 @@ import LandingCTA from '@/components/landing/LandingCTA';
 import LandingFooter from '@/components/landing/LandingFooter';
 
 export default function LandingPage() {
+  const navigate = useNavigate();
+
+  // Redirect authenticated users straight to dashboard
+  useEffect(() => {
+    base44.auth.isAuthenticated().then(authed => {
+      if (authed) navigate('/Dashboard');
+    });
+  }, []);
+
   const [isDark, setIsDark] = useState(() => {
     const stored = localStorage.getItem('proofly_theme');
     return stored === 'dark';

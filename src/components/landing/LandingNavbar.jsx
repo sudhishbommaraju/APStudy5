@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { base44 } from '@/api/base44Client';
 import { Sun, Moon } from 'lucide-react';
 
 const NAV_LINKS = [
@@ -13,6 +14,11 @@ const NAV_LINKS = [
 export default function LandingNavbar({ theme, onToggle }) {
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
+
+  const handleCTA = async () => {
+    const authed = await base44.auth.isAuthenticated();
+    if (authed) { navigate('/Dashboard'); } else { base44.auth.redirectToLogin('/Dashboard'); }
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -73,7 +79,7 @@ export default function LandingNavbar({ theme, onToggle }) {
 
           {/* CTA */}
           <button
-            onClick={() => navigate('/Dashboard')}
+            onClick={handleCTA}
             style={{
               background: theme.accent, color: '#fff',
               border: 'none', borderRadius: 10,

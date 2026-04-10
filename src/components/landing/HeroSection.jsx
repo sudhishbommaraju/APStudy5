@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { base44 } from '@/api/base44Client';
 import { LineChart, Line, ResponsiveContainer, Tooltip } from 'recharts';
 import { Flame, Target, TrendingUp } from 'lucide-react';
 
@@ -17,6 +18,11 @@ const subjects = [
 export default function HeroSection({ theme }) {
   const [visible, setVisible] = useState(false);
   const navigate = useNavigate();
+
+  const handleCTA = async () => {
+    const authed = await base44.auth.isAuthenticated();
+    if (authed) { navigate('/Dashboard'); } else { base44.auth.redirectToLogin('/Dashboard'); }
+  };
 
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 100);
@@ -58,7 +64,7 @@ export default function HeroSection({ theme }) {
           </p>
           <div style={{ ...fade, transitionDelay: '240ms', display: 'flex', gap: 12, flexWrap: 'wrap' }}>
             <button
-              onClick={() => navigate('/Dashboard')}
+              onClick={handleCTA}
               style={{
                 background: theme.accent, color: '#fff', border: 'none',
                 borderRadius: 12, padding: '13px 28px', fontSize: 15, fontWeight: 600,
