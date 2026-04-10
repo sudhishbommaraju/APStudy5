@@ -8,15 +8,22 @@ import ScoreChart from '@/components/dashboard/ScoreChart';
 import ContinuePractice from '@/components/dashboard/ContinuePractice';
 import ModuleGrid from '@/components/dashboard/ModuleGrid';
 import AIChat from '@/components/dashboard/AIChat';
+import XPBar from '@/components/dashboard/XPBar';
 
 export default function Dashboard() {
   const [isDark, setIsDark] = useState(() => localStorage.getItem('proofly_theme') === 'dark');
   const [activeTab, setActiveTab] = useState(() => localStorage.getItem('dashboard_active_tab') || 'SAT');
   const [activeNav, setActiveNav] = useState('overview');
   const [user, setUser] = useState(null);
+  const [totalXp, setTotalXp] = useState(0);
+  const [points, setPoints] = useState(0);
 
   useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => {});
+    base44.auth.me().then(u => {
+      setUser(u);
+      setTotalXp(u?.total_xp || 0);
+      setPoints(u?.points || 0);
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -113,6 +120,8 @@ export default function Dashboard() {
               setActiveTab={setActiveTab}
               user={user}
             />
+
+            <XPBar theme={theme} totalXp={totalXp} points={points} />
 
             <KPIRow theme={theme} kpis={current.kpis} />
 

@@ -12,6 +12,7 @@ import LandingPage from './pages/LandingPage';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import Roadmap from './pages/Roadmap';
+import Store from './pages/Store';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
 const { Pages, Layout, mainPage } = pagesConfig;
@@ -66,6 +67,7 @@ const AuthenticatedApp = () => {
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/Roadmap" element={<Roadmap />} />
+      <Route path="/Store" element={<Store />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
