@@ -131,11 +131,11 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
         {/* Progress */}
         <div className="space-y-2">
           <div className="flex justify-between items-center text-sm">
-            <span className="text-neutral-300 font-medium">
+            <span className="text-gray-600 font-medium">
               Question {questionIndex + 1} of {totalQuestions}
             </span>
           </div>
-          <div className="w-full bg-neutral-800 rounded-full h-2">
+          <div className="w-full bg-gray-200 rounded-full h-2">
             <div
               className="bg-blue-500 h-2 rounded-full transition-all"
               style={{ width: `${((questionIndex + 1) / totalQuestions) * 100}%` }}
@@ -148,11 +148,11 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
           key={questionIndex}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-neutral-900 border border-neutral-800 rounded-xl p-8"
+          className="bg-white border border-gray-200 rounded-xl shadow-sm p-8"
         >
           {question.stimulus?.trim() && (
-            <div className="bg-neutral-800/30 rounded-lg p-4 mb-6">
-              <div className="text-neutral-400 leading-relaxed text-sm md:text-base">
+            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+              <div className="text-gray-600 leading-relaxed text-sm md:text-base">
                 <LatexText text={String(question.stimulus)
                   .replace(/^\*\*Stimulus:\*\*\s*/i, '')
                   .replace(/^\*\*\s*/, '')
@@ -168,7 +168,7 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
             </div>
           )}
 
-          <h2 className="text-lg md:text-xl font-semibold text-white mb-6 leading-relaxed">
+          <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-6 leading-relaxed">
             <LatexText text={String(question.question_text || question.stem || '')
               .replace(/^\*\*Question:\*\*\s*/i, '')
               .replace(/^\*\*\s*/, '')
@@ -193,14 +193,14 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
                     className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
                       showCorrect  ? 'bg-green-900/20 border-green-600' :
                       showWrong    ? 'bg-red-900/20 border-red-600'     :
-                      isSelected   ? 'bg-blue-900/20 border-blue-600'   :
-                      isEliminated ? 'bg-neutral-950/50 border-neutral-800 opacity-40' :
-                                     'bg-neutral-800 border-neutral-700 hover:border-neutral-600'
+                      isSelected   ? 'bg-blue-50 border-blue-500'   :
+                        isEliminated ? 'bg-gray-50 border-gray-200 opacity-40' :
+                                       'bg-white border-gray-200 hover:border-gray-400'
                     } ${isSubmitted ? 'cursor-default' : 'cursor-pointer'}`}
                   >
                     <div className="flex items-center justify-between">
                       <span className={`text-base ${
-                        (showCorrect || showWrong) ? 'text-white font-medium' : 'text-neutral-200'
+                       (showCorrect || showWrong) ? 'text-gray-900 font-medium' : 'text-gray-800'
                       } ${isEliminated ? 'line-through' : ''}`}>
                         <span className="font-semibold mr-3">{String.fromCharCode(65 + idx)}.</span>
                         <LatexText text={choice} />
@@ -215,8 +215,8 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
                       onClick={(e) => toggleEliminate(idx, e)}
                       className={`absolute top-3 right-3 p-1.5 rounded-lg transition-all ${
                         isEliminated
-                          ? 'bg-red-600/20 text-red-400'
-                          : 'bg-neutral-800/0 group-hover:bg-neutral-800 text-neutral-500 hover:text-red-400'
+                          ? 'bg-red-100 text-red-500'
+                           : 'opacity-0 group-hover:opacity-100 bg-gray-100 text-gray-400 hover:text-red-500'
                       }`}
                     >
                       <X className="w-4 h-4" />
@@ -234,7 +234,7 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
             <Button
               onClick={handleSubmit}
               disabled={selectedIndex === null}
-              className="bg-blue-600 hover:bg-blue-700 w-full"
+              className="bg-blue-500 hover:bg-blue-600 w-full shadow-sm"
               size="lg"
             >
               Submit Answer
@@ -242,13 +242,13 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
           ) : (
             <>
               <div className={`px-4 py-2 rounded-lg font-medium ${
-                isCorrect ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'
+                isCorrect ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'
               }`}>
                 {isCorrect ? '✓ Correct!' : '✗ Incorrect'}
               </div>
               <Button
                 onClick={handleNext}
-                className="bg-white hover:bg-neutral-100 text-black"
+                className="bg-blue-500 hover:bg-blue-600 text-white shadow-sm"
                 size="lg"
               >
                 {questionIndex < totalQuestions - 1 ? 'Next Question' : 'Finish Practice'}
@@ -264,19 +264,19 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
               key="wrong-feedback"
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-red-950/30 border border-red-800/50 rounded-xl p-5"
+              className="bg-red-50 border border-red-200 rounded-xl p-5"
             >
               <div className="flex items-center gap-2 mb-2">
-                <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
-                <span className="text-red-300 text-sm font-semibold uppercase tracking-wider">Why that's incorrect</span>
+                <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+                <span className="text-red-700 text-sm font-semibold uppercase tracking-wider">Why that's incorrect</span>
               </div>
               {loadingFeedback ? (
-                <div className="flex items-center gap-2 text-neutral-400 text-sm">
+                <div className="flex items-center gap-2 text-gray-500 text-sm">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Analyzing your answer…
                 </div>
               ) : (
-                <p className="text-neutral-200 leading-relaxed text-sm">{wrongFeedback || 'Review the correct answer above.'}</p>
+                <p className="text-red-800 leading-relaxed text-sm">{wrongFeedback || 'Review the correct answer above.'}</p>
               )}
             </motion.div>
           )}
@@ -287,19 +287,19 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
               key="explanation"
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-neutral-900 border border-neutral-800 rounded-xl p-6"
+              className="bg-white border border-gray-200 rounded-xl shadow-sm p-6"
             >
               <div className="flex items-center gap-2 mb-3">
-                <Lightbulb className="w-4 h-4 text-yellow-400 shrink-0" />
-                <span className="text-neutral-400 text-sm font-semibold uppercase tracking-wider">Explanation</span>
+                <Lightbulb className="w-4 h-4 text-yellow-500 shrink-0" />
+                <span className="text-gray-500 text-sm font-semibold uppercase tracking-wider">Explanation</span>
               </div>
               {loadingExplanation ? (
-                <div className="flex items-center gap-2 text-neutral-400 text-sm">
+                <div className="flex items-center gap-2 text-gray-500 text-sm">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Generating explanation…
                 </div>
               ) : (
-                <p className="text-neutral-200 leading-relaxed">
+                <p className="text-gray-800 leading-relaxed">
                   <LatexText text={explanation || 'No explanation available.'} />
                 </p>
               )}
