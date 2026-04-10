@@ -4,7 +4,6 @@ import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AuroraBackground } from '@/components/ui/animated-background';
 import { ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import APPracticeQuestion from '@/components/practice/APPracticeQuestion';
@@ -100,79 +99,67 @@ export default function ACTPractice() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
+      <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
       </div>
     );
   }
 
   if (questions.length > 0) {
     return (
-      <AuroraBackground>
-        <div className="min-h-screen">
-          <div className="bg-neutral-900 border-b border-neutral-800 px-6 py-4">
-            <div className="flex items-center justify-between max-w-[1800px] mx-auto">
-              <h2 className="text-lg font-medium text-white">ACT Practice</h2>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setQuestions([]);
-                  setCurrentIndex(0);
-                }}
-              >
-                Exit Practice
-              </Button>
-            </div>
-          </div>
-          
-          <div className="max-w-[1800px] mx-auto px-6 py-8">
-            <APPracticeQuestion
-              question={questions[currentIndex]}
-              questionIndex={currentIndex}
-              totalQuestions={questions.length}
-              onNext={() => setCurrentIndex(currentIndex + 1)}
-              onComplete={() => {
-                setQuestions([]);
-                setCurrentIndex(0);
-                toast.success('Practice complete!');
-              }}
-            />
+      <div className="min-h-screen bg-[#f8fafc]">
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
+          <div className="flex items-center justify-between max-w-[1800px] mx-auto">
+            <h2 className="text-lg font-semibold text-gray-900">ACT Practice</h2>
+            <Button
+              variant="outline"
+              onClick={() => { setQuestions([]); setCurrentIndex(0); }}
+              className="border-gray-200 text-gray-700 hover:bg-gray-50"
+            >
+              Exit Practice
+            </Button>
           </div>
         </div>
-      </AuroraBackground>
+        <div className="max-w-[1800px] mx-auto px-6 py-8">
+          <APPracticeQuestion
+            question={questions[currentIndex]}
+            questionIndex={currentIndex}
+            totalQuestions={questions.length}
+            onNext={() => setCurrentIndex(currentIndex + 1)}
+            onComplete={() => { setQuestions([]); setCurrentIndex(0); toast.success('Practice complete!'); }}
+          />
+        </div>
+      </div>
     );
   }
 
   return (
-    <AuroraBackground>
-    <div className="min-h-screen py-16">
+    <div className="min-h-screen bg-[#f8fafc] py-16">
       <div className="max-w-3xl mx-auto px-6">
-        <Button
-          variant="ghost"
+        <button
           onClick={() => navigate(createPageUrl('Dashboard'))}
-          className="mb-8 text-neutral-400 hover:text-white"
+          className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors mb-12"
         >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
-        </Button>
+          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+        </button>
 
-        <div className="mb-12 text-center">
-          <h1 className="text-3xl font-light text-white mb-2">ACT Practice</h1>
-          <p className="text-neutral-400">Master ACT sections with targeted practice</p>
+        <div className="mb-10 text-center">
+          <h1 className="text-2xl font-semibold text-gray-900 mb-2">ACT Practice</h1>
+          <p className="text-gray-500">Master ACT sections with targeted practice</p>
         </div>
 
         {error && (
-          <div className="bg-red-900/20 border border-red-800/30 rounded-lg p-4 flex gap-3 mb-6">
-            <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
-            <p className="text-red-300 text-sm">{error}</p>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex gap-3 mb-6">
+            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <p className="text-red-600 text-sm">{error}</p>
           </div>
         )}
 
-        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8 space-y-6">
+        <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-8 space-y-6">
           <div>
-            <label className="text-sm text-neutral-400 mb-2 block">Section</label>
+            <label className="text-sm font-medium text-gray-700 mb-2 block">Section</label>
             <Select value={selectedSection} onValueChange={setSelectedSection} disabled={loading}>
-              <SelectTrigger className="bg-black border-neutral-700 text-white">
+              <SelectTrigger className="bg-white border-gray-200 text-gray-900">
                 <SelectValue placeholder="Select section" />
               </SelectTrigger>
               <SelectContent>
@@ -184,9 +171,9 @@ export default function ACTPractice() {
           </div>
 
           <div>
-            <label className="text-sm text-neutral-400 mb-2 block">Number of Questions</label>
+            <label className="text-sm font-medium text-gray-700 mb-2 block">Number of Questions</label>
             <Select value={String(questionCount)} onValueChange={(v) => setQuestionCount(Number(v))}>
-              <SelectTrigger className="bg-black border-neutral-700 text-white">
+              <SelectTrigger className="bg-white border-gray-200 text-gray-900">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -201,13 +188,10 @@ export default function ACTPractice() {
           <Button
             onClick={startPractice}
             disabled={!selectedSection || practicing}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-6 text-lg"
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white shadow-sm py-6 text-base"
           >
             {practicing ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Starting...
-              </>
+              <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Starting...</>
             ) : (
               'Start ACT Practice'
             )}
@@ -215,6 +199,5 @@ export default function ACTPractice() {
         </div>
       </div>
     </div>
-    </AuroraBackground>
   );
 }

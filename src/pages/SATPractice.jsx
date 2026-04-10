@@ -5,7 +5,6 @@ import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import ExamShell from '@/components/exam/ExamShell';
 import { Button } from '@/components/ui/button';
-import { AuroraBackground } from '@/components/ui/animated-background';
 import { ArrowLeft, Loader2, Play } from 'lucide-react';
 
 export default function SATPractice() {
@@ -118,68 +117,54 @@ export default function SATPractice() {
 
   if (questions.length === 0) {
     return (
-      <AuroraBackground>
-      <div className="min-h-screen py-16">
+      <div className="min-h-screen bg-[#f8fafc] py-16">
         <div className="max-w-3xl mx-auto px-6">
           <button
             onClick={() => navigate(createPageUrl('Dashboard'))}
-            className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors mb-12"
+            className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors mb-12"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to Dashboard
           </button>
 
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-12 text-center">
-            <h1 className="text-3xl font-light text-white mb-4">SAT Practice</h1>
-            <p className="text-neutral-400 mb-8">Generate adaptive SAT questions aligned with College Board taxonomy</p>
-            
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-12 text-center">
+            <h1 className="text-2xl font-semibold text-gray-900 mb-2">SAT Practice</h1>
+            <p className="text-gray-500 mb-8">Generate adaptive SAT questions aligned with College Board taxonomy</p>
+
             <Button
               onClick={generatePractice}
               disabled={loading}
               size="lg"
-              className="bg-blue-600 hover:bg-blue-700 px-8"
+              className="bg-blue-500 hover:bg-blue-600 text-white shadow-sm px-8"
             >
               {loading ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Generating...
-                </>
+                <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Generating...</>
               ) : (
-                <>
-                  <Play className="w-5 h-5 mr-2" />
-                  Generate Practice
-                </>
+                <><Play className="w-5 h-5 mr-2" />Generate Practice</>
               )}
             </Button>
 
-            {/* Debug Panel */}
-            <div className="mt-8 p-4 bg-neutral-800 rounded-lg text-left text-sm">
-              <div className="text-neutral-400 space-y-1">
-                <p>Loading: {loading ? "Yes" : "No"}</p>
+            <div className="mt-8 p-4 bg-gray-50 border border-gray-200 rounded-lg text-left text-sm">
+              <div className="text-gray-600 space-y-1">
+                <p>Status: {loading ? 'Generating...' : 'Ready'}</p>
                 <p>Questions: {questions.length}</p>
-                <p>Status: {loading ? "Generating..." : "Ready"}</p>
               </div>
             </div>
           </div>
         </div>
       </div>
-      </AuroraBackground>
     );
   }
 
   return (
-    <AuroraBackground>
-    <div className="min-h-screen">
-      <div className="bg-neutral-900 border-b border-neutral-800 px-6 py-4">
+    <div className="min-h-screen bg-[#f8fafc]">
+      <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex items-center justify-between max-w-[1800px] mx-auto">
-          <h2 className="text-lg font-medium text-white">SAT Practice</h2>
+          <h2 className="text-lg font-semibold text-gray-900">SAT Practice</h2>
           <Button
             variant="outline"
-            onClick={() => {
-              setQuestions([]);
-              setCurrentIndex(0);
-              setSessionId(null);
-            }}
+            onClick={() => { setQuestions([]); setCurrentIndex(0); setSessionId(null); }}
+            className="border-gray-200 text-gray-700 hover:bg-gray-50"
           >
             Exit Practice
           </Button>
@@ -196,6 +181,5 @@ export default function SATPractice() {
         onNext={handleNext}
       />
     </div>
-    </AuroraBackground>
   );
 }
