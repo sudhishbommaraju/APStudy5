@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import StudyMaterialsGenerator from './pages/StudyMaterialsGenerator';
+import LandingPage from './pages/LandingPage';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -61,7 +62,8 @@ const AuthenticatedApp = () => {
           }
         />
       ))}
-      <Route path="/study-generator" element={<LayoutWrapper currentPageName="StudyMaterialsGenerator"><StudyMaterialsGenerator /></LayoutWrapper>} />
+      <Route path="/landing" element={<LandingPage />} />
+      <Route path="/study-generator" element={<LayoutWrapper currentPageName="StudyMaterialsGenerator"><StudyMaterialsGenerator /></LayoutWrapper>} /> element={<LayoutWrapper currentPageName="StudyMaterialsGenerator"><StudyMaterialsGenerator /></LayoutWrapper>} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="*" element={<PageNotFound />} />
