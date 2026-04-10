@@ -16,13 +16,13 @@ const NAV_ITEMS = [
 ];
 
 const NAV_ROUTES = {
-  practice: 'SATPractice',
-  exams: 'SATFullTest',
-  flashcards: 'Flashcards',
-  roadmap: 'Roadmap',
-  store: 'Store',
-  planner: 'StudyPlans',
-  settings: 'Settings',
+  practice: '/SATPractice',
+  exams: '/SATFullTest',
+  flashcards: '/Flashcards',
+  roadmap: '/Roadmap',
+  store: '/Store',
+  planner: '/StudyPlans',
+  settings: '/Settings',
 };
 
 export default function DashboardSidebar({ theme, activeNav, setActiveNav, user, isDark, onToggleTheme }) {
@@ -31,7 +31,7 @@ export default function DashboardSidebar({ theme, activeNav, setActiveNav, user,
   const handleNav = (item) => {
     setActiveNav(item.id);
     if (NAV_ROUTES[item.id]) {
-      navigate(createPageUrl(NAV_ROUTES[item.id]));
+      navigate(NAV_ROUTES[item.id]);
     }
   };
 
