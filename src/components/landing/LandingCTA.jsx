@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { useNavigate } from 'react-router-dom';
 
 export default function LandingCTA({ theme }) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true); }, { threshold: 0.3 });
@@ -27,7 +28,7 @@ export default function LandingCTA({ theme }) {
           No credit card required. Free forever for students.
         </p>
         <button
-          onClick={() => base44.auth.redirectToLogin()}
+          onClick={() => navigate('/Dashboard')}
           style={{
             background: theme.accent, color: '#fff', border: 'none',
             borderRadius: 12, padding: '14px 32px', fontSize: 16, fontWeight: 600,
