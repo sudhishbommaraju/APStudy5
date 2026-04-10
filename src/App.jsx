@@ -63,7 +63,7 @@ const AuthenticatedApp = () => {
         />
       ))}
       <Route path="/landing" element={<LandingPage />} />
-      <Route path="/study-generator" element={<LayoutWrapper currentPageName="StudyMaterialsGenerator"><StudyMaterialsGenerator /></LayoutWrapper>} /> element={<LayoutWrapper currentPageName="StudyMaterialsGenerator"><StudyMaterialsGenerator /></LayoutWrapper>} />
+      <Route path="/study-generator" element={<LayoutWrapper currentPageName="StudyMaterialsGenerator"><StudyMaterialsGenerator /></LayoutWrapper>} /> element={<LayoutWrapper currentPageName="StudyMaterialsGenerator"><StudyMaterialsGenerator /></LayoutWrapper>} /><StudyMaterialsGenerator /></LayoutWrapper>} /> element={<LayoutWrapper currentPageName="StudyMaterialsGenerator"><StudyMaterialsGenerator /></LayoutWrapper>} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="*" element={<PageNotFound />} />
