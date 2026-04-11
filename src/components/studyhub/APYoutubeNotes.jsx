@@ -25,21 +25,50 @@ export default function APYoutubeNotes() {
     setNotes(null);
     try {
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `A student wants to study from this YouTube educational video: ${url}
+        prompt: `You are an expert AP tutor and educational content analyst.
 
-Generate comprehensive AP-quality study notes based on the video's topic and content. Use your knowledge of the AP curriculum to produce thorough, accurate notes.
+Analyze this YouTube video in full detail: ${url}
 
-Format in Markdown with:
-1. ## Topic Overview (what this video covers, 2-3 sentences)
-2. ## Key Concepts (bulleted, clear definitions)
-3. ## Detailed Explanations (with ### subheadings per subtopic)
-4. ## Key Formulas / Equations (if applicable)
-5. ## Important Examples (step-by-step)
-6. ## AP Exam Tips (⭐ mark high-frequency topics)
-7. ## Quick Review Checklist
+Steps:
+1. Fetch and read the video's title, description, transcript/captions, and any available metadata.
+2. Identify the exact AP subject, unit, and key topics covered.
+3. Extract ALL key information, definitions, formulas, examples, and explanations from the video content.
 
-Be thorough and curriculum-accurate. Minimum 600 words.`,
+Then produce DETAILED, comprehensive AP study notes based on what you found in the video.
+
+Format in Markdown:
+## 📹 Video Analysis
+- Title, channel, and what the video covers
+
+## 🗂️ AP Subject & Unit
+- Subject and unit this maps to in the AP curriculum
+
+## 🔑 Key Concepts
+- Every important term and concept from the video (bulleted, with definitions)
+
+## 📖 Detailed Explanations
+### [Subtopic 1 from video]
+[thorough explanation]
+### [Subtopic 2 from video]
+[thorough explanation]
+... (cover every major topic the video teaches)
+
+## 🧮 Formulas & Equations
+- All formulas mentioned (use $$ for math notation)
+
+## 💡 Worked Examples
+- Step-by-step examples from the video
+
+## ⭐ AP Exam Tips
+- High-frequency exam topics (mark with ⭐)
+- Common mistakes to avoid
+
+## ✅ Quick Review Checklist
+- Checklist of everything you should know after watching
+
+Be extremely detailed. Extract as much content as possible from the actual video. Minimum 800 words.`,
         add_context_from_internet: true,
+        model: 'gemini_3_1_pro',
         response_json_schema: {
           type: 'object',
           properties: {
