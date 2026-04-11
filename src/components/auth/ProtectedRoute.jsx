@@ -66,13 +66,8 @@ export default function ProtectedRoute({ children, isOnboardingPage = false, req
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-white mb-4">Loading...</div>
-          <div className="inline-block animate-spin">
-            <div className="h-8 w-8 border-4 border-white border-t-transparent rounded-full"></div>
-          </div>
-        </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-gray-200 border-t-blue-500 rounded-full animate-spin"></div>
       </div>
     );
   }
