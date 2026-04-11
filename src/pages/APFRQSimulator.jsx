@@ -126,10 +126,10 @@ export default function APFRQSimulator() {
     <div className="min-h-screen bg-gray-50 py-10">
       <div className="max-w-3xl mx-auto px-6">
         <button
-          onClick={() => navigate(createPageUrl('APStudyKit'))}
+          onClick={() => navigate('/Dashboard')}
           className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 mb-8 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" /> Back
+          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
         </button>
 
         {/* Header */}
