@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Upload, Youtube, FileText } from 'lucide-react';
+import { ArrowLeft, Sparkles, Upload, Youtube } from 'lucide-react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import DashboardNavbar from '@/components/layout/DashboardNavbar';
 import APNotesGenerator from '@/components/studyhub/APNotesGenerator';
-import APUploadPractice from '@/components/studyhub/APUploadPractice';
-import APYoutubePractice from '@/components/studyhub/APYoutubePractice';
+import APUploadNotes from '@/components/studyhub/APUploadNotes';
+import APYoutubeNotes from '@/components/studyhub/APYoutubeNotes';
 
 const TABS = [
-  { id: 'notes', label: 'Notes Generator', icon: BookOpen },
-  { id: 'upload', label: 'Upload → Practice', icon: Upload },
-  { id: 'youtube', label: 'YouTube → Practice', icon: Youtube },
+  { id: 'notes', label: 'AI Notes', icon: Sparkles },
+  { id: 'upload', label: 'From PDF / Doc', icon: Upload },
+  { id: 'youtube', label: 'From YouTube', icon: Youtube },
 ];
 
 export default function APStudyHub() {
@@ -31,7 +31,7 @@ export default function APStudyHub() {
 
           <div className="mb-8">
             <h1 className="text-3xl font-semibold text-gray-900 mb-2">AP Study Hub</h1>
-            <p className="text-gray-500">Generate notes, practice from uploads, or convert YouTube videos into AP-style questions.</p>
+            <p className="text-gray-500">Generate notes from AI, PDFs, or YouTube videos — then click <strong>Start Mastering</strong> to turn them into flashcards.</p>
           </div>
 
           {/* Tabs */}
@@ -56,8 +56,8 @@ export default function APStudyHub() {
           </div>
 
           {activeTab === 'notes' && <APNotesGenerator />}
-          {activeTab === 'upload' && <APUploadPractice />}
-          {activeTab === 'youtube' && <APYoutubePractice />}
+          {activeTab === 'upload' && <APUploadNotes />}
+          {activeTab === 'youtube' && <APYoutubeNotes />}
         </div>
       </div>
     </ProtectedRoute>

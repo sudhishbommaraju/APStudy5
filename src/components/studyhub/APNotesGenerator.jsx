@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Loader2, Maximize2, Download, Copy, RefreshCw, BookOpen } from 'lucide-react';
+import { Sparkles, Loader2, Maximize2, Download, Copy, RefreshCw, BookOpen, Zap } from 'lucide-react';
+import NotesMasteryView from './NotesMasteryView';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import APSubjectSelector from './APSubjectSelector';
@@ -21,6 +22,7 @@ export default function APNotesGenerator() {
   const [loading, setLoading] = useState(false);
   const [notes, setNotes] = useState(null);
   const [fullscreen, setFullscreen] = useState(false);
+  const [showMastery, setShowMastery] = useState(false);
   const notesRef = useRef(null);
 
   const topics = subject && unit
@@ -165,6 +167,13 @@ Be detailed and thorough. Minimum 800 words. Use clear headings and bullet point
               <span className="text-sm font-semibold text-gray-800">{notes.title || `${subject?.subject} — ${unit}`}</span>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setShowMastery(true)}
+                className="bg-green-500 hover:bg-green-600 text-white text-sm gap-1.5 mr-2"
+                size="sm"
+              >
+                <Zap className="w-3.5 h-3.5" /> Start Mastering
+              </Button>
               <button onClick={copyNotes} className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors" title="Copy">
                 <Copy className="w-4 h-4" />
               </button>
@@ -183,6 +192,14 @@ Be detailed and thorough. Minimum 800 words. Use clear headings and bullet point
             <NotesContent />
           </div>
         </div>
+      )}
+
+      {showMastery && notes && (
+        <NotesMasteryView
+          notes={notes.content}
+          title={notes.title || `${subject?.subject} — ${unit}`}
+          onClose={() => setShowMastery(false)}
+        />
       )}
 
       {/* Fullscreen Modal */}
