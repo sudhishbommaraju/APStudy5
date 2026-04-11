@@ -259,51 +259,7 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice })
           </div>
         )}
 
-        {/* Practice Questions */}
-        {practiceQuestions.length > 0 && (
-          <div className="mt-10">
-            <h2 className={`font-bold text-gray-900 dark:text-[#F5F5F5] mb-4 ${fs ? 'text-2xl' : 'text-lg'}`}>Practice Questions</h2>
-            <div className="space-y-4">
-              {practiceQuestions.map((q, i) => {
-                const answered = answeredQ[i];
-                return (
-                  <div key={i} className={`border rounded-2xl overflow-hidden ${q.type === 'FRQ' ? 'border-purple-300 dark:border-purple-700' : 'border-gray-200 dark:border-[#2A2A2A]'}`}>
-                    <div className="px-5 py-4">
-                      <div className="flex items-start gap-2 mb-3">
-                        <span className={`shrink-0 text-xs font-bold px-2 py-0.5 rounded-full ${q.type === 'FRQ' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
-                          {q.type || 'MCQ'}
-                        </span>
-                        <p className={`font-medium text-gray-900 dark:text-[#F5F5F5] leading-relaxed ${fs ? 'text-base' : 'text-sm'}`}>{q.question}</p>
-                      </div>
-                      {q.options?.length > 0 && !answered && (
-                        <div className="space-y-2 ml-7">
-                          {q.options.map((opt, j) => (
-                            <button key={j} onClick={() => setAnsweredQ(p => ({ ...p, [i]: String.fromCharCode(65 + j) }))}
-                              className={`w-full text-left px-3 py-2 rounded-xl border border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-colors ${fs ? 'text-base' : 'text-sm'} text-gray-700`}>
-                              <span className="font-bold mr-2 text-gray-400">{String.fromCharCode(65 + j)}.</span>{opt}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                      {!answered && !q.options?.length && (
-                        <button onClick={() => setAnsweredQ(p => ({ ...p, [i]: true }))}
-                          className="ml-7 text-xs text-blue-500 hover:underline font-medium mt-1">
-                          Show answer →
-                        </button>
-                      )}
-                    </div>
-                    {answered && (
-                    <div className={`px-5 py-4 border-t ${q.type === 'FRQ' ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-100 dark:border-purple-800/40' : 'bg-green-50 dark:bg-green-900/20 border-green-100 dark:border-green-800/40'}`}>
-                        <p className={`text-xs font-bold uppercase tracking-wider mb-2 ${q.type === 'FRQ' ? 'text-purple-500' : 'text-green-500'}`}>Answer</p>
-                        <p className={`${fs ? 'text-base' : 'text-sm'} text-gray-700 dark:text-[#B5B5B5] leading-relaxed`}>{q.answer}</p>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
+
 
         {(!displaySections.length && !summaryBullets.length) && (
           <div className="text-center py-16">
