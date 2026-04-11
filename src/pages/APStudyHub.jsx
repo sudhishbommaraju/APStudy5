@@ -31,6 +31,7 @@ export default function APStudyHub() {
   const [quizIndex, setQuizIndex] = useState(0);
   const [quizScore, setQuizScore] = useState(0);
   const [generatingQuiz, setGeneratingQuiz] = useState(false);
+  const [generatingPractice, setGeneratingPractice] = useState(false);
 
   async function loadSubjectNotes(subject) {
     setLoadingNotes(true);
@@ -69,6 +70,68 @@ export default function APStudyHub() {
     setShowCreate(false);
     setCreateType(null);
     setStep(3);
+  }
+
+  async function handleCreatePractice() {
+    if (!selectedNote) return;
+    setGeneratingPractice(true);
+    const nd = selectedNote.notes_data || {};
+    const notesText = [
+      nd.title || selectedNote.title,
+      ...(Array.isArray(nd.summary) ? nd.summary : []),
+      ...(nd.sections || []).flatMap(s => [s.title, ...(s.bullets || [])]),
+      ...(nd.keyTerms || []).map(k => typeof k === 'string' ? k : `${k.term}: ${k.definition}`),
+    ].join('\n');
+
+    try {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are an AP exam question writer. Generate 10 rigorous AP-style multiple choice questions based ONLY on the following study notes. Test deep understanding, application, and analysis — not just recall. All 4 choices should be plausible.
+
+Study Notes:
+"""
+${notesText.slice(0, 6000)}
+"""
+
+Return exactly 10 questions. Each must have: question, 4 options (A-D), correct answer letter, and a detailed explanation.`,
+        model: 'gemini_3_flash',
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            questions: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  question_text: { type: 'string' },
+                  choice_a: { type: 'string' },
+                  choice_b: { type: 'string' },
+                  choice_c: { type: 'string' },
+                  choice_d: { type: 'string' },
+                  correct_answer: { type: 'string' },
+                  explanation: { type: 'string' }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      const mapped = (result?.questions || []).map(q => ({
+        ...q,
+        answer_choices: [q.choice_a, q.choice_b, q.choice_c, q.choice_d],
+        subject_name: selectedSubject?.subject || selectedNote.subject_id,
+        unit_name: selectedNote.title,
+        difficulty: 'medium',
+      }));
+
+      setQuizQuestions(mapped);
+      setQuizIndex(0);
+      setQuizScore(0);
+      setStep(5);
+    } catch (e) {
+      // stay on notes
+    }
+    setGeneratingPractice(false);
   }
 
   async function handleTakeQuiz() {
@@ -234,25 +297,25 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
             </button>
             <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
             <span className="text-sm font-semibold text-gray-900 truncate max-w-xs">{selectedNote.title}</span>
-
-            <div className="ml-auto">
-              <Button
-                onClick={handleTakeQuiz}
-                disabled={generatingQuiz}
-                className="bg-green-500 hover:bg-green-600 text-white font-semibold"
-              >
-                {generatingQuiz ? (
-                  <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Building Quiz…</>
-                ) : (
-                  <><Brain className="w-4 h-4 mr-2" /> Take a Quiz</>
-                )}
-              </Button>
-            </div>
           </div>
 
           <div className="flex-1 overflow-hidden">
-            <NotesDocumentView note={selectedNote} onUpdated={() => loadSubjectNotes(selectedSubject)} />
+            <NotesDocumentView
+              note={selectedNote}
+              onUpdated={() => loadSubjectNotes(selectedSubject)}
+              onCreatePractice={handleCreatePractice}
+            />
           </div>
+
+          {generatingPractice && (
+            <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+              <div className="bg-white rounded-2xl p-8 text-center shadow-2xl">
+                <Loader2 className="w-10 h-10 text-green-500 animate-spin mx-auto mb-3" />
+                <h3 className="font-bold text-gray-900 mb-1">Generating Practice</h3>
+                <p className="text-sm text-gray-500">Creating AP-style questions from your notes…</p>
+              </div>
+            </div>
+          )}
         </div>
       </ProtectedRoute>
     );

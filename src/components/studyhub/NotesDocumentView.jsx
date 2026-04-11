@@ -1,11 +1,10 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import {
-  Edit3, Check, Highlighter, Download, Brain, Zap, Layers, X,
+  Edit3, Check, Highlighter, Download, Brain, X,
   ChevronDown, ChevronUp, BookOpen, Loader2, Maximize2, Minimize2
 } from 'lucide-react';
 import APVisuals from './APVisuals';
-import NotesMasteryView from './NotesMasteryView';
 
 const HIGHLIGHT_COLORS = ['#FFF176', '#A5D6A7', '#90CAF9', '#FFCC80', '#F48FB1'];
 
@@ -69,7 +68,7 @@ function downloadNote(note) {
   URL.revokeObjectURL(url);
 }
 
-export default function NotesDocumentView({ note, onUpdated }) {
+export default function NotesDocumentView({ note, onUpdated, onCreatePractice }) {
   const nd = note.notes_data || {};
   const summaryBullets = Array.isArray(nd.summary) ? nd.summary : (nd.summary ? [nd.summary] : []);
   const sections = nd.sections || [];
@@ -86,70 +85,13 @@ export default function NotesDocumentView({ note, onUpdated }) {
   const [highlights, setHighlights] = useState([]);
   const [highlightMode, setHighlightMode] = useState(false);
   const [highlightColor, setHighlightColor] = useState('#FFF176');
-  const [showMastery, setShowMastery] = useState(false);
   const [answeredQ, setAnsweredQ] = useState({});
   const [saving, setSaving] = useState(false);
-  const [activePanel, setActivePanel] = useState('practice');
-  const [flashcards, setFlashcards] = useState([]);
-  const [flippedCards, setFlippedCards] = useState(new Set());
-  const [generatingFlashcards, setGeneratingFlashcards] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
 
   const displaySections = editMode ? editedSections : sections.map(s => ({ ...s, bullets: s.bullets || s.content || [] }));
 
-  const handleMouseUp = useCallback(() => {
-    if (!highlightMode) return;
-    const sel = window.getSelection();
-    if (!sel || sel.isCollapsed) return;
-    const phrase = sel.toString().trim();
-    if (phrase.length < 2) return;
-    setHighlights(prev => [...prev, { phrase, color: highlightColor }]);
-    sel.removeAllRanges();
-  }, [highlightMode, highlightColor]);
 
-  const updateBullet = (si, bi, val) => {
-    setEditedSections(prev => {
-      const next = prev.map(s => ({ ...s, bullets: [...(s.bullets || [])] }));
-      next[si].bullets[bi] = val;
-      return next;
-    });
-  };
-
-  async function saveEdits() {
-    setSaving(true);
-    const updated = { ...nd, sections: editedSections.map(s => ({ ...s, content: s.bullets })) };
-    await base44.entities.StudyNote.update(note.id, { notes_data: updated });
-    setSaving(false);
-    setEditMode(false);
-    onUpdated?.();
-  }
-
-  async function generateFlashcards() {
-    setGeneratingFlashcards(true);
-    setActivePanel('flashcards');
-    try {
-      const allContent = displaySections.map(s => `${s.title}: ${s.bullets.join(' ')}`).join('\n');
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Create 12 flashcards from these AP notes. Front = key term or question, back = concise answer.\n\n${allContent}`,
-        model: 'gemini_3_flash',
-        response_json_schema: {
-          type: 'object', properties: {
-            flashcards: { type: 'array', items: { type: 'object', properties: { front: { type: 'string' }, back: { type: 'string' } } } }
-          }
-        }
-      });
-      setFlashcards(result?.flashcards || []);
-    } catch (e) {}
-    setGeneratingFlashcards(false);
-  }
-
-  const toggleCard = (i) => setFlippedCards(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
-
-  const masteryText = [
-    ...(summaryBullets.map(b => `- ${b}`)),
-    '',
-    ...displaySections.flatMap(s => [`## ${s.title}`, ...s.bullets.map(b => `- ${b}`), ''])
-  ].join('\n');
 
   // Toolbar shared between normal and fullscreen
   const Toolbar = ({ isFullscreen }) => (
@@ -186,6 +128,15 @@ export default function NotesDocumentView({ note, onUpdated }) {
       <button onClick={() => setFullscreen(p => !p)} className="p-2 rounded-lg hover:bg-gray-100 text-gray-500" title="Fullscreen">
         {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
       </button>
+
+      {onCreatePractice && (
+        <button
+          onClick={onCreatePractice}
+          className="flex items-center gap-1.5 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-semibold transition-colors"
+        >
+          <Brain className="w-3.5 h-3.5" /> Create Practice
+        </button>
+      )}
     </div>
   );
 
@@ -343,26 +294,9 @@ export default function NotesDocumentView({ note, onUpdated }) {
     <>
       {/* Normal view */}
       {!fullscreen && (
-        <div className="flex h-full">
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <Toolbar isFullscreen={false} />
-            <NotesContent fs={false} />
-          </div>
-
-          {/* Right panel */}
-          <div className="w-72 border-l border-gray-200 flex flex-col bg-white shrink-0">
-            <div className="flex border-b border-gray-200">
-              {[{ id: 'practice', label: 'Practice', icon: Brain }, { id: 'flashcards', label: 'Flashcards', icon: Layers }].map(({ id, label, icon: Icon }) => (
-                <button key={id} onClick={() => setActivePanel(id)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-3 text-xs font-semibold border-b-2 transition-colors ${activePanel === id ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
-                  <Icon className="w-3.5 h-3.5" />{label}
-                </button>
-              ))}
-            </div>
-
-            {activePanel === 'practice' && <PracticePanel practiceQuestions={practiceQuestions} answeredQ={answeredQ} setAnsweredQ={setAnsweredQ} onMastery={() => setShowMastery(true)} />}
-            {activePanel === 'flashcards' && <FlashcardsPanel flashcards={flashcards} flippedCards={flippedCards} toggleCard={toggleCard} generating={generatingFlashcards} onGenerate={generateFlashcards} />}
-          </div>
+        <div className="flex h-full flex-col">
+          <Toolbar isFullscreen={false} />
+          <NotesContent fs={false} />
         </div>
       )}
 
@@ -373,85 +307,6 @@ export default function NotesDocumentView({ note, onUpdated }) {
           <NotesContent fs={true} />
         </div>
       )}
-
-      {showMastery && (
-        <NotesMasteryView notes={masteryText} title={note.title} onClose={() => setShowMastery(false)} />
-      )}
     </>
-  );
-}
-
-function PracticePanel({ practiceQuestions, answeredQ, setAnsweredQ, onMastery }) {
-  return (
-    <div className="flex-1 overflow-auto flex flex-col">
-      <div className="p-3 border-b border-gray-100">
-        <button onClick={onMastery} className="w-full flex items-center justify-center gap-2 py-2.5 bg-green-500 hover:bg-green-600 text-white rounded-xl text-xs font-semibold transition-colors">
-          <Zap className="w-3.5 h-3.5" /> Mastery Mode
-        </button>
-      </div>
-      <div className="flex-1 overflow-auto p-3 space-y-3">
-        {practiceQuestions.length === 0
-          ? <p className="text-xs text-gray-400 text-center mt-6">No practice questions in this note.</p>
-          : practiceQuestions.map((q, i) => {
-            const answered = answeredQ[i];
-            return (
-              <div key={i} className={`border rounded-xl p-3 ${q.type === 'FRQ' ? 'border-purple-200' : 'border-gray-200'}`}>
-                <div className="flex items-start gap-1.5 mb-2">
-                  <span className={`shrink-0 text-xs font-bold px-1.5 py-0.5 rounded ${q.type === 'FRQ' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>{q.type || 'MCQ'}</span>
-                  <p className="text-xs text-gray-800 leading-relaxed font-medium">{q.question}</p>
-                </div>
-                {q.options?.length > 0 && !answered && (
-                  <div className="space-y-1.5">
-                    {q.options.map((opt, j) => (
-                      <button key={j} onClick={() => setAnsweredQ(p => ({ ...p, [i]: String.fromCharCode(65 + j) }))}
-                        className="w-full text-left text-xs px-2.5 py-2 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
-                        <span className="font-bold mr-1.5">{String.fromCharCode(65 + j)}.</span>{opt}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                {!answered && !q.options?.length && (
-                  <button onClick={() => setAnsweredQ(p => ({ ...p, [i]: true }))} className="text-xs text-blue-500 hover:underline font-medium mt-1">Show answer →</button>
-                )}
-                {answered && (
-                  <div className="mt-2 bg-green-50 border border-green-200 rounded-lg p-2.5">
-                    <p className="text-xs font-semibold text-green-600 mb-1">Answer</p>
-                    <p className="text-xs text-green-800 leading-relaxed">{q.answer}</p>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-      </div>
-    </div>
-  );
-}
-
-function FlashcardsPanel({ flashcards, flippedCards, toggleCard, generating, onGenerate }) {
-  return (
-    <div className="flex-1 overflow-auto flex flex-col">
-      <div className="p-3 border-b border-gray-100">
-        <button onClick={onGenerate} disabled={generating}
-          className="w-full flex items-center justify-center gap-2 py-2.5 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-60 text-white rounded-xl text-xs font-semibold transition-colors">
-          {generating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Layers className="w-3.5 h-3.5" />}
-          {generating ? 'Generating…' : 'Generate Flashcards'}
-        </button>
-      </div>
-      <div className="flex-1 overflow-auto p-3 space-y-2">
-        {flashcards.length === 0 && !generating && (
-          <p className="text-xs text-gray-400 text-center mt-6">Click above to auto-generate flashcards from this note.</p>
-        )}
-        {flashcards.map((card, i) => {
-          const flipped = flippedCards.has(i);
-          return (
-            <button key={i} onClick={() => toggleCard(i)}
-              className={`w-full text-left p-3 rounded-xl border-2 transition-all ${flipped ? 'bg-indigo-50 border-indigo-300' : 'bg-white border-gray-200 hover:border-indigo-200'}`}>
-              <p className={`text-xs font-semibold mb-1 ${flipped ? 'text-indigo-500' : 'text-gray-400'}`}>{flipped ? 'Answer' : `Card ${i + 1}`}</p>
-              <p className={`text-xs leading-relaxed ${flipped ? 'text-indigo-900' : 'text-gray-800 font-medium'}`}>{flipped ? card.back : card.front}</p>
-            </button>
-          );
-        })}
-      </div>
-    </div>
   );
 }
