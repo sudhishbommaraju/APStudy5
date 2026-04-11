@@ -1,0 +1,74 @@
+{
+  "name": "StudyNote",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User email"
+    },
+    "exam_type": {
+      "type": "string",
+      "enum": [
+        "SAT",
+        "ACT",
+        "AP"
+      ],
+      "description": "Exam type"
+    },
+    "subject_id": {
+      "type": "string",
+      "description": "For AP subjects"
+    },
+    "domain_id": {
+      "type": "string",
+      "description": "For SAT/ACT domains"
+    },
+    "unit_id": {
+      "type": "string",
+      "description": "For AP units"
+    },
+    "title": {
+      "type": "string",
+      "description": "Note title"
+    },
+    "content": {
+      "type": "string",
+      "description": "AI-generated note content (markdown)"
+    },
+    "notes_data": {
+      "type": "object",
+      "description": "Structured notes JSON from pipeline (sections, keyTerms, practiceQuestions, etc.)"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "ai",
+        "upload",
+        "youtube"
+      ],
+      "default": "ai",
+      "description": "How the note was created"
+    },
+    "key_concepts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "practice_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "IDs of related practice questions"
+    }
+  },
+  "required": [
+    "user_email",
+    "exam_type",
+    "title",
+    "content"
+  ]
+}
