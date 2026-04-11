@@ -1,21 +1,11 @@
 import { base44 } from '@/api/base44Client';
 
-// Simple in-memory cache: key -> notes
 const notesCache = new Map();
 
 function cacheKey(context, text) {
   return `${context}::${text.slice(0, 200)}`;
 }
 
-const LATEX_RULES = `STRICT MATH/LATEX RULES:
-- Wrap all equations in $$ $$
-- Fractions: \\frac{a}{b}
-- Superscripts: t^2, subscripts: v_i
-- Units inside \\text{}: e.g. 100 \\text{ m}, 5 \\text{ s}
-- NEVER use commas inside math expressions
-- Show substitutions step by step`;
-
-// Chunk text into ~1000 token pieces at sentence boundaries
 function chunkText(text, maxChars = 4000) {
   const sentences = text.split(/(?<=[.!?])\s+/);
   const chunks = [];
@@ -32,13 +22,12 @@ function chunkText(text, maxChars = 4000) {
   return chunks;
 }
 
-// Clean filler words, timestamps, repeated lines
 function normalizeText(text) {
   const lines = text.split('\n');
   const seen = new Set();
   const cleaned = lines
     .map(l => l
-      .replace(/\[\d+:\d+(?::\d+)?\]/g, '') // timestamps
+      .replace(/\[\d+:\d+(?::\d+)?\]/g, '')
       .replace(/\b(um|uh|like|you know|basically|literally|gonna|wanna)\b/gi, '')
       .trim()
     )
@@ -46,20 +35,21 @@ function normalizeText(text) {
   return cleaned.join(' ').replace(/\s+/g, ' ').trim();
 }
 
-// PASS 1: Extract key topics from chunks
+const STRICT_FORMAT_RULES = `
+STRICT OUTPUT RULES — YOU MUST FOLLOW THESE EXACTLY:
+- NO long paragraphs. Every idea must be a bullet point.
+- MAX 2 lines per bullet point.
+- Use ## for section headers, # for the title.
+- Always leave a blank line between sections.
+- Key Terms section: "**term**: definition" format, one per bullet.
+- Practice Questions: numbered list with "Answer: ..." on next line.
+- NEVER write walls of text. If you feel like writing a paragraph, write bullets instead.
+`;
+
 async function extractTopics(chunks, context) {
-  const combinedSample = chunks.slice(0, 3).join('\n\n').slice(0, 6000);
-  const result = await base44.integrations.Core.InvokeLLM({
-    prompt: `You are an AP curriculum expert. Extract the key topics and concepts from this study material.
-
-Context: ${context}
-
-Text:
-"""
-${combinedSample}
-"""
-
-Return 5-10 distinct, non-overlapping AP-level topics. Be concise and specific.`,
+  const sample = chunks.slice(0, 3).join('\n\n').slice(0, 6000);
+  return await base44.integrations.Core.InvokeLLM({
+    prompt: `You are an AP curriculum expert. Extract 5-8 distinct topics from this material.\nContext: ${context}\n\nText:\n"""\n${sample}\n"""\n\nReturn specific, non-overlapping AP-level topics.`,
     model: 'gemini_3_flash',
     response_json_schema: {
       type: 'object',
@@ -70,81 +60,78 @@ Return 5-10 distinct, non-overlapping AP-level topics. Be concise and specific.`
       }
     }
   });
-  return result;
 }
 
-// PASS 2: Expand each topic into structured content
-async function expandTopic(topic, context, subjectHint) {
-  const result = await base44.integrations.Core.InvokeLLM({
-    prompt: `You are an expert AP tutor. Explain this concept for an AP-level student.
+async function expandTopic(topic, context) {
+  return await base44.integrations.Core.InvokeLLM({
+    prompt: `You are an AP tutor. Explain this topic for an AP student using ONLY bullet points.
 
-Subject context: ${subjectHint}
 Topic: "${topic}"
+Context: ${context}
 
-${LATEX_RULES}
+${STRICT_FORMAT_RULES}
 
-Provide:
-- Definition (1-2 sentences)
-- Detailed explanation (3-5 bullet points)
-- Worked example with full step-by-step solution
-- Formula in LaTeX if applicable
-- When/how it appears on AP exams
-
-Use bullet points only, no dense paragraphs.`,
+Return:
+- title: short section title
+- bullets: array of 4-6 bullet strings (max 2 lines each, no markdown inside)
+- hasGraph: true if a graph/diagram would help
+- graphType: one of "kinematics", "calculus", "chemistry", "population", "vonThunen", "agriculture" or ""`,
     model: 'gemini_3_flash',
     response_json_schema: {
       type: 'object',
       properties: {
         title: { type: 'string' },
         bullets: { type: 'array', items: { type: 'string' } },
-        hasFormula: { type: 'boolean' },
         hasGraph: { type: 'boolean' },
         graphType: { type: 'string' }
       }
     }
   });
-  return result;
 }
 
-// PASS 3: Assemble final notes + practice questions
 async function assembleNotes(topicExpansions, context, subject) {
   const topicSummary = topicExpansions
-    .map(t => `## ${t.title}\n${t.bullets?.join('\n')}`)
+    .map(t => `## ${t.title}\n${(t.bullets || []).map(b => `- ${b}`).join('\n')}`)
     .join('\n\n');
 
-  const result = await base44.integrations.Core.InvokeLLM({
-    prompt: `You are an expert AP curriculum designer. Assemble these expanded topics into polished, structured AP study notes.
+  return await base44.integrations.Core.InvokeLLM({
+    prompt: `You are an AP curriculum designer assembling clean, structured study notes.
 
 Subject: ${subject}
 Context: ${context}
 
-${LATEX_RULES}
+${STRICT_FORMAT_RULES}
 
-Expanded topics:
+Source material:
 """
 ${topicSummary.slice(0, 8000)}
 """
 
-Create a final structured notes document. Follow this JSON schema exactly.
-- 4-7 sections, each with 4-8 bullet points
-- keyTerms: 10-15 vocabulary terms
-- 3-4 MCQ practice questions with answers
-- 1-2 FRQ practice questions with step-by-step LaTeX solutions
-- summary: 2-3 sentences`,
+Create final structured notes. Every section must use BULLET POINTS only — no paragraphs.
+- summary: 3-5 bullet strings describing the overall topic
+- keyTerms: array of objects with "term" and "definition" (keep definitions to 1 sentence)
+- sections: 4-7 sections, each with a title and 4-7 bullet points (strings, no markdown inside)
+- practiceQuestions: 3-4 questions (mix MCQ and FRQ), each with type, question, answer, and options array for MCQ`,
     model: 'gemini_3_flash',
     response_json_schema: {
       type: 'object',
       properties: {
         title: { type: 'string' },
-        summary: { type: 'string' },
-        keyTerms: { type: 'array', items: { type: 'string' } },
+        summary: { type: 'array', items: { type: 'string' } },
+        keyTerms: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: { term: { type: 'string' }, definition: { type: 'string' } }
+          }
+        },
         sections: {
           type: 'array',
           items: {
             type: 'object',
             properties: {
               title: { type: 'string' },
-              content: { type: 'array', items: { type: 'string' } },
+              bullets: { type: 'array', items: { type: 'string' } },
               hasGraph: { type: 'boolean' },
               graphType: { type: 'string' }
             }
@@ -165,50 +152,30 @@ Create a final structured notes document. Follow this JSON schema exactly.
       }
     }
   });
-  return result;
 }
 
-/**
- * Main pipeline entry point.
- * @param {string} rawText - Raw input text (transcript, extracted doc, etc.)
- * @param {string} context - e.g. "AP Physics 1 - Kinematics"
- * @param {function} onProgress - callback(step: string)
- * @returns {Promise<object>} structured notes
- */
 export async function generateNotesPipeline(rawText, context, onProgress = () => {}) {
   const key = cacheKey(context, rawText);
-  if (notesCache.has(key)) {
-    onProgress('cache');
-    return notesCache.get(key);
-  }
+  if (notesCache.has(key)) { onProgress('cache'); return notesCache.get(key); }
 
-  // Step 1: Normalize
   onProgress('normalizing');
   const cleanText = normalizeText(rawText);
   if (cleanText.length < 100) throw new Error('Text is too short to generate notes from.');
 
-  // Step 2: Chunk
   onProgress('chunking');
   const chunks = chunkText(cleanText);
 
-  // Step 3: Extract topics (Pass 1)
   onProgress('extracting');
-  const { topics = [], subject = context, unit = '' } = await extractTopics(chunks, context);
+  const { topics = [], subject = context } = await extractTopics(chunks, context);
   if (!topics.length) throw new Error('Could not identify topics. Try a different source.');
 
-  // Step 4: Expand topics in parallel (Pass 2)
   onProgress('expanding');
-  const expansions = await Promise.all(
-    topics.slice(0, 7).map(t => expandTopic(t, context, subject))
-  );
+  const expansions = await Promise.all(topics.slice(0, 7).map(t => expandTopic(t, context)));
 
-  // Step 5: Assemble (Pass 3)
   onProgress('assembling');
   const notes = await assembleNotes(expansions, context, subject);
 
-  if (!notes?.title || !notes?.sections?.length) {
-    throw new Error('Notes assembly failed. Please try again.');
-  }
+  if (!notes?.title || !notes?.sections?.length) throw new Error('Notes assembly failed. Please try again.');
 
   notesCache.set(key, notes);
   return notes;
