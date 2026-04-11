@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart2, BookOpen, ClipboardList, Layers, Calendar, Settings, LayoutDashboard, Sun, Moon, Flame, Map, ShoppingBag, Sparkles, Clock, FileText, Headphones } from 'lucide-react';
+import { BarChart2, BookOpen, ClipboardList, Layers, Calendar, Settings, LayoutDashboard, Sun, Moon, Flame, Map, ShoppingBag, Sparkles, Clock, FileText, Headphones, GraduationCap } from 'lucide-react';
 
 const AP_EXAM_DATES_2026 = [
   { subject: 'AP Human Geography', date: '2026-05-05', id: 'human_geo' },
@@ -48,6 +48,7 @@ const NAV_BY_EXAM = {
     { id: 'practice',   label: 'AP Practice',    icon: BookOpen,        route: '/APPractice' },
     { id: 'exams',      label: 'AP Full Test',   icon: ClipboardList,   route: '/APFullTest' },
     { id: 'frq',        label: 'FRQ Simulator',  icon: FileText,        route: '/APFRQSimulator' },
+    { id: 'studyhub',   label: 'AP Study Hub',   icon: GraduationCap,   route: '/ap-study-hub' },
     { id: 'studyplan',  label: 'Study Plan',     icon: Sparkles,        route: '/study-plan-generator?type=AP' },
     { id: 'analytics',  label: 'Analytics',      icon: BarChart2,       route: '/analytics-dashboard' },
     { id: 'flashcards', label: 'Flashcards',     icon: Layers,          route: '/Flashcards' },

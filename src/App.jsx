@@ -17,6 +17,7 @@ import Roadmap from './pages/Roadmap';
 import Store from './pages/Store';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import AudioLessons from './pages/AudioLessons';
+import APStudyHub from './pages/APStudyHub';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -71,6 +72,11 @@ const AuthenticatedApp = () => {
       <Route path="/terms" element={<Terms />} />
       <Route path="/Roadmap" element={<Roadmap />} />
       <Route path="/Store" element={<Store />} />
+      <Route path="/ap-study-hub" element={
+        <LayoutWrapper currentPageName="APStudyHub">
+          <APStudyHub />
+        </LayoutWrapper>
+      } />
       <Route path="/audio-lessons" element={
         <LayoutWrapper currentPageName="AudioLessons">
           <AudioLessons />
