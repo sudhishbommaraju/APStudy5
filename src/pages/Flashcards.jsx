@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import DashboardNavbar from '@/components/layout/DashboardNavbar';
 import DeckFlashcardReview from '@/components/flashcards/DeckFlashcardReview';
 import StructuredDeckGenerator from '@/components/flashcards/StructuredDeckGenerator';
-import { Loader2, Trash2, Play, Layers } from 'lucide-react';
+import { Loader2, Trash2, Play, Layers, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 export default function Flashcards() {
+  const navigate = useNavigate();
   const [decks, setDecks] = useState([]);
   const [selectedDeck, setSelectedDeck] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -88,6 +90,12 @@ export default function Flashcards() {
         <DashboardNavbar />
         <div className="max-w-[1200px] mx-auto px-6 py-8">
           <div className="mb-6">
+            <button
+              onClick={() => navigate('/Dashboard')}
+              className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-3"
+            >
+              <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+            </button>
             <h1 className="text-2xl font-bold text-gray-900">Flashcard Decks</h1>
             <p className="text-gray-500 text-sm mt-1">Study by subject and unit with spaced repetition</p>
           </div>
