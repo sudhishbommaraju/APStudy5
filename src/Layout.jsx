@@ -1,10 +1,17 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { base44 } from '@/api/base44Client';
 import MarketingNavbar from '@/components/navigation/MarketingNavbar';
 import DashboardNavbar from '@/components/layout/DashboardNavbar';
 import CookieConsentBanner from '@/components/legal/CookieConsentBanner';
 import LegalFooter from '@/components/legal/LegalFooter';
 
 export default function Layout({ children, currentPageName }) {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  useEffect(() => {
+    base44.auth.isAuthenticated().then(setIsLoggedIn);
+  }, []);
+
   // SYSTEM RESET - Clear all cached state on mount
   React.useEffect(() => {
     console.log('[RESET] Clearing cached state...');
@@ -28,6 +35,9 @@ export default function Layout({ children, currentPageName }) {
 
   // Dashboard pages (use DashboardNavbar)
   const dashboardPages = ['Profile', 'EnginePracticeSession', 'EngineResults'];
+  
+  // Show footer only if not logged in OR on landing page
+  const shouldShowFooter = !isLoggedIn || currentPageName === 'LandingPage';
 
   // No layout wrapper for dashboard pages
   if (noLayoutPages.includes(currentPageName)) {
@@ -70,7 +80,7 @@ export default function Layout({ children, currentPageName }) {
       <main className="flex-1">
         {children}
       </main>
-      <LegalFooter />
+      {shouldShowFooter && <LegalFooter />}
       <CookieConsentBanner />
     </div>
   );
