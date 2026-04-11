@@ -215,11 +215,10 @@ Generate exactly ${count} flashcards as JSON:`;
   };
 
   return (
-    <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 space-y-5">
+    <div className="space-y-4">
       <div>
-        <h3 className="text-white font-semibold text-lg mb-1">Generate a Deck</h3>
         {selectedSubject && selectedUnit && (
-          <p className="text-[#D6B98C] text-sm font-medium">
+          <p className="text-blue-500 text-xs font-medium">
             {selectedSubject.name} — Unit {selectedUnit.n}: {selectedUnit.title}
           </p>
         )}
@@ -227,54 +226,54 @@ Generate exactly ${count} flashcards as JSON:`;
 
       {/* Subject */}
       <div>
-        <label className="text-neutral-400 text-xs uppercase tracking-wider mb-1.5 block">Subject</label>
+        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 block">Subject</label>
         <div className="relative">
           <select
             value={subjectId}
             onChange={e => { setSubjectId(e.target.value); setUnitNumber(''); }}
-            className="w-full appearance-none bg-neutral-800 border border-neutral-700 rounded-lg px-4 py-2.5 text-white text-sm pr-10 focus:outline-none focus:border-[#D6B98C]"
+            className="w-full appearance-none bg-white border border-gray-200 rounded-lg px-3 py-2 text-gray-800 text-sm pr-8 focus:outline-none focus:border-blue-400"
           >
             <option value="">Select AP Subject...</option>
             {AP_SUBJECTS.map(s => (
               <option key={s.id} value={s.id}>{s.name}</option>
             ))}
           </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500 pointer-events-none" />
+          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
         </div>
       </div>
 
       {/* Unit */}
       {selectedSubject && (
         <div>
-          <label className="text-neutral-400 text-xs uppercase tracking-wider mb-1.5 block">Unit</label>
+          <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 block">Unit</label>
           <div className="relative">
             <select
               value={unitNumber}
               onChange={e => setUnitNumber(e.target.value)}
-              className="w-full appearance-none bg-neutral-800 border border-neutral-700 rounded-lg px-4 py-2.5 text-white text-sm pr-10 focus:outline-none focus:border-[#D6B98C]"
+              className="w-full appearance-none bg-white border border-gray-200 rounded-lg px-3 py-2 text-gray-800 text-sm pr-8 focus:outline-none focus:border-blue-400"
             >
               <option value="">Select Unit...</option>
               {selectedSubject.units.map(u => (
                 <option key={u.n} value={u.n}>Unit {u.n}: {u.title}</option>
               ))}
             </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500 pointer-events-none" />
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
           </div>
         </div>
       )}
 
       {/* Card count */}
       <div>
-        <label className="text-neutral-400 text-xs uppercase tracking-wider mb-1.5 block">Number of Cards</label>
+        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5 block">Number of Cards</label>
         <div className="flex gap-2">
           {[10, 15, 20, 30].map(n => (
             <button
               key={n}
               onClick={() => setCount(n)}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-all ${
                 count === n
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
+                  ? 'bg-blue-500 text-white border-blue-500'
+                  : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300'
               }`}
             >
               {n}
@@ -286,7 +285,7 @@ Generate exactly ${count} flashcards as JSON:`;
       <Button
         onClick={generate}
         disabled={loading || !subjectId || !unitNumber}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold h-11"
+        className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow-sm"
       >
         {loading ? (
           <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating {count} cards...</>
