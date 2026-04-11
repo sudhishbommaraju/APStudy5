@@ -37,7 +37,7 @@ export default function NotesCreateModal({ defaultType, subjectOverride, onClose
       if (type === 'ai') {
         if (!subject || !unit) { setError('Select a subject and unit.'); setStep('idle'); return; }
         const seed = await base44.integrations.Core.InvokeLLM({
-          prompt: `Write 700 words of comprehensive AP-level educational content about:\nSubject: ${subject.subject}\nUnit: ${unit}\nCover all major concepts, formulas, and exam focus areas.`,
+          prompt: `You are an expert AP teacher. Write a comprehensive, detailed AP-level study guide (1000+ words) about:\nSubject: ${subject.subject}\nUnit: ${unit}\n\nMust include:\n- All major concepts, theories, and definitions\n- Key formulas, equations, or frameworks\n- Important dates, people, or events if applicable\n- Common AP exam traps and how to avoid them\n- Connections between concepts\n- Real-world examples\n\nWrite as flowing educational prose — detailed enough that a student could learn the entire unit from it.`,
           model: 'gemini_3_flash',
           response_json_schema: { type: 'object', properties: { text: { type: 'string' } } }
         });
@@ -71,12 +71,13 @@ export default function NotesCreateModal({ defaultType, subjectOverride, onClose
       const notesData = await generateNotesPipeline(rawText, context, s => setStep(s));
 
       const user = await base44.auth.me();
+      const summaryArr = Array.isArray(notesData.summary) ? notesData.summary : (notesData.summary ? [notesData.summary] : []);
       const saved = await base44.entities.StudyNote.create({
         user_email: user.email,
         exam_type: 'AP',
         subject_id: subject?.id || type,
         title: notesData.title || context,
-        content: notesData.summary || '',
+        content: summaryArr.join(' ') || context,
         notes_data: notesData,
         source_type: type,
       });
