@@ -21,11 +21,11 @@ export default function DashboardNavbar() {
   };
 
   return (
-    <nav className="bg-neutral-900 border-b border-neutral-800 sticky top-0 z-40">
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <Link
           to={createPageUrl('Dashboard')}
-          className="text-xl font-bold text-white hover:text-neutral-300 transition-colors"
+          className="text-xl font-bold text-gray-900 hover:text-gray-600 transition-colors"
         >
           Proofly
         </Link>
