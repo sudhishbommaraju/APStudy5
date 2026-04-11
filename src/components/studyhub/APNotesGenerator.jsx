@@ -41,15 +41,27 @@ Subject: ${subject.subject}
 Unit: ${unit}${topic ? `\nTopic: ${topic}` : ''}
 Difficulty: ${difficulty}
 
+STRICT MATH/LATEX RULES (follow exactly):
+- Wrap ALL equations in $$ $$
+- Fractions: \\frac{a}{b}
+- Superscripts: t^2, Subscripts: v_i, v_f
+- Units MUST use \\text{}: e.g. 100 \\text{ m}, 5 \\text{ s}, 20 \\text{ m/s}
+- NEVER use commas inside math expressions
+- Show substitutions step by step:
+  $$ a = \\frac{v_f - v_i}{t} $$
+  $$ a = \\frac{30 \\text{ m/s} - 0}{10 \\text{ s}} $$
+  $$ a = 3 \\text{ m/s}^2 $$
+- Do NOT output broken or pseudo-LaTeX
+
 Format the notes in Markdown with:
 1. ## Unit Overview (2-3 sentence summary)
 2. ## Key Concepts (bulleted, clear definitions)
 3. ## Detailed Explanations (with ### subheadings per subtopic)
-4. ## Key Formulas / Equations (if applicable, use $$ for math)
-5. ## Important Examples (worked through step-by-step)
+4. ## Key Formulas / Equations (use $$ $$ for all math)
+5. ## Important Examples (worked through step-by-step with full LaTeX substitutions)
 6. ## Common AP Exam Tips (⭐ mark high-frequency topics)
 7. ## Practice Problems (3 AP-style MCQ + 1 FRQ)
-8. ## Solutions (fully explained)
+8. ## Solutions (fully explained with proper LaTeX)
 
 Be detailed and thorough. Minimum 800 words. Use clear headings and bullet points.`,
         response_json_schema: {

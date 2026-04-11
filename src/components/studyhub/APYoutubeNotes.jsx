@@ -4,7 +4,20 @@ import { Button } from '@/components/ui/button';
 import { Youtube, Loader2, Sparkles, BookOpen, Zap, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import NotesMasteryView from './NotesMasteryView';
 
-// --- URL helpers ---
+const LATEX_RULES = `
+STRICT MATH/LATEX RULES (follow exactly):
+- Wrap ALL equations in $$ $$
+- Fractions: \\frac{a}{b}
+- Superscripts: t^2, Subscripts: v_i, v_f
+- Units MUST use \\text{}: e.g. 100 \\text{ m}, 5 \\text{ s}, 20 \\text{ m/s}
+- NEVER use commas inside math: WRONG: 100 , m — CORRECT: 100 \\text{ m}
+- Show step-by-step substitutions:
+  $$ a = \\frac{v_f - v_i}{t} $$
+  $$ a = \\frac{30 \\text{ m/s} - 0}{10 \\text{ s}} $$
+  $$ a = 3 \\text{ m/s}^2 $$
+- Do NOT output broken or pseudo-LaTeX
+`;
+
 function extractVideoId(url) {
   const patterns = [
     /[?&]v=([a-zA-Z0-9_-]{11})/,
@@ -23,16 +36,13 @@ function isValidYoutubeUrl(url) {
   return /youtube\.com|youtu\.be/.test(url);
 }
 
-// --- Notes Viewer ---
 function NotesViewer({ notes, onMaster }) {
   const [openSections, setOpenSections] = useState({});
   const [openQ, setOpenQ] = useState({});
-
   const toggle = (set, key) => set(prev => ({ ...prev, [key]: !prev[key] }));
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-      {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
         <div className="flex items-center gap-2">
           <BookOpen className="w-4 h-4 text-blue-500" />
@@ -44,7 +54,6 @@ function NotesViewer({ notes, onMaster }) {
       </div>
 
       <div className="px-6 py-6 space-y-6 max-h-[70vh] overflow-auto">
-        {/* Summary */}
         {notes.summary && (
           <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl">
             <p className="text-xs font-semibold text-blue-500 uppercase tracking-wider mb-1.5">Summary</p>
@@ -52,48 +61,37 @@ function NotesViewer({ notes, onMaster }) {
           </div>
         )}
 
-        {/* Key Terms */}
         {notes.keyTerms?.length > 0 && (
           <div>
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Key Terms</p>
             <div className="flex flex-wrap gap-2">
               {notes.keyTerms.map((term, i) => (
-                <span key={i} className="px-3 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-xs font-medium">
-                  {term}
-                </span>
+                <span key={i} className="px-3 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-xs font-medium">{term}</span>
               ))}
             </div>
           </div>
         )}
 
-        {/* Sections */}
         {notes.sections?.length > 0 && (
           <div>
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Study Sections</p>
             <div className="space-y-2">
               {notes.sections.map((sec, i) => (
                 <div key={i} className="border border-gray-200 rounded-xl overflow-hidden">
-                  <button
-                    onClick={() => toggle(setOpenSections, i)}
-                    className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors text-left"
-                  >
+                  <button onClick={() => toggle(setOpenSections, i)} className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors text-left">
                     <span className="text-sm font-semibold text-gray-800">{sec.title}</span>
                     {openSections[i] ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
                   </button>
                   {openSections[i] && (
                     <div className="px-4 py-3 bg-white">
-                      {Array.isArray(sec.content) ? (
-                        <ul className="space-y-1.5">
-                          {sec.content.map((point, j) => (
-                            <li key={j} className="flex items-start gap-2 text-sm text-gray-700 leading-relaxed">
-                              <span className="text-blue-400 mt-1 shrink-0">•</span>
-                              <span>{point}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p className="text-sm text-gray-700 leading-relaxed">{sec.content}</p>
-                      )}
+                      <ul className="space-y-1.5">
+                        {(Array.isArray(sec.content) ? sec.content : [sec.content]).map((point, j) => (
+                          <li key={j} className="flex items-start gap-2 text-sm text-gray-700 leading-relaxed">
+                            <span className="text-blue-400 mt-1 shrink-0">•</span>
+                            <span>{point}</span>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   )}
                 </div>
@@ -102,17 +100,13 @@ function NotesViewer({ notes, onMaster }) {
           </div>
         )}
 
-        {/* Practice Questions */}
         {notes.practiceQuestions?.length > 0 && (
           <div>
             <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Practice Questions</p>
             <div className="space-y-2">
               {notes.practiceQuestions.map((q, i) => (
                 <div key={i} className="border border-gray-200 rounded-xl overflow-hidden">
-                  <button
-                    onClick={() => toggle(setOpenQ, i)}
-                    className="w-full flex items-start justify-between gap-4 px-4 py-3 hover:bg-gray-50 transition-colors text-left"
-                  >
+                  <button onClick={() => toggle(setOpenQ, i)} className="w-full flex items-start justify-between gap-4 px-4 py-3 hover:bg-gray-50 transition-colors text-left">
                     <span className="text-sm text-gray-800 font-medium leading-relaxed">
                       <span className="text-blue-500 font-bold mr-2">Q{i + 1}.</span>{q.question}
                     </span>
@@ -134,10 +128,9 @@ function NotesViewer({ notes, onMaster }) {
   );
 }
 
-// --- Main Component ---
 export default function APYoutubeNotes() {
   const [url, setUrl] = useState('');
-  const [status, setStatus] = useState('idle'); // idle | analyzing | generating | done | error
+  const [status, setStatus] = useState('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [notes, setNotes] = useState(null);
   const [showMastery, setShowMastery] = useState(false);
@@ -146,7 +139,6 @@ export default function APYoutubeNotes() {
   const videoId = extractVideoId(url);
 
   async function handleGenerate() {
-    // Validate
     if (!url.trim() || !isValidYoutubeUrl(url)) {
       setErrorMsg('Enter a valid YouTube link (youtube.com or youtu.be)');
       setStatus('error');
@@ -165,43 +157,30 @@ export default function APYoutubeNotes() {
     try {
       setStatus('generating');
 
+      const prompt = [
+        'You are an expert AP tutor. Analyze this YouTube video and generate structured AP study notes.',
+        '',
+        'Video URL: ' + url,
+        'Video ID: ' + videoId,
+        '',
+        'Use your web access to look up the video title, description, and transcript. Identify the AP subject and all topics taught.',
+        '',
+        LATEX_RULES,
+        '',
+        'Return ONLY valid JSON (no markdown, no code blocks):',
+        '{',
+        '  "title": "video topic title",',
+        '  "summary": "2-3 sentence overview",',
+        '  "keyTerms": ["term1", "term2"],',
+        '  "sections": [{"title": "Section", "content": ["bullet 1", "bullet 2"]}],',
+        '  "practiceQuestions": [{"question": "Q text", "answer": "full answer with proper LaTeX"}]',
+        '}',
+        '',
+        'Rules: 4-7 sections, 4-8 bullets each, 4-5 practice questions, 8-15 key terms. Base content on the actual video.',
+      ].join('\n');
+
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are an expert AP tutor. Analyze this YouTube video and generate structured AP study notes.
-
-Video URL: ${url}
-Video ID: ${videoId}
-
-Use your web access to:
-1. Look up the video title and description
-2. Find the transcript or captions if available
-3. Identify the AP subject, unit, and all topics taught
-
-Then generate structured notes. Return ONLY valid JSON (no markdown, no code blocks) matching exactly this schema:
-
-{
-  "title": "descriptive title of the video topic",
-  "summary": "2-3 sentence overview of what was taught",
-  "keyTerms": ["term1", "term2", "term3", ...],
-  "sections": [
-    {
-      "title": "Section heading",
-      "content": ["bullet point 1", "bullet point 2", "bullet point 3"]
-    }
-  ],
-  "practiceQuestions": [
-    {
-      "question": "AP-style question text",
-      "answer": "complete answer with explanation"
-    }
-  ]
-}
-
-Rules:
-- 4 to 7 sections covering all major topics from the video
-- Each section: 4-8 bullet points, clear and AP-exam accurate
-- 4-5 practice questions at AP exam difficulty
-- keyTerms: 8-15 important vocabulary terms
-- Base content on what is actually in the video, not generic information`,
+        prompt,
         add_context_from_internet: true,
         model: 'gemini_3_flash',
         response_json_schema: {
@@ -249,9 +228,8 @@ Rules:
 
   const isLoading = status === 'analyzing' || status === 'generating';
 
-  // Build mastery text from notes
   const masteryText = notes
-    ? `${notes.summary}\n\n${notes.sections?.map(s => `## ${s.title}\n${Array.isArray(s.content) ? s.content.map(c => `- ${c}`).join('\n') : s.content}`).join('\n\n')}`
+    ? `${notes.summary}\n\n${notes.sections?.map(s => `## ${s.title}\n${(Array.isArray(s.content) ? s.content : [s.content]).map(c => `- ${c}`).join('\n')}`).join('\n\n')}`
     : '';
 
   return (
@@ -260,7 +238,6 @@ Rules:
         <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">YouTube Video → AP Study Notes</h2>
         <p className="text-xs text-gray-400 mb-6">Paste any AP-related YouTube lesson — we'll analyze the video and generate structured notes.</p>
 
-        {/* Input */}
         <div className="relative">
           <Youtube className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-red-400" />
           <input
@@ -274,7 +251,6 @@ Rules:
           />
         </div>
 
-        {/* Thumbnail preview */}
         {videoId && status !== 'error' && (
           <div className="mt-3 flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-200">
             <img src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`} alt="thumbnail" className="w-20 h-14 rounded-lg object-cover" />
@@ -285,7 +261,6 @@ Rules:
           </div>
         )}
 
-        {/* Error */}
         {status === 'error' && (
           <div className="mt-3 flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-xl">
             <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
@@ -293,7 +268,6 @@ Rules:
           </div>
         )}
 
-        {/* Button */}
         <div className="mt-6">
           <Button
             onClick={handleGenerate}
@@ -306,7 +280,6 @@ Rules:
           </Button>
         </div>
 
-        {/* Progress dots */}
         {isLoading && (
           <div className="mt-4 flex items-center justify-center gap-6 text-xs text-gray-400">
             <span className={`flex items-center gap-1.5 ${status === 'analyzing' ? 'text-blue-500 font-medium' : 'text-gray-400'}`}>
@@ -322,7 +295,6 @@ Rules:
         )}
       </div>
 
-      {/* Notes viewer */}
       {status === 'done' && notes && (
         <div ref={notesRef}>
           <NotesViewer notes={notes} onMaster={() => setShowMastery(true)} />
