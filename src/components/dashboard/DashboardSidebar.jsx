@@ -1,11 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { BarChart2, BookOpen, ClipboardList, Layers, Calendar, Settings, LayoutDashboard, Sun, Moon, Flame, Map, ShoppingBag } from 'lucide-react';
+import { BarChart2, BookOpen, ClipboardList, Layers, Calendar, Settings, LayoutDashboard, Sun, Moon, Flame, Map, ShoppingBag, Sparkles, Clock } from 'lucide-react';
+
+const AP_EXAM_DATES_2026 = [
+  { subject: 'AP Human Geography', date: '2026-05-05', id: 'human_geo' },
+  { subject: 'AP Chemistry', date: '2026-05-05', id: 'chemistry' },
+  { subject: 'AP Psychology', date: '2026-05-06', id: 'psychology' },
+  { subject: 'AP US History', date: '2026-05-07', id: 'us_history' },
+  { subject: 'AP Calc AB', date: '2026-05-11', id: 'calc_ab' },
+  { subject: 'AP Calc BC', date: '2026-05-11', id: 'calc_bc' },
+  { subject: 'AP Physics 1', date: '2026-05-12', id: 'physics_1' },
+  { subject: 'AP Statistics', date: '2026-05-13', id: 'statistics' },
+  { subject: 'AP Biology', date: '2026-05-14', id: 'biology' },
+  { subject: 'AP World History', date: '2026-05-14', id: 'world_history' },
+  { subject: 'AP English Lang', date: '2026-05-15', id: 'english_lang' },
+  { subject: 'AP US Gov', date: '2026-05-18', id: 'us_gov' },
+  { subject: 'AP Macroeconomics', date: '2026-05-19', id: 'macro' },
+  { subject: 'AP Physics C', date: '2026-05-19', id: 'physics_c_mech' },
+  { subject: 'AP English Lit', date: '2026-05-20', id: 'english_lit' },
+];
 
 const NAV_ITEMS = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
   { id: 'practice', label: 'Practice', icon: BookOpen },
+  { id: 'studyplan', label: 'Study Plan', icon: Sparkles },
   { id: 'analytics', label: 'Analytics', icon: BarChart2 },
   { id: 'exams', label: 'Exams', icon: ClipboardList },
   { id: 'flashcards', label: 'Flashcards', icon: Layers },
@@ -17,16 +36,29 @@ const NAV_ITEMS = [
 
 const NAV_ROUTES = {
   practice: '/SATPractice',
+  studyplan: '/study-plan-generator',
   exams: '/SATFullTest',
   flashcards: '/Flashcards',
   roadmap: '/Roadmap',
   store: '/Store',
   planner: '/StudyPlans',
+  analytics: '/analytics-dashboard',
   settings: '/Settings',
 };
 
-export default function DashboardSidebar({ theme, activeNav, setActiveNav, user, isDark, onToggleTheme }) {
+export default function DashboardSidebar({ theme, activeNav, setActiveNav, user, isDark, onToggleTheme, selectedApSubject, onSelectApSubject }) {
   const navigate = useNavigate();
+  const [showCountdown, setShowCountdown] = useState(false);
+
+  const getDaysUntil = (dateStr) => {
+    const diff = new Date(dateStr) - new Date();
+    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+  };
+
+  const selectedExam = selectedApSubject
+    ? AP_EXAM_DATES_2026.find(e => e.id === selectedApSubject)
+    : null;
+  const daysUntil = selectedExam ? getDaysUntil(selectedExam.date) : null;
 
   const handleNav = (item) => {
     setActiveNav(item.id);
@@ -68,6 +100,60 @@ export default function DashboardSidebar({ theme, activeNav, setActiveNav, user,
           );
         })}
       </nav>
+
+      {/* AP Countdown */}
+      <div style={{ borderTop: `1px solid ${theme.border}`, paddingTop: 12, marginTop: 8 }}>
+        <button
+          onClick={() => setShowCountdown(p => !p)}
+          style={{
+            width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '8px 12px', borderRadius: 10, border: 'none',
+            background: isDark ? 'rgba(59,130,246,0.08)' : 'rgba(37,99,235,0.06)',
+            cursor: 'pointer', marginBottom: 6,
+          }}
+        >
+          <span style={{ fontSize: 12, fontWeight: 600, color: theme.accent, display: 'flex', alignItems: 'center', gap: 6 }}>
+            <Clock size={12} /> AP Exam Countdown
+          </span>
+          <span style={{ fontSize: 10, color: theme.textMuted }}>{showCountdown ? '▲' : '▼'}</span>
+        </button>
+
+        {showCountdown && (
+          <div style={{ marginBottom: 8, maxHeight: 200, overflowY: 'auto' }}>
+            {AP_EXAM_DATES_2026.map(exam => {
+              const days = getDaysUntil(exam.date);
+              const isSelected = selectedApSubject === exam.id;
+              return (
+                <button
+                  key={exam.id}
+                  onClick={() => onSelectApSubject && onSelectApSubject(isSelected ? null : exam.id)}
+                  style={{
+                    width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '5px 12px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                    background: isSelected ? (isDark ? 'rgba(59,130,246,0.15)' : 'rgba(37,99,235,0.08)') : 'transparent',
+                    marginBottom: 2,
+                  }}
+                >
+                  <span style={{ fontSize: 11, color: theme.textMuted, textAlign: 'left', flex: 1 }}>{exam.subject}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: days <= 14 ? '#ef4444' : days <= 30 ? '#f59e0b' : theme.accent, flexShrink: 0, marginLeft: 4 }}>{days}d</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {selectedExam && daysUntil !== null && (
+          <div style={{
+            padding: '8px 12px', borderRadius: 10, marginBottom: 8,
+            background: isDark ? 'rgba(59,130,246,0.12)' : 'rgba(37,99,235,0.08)',
+            border: `1px solid ${isDark ? 'rgba(59,130,246,0.2)' : 'rgba(37,99,235,0.15)'}`,
+          }}>
+            <p style={{ fontSize: 10, fontWeight: 600, color: theme.accent, margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Selected Exam</p>
+            <p style={{ fontSize: 12, fontWeight: 700, color: theme.text, margin: '2px 0 0' }}>{selectedExam.subject}</p>
+            <p style={{ fontSize: 20, fontWeight: 800, color: daysUntil <= 14 ? '#ef4444' : theme.accent, margin: '2px 0 0', lineHeight: 1 }}>{daysUntil} <span style={{ fontSize: 11, fontWeight: 500 }}>days left</span></p>
+          </div>
+        )}
+      </div>
 
       {/* Bottom */}
       <div style={{ borderTop: `1px solid ${theme.border}`, paddingTop: 12 }}>

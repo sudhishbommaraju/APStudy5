@@ -14,6 +14,7 @@ export default function Dashboard() {
   const [isDark, setIsDark] = useState(() => localStorage.getItem('proofly_theme') === 'dark');
   const [activeTab, setActiveTab] = useState(() => localStorage.getItem('dashboard_active_tab') || 'SAT');
   const [activeNav, setActiveNav] = useState('overview');
+  const [selectedApSubject, setSelectedApSubject] = useState(() => localStorage.getItem('proofly_ap_subject') || null);
   const [user, setUser] = useState(null);
   const [totalXp, setTotalXp] = useState(0);
   const [points, setPoints] = useState(0);
@@ -33,6 +34,12 @@ export default function Dashboard() {
   useEffect(() => {
     localStorage.setItem('proofly_theme', isDark ? 'dark' : 'light');
   }, [isDark]);
+
+  const handleSelectApSubject = (id) => {
+    setSelectedApSubject(id);
+    if (id) localStorage.setItem('proofly_ap_subject', id);
+    else localStorage.removeItem('proofly_ap_subject');
+  };
 
   const theme = {
     isDark,
@@ -109,6 +116,8 @@ export default function Dashboard() {
           user={user}
           isDark={isDark}
           onToggleTheme={() => setIsDark(p => !p)}
+          selectedApSubject={selectedApSubject}
+          onSelectApSubject={handleSelectApSubject}
         />
 
         {/* Main content */}

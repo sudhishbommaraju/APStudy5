@@ -8,6 +8,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import StudyMaterialsGenerator from './pages/StudyMaterialsGenerator';
 import AnalyticsDashboard from './pages/AnalyticsDashboard';
+import StudyPlanGenerator from './pages/StudyPlanGenerator';
 import StudyAssistant from './pages/StudyAssistant';
 import LandingPage from './pages/LandingPage';
 import Privacy from './pages/Privacy';
@@ -72,6 +73,11 @@ const AuthenticatedApp = () => {
       <Route path="/analytics-dashboard" element={
         <LayoutWrapper currentPageName="AnalyticsDashboard">
           <AnalyticsDashboard />
+        </LayoutWrapper>
+      } />
+      <Route path="/study-plan-generator" element={
+        <LayoutWrapper currentPageName="StudyPlanGenerator">
+          <StudyPlanGenerator />
         </LayoutWrapper>
       } />
       <Route path="*" element={<PageNotFound />} />
