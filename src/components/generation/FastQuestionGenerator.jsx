@@ -84,6 +84,9 @@ export async function generateQuestionsOptimized({
 
   const nonce = Date.now();
 
+  // Cap single LLM request to ensure <=15s generation
+  const effectiveCount = Math.min(count, 30);
+
   // Visual rules per subject
   const visualRule = (() => {
     if (['calc_ab', 'calc_bc', 'statistics'].includes(subjectId)) {
@@ -98,12 +101,11 @@ export async function generateQuestionsOptimized({
       return `- For cell structure, mitosis, or ecology questions include a "visual" field with type="diagram" and spec={diagramType:"cell"|"mitosis"|"food_web", highlightedPart:"..."}`;
     }
     if (subjectId === 'human_geo') {
-      return `- For spatial/diffusion questions include a "visual" field with type="map" and spec={diffusionType:"hierarchical"|"contagious"|"stimulus", cities:[{name:"..."},...]}`;
+      return `- For spatial/diffusion questions include a "visual" field with type="map" and spec={diffusionType:"hierarchical"|"contagious"|"stimulus", cities:[{name:"..."},...]}` ;
     }
     return `- Set visual to {type: null, spec: null}`;
   })();
 
-  // Phase 1: Single batch request for all questions at once
   const prompt = `You are generating AP-level ${bank.name} practice questions for Unit ${unitData.id}: ${unitData.name}.
 
 RULES — MANDATORY:
@@ -124,7 +126,7 @@ FORBIDDEN:
 - Any question without a stimulus
 
 Generation ID: ${nonce}_${Math.random().toString(36)}
-Return EXACTLY ${count} questions as JSON:`;
+Return EXACTLY ${effectiveCount} questions as JSON:`;
 
   const result = await base44.integrations.Core.InvokeLLM({
     prompt,
@@ -171,7 +173,8 @@ Return EXACTLY ${count} questions as JSON:`;
     throw new Error(`[PRACTICE ENGINE] No valid questions returned for ${bank.name} ${unitData.name}.`);
   }
 
-  const questions = valid.slice(0, count).map((q, idx) => {
+  // Return exactly as many as requested (up to what was generated)
+  const questions = valid.slice(0, effectiveCount).map((q, idx) => {
     const { shuffled, newCorrectIndex } = enforceDistribution(q.options, q.correctIndex ?? 0);
     return {
       id: `q_${subjectId}_${unitData.id}_${nonce}_${idx}`,

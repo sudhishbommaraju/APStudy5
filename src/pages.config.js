@@ -54,7 +54,7 @@ import AIStudyPlanner from './pages/AIStudyPlanner';
 import APCreate from './pages/APCreate';
 import APFRQSimulator from './pages/APFRQSimulator';
 import APFullTest from './pages/APFullTest';
-import APPractice from './pages/APPractice';
+import APPractice from './pages/APPractice.jsx';
 import APProgress from './pages/APProgress';
 import APQuestionGenerator from './pages/APQuestionGenerator';
 import APStudyKit from './pages/APStudyKit';
