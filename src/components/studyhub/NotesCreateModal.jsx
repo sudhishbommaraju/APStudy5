@@ -17,9 +17,9 @@ const STEP_LABELS = {
   fetching: 'Fetching video…',
 };
 
-export default function NotesCreateModal({ defaultType, onClose, onCreated }) {
+export default function NotesCreateModal({ defaultType, subjectOverride, onClose, onCreated }) {
   const [type, setType] = useState(defaultType || 'ai');
-  const [subject, setSubject] = useState(null);
+  const [subject, setSubject] = useState(subjectOverride || null);
   const [unit, setUnit] = useState('');
   const [url, setUrl] = useState('');
   const [file, setFile] = useState(null);
@@ -117,7 +117,23 @@ export default function NotesCreateModal({ defaultType, onClose, onCreated }) {
 
           {/* AI */}
           {type === 'ai' && (
-            <APSubjectSelector subject={subject} setSubject={setSubject} unit={unit} setUnit={setUnit} />
+            subjectOverride ? (
+              <div>
+                <div className="mb-4 px-3 py-2 bg-blue-50 border border-blue-100 rounded-xl text-sm font-semibold text-blue-700">
+                  📘 {subjectOverride.subject}
+                </div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">Select Unit</label>
+                <select value={unit} onChange={e => setUnit(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="">Choose a unit…</option>
+                  {(subjectOverride.units || []).map(u => (
+                    <option key={u.name} value={u.name}>{u.name}</option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <APSubjectSelector subject={subject} setSubject={setSubject} unit={unit} setUnit={setUnit} />
+            )
           )}
 
           {/* Upload */}
