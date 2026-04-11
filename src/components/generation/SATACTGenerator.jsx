@@ -7,6 +7,85 @@ import { base44 } from '@/api/base44Client';
 
 export class SATACTGenerator {
   
+  static async generateSATQuestionBatch({ section, count = 5, nonce = Date.now() }) {
+    const categories_rw = ['Information & Ideas', 'Craft & Structure', 'Expression of Ideas', 'Standard English Conventions'];
+    const topics_math = ['Advanced Algebra & Functions', 'Problem Solving & Data Analysis', 'Geometry & Trigonometry', 'Systems of Equations'];
+
+    const prompts = {
+      'reading_writing': `You are an expert SAT prep tutor generating HARD digital SAT Reading & Writing questions targeting 1400-1600 scorers.
+Batch ID (use for uniqueness, do NOT repeat): ${nonce}_${Math.random().toString(36).slice(2)}
+
+Generate ${count} DIFFERENT high-difficulty questions. Each must:
+- Have a unique passage (150-200 words) at 12th-grade+ reading level — use dense academic, scientific, or literary prose
+- Target one of: ${categories_rw.join(', ')}
+- Require deep inference, rhetorical analysis, or nuanced grammar — NOT surface recall
+- Have 4 answer choices where 2-3 are highly plausible traps
+- The correct answer must be defensible with textual evidence
+- Wrong answers must reflect real student mistakes (too broad, too narrow, contradicts passage, outside scope)
+
+FORBIDDEN: easy vocabulary questions, literal recall, "what does the word mean" without context complexity
+
+Return JSON array of ${count} questions:`,
+
+      'math': `You are an expert SAT prep tutor generating HARD digital SAT Math questions targeting 1400-1600 scorers.
+Batch ID (ensure uniqueness): ${nonce}_${Math.random().toString(36).slice(2)}
+
+Generate ${count} DIFFERENT hard SAT math problems. Each must:
+- Target one of: ${topics_math.join(', ')}
+- Require 2-4 steps minimum — no single-operation problems
+- Use realistic contexts (rate/ratio problems, quadratics, exponential models, data analysis with tables)
+- Include LaTeX for all math: e.g. $$f(x) = 2x^2 - 3x + 1$$
+- Have 4 answer choices where 3 are trap answers from common algebraic/arithmetic errors
+- Be solvable in under 3 minutes with the right strategy
+
+FORBIDDEN: basic arithmetic, one-step equations, simple area/perimeter without additional complexity
+
+Return JSON array of ${count} questions:`
+    };
+
+    const response = await base44.integrations.Core.InvokeLLM({
+      prompt: prompts[section],
+      response_json_schema: {
+        type: 'object',
+        properties: {
+          questions: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                passage: { type: 'string' },
+                question_text: { type: 'string' },
+                choice_a: { type: 'string' },
+                choice_b: { type: 'string' },
+                choice_c: { type: 'string' },
+                choice_d: { type: 'string' },
+                correct_answer: { type: 'string' },
+                explanation: { type: 'string' },
+                category: { type: 'string' },
+              }
+            }
+          }
+        }
+      }
+    });
+
+    return (response.questions || []).map((q, idx) => ({
+      id: `sat_${section}_${nonce}_${idx}`,
+      stimulus: q.passage || '',
+      question_text: q.question_text || '',
+      choice_a: q.choice_a,
+      choice_b: q.choice_b,
+      choice_c: q.choice_c,
+      choice_d: q.choice_d,
+      correct_answer: q.correct_answer,
+      explanation: q.explanation,
+      category: q.category,
+      answer_choices: [q.choice_a, q.choice_b, q.choice_c, q.choice_d],
+      subject_id: 'SAT',
+      unit_id: section,
+    }));
+  }
+
   static async generateSATQuestion({ section, difficulty = 'medium' }) {
     const prompts = {
       'reading_writing': `Generate an original SAT Reading & Writing question.
@@ -15,63 +94,18 @@ Create a short passage (120-160 words) followed by a multiple-choice question.
 
 Category: ${['Information & Ideas', 'Craft & Structure', 'Expression of Ideas', 'Standard English Conventions'][Math.floor(Math.random() * 4)]}
 
-Passage Requirements:
-- College-level reading complexity
-- Clear main idea
-- Natural transitions
-
-Question Requirements:
-- 4 answer choices (A-D)
-- Test comprehension, grammar, or rhetorical skills
-- Include College Board-style wrong answers (plausible distractors)
-
-Return JSON:
-{
-  "passage": "Original passage text",
-  "question_text": "Question about the passage",
-  "choice_a": "First option",
-  "choice_b": "Second option",
-  "choice_c": "Third option",
-  "choice_d": "Fourth option",
-  "correct_answer": "A"|"B"|"C"|"D",
-  "explanation": "Why correct answer is right and others are wrong",
-  "category": "Category name",
-  "official_tip": "College Board-style strategy tip",
-  "flashcard_front": "Concept being tested",
-  "flashcard_back": "Rule or strategy explanation",
-  "study_note": "Key concept summary"
-}`,
+Return JSON: { passage, question_text, choice_a, choice_b, choice_c, choice_d, correct_answer, explanation, category, official_tip, flashcard_front, flashcard_back, study_note }`,
 
       'math': `Generate an original SAT Math question.
 
 Topic: ${['Heart of Algebra', 'Problem Solving & Data Analysis', 'Passport to Advanced Math'][Math.floor(Math.random() * 3)]}
 Difficulty: ${difficulty}
 
-Requirements:
-- Original problem (not from official tests)
-- Use realistic numbers and scenarios
-- 4 answer choices OR grid-in format
-- Use LaTeX for math: $x^{2}$, $\\frac{a}{b}$
-
-Return JSON:
-{
-  "question_text": "Math problem",
-  "choice_a": "Option A",
-  "choice_b": "Option B", 
-  "choice_c": "Option C",
-  "choice_d": "Option D",
-  "correct_answer": "A"|"B"|"C"|"D",
-  "explanation": "Step-by-step solution",
-  "topic": "Math topic",
-  "official_tip": "Strategy for solving",
-  "flashcard_front": "Formula or concept",
-  "flashcard_back": "When to use it",
-  "study_note": "Key math concept"
-}`
+Return JSON: { question_text, choice_a, choice_b, choice_c, choice_d, correct_answer, explanation, topic, official_tip, flashcard_front, flashcard_back, study_note }`
     };
 
     const response = await base44.integrations.Core.InvokeLLM({
-      prompt: prompts[section],
+      prompt: prompts[section] || prompts['reading_writing'],
       response_json_schema: {
         type: 'object',
         properties: {
@@ -142,7 +176,7 @@ Return JSON with data and question`
     };
 
     const response = await base44.integrations.Core.InvokeLLM({
-      prompt: prompts[section],
+      prompt: prompts[section] || prompts['english'],
       response_json_schema: {
         type: 'object',
         properties: {

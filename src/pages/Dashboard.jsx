@@ -118,6 +118,7 @@ export default function Dashboard() {
           onToggleTheme={() => setIsDark(p => !p)}
           selectedApSubject={selectedApSubject}
           onSelectApSubject={handleSelectApSubject}
+          activeTab={activeTab}
         />
 
         {/* Main content */}

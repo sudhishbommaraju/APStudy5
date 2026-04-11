@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
-import { BarChart2, BookOpen, ClipboardList, Layers, Calendar, Settings, LayoutDashboard, Sun, Moon, Flame, Map, ShoppingBag, Sparkles, Clock } from 'lucide-react';
+import { BarChart2, BookOpen, ClipboardList, Layers, Calendar, Settings, LayoutDashboard, Sun, Moon, Flame, Map, ShoppingBag, Sparkles, Clock, FileText } from 'lucide-react';
 
 const AP_EXAM_DATES_2026 = [
   { subject: 'AP Human Geography', date: '2026-05-05', id: 'human_geo' },
@@ -21,32 +20,42 @@ const AP_EXAM_DATES_2026 = [
   { subject: 'AP English Lit', date: '2026-05-20', id: 'english_lit' },
 ];
 
-const NAV_ITEMS = [
-  { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-  { id: 'practice', label: 'Practice', icon: BookOpen },
-  { id: 'studyplan', label: 'Study Plan', icon: Sparkles },
-  { id: 'analytics', label: 'Analytics', icon: BarChart2 },
-  { id: 'exams', label: 'Exams', icon: ClipboardList },
-  { id: 'flashcards', label: 'Flashcards', icon: Layers },
-  { id: 'roadmap', label: 'Roadmap', icon: Map },
-  { id: 'store', label: 'Store', icon: ShoppingBag },
-  { id: 'planner', label: 'Planner', icon: Calendar },
-  { id: 'settings', label: 'Settings', icon: Settings },
-];
-
-const NAV_ROUTES = {
-  practice: '/SATPractice',
-  studyplan: '/study-plan-generator',
-  exams: '/SATFullTest',
-  flashcards: '/Flashcards',
-  roadmap: '/Roadmap',
-  store: '/Store',
-  planner: '/StudyPlans',
-  analytics: '/analytics-dashboard',
-  settings: '/Settings',
+const NAV_BY_EXAM = {
+  SAT: [
+    { id: 'overview',   label: 'Overview',     icon: LayoutDashboard, route: null },
+    { id: 'practice',   label: 'SAT Practice',  icon: BookOpen,        route: '/SATPractice' },
+    { id: 'exams',      label: 'Full Test',     icon: ClipboardList,   route: '/SATFullTest' },
+    { id: 'studyplan',  label: 'Study Plan',    icon: Sparkles,        route: '/study-plan-generator?type=SAT' },
+    { id: 'analytics',  label: 'Analytics',     icon: BarChart2,       route: '/analytics-dashboard' },
+    { id: 'flashcards', label: 'Flashcards',    icon: Layers,          route: '/Flashcards' },
+    { id: 'store',      label: 'Store',         icon: ShoppingBag,     route: '/Store' },
+    { id: 'settings',   label: 'Settings',      icon: Settings,        route: '/Settings' },
+  ],
+  ACT: [
+    { id: 'overview',   label: 'Overview',      icon: LayoutDashboard, route: null },
+    { id: 'practice',   label: 'ACT Practice',  icon: BookOpen,        route: '/ACTPractice' },
+    { id: 'exams',      label: 'Full Test',      icon: ClipboardList,   route: '/ACTFullTest' },
+    { id: 'studyplan',  label: 'Study Plan',     icon: Sparkles,        route: '/study-plan-generator?type=ACT' },
+    { id: 'analytics',  label: 'Analytics',      icon: BarChart2,       route: '/analytics-dashboard' },
+    { id: 'flashcards', label: 'Flashcards',     icon: Layers,          route: '/Flashcards' },
+    { id: 'store',      label: 'Store',          icon: ShoppingBag,     route: '/Store' },
+    { id: 'settings',   label: 'Settings',       icon: Settings,        route: '/Settings' },
+  ],
+  AP: [
+    { id: 'overview',   label: 'Overview',       icon: LayoutDashboard, route: null },
+    { id: 'practice',   label: 'AP Practice',    icon: BookOpen,        route: '/APPractice' },
+    { id: 'exams',      label: 'AP Full Test',   icon: ClipboardList,   route: '/APFullTest' },
+    { id: 'frq',        label: 'FRQ Simulator',  icon: FileText,        route: '/APFRQSimulator' },
+    { id: 'studyplan',  label: 'Study Plan',     icon: Sparkles,        route: '/study-plan-generator?type=AP' },
+    { id: 'analytics',  label: 'Analytics',      icon: BarChart2,       route: '/analytics-dashboard' },
+    { id: 'flashcards', label: 'Flashcards',     icon: Layers,          route: '/Flashcards' },
+    { id: 'store',      label: 'Store',          icon: ShoppingBag,     route: '/Store' },
+    { id: 'settings',   label: 'Settings',       icon: Settings,        route: '/Settings' },
+  ],
 };
 
-export default function DashboardSidebar({ theme, activeNav, setActiveNav, user, isDark, onToggleTheme, selectedApSubject, onSelectApSubject }) {
+export default function DashboardSidebar({ theme, activeNav, setActiveNav, user, isDark, onToggleTheme, selectedApSubject, onSelectApSubject, activeTab = 'SAT' }) {
+  const NAV_ITEMS = NAV_BY_EXAM[activeTab] || NAV_BY_EXAM.SAT;
   const navigate = useNavigate();
   const [showCountdown, setShowCountdown] = useState(false);
 
@@ -62,8 +71,8 @@ export default function DashboardSidebar({ theme, activeNav, setActiveNav, user,
 
   const handleNav = (item) => {
     setActiveNav(item.id);
-    if (NAV_ROUTES[item.id]) {
-      navigate(NAV_ROUTES[item.id]);
+    if (item.route) {
+      navigate(item.route);
     }
   };
 

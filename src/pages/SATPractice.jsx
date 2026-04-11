@@ -3,183 +3,131 @@ import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
-import ExamShell from '@/components/exam/ExamShell';
+import { SATACTGenerator } from '@/components/generation/SATACTGenerator';
+import APPracticeQuestion from '@/components/practice/APPracticeQuestion';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, Play } from 'lucide-react';
+import { ArrowLeft, Loader2, Play, BookOpen, Calculator } from 'lucide-react';
 
 export default function SATPractice() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [questions, setQuestions] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [sessionId, setSessionId] = useState(null);
+  const [score, setScore] = useState(0);
+  const [section, setSection] = useState('mixed'); // 'reading_writing' | 'math' | 'mixed'
+  const [questionCount, setQuestionCount] = useState(10);
 
   const generatePractice = async () => {
-    if (loading) return; // Prevent duplicate calls
-    
+    if (loading) return;
     setLoading(true);
-
+    const nonce = Date.now();
     try {
-      const user = await base44.auth.me();
-      // PHASE 5: CLEAR ALL CACHES BEFORE NEW GENERATION
-      const { generateQuestionsOptimized, clearCache } = await import('@/components/generation/FastQuestionGenerator');
-      clearCache();
-      
-      const result = await generateQuestionsOptimized({
-        examType: 'SAT',
-        subjectId: 'SAT',
-        difficulty: 'mixed',
-        count: 10
-      });
-
-      setQuestions(result.map(q => ({
-        id: q.id,
-        stimulus: q.stimulus || '',
-        question_text: q.question_text || '',
-        stem: q.question_text || '',
-        answer_choices: [q.choice_a, q.choice_b, q.choice_c, q.choice_d],
-        correct_answer: ['A', 'B', 'C', 'D'].indexOf(q.correct_answer),
-        explanation: q.explanation
-      })));
-
-      // Optional session tracking
-      try {
-        const exams = await base44.entities.Exam.filter({ exam_type: 'SAT' });
-        if (exams.length > 0) {
-          const session = await base44.entities.EnginePracticeSession.create({
-            user_email: user.email,
-            exam_id: exams[0].id,
-            question_count: result.length,
-            mode: 'untimed',
-            status: 'active',
-            started_at: new Date().toISOString()
-          });
-          setSessionId(session.id);
-        }
-      } catch (sessionError) {
-        console.warn("Session tracking skipped:", sessionError);
+      let allQuestions = [];
+      if (section === 'mixed') {
+        const half = Math.ceil(questionCount / 2);
+        const [rwBatch, mathBatch] = await Promise.all([
+          SATACTGenerator.generateSATQuestionBatch({ section: 'reading_writing', count: half, nonce: nonce + 1 }),
+          SATACTGenerator.generateSATQuestionBatch({ section: 'math', count: questionCount - half, nonce: nonce + 2 }),
+        ]);
+        allQuestions = [...rwBatch, ...mathBatch].sort(() => Math.random() - 0.5);
+      } else {
+        allQuestions = await SATACTGenerator.generateSATQuestionBatch({ section, count: questionCount, nonce });
       }
-
+      setQuestions(allQuestions);
+      setCurrentIndex(0);
+      setScore(0);
     } catch (error) {
-      console.error("Generation failed:", error);
-      
-      setQuestions([
-        {
-          id: 'fallback-1',
-          stem: "If 3x + 5 = 20, what is the value of x?",
-          answer_choices: ["5", "8", "10", "15"],
-          correct_answer: 0,
-          explanation: null
-        },
-        {
-          id: 'fallback-2',
-          stem: "Which word best completes the sentence? The scientist's findings were _____ by multiple independent studies.",
-          answer_choices: ["contradicted", "corroborated", "fabricated", "dismissed"],
-          correct_answer: 1,
-          explanation: null
-        },
-        {
-          id: 'fallback-3',
-          stem: "A rectangle has a length of 12 and width of 5. What is its area?",
-          answer_choices: ["17", "34", "60", "72"],
-          correct_answer: 2,
-          explanation: null
-        }
-      ]);
+      console.error('SAT generation failed:', error);
+      toast.error('Failed to generate questions. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (response) => {
-    if (sessionId) {
-      try {
-        await base44.entities.EnginePracticeResponse.create({
-          session_id: sessionId,
-          question_id: response.questionId,
-          selected_answer: response.selectedAnswer,
-          is_correct: response.isCorrect,
-          response_time_ms: response.timeSpent * 1000
-        });
-      } catch (error) {
-        console.warn("Response tracking failed (non-critical):", error);
-      }
-    }
+  const handleNext = (wasCorrect) => {
+    if (wasCorrect) setScore(s => s + 1);
+    setCurrentIndex(i => i + 1);
   };
 
-  const handleNext = () => {
-    if (currentIndex < questions.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      navigate(createPageUrl('Dashboard'));
-    }
+  const handleComplete = (wasCorrect) => {
+    const finalScore = score + (wasCorrect ? 1 : 0);
+    const pct = Math.round((finalScore / questions.length) * 100);
+    toast.success(`Session complete! ${finalScore}/${questions.length} correct (${pct}%)`);
+    setQuestions([]);
+    setCurrentIndex(0);
+    setScore(0);
   };
 
-  if (questions.length === 0) {
+  const COUNTS = [5, 10, 15, 20];
+
+  if (questions.length > 0) {
     return (
-      <div className="min-h-screen bg-[#f8fafc] py-16">
-        <div className="max-w-3xl mx-auto px-6">
-          <button
-            onClick={() => navigate(createPageUrl('Dashboard'))}
-            className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors mb-12"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            Back to Dashboard
-          </button>
-
-          <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-12 text-center">
-            <h1 className="text-2xl font-semibold text-gray-900 mb-2">SAT Practice</h1>
-            <p className="text-gray-500 mb-8">Generate adaptive SAT questions aligned with College Board taxonomy</p>
-
-            <Button
-              onClick={generatePractice}
-              disabled={loading}
-              size="lg"
-              className="bg-blue-500 hover:bg-blue-600 text-white shadow-sm px-8"
-            >
-              {loading ? (
-                <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Generating...</>
-              ) : (
-                <><Play className="w-5 h-5 mr-2" />Generate Practice</>
-              )}
+      <div className="min-h-screen bg-[#f8fafc]">
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
+          <div className="flex items-center justify-between max-w-5xl mx-auto">
+            <h2 className="text-lg font-semibold text-gray-900">SAT Practice — {section === 'reading_writing' ? 'Reading & Writing' : section === 'math' ? 'Math' : 'Mixed'}</h2>
+            <Button variant="outline" onClick={() => { setQuestions([]); setCurrentIndex(0); setScore(0); }} className="border-gray-200 text-gray-700 hover:bg-gray-50">
+              Exit Practice
             </Button>
-
-            <div className="mt-8 p-4 bg-gray-50 border border-gray-200 rounded-lg text-left text-sm">
-              <div className="text-gray-600 space-y-1">
-                <p>Status: {loading ? 'Generating...' : 'Ready'}</p>
-                <p>Questions: {questions.length}</p>
-              </div>
-            </div>
           </div>
+        </div>
+        <div className="max-w-5xl mx-auto px-6 py-8">
+          <APPracticeQuestion
+            question={questions[currentIndex]}
+            questionIndex={currentIndex}
+            totalQuestions={questions.length}
+            onNext={handleNext}
+            onComplete={handleComplete}
+          />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]">
-      <div className="bg-white border-b border-gray-200 px-6 py-4">
-        <div className="flex items-center justify-between max-w-[1800px] mx-auto">
-          <h2 className="text-lg font-semibold text-gray-900">SAT Practice</h2>
-          <Button
-            variant="outline"
-            onClick={() => { setQuestions([]); setCurrentIndex(0); setSessionId(null); }}
-            className="border-gray-200 text-gray-700 hover:bg-gray-50"
-          >
-            Exit Practice
+    <div className="min-h-screen bg-[#f8fafc] py-16">
+      <div className="max-w-2xl mx-auto px-6">
+        <button onClick={() => navigate(createPageUrl('Dashboard'))} className="flex items-center gap-2 text-gray-500 hover:text-gray-900 mb-10 text-sm">
+          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+        </button>
+
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-8">
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">SAT Practice</h1>
+          <p className="text-gray-500 text-sm mb-6">Hard, authentic SAT-level questions targeting 1400-1600 scorers</p>
+
+          <div className="mb-6">
+            <label className="block text-sm font-semibold text-gray-700 mb-3">Section</label>
+            <div className="flex gap-2">
+              {[['mixed','Mixed'], ['reading_writing','Reading & Writing'], ['math','Math']].map(([val, label]) => (
+                <button key={val} onClick={() => setSection(val)}
+                  className={`flex-1 py-2 rounded-lg text-sm font-medium border transition-all ${
+                    section === val ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300'
+                  }`}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-8">
+            <label className="block text-sm font-semibold text-gray-700 mb-3">Questions</label>
+            <div className="flex gap-2">
+              {COUNTS.map(n => (
+                <button key={n} onClick={() => setQuestionCount(n)}
+                  className={`w-14 h-10 rounded-lg text-sm font-semibold border transition-all ${
+                    questionCount === n ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300'
+                  }`}>
+                  {n}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <Button onClick={generatePractice} disabled={loading} size="lg" className="bg-blue-500 hover:bg-blue-600 text-white w-full shadow-sm">
+            {loading ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Generating hard SAT questions…</> : <><Play className="w-5 h-5 mr-2" />Start {questionCount} Questions</>}
           </Button>
         </div>
       </div>
-      <ExamShell
-        question={questions[currentIndex]}
-        questionNumber={currentIndex + 1}
-        totalQuestions={questions.length}
-        examType="SAT"
-        subject="Math"
-        mode="practice"
-        onSubmit={handleSubmit}
-        onNext={handleNext}
-      />
     </div>
   );
 }
