@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart2, BookOpen, ClipboardList, Layers, Calendar, Settings, LayoutDashboard, Sun, Moon, Flame, Map, ShoppingBag, Sparkles, Clock, FileText } from 'lucide-react';
+import { BarChart2, BookOpen, ClipboardList, Layers, Calendar, Settings, LayoutDashboard, Sun, Moon, Flame, Map, ShoppingBag, Sparkles, Clock, FileText, Headphones } from 'lucide-react';
 
 const AP_EXAM_DATES_2026 = [
   { subject: 'AP Human Geography', date: '2026-05-05', id: 'human_geo' },
@@ -28,6 +28,7 @@ const NAV_BY_EXAM = {
     { id: 'studyplan',  label: 'Study Plan',    icon: Sparkles,        route: '/study-plan-generator?type=SAT' },
     { id: 'analytics',  label: 'Analytics',     icon: BarChart2,       route: '/analytics-dashboard' },
     { id: 'flashcards', label: 'Flashcards',    icon: Layers,          route: '/Flashcards' },
+    { id: 'audio',      label: 'Audio Lessons', icon: Headphones,      route: '/audio-lessons' },
     { id: 'store',      label: 'Store',         icon: ShoppingBag,     route: '/Store' },
     { id: 'settings',   label: 'Settings',      icon: Settings,        route: '/Settings' },
   ],
@@ -38,6 +39,7 @@ const NAV_BY_EXAM = {
     { id: 'studyplan',  label: 'Study Plan',     icon: Sparkles,        route: '/study-plan-generator?type=ACT' },
     { id: 'analytics',  label: 'Analytics',      icon: BarChart2,       route: '/analytics-dashboard' },
     { id: 'flashcards', label: 'Flashcards',     icon: Layers,          route: '/Flashcards' },
+    { id: 'audio',      label: 'Audio Lessons',  icon: Headphones,      route: '/audio-lessons' },
     { id: 'store',      label: 'Store',          icon: ShoppingBag,     route: '/Store' },
     { id: 'settings',   label: 'Settings',       icon: Settings,        route: '/Settings' },
   ],
@@ -49,6 +51,7 @@ const NAV_BY_EXAM = {
     { id: 'studyplan',  label: 'Study Plan',     icon: Sparkles,        route: '/study-plan-generator?type=AP' },
     { id: 'analytics',  label: 'Analytics',      icon: BarChart2,       route: '/analytics-dashboard' },
     { id: 'flashcards', label: 'Flashcards',     icon: Layers,          route: '/Flashcards' },
+    { id: 'audio',      label: 'Audio Lessons',  icon: Headphones,      route: '/audio-lessons' },
     { id: 'store',      label: 'Store',          icon: ShoppingBag,     route: '/Store' },
     { id: 'settings',   label: 'Settings',       icon: Settings,        route: '/Settings' },
   ],

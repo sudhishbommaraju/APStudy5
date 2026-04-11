@@ -16,6 +16,7 @@ import Terms from './pages/Terms';
 import Roadmap from './pages/Roadmap';
 import Store from './pages/Store';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
+import AudioLessons from './pages/AudioLessons';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -70,6 +71,11 @@ const AuthenticatedApp = () => {
       <Route path="/terms" element={<Terms />} />
       <Route path="/Roadmap" element={<Roadmap />} />
       <Route path="/Store" element={<Store />} />
+      <Route path="/audio-lessons" element={
+        <LayoutWrapper currentPageName="AudioLessons">
+          <AudioLessons />
+        </LayoutWrapper>
+      } />
       <Route path="/analytics-dashboard" element={
         <LayoutWrapper currentPageName="AnalyticsDashboard">
           <AnalyticsDashboard />
