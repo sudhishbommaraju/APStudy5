@@ -128,16 +128,16 @@ export default function DeckFlashcardReview({ deck, onBack }) {
     <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
       {/* Header */}
       <div>
-        <button onClick={onBack} className="text-neutral-400 hover:text-white text-sm mb-2 transition-colors">
+        <button onClick={onBack} className="text-gray-400 hover:text-gray-900 text-sm mb-2 transition-colors">
           ← Back to Decks
         </button>
         {deck.subject && (
-          <p className="text-[#D6B98C] text-sm font-medium">{deck.subject}</p>
+          <p className="text-blue-500 text-sm font-medium">{deck.subject}</p>
         )}
         {unitLabel && (
-          <h2 className="text-white text-xl font-semibold">{unitLabel}</h2>
+          <h2 className="text-gray-900 text-xl font-semibold">{unitLabel}</h2>
         )}
-        <h1 className="text-white text-2xl font-light mt-1">{deck.name}</h1>
+        <h1 className="text-gray-900 text-2xl font-light mt-1">{deck.name}</h1>
       </div>
 
       {/* Progress bar */}
@@ -146,9 +146,9 @@ export default function DeckFlashcardReview({ deck, onBack }) {
           <span>{idx + 1} / {order.length}</span>
           <span>{Math.round(progress)}%</span>
         </div>
-        <div className="h-1.5 bg-neutral-800 rounded-full overflow-hidden">
+        <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
           <div
-            className="h-full bg-[#D6B98C] rounded-full transition-all duration-300"
+            className="h-full bg-blue-500 rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -209,7 +209,7 @@ export default function DeckFlashcardReview({ deck, onBack }) {
           variant="ghost"
           size="sm"
           onClick={toggleShuffle}
-          className={shuffled ? 'text-[#D6B98C]' : 'text-neutral-400'}
+          className={shuffled ? 'text-blue-500' : 'text-gray-400'}
         >
           <Shuffle className="w-4 h-4 mr-1" />
           {shuffled ? 'Ordered' : 'Shuffle'}
@@ -219,7 +219,7 @@ export default function DeckFlashcardReview({ deck, onBack }) {
           variant="ghost"
           size="sm"
           onClick={toggleAutoPlay}
-          className={autoPlay ? 'text-[#D6B98C]' : 'text-neutral-400'}
+          className={autoPlay ? 'text-blue-500' : 'text-gray-400'}
         >
           {autoPlay ? <Pause className="w-4 h-4 mr-1" /> : <Play className="w-4 h-4 mr-1" />}
           {autoPlay ? 'Pause' : 'Auto-play'}
@@ -229,7 +229,7 @@ export default function DeckFlashcardReview({ deck, onBack }) {
           variant="ghost"
           size="sm"
           onClick={restart}
-          className="text-neutral-400"
+          className="text-gray-400"
         >
           <RotateCcw className="w-4 h-4 mr-1" />
           Restart
@@ -240,10 +240,10 @@ export default function DeckFlashcardReview({ deck, onBack }) {
       {currentCard && (
         <div className="text-center">
           <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
-            currentCard.mastery_level === 'mastered' ? 'bg-green-600/30 text-green-300' :
-            currentCard.mastery_level === 'familiar' ? 'bg-blue-600/30 text-blue-300' :
-            currentCard.mastery_level === 'learning' ? 'bg-yellow-600/30 text-yellow-300' :
-            'bg-neutral-600/30 text-neutral-300'
+            currentCard.mastery_level === 'mastered' ? 'bg-green-100 text-green-700' :
+            currentCard.mastery_level === 'familiar' ? 'bg-blue-100 text-blue-700' :
+            currentCard.mastery_level === 'learning' ? 'bg-yellow-100 text-yellow-700' :
+            'bg-gray-100 text-gray-500'
           }`}>
             {(currentCard.mastery_level || 'new').charAt(0).toUpperCase() + (currentCard.mastery_level || 'new').slice(1)}
           </span>

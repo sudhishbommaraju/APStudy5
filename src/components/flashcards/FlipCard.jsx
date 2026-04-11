@@ -27,7 +27,7 @@ export default function FlipCard({ front, back, image, cardKey }) {
         {/* FRONT */}
         <div
           style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
-          className="absolute inset-0 rounded-2xl bg-neutral-900 border border-neutral-700 flex flex-col items-center justify-center p-8 text-center"
+          className="absolute inset-0 rounded-2xl bg-white border border-gray-200 flex flex-col items-center justify-center p-8 text-center"
         >
           {image && (
             <img
@@ -37,9 +37,9 @@ export default function FlipCard({ front, back, image, cardKey }) {
               onError={e => { e.target.style.display = 'none'; }}
             />
           )}
-          <p className="text-xs text-[#D6B98C] uppercase tracking-widest mb-3 font-medium">Term / Concept</p>
-          <p className="text-white text-2xl font-medium leading-snug">{front}</p>
-          <p className="text-neutral-500 text-xs mt-6">Click to flip</p>
+          <p className="text-xs text-blue-500 uppercase tracking-widest mb-3 font-medium">Term / Concept</p>
+          <p className="text-gray-900 text-2xl font-medium leading-snug">{front}</p>
+          <p className="text-gray-400 text-xs mt-6">Click to flip</p>
         </div>
 
         {/* BACK */}
@@ -49,11 +49,11 @@ export default function FlipCard({ front, back, image, cardKey }) {
             WebkitBackfaceVisibility: 'hidden',
             transform: 'rotateY(180deg)'
           }}
-          className="absolute inset-0 rounded-2xl bg-[#1A1A1A] border border-[#D6B98C]/30 flex flex-col items-center justify-center p-8 text-center"
+          className="absolute inset-0 rounded-2xl bg-blue-50 border border-blue-200 flex flex-col items-center justify-center p-8 text-center"
         >
-          <p className="text-xs text-[#D6B98C] uppercase tracking-widest mb-3 font-medium">Definition / Answer</p>
-          <p className="text-neutral-100 text-lg leading-relaxed">{back}</p>
-          <p className="text-neutral-500 text-xs mt-6">Click to flip back</p>
+          <p className="text-xs text-blue-500 uppercase tracking-widest mb-3 font-medium">Definition / Answer</p>
+          <p className="text-gray-800 text-lg leading-relaxed">{back}</p>
+          <p className="text-gray-400 text-xs mt-6">Click to flip back</p>
         </div>
       </motion.div>
     </div>
