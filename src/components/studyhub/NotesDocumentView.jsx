@@ -2,9 +2,10 @@ import React, { useState, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import {
   Edit3, Check, Highlighter, Download, Brain, X,
-  ChevronDown, ChevronUp, BookOpen, Loader2, Maximize2, Minimize2
+  ChevronDown, ChevronUp, BookOpen, Loader2, Maximize2, Minimize2, Network
 } from 'lucide-react';
 import APVisuals from './APVisuals';
+import ConceptNodeView from './ConceptNodeView';
 
 const HIGHLIGHT_COLORS = ['#FFF176', '#A5D6A7', '#90CAF9', '#FFCC80', '#F48FB1'];
 
@@ -88,6 +89,8 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice })
   const [answeredQ, setAnsweredQ] = useState({});
   const [saving, setSaving] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
+  const [showConceptMap, setShowConceptMap] = useState(false);
+  const [selectedConcept, setSelectedConcept] = useState(null);
 
   const displaySections = editMode ? editedSections : sections.map(s => ({ ...s, bullets: s.bullets || s.content || [] }));
 
@@ -152,6 +155,13 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice })
 
       <button onClick={() => setFullscreen(p => !p)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2A2A2A] text-gray-500 dark:text-[#8A8A8A]" title="Fullscreen">
         {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+      </button>
+
+      <button
+        onClick={() => setShowConceptMap(true)}
+        className="flex items-center gap-1.5 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg text-xs font-semibold transition-colors"
+      >
+        <Network className="w-3.5 h-3.5" /> Concept Map
       </button>
 
       {onCreatePractice && (
@@ -287,6 +297,15 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice })
           <Toolbar isFullscreen={true} />
           <NotesContent fs={true} />
         </div>
+      )}
+
+      {/* Concept Map */}
+      {showConceptMap && (
+        <ConceptNodeView
+          note={note}
+          onNodeSelect={setSelectedConcept}
+          onClose={() => setShowConceptMap(false)}
+        />
       )}
     </>
   );
