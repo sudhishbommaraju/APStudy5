@@ -91,7 +91,32 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice })
 
   const displaySections = editMode ? editedSections : sections.map(s => ({ ...s, bullets: s.bullets || s.content || [] }));
 
+  const handleMouseUp = useCallback(() => {
+    if (!highlightMode) return;
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed) return;
+    const phrase = sel.toString().trim();
+    if (phrase.length < 2) return;
+    setHighlights(prev => [...prev, { phrase, color: highlightColor }]);
+    sel.removeAllRanges();
+  }, [highlightMode, highlightColor]);
 
+  const updateBullet = (si, bi, val) => {
+    setEditedSections(prev => {
+      const next = prev.map(s => ({ ...s, bullets: [...(s.bullets || [])] }));
+      next[si].bullets[bi] = val;
+      return next;
+    });
+  };
+
+  async function saveEdits() {
+    setSaving(true);
+    const updated = { ...nd, sections: editedSections.map(s => ({ ...s, content: s.bullets })) };
+    await base44.entities.StudyNote.update(note.id, { notes_data: updated });
+    setSaving(false);
+    setEditMode(false);
+    onUpdated?.();
+  }
 
   // Toolbar shared between normal and fullscreen
   const Toolbar = ({ isFullscreen }) => (
