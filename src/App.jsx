@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import StudyMaterialsGenerator from './pages/StudyMaterialsGenerator';
+import AnalyticsDashboard from './pages/AnalyticsDashboard';
 import StudyAssistant from './pages/StudyAssistant';
 import LandingPage from './pages/LandingPage';
 import Privacy from './pages/Privacy';
@@ -68,6 +69,11 @@ const AuthenticatedApp = () => {
       <Route path="/terms" element={<Terms />} />
       <Route path="/Roadmap" element={<Roadmap />} />
       <Route path="/Store" element={<Store />} />
+      <Route path="/analytics-dashboard" element={
+        <LayoutWrapper currentPageName="AnalyticsDashboard">
+          <AnalyticsDashboard />
+        </LayoutWrapper>
+      } />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
