@@ -120,17 +120,17 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice })
 
   // Toolbar shared between normal and fullscreen
   const Toolbar = ({ isFullscreen }) => (
-    <div className="flex items-center gap-2 px-6 py-3 border-b border-[#2A2A2A] bg-[#171717] shrink-0 flex-wrap">
-      <h1 className="text-base font-semibold text-[#F5F5F5] flex-1 truncate min-w-0">{note.title}</h1>
+    <div className="flex items-center gap-2 px-6 py-3 border-b border-gray-200 dark:border-[#2A2A2A] bg-white dark:bg-[#171717] shrink-0 flex-wrap">
+      <h1 className="text-base font-semibold text-gray-900 dark:text-[#F5F5F5] flex-1 truncate min-w-0">{note.title}</h1>
 
-      <div className={`flex items-center gap-1 border rounded-lg px-2 py-1.5 ${highlightMode ? 'border-yellow-400 bg-yellow-900/20' : 'border-[#2A2A2A]'}`}>
-        <button onClick={() => setHighlightMode(p => !p)} className={`p-1 rounded ${highlightMode ? 'text-yellow-400' : 'text-[#8A8A8A] hover:text-[#F5F5F5]'}`} title="Highlight">
+      <div className={`flex items-center gap-1 border rounded-lg px-2 py-1.5 ${highlightMode ? 'border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20' : 'border-gray-200 dark:border-[#2A2A2A]'}`}>
+        <button onClick={() => setHighlightMode(p => !p)} className={`p-1 rounded ${highlightMode ? 'text-yellow-500 dark:text-yellow-400' : 'text-gray-400 hover:text-gray-700 dark:text-[#8A8A8A] dark:hover:text-[#F5F5F5]'}`} title="Highlight">
           <Highlighter className="w-3.5 h-3.5" />
         </button>
         {highlightMode && HIGHLIGHT_COLORS.map(c => (
           <button key={c} onClick={() => setHighlightColor(c)} style={{ backgroundColor: c, width: 14, height: 14, borderRadius: 2, border: highlightColor === c ? '2px solid #374151' : '1px solid #d1d5db' }} />
         ))}
-        {highlights.length > 0 && <button onClick={() => setHighlights([])} className="text-xs text-[#8A8A8A] hover:text-red-400 ml-1">✕</button>}
+        {highlights.length > 0 && <button onClick={() => setHighlights([])} className="text-xs text-gray-400 dark:text-[#8A8A8A] hover:text-red-400 ml-1">✕</button>}
       </div>
 
       {editMode ? (
@@ -141,16 +141,16 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice })
         </button>
       ) : (
         <button onClick={() => setEditMode(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 border border-[#2A2A2A] text-[#B5B5B5] rounded-lg text-xs font-medium hover:border-blue-500 hover:text-[#F5F5F5]">
+          className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 dark:border-[#2A2A2A] text-gray-600 dark:text-[#B5B5B5] rounded-lg text-xs font-medium hover:border-blue-500 hover:text-gray-900 dark:hover:text-[#F5F5F5]">
           <Edit3 className="w-3.5 h-3.5" /> Edit
         </button>
       )}
 
-      <button onClick={() => downloadNote(note)} className="p-2 rounded-lg hover:bg-[#2A2A2A] text-[#8A8A8A]" title="Download">
+      <button onClick={() => downloadNote(note)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2A2A2A] text-gray-500 dark:text-[#8A8A8A]" title="Download">
         <Download className="w-4 h-4" />
       </button>
 
-      <button onClick={() => setFullscreen(p => !p)} className="p-2 rounded-lg hover:bg-[#2A2A2A] text-[#8A8A8A]" title="Fullscreen">
+      <button onClick={() => setFullscreen(p => !p)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2A2A2A] text-gray-500 dark:text-[#8A8A8A]" title="Fullscreen">
         {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
       </button>
 
@@ -168,23 +168,23 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice })
   // The actual notes content
   const NotesContent = ({ fs }) => (
     <div
-      className="flex-1 overflow-auto bg-[#0C0C0C]"
+      className="flex-1 overflow-auto bg-white dark:bg-[#0C0C0C]"
       onMouseUp={handleMouseUp}
       style={{ cursor: highlightMode ? 'crosshair' : 'default', userSelect: highlightMode ? 'text' : 'auto' }}
     >
       <div className={`mx-auto px-8 py-10 ${fs ? 'max-w-4xl text-lg' : 'max-w-2xl'}`}>
 
         {/* Title */}
-        <h1 className={`font-bold text-[#F5F5F5] mb-2 leading-tight ${fs ? 'text-4xl' : 'text-2xl'}`}>{note.title}</h1>
+        <h1 className={`font-bold text-gray-900 dark:text-[#F5F5F5] mb-2 leading-tight ${fs ? 'text-4xl' : 'text-2xl'}`}>{note.title}</h1>
         <div className="w-12 h-1 bg-blue-500 rounded mb-8" />
 
         {/* Summary */}
         {summaryBullets.length > 0 && (
-          <div className={`mb-8 p-5 bg-blue-900/20 border border-blue-800/40 rounded-2xl ${fs ? 'p-7' : ''}`}>
+          <div className={`mb-8 p-5 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/40 rounded-2xl ${fs ? 'p-7' : ''}`}>
             <p className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-3">Summary</p>
             <ul className={`space-y-2 ${fs ? 'space-y-3' : ''}`}>
               {summaryBullets.map((b, i) => (
-                <li key={i} className={`flex items-start gap-2 ${fs ? 'text-base' : 'text-sm'} text-blue-200 leading-relaxed`}>
+                <li key={i} className={`flex items-start gap-2 ${fs ? 'text-base' : 'text-sm'} text-blue-900 dark:text-blue-200 leading-relaxed`}>
                   <span className="text-blue-400 shrink-0 mt-0.5">•</span>
                   <span>{applyHighlights(b, highlights)}</span>
                 </li>
@@ -202,14 +202,14 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice })
                 onClick={() => setOpenSections(p => ({ ...p, [i]: !p[i] }))}
                 className="w-full flex items-center justify-between mb-0 group"
               >
-                <h2 className={`font-semibold text-[#F5F5F5] group-hover:text-blue-400 transition-colors text-left ${fs ? 'text-2xl' : 'text-lg'}`}>
+                <h2 className={`font-semibold text-gray-900 dark:text-[#F5F5F5] group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors text-left ${fs ? 'text-2xl' : 'text-lg'}`}>
                   {sec.title}
                 </h2>
                 <span className="text-gray-300 group-hover:text-gray-500 ml-2 shrink-0">
                   {openSections[i] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                 </span>
               </button>
-              <div className="h-px bg-[#2A2A2A] mt-2 mb-4" />
+              <div className="h-px bg-gray-200 dark:bg-[#2A2A2A] mt-2 mb-4" />
 
               {openSections[i] && (
                 <div className="space-y-3 pl-1">
@@ -220,7 +220,7 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice })
                         <textarea value={b} onChange={e => updateBullet(i, j, e.target.value)} rows={2}
                           className={`flex-1 border border-blue-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none leading-relaxed ${fs ? 'text-base' : 'text-sm'} text-gray-700`} />
                       ) : (
-                        <p className={`${fs ? 'text-base leading-loose' : 'text-sm leading-relaxed'} text-[#B5B5B5]`}>
+                        <p className={`${fs ? 'text-base leading-loose' : 'text-sm leading-relaxed'} text-gray-700 dark:text-[#B5B5B5]`}>
                           {applyHighlights(b, highlights)}
                         </p>
                       )}
@@ -239,8 +239,8 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice })
 
         {/* Key Terms */}
         {keyTerms.length > 0 && (
-          <div className="mt-10 mb-8 p-5 bg-indigo-900/20 border border-indigo-800/40 rounded-2xl">
-            <h2 className={`font-bold text-indigo-300 mb-4 ${fs ? 'text-2xl' : 'text-lg'}`}>Key Terms</h2>
+          <div className="mt-10 mb-8 p-5 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/40 rounded-2xl">
+            <h2 className={`font-bold text-indigo-800 dark:text-indigo-300 mb-4 ${fs ? 'text-2xl' : 'text-lg'}`}>Key Terms</h2>
             <div className="grid grid-cols-1 gap-3">
               {keyTerms.map((k, i) => {
                 const term = typeof k === 'string' ? k : k.term;
@@ -248,9 +248,9 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice })
                 return (
                   <div key={i} className="flex items-start gap-2">
                     <span className="text-indigo-400 shrink-0 mt-0.5 text-xs">●</span>
-                    <p className={`${fs ? 'text-base' : 'text-sm'} text-indigo-200 leading-relaxed`}>
+                    <p className={`${fs ? 'text-base' : 'text-sm'} text-indigo-900 dark:text-indigo-200 leading-relaxed`}>
                       <span className="font-semibold">{applyHighlights(term, highlights)}</span>
-                      {def && <span className="text-indigo-300 font-normal">: {applyHighlights(def, highlights)}</span>}
+                      {def && <span className="text-indigo-700 dark:text-indigo-300 font-normal">: {applyHighlights(def, highlights)}</span>}
                     </p>
                   </div>
                 );
@@ -262,18 +262,18 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice })
         {/* Practice Questions */}
         {practiceQuestions.length > 0 && (
           <div className="mt-10">
-            <h2 className={`font-bold text-[#F5F5F5] mb-4 ${fs ? 'text-2xl' : 'text-lg'}`}>Practice Questions</h2>
+            <h2 className={`font-bold text-gray-900 dark:text-[#F5F5F5] mb-4 ${fs ? 'text-2xl' : 'text-lg'}`}>Practice Questions</h2>
             <div className="space-y-4">
               {practiceQuestions.map((q, i) => {
                 const answered = answeredQ[i];
                 return (
-                  <div key={i} className={`border rounded-2xl overflow-hidden ${q.type === 'FRQ' ? 'border-purple-700' : 'border-[#2A2A2A]'}`}>
+                  <div key={i} className={`border rounded-2xl overflow-hidden ${q.type === 'FRQ' ? 'border-purple-300 dark:border-purple-700' : 'border-gray-200 dark:border-[#2A2A2A]'}`}>
                     <div className="px-5 py-4">
                       <div className="flex items-start gap-2 mb-3">
                         <span className={`shrink-0 text-xs font-bold px-2 py-0.5 rounded-full ${q.type === 'FRQ' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'}`}>
                           {q.type || 'MCQ'}
                         </span>
-                        <p className={`font-medium text-[#F5F5F5] leading-relaxed ${fs ? 'text-base' : 'text-sm'}`}>{q.question}</p>
+                        <p className={`font-medium text-gray-900 dark:text-[#F5F5F5] leading-relaxed ${fs ? 'text-base' : 'text-sm'}`}>{q.question}</p>
                       </div>
                       {q.options?.length > 0 && !answered && (
                         <div className="space-y-2 ml-7">
@@ -293,9 +293,9 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice })
                       )}
                     </div>
                     {answered && (
-                    <div className={`px-5 py-4 border-t ${q.type === 'FRQ' ? 'bg-purple-900/20 border-purple-800/40' : 'bg-green-900/20 border-green-800/40'}`}>
+                    <div className={`px-5 py-4 border-t ${q.type === 'FRQ' ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-100 dark:border-purple-800/40' : 'bg-green-50 dark:bg-green-900/20 border-green-100 dark:border-green-800/40'}`}>
                         <p className={`text-xs font-bold uppercase tracking-wider mb-2 ${q.type === 'FRQ' ? 'text-purple-500' : 'text-green-500'}`}>Answer</p>
-                        <p className={`${fs ? 'text-base' : 'text-sm'} text-[#B5B5B5] leading-relaxed`}>{q.answer}</p>
+                        <p className={`${fs ? 'text-base' : 'text-sm'} text-gray-700 dark:text-[#B5B5B5] leading-relaxed`}>{q.answer}</p>
                       </div>
                     )}
                   </div>
@@ -327,7 +327,7 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice })
 
       {/* Fullscreen */}
       {fullscreen && (
-        <div className="fixed inset-0 bg-[#0C0C0C] z-50 flex flex-col">
+        <div className="fixed inset-0 bg-white dark:bg-[#0C0C0C] z-50 flex flex-col">
           <Toolbar isFullscreen={true} />
           <NotesContent fs={true} />
         </div>
