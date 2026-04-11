@@ -4,10 +4,8 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import DashboardNavbar from '@/components/layout/DashboardNavbar';
 import DeckFlashcardReview from '@/components/flashcards/DeckFlashcardReview';
 import StructuredDeckGenerator from '@/components/flashcards/StructuredDeckGenerator';
-import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Loader2, Trash2, Play, Layers } from 'lucide-react';
+import { Loader2, Trash2, Play, Layers } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { AuroraBackground } from '@/components/ui/animated-background';
 import { toast } from 'sonner';
 
 export default function Flashcards() {
@@ -71,118 +69,101 @@ export default function Flashcards() {
   if (selectedDeck) {
     return (
       <ProtectedRoute>
-        <AuroraBackground>
+        <div className="min-h-screen bg-[#f8fafc]">
           <DashboardNavbar />
-          <div className="min-h-screen py-8">
+          <div className="py-8">
             <DeckFlashcardReview
               deck={selectedDeck}
               onBack={() => setSelectedDeck(null)}
             />
           </div>
-        </AuroraBackground>
+        </div>
       </ProtectedRoute>
     );
   }
 
   return (
     <ProtectedRoute>
-      <AuroraBackground>
+      <div className="min-h-screen bg-[#f8fafc]">
         <DashboardNavbar />
-        <div className="min-h-screen py-12">
-          <div className="max-w-5xl mx-auto px-6">
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-8"
-            >
-              <h1 className="text-3xl font-light text-white mb-1">Flashcard Decks</h1>
-              <p className="text-neutral-400 text-sm">Study by subject and unit — real flip cards with spaced repetition</p>
-            </motion.div>
+        <div className="max-w-[1200px] mx-auto px-6 py-8">
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-gray-900">Flashcard Decks</h1>
+            <p className="text-gray-500 text-sm mt-1">Study by subject and unit with spaced repetition</p>
+          </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Generator sidebar */}
-              <div>
-                <StructuredDeckGenerator onDeckCreated={handleDeckCreated} />
-              </div>
+          <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6 items-start">
+            {/* Generator card */}
+            <div className="lg:sticky lg:top-6 bg-white border border-gray-200 rounded-xl shadow-sm p-5">
+              <h2 className="text-sm font-semibold text-gray-700 mb-4">Generate Deck</h2>
+              <StructuredDeckGenerator onDeckCreated={handleDeckCreated} />
+            </div>
 
-              {/* Decks grid */}
-              <div className="lg:col-span-2">
-                {loading ? (
-                  <div className="flex items-center justify-center py-20">
-                    <Loader2 className="w-6 h-6 animate-spin text-[#D6B98C]" />
-                  </div>
-                ) : decks.length === 0 ? (
-                  <div className="text-center py-20 bg-neutral-900/40 border border-neutral-800 rounded-2xl">
-                    <Layers className="w-12 h-12 text-neutral-700 mx-auto mb-4" />
-                    <p className="text-neutral-400">No decks yet.</p>
-                    <p className="text-neutral-600 text-sm mt-1">Generate your first deck using the panel on the left.</p>
-                  </div>
-                ) : (
-                  <AnimatePresence>
-                    <div className="grid gap-4">
-                      {decks.map((deck, idx) => (
-                        <motion.div
-                          key={deck.id}
-                          initial={{ opacity: 0, y: 16 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: idx * 0.04 }}
-                          className="bg-neutral-900 border border-neutral-800 hover:border-neutral-700 rounded-2xl p-5 cursor-pointer transition-all"
-                          onClick={() => setSelectedDeck(deck)}
+            {/* Deck list */}
+            <div>
+              {loading ? (
+                <div className="flex items-center justify-center py-20">
+                  <Loader2 className="w-6 h-6 animate-spin text-blue-400" />
+                </div>
+              ) : decks.length === 0 ? (
+                <div className="text-center py-20 bg-white border border-gray-200 rounded-xl shadow-sm">
+                  <Layers className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-500 font-medium">No decks yet</p>
+                  <p className="text-gray-400 text-sm mt-1">Generate your first deck using the panel on the left.</p>
+                </div>
+              ) : (
+                <div className="grid gap-3">
+                  {decks.map((deck) => (
+                    <div
+                      key={deck.id}
+                      className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md p-5 cursor-pointer transition-all"
+                      onClick={() => setSelectedDeck(deck)}
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex-1 min-w-0">
+                          {deck.subject && (
+                            <p className="text-blue-500 text-xs font-semibold mb-0.5">{deck.subject}</p>
+                          )}
+                          {deck.unit_number && deck.unit_title && (
+                            <p className="text-gray-500 text-xs mb-1">Unit {deck.unit_number}: {deck.unit_title}</p>
+                          )}
+                          <h3 className="text-gray-900 font-semibold truncate">{deck.name}</h3>
+                        </div>
+                        <button
+                          onClick={(e) => handleDeleteDeck(deck.id, e)}
+                          className="text-gray-300 hover:text-red-400 transition-colors ml-3 flex-shrink-0 p-1"
                         >
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex-1 min-w-0">
-                              {/* Subject + Unit header */}
-                              {deck.subject && (
-                                <p className="text-[#D6B98C] text-xs font-medium mb-0.5">{deck.subject}</p>
-                              )}
-                              {deck.unit_number && deck.unit_title && (
-                                <p className="text-neutral-300 text-sm font-semibold mb-1">
-                                  Unit {deck.unit_number}: {deck.unit_title}
-                                </p>
-                              )}
-                              <h3 className="text-white font-medium truncate">{deck.name}</h3>
-                            </div>
-                            <button
-                              onClick={(e) => handleDeleteDeck(deck.id, e)}
-                              className="text-neutral-600 hover:text-red-400 transition-colors ml-3 flex-shrink-0"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
 
-                          <div className="flex items-center justify-between mt-3">
-                            <div className="text-xs text-neutral-500">
-                              {deck.cardCount} cards &bull; {deck.masteredCount} mastered
-                            </div>
-                            <Button
-                              onClick={(e) => { e.stopPropagation(); setSelectedDeck(deck); }}
-                              size="sm"
-                              className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold"
-                            >
-                              <Play className="w-3 h-3 mr-1" />
-                              Study
-                            </Button>
-                          </div>
+                      <div className="mt-3 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-blue-500 rounded-full transition-all"
+                          style={{ width: `${deck.cardCount > 0 ? (deck.masteredCount / deck.cardCount) * 100 : 0}%` }}
+                        />
+                      </div>
 
-                          {/* Mastery progress */}
-                          <div className="mt-3 h-1 bg-neutral-800 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-gradient-to-r from-blue-500 to-blue-400"
-                              style={{
-                                width: `${deck.cardCount > 0 ? (deck.masteredCount / deck.cardCount) * 100 : 0}%`
-                              }}
-                            />
-                          </div>
-                        </motion.div>
-                      ))}
+                      <div className="flex items-center justify-between mt-3">
+                        <div className="text-xs text-gray-400">
+                          {deck.cardCount} cards &bull; {deck.masteredCount} mastered
+                        </div>
+                        <Button
+                          onClick={(e) => { e.stopPropagation(); setSelectedDeck(deck); }}
+                          size="sm"
+                          className="bg-blue-500 hover:bg-blue-600 text-white text-xs rounded-lg shadow-sm"
+                        >
+                          <Play className="w-3 h-3 mr-1" /> Study
+                        </Button>
+                      </div>
                     </div>
-                  </AnimatePresence>
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
-      </AuroraBackground>
+      </div>
     </ProtectedRoute>
   );
 }
