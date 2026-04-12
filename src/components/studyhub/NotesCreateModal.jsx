@@ -41,11 +41,23 @@ export default function NotesCreateModal({ defaultType, subjectOverride, onClose
 
       if (type === 'ai') {
         if (!subject || !unit) { setError('Select a subject and unit.'); setStep('idle'); return; }
-        const kinematicsExtra = subject.subject.toLowerCase().includes('physics') && unit.toLowerCase().includes('kinematics') 
-          ? '\n\nFor Kinematics specifically, include ALL UAM (Uniform Acceleration Motion) equations in LaTeX form:\n$$v = v_0 + at$$\n$$x = v_0 t + \\frac{1}{2}at^2$$\n$$v^2 = v_0^2 + 2a\\Delta x$$\n$$\\Delta x = \\frac{v_0 + v}{2}t$$\n\nFor each equation, explain what each variable means, when to use it, and work through detailed example problems step-by-step. Include graphs like v vs t, x vs t, and a vs t with explanations.'
-          : '';
         const seed = await base44.integrations.Core.InvokeLLM({
-          prompt: `You are an expert AP teacher. Write a comprehensive, detailed AP-level study guide (1000+ words) about:\nSubject: ${subject.subject}\nUnit: ${unit}\n\nMust include:\n- All major concepts, theories, and definitions\n- Key formulas, equations, or frameworks (write equations in LaTeX using $$ delimiters)\n- Important dates, people, or events if applicable\n- Common AP exam traps and how to avoid them\n- Connections between concepts\n- Real-world examples\n- How to solve problems step-by-step${kinematicsExtra}\n\nWrite as flowing educational prose — detailed enough that a student could learn the entire unit from it.`,
+          prompt: `You are an AP curriculum expert. Using the comprehensive AP curriculum reference at https://gemini.google.com/share/ba2de14a59cc and your own knowledge, write a detailed, thorough AP-level study guide about:
+
+Subject: ${subject.subject}
+Unit: ${unit}
+
+Include:
+- All major concepts, definitions, and theories from the official AP framework
+- Key formulas, equations (in LaTeX using $$ delimiters), and frameworks
+- Graphical models and visual representations used in this unit
+- Important dates, people, or events if applicable
+- Common AP exam traps and how to avoid them
+- Step-by-step problem solving examples
+- Connections between concepts
+
+Write as detailed educational prose (1000+ words) — comprehensive enough that a student can master this entire unit from it.`,
+          add_context_from_internet: true,
           model: 'gemini_3_flash',
           response_json_schema: { type: 'object', properties: { text: { type: 'string' } } }
         });
