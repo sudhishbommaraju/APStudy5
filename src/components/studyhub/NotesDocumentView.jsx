@@ -9,6 +9,8 @@ import {
 import APVisuals from './APVisuals';
 import ConceptNodeView from './ConceptNodeView';
 import ActiveRecallMode from './ActiveRecallMode';
+import GenerateDeckModal from '../flashcards/GenerateDeckModal';
+import APFlashcardReviewer from '../flashcards/APFlashcardReviewer';
 
 const HIGHLIGHT_COLORS = ['#FFF176', '#A5D6A7', '#90CAF9', '#FFCC80', '#F48FB1'];
 
@@ -55,7 +57,7 @@ function downloadNote(note) {
   exportNoteToPDF(note);
 }
 
-export default function NotesDocumentView({ note, onUpdated, onCreatePractice }) {
+export default function NotesDocumentView({ note, onUpdated, onCreatePractice, existingDeck }) {
   const nd = note.notes_data || {};
   const summaryBullets = Array.isArray(nd.summary) ? nd.summary : (nd.summary ? [nd.summary] : []);
   const sections = nd.sections || [];
@@ -78,6 +80,9 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice })
   const [showConceptMap, setShowConceptMap] = useState(false);
   const [selectedConcept, setSelectedConcept] = useState(null);
   const [showRecallMode, setShowRecallMode] = useState(false);
+  const [showGenerateDeck, setShowGenerateDeck] = useState(false);
+  const [showStudyDeck, setShowStudyDeck] = useState(false);
+  const [currentDeck, setCurrentDeck] = useState(null);
 
   const displaySections = editMode ? editedSections : sections.map(s => ({ ...s, bullets: s.bullets || s.content || [] }));
 
@@ -304,6 +309,35 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice })
           onNodeSelect={setSelectedConcept}
           onClose={() => setShowConceptMap(false)}
         />
+      )}
+
+      {/* Generate Deck Modal */}
+      {showGenerateDeck && (
+        <GenerateDeckModal
+          note={note}
+          onClose={() => setShowGenerateDeck(false)}
+          onComplete={(deck) => {
+            setCurrentDeck(deck);
+            setShowStudyDeck(true);
+          }}
+        />
+      )}
+
+      {/* Study Deck Modal */}
+      {showStudyDeck && currentDeck && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl h-[80vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0">
+              <h2 className="text-base font-semibold text-gray-900">{currentDeck.name}</h2>
+              <button onClick={() => setShowStudyDeck(false)} className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-auto">
+              <APFlashcardReviewer deckId={currentDeck.id} />
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

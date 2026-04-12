@@ -77,7 +77,7 @@ export default function APFlashcardReviewer({ deckId, deckName, onClose }) {
       {/* Progress bar */}
       <div className="space-y-2">
         <div className="flex justify-between text-sm">
-          <span className="text-gray-600 font-medium">{deckName}</span>
+          <span className="text-gray-600 font-medium">{deckName || 'Flashcards'}</span>
           <span className="text-gray-400">{cardIndex + 1} / {cards.length}</span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">

@@ -2,7 +2,7 @@ import React from 'react';
 import { Brain, Layers, BarChart2 } from 'lucide-react';
 import AudioLessonPanel from './AudioLessonPanel';
 
-export default function NotesSidebar({ note, masteryScore, onCreatePractice, onCreateFlashcards }) {
+export default function NotesSidebar({ note, masteryScore, onCreatePractice, onCreateFlashcards, onGenerateDeck, existingDeck }) {
   const pct = masteryScore ?? 0;
   const color = pct >= 80 ? 'text-green-600' : pct >= 50 ? 'text-yellow-600' : 'text-red-500';
   const ring = pct >= 80 ? 'stroke-green-500' : pct >= 50 ? 'stroke-yellow-400' : 'stroke-red-400';
@@ -72,12 +72,22 @@ export default function NotesSidebar({ note, masteryScore, onCreatePractice, onC
           <h3 className="text-sm font-semibold text-gray-800">Flashcards</h3>
         </div>
         <p className="text-xs text-gray-500 mb-3">Review key terms and concepts with spaced repetition</p>
-        <button
-          onClick={onCreateFlashcards}
-          className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-lg transition-colors"
-        >
-          Study Flashcards
-        </button>
+        <div className="space-y-2">
+          <button
+            onClick={onGenerateDeck}
+            className="w-full py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold rounded-lg transition-colors"
+          >
+            Generate Deck
+          </button>
+          {existingDeck && (
+            <button
+              onClick={onCreateFlashcards}
+              className="w-full py-2 bg-purple-500 hover:bg-purple-600 text-white text-xs font-semibold rounded-lg transition-colors"
+            >
+              Study Deck
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Audio Lesson */}
