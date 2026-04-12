@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import {
   ArrowLeft, ChevronRight, Sparkles, Upload, Youtube, BookOpen,
   Loader2, Trash2, Plus, Brain, CheckCircle, XCircle, RotateCcw
@@ -11,6 +13,7 @@ import DashboardNavbar from '@/components/layout/DashboardNavbar';
 import NotesDocumentView from '@/components/studyhub/NotesDocumentView';
 import NotesCreateModal from '@/components/studyhub/NotesCreateModal';
 import NotesSidebar from '@/components/studyhub/NotesSidebar';
+import CourseManager from '@/components/studyhub/CourseManager';
 import APPracticeQuestion from '@/components/practice/APPracticeQuestion';
 import NotionImporter from '@/components/studyhub/NotionImporter';
 import { AP_SUBJECTS, getSubjectCategories, getSubjectsByCategory } from '@/components/studyhub/AP_SUBJECTS';
@@ -20,12 +23,25 @@ const CATEGORIES = getSubjectCategories();
 
 export default function APStudyHub() {
   const navigate = useNavigate();
+  const [userEmail, setUserEmail] = useState('');
   const [step, setStep] = useState(1); // 1=subjects, 2=subject detail, 3=view note, 4=generating quiz, 5=quiz, 6=results
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [selectedNote, setSelectedNote] = useState(null);
   const [subjectNotes, setSubjectNotes] = useState([]);
   const [loadingNotes, setLoadingNotes] = useState(false);
+  const [courses, setCourses] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [loadingCourses, setLoadingCourses] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { distance: 8 }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
   const [showCreate, setShowCreate] = useState(false);
+
+  useEffect(() => {
+    base44.auth.me().then(u => setUserEmail(u?.email || '')).catch(() => {});
+  }, []);
   const [createType, setCreateType] = useState(null);
 
   // Quiz state
@@ -49,10 +65,36 @@ export default function APStudyHub() {
     setLoadingNotes(false);
   }
 
+  async function loadCourses() {
+    setLoadingCourses(true);
+    try {
+      const user = await base44.auth.me();
+      const userCourses = await base44.entities.Course.filter(
+        { user_email: user.email },
+        'order', 50
+      );
+      setCourses(userCourses);
+    } catch (e) {}
+    setLoadingCourses(false);
+  }
+
+  async function handleDragEnd(event) {
+    const { active, over } = event;
+    if (!over) return;
+    const noteId = active.id;
+    const courseId = over.id === 'uncategorized' ? null : over.id;
+    const note = subjectNotes.find(n => n.id === noteId);
+    if (note) {
+      await base44.entities.StudyNote.update(noteId, { course_id: courseId });
+      setSubjectNotes(prev => prev.map(n => n.id === noteId ? { ...n, course_id: courseId } : n));
+    }
+  }
+
   function handleSelectSubject(subject) {
     setSelectedSubject(subject);
     setSubjectNotes([]);
     loadSubjectNotes(subject);
+    loadCourses();
     setStep(2);
   }
 
@@ -415,6 +457,11 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
             <div className="flex items-center gap-4 mb-8">
               <h1 className="text-3xl font-bold text-gray-900">{selectedSubject.subject}</h1>
               <span className="text-sm text-gray-400 bg-gray-100 px-3 py-1 rounded-full">{selectedSubject.category}</span>
+            </div>
+
+            {/* Course Manager */}
+            <div className="mb-10">
+              <CourseManager courses={courses} onCoursesUpdated={loadCourses} userEmail={userEmail} />
             </div>
 
             {/* Notion Importer */}

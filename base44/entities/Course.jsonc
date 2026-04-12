@@ -1,0 +1,36 @@
+{
+  "name": "Course",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User email (owner)"
+    },
+    "title": {
+      "type": "string",
+      "description": "Course/folder name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional course description"
+    },
+    "semester": {
+      "type": "string",
+      "description": "Semester (e.g., Spring 2026, Fall 2025)"
+    },
+    "color": {
+      "type": "string",
+      "default": "#3B82F6",
+      "description": "Hex color for folder"
+    },
+    "order": {
+      "type": "number",
+      "default": 0,
+      "description": "Display order"
+    }
+  },
+  "required": [
+    "user_email",
+    "title"
+  ]
+}

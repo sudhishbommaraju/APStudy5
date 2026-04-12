@@ -6,6 +6,10 @@
       "type": "string",
       "description": "User email"
     },
+    "course_id": {
+      "type": "string",
+      "description": "Optional course/folder ID"
+    },
     "exam_type": {
       "type": "string",
       "enum": [
