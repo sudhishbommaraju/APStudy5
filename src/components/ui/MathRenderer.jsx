@@ -1,13 +1,11 @@
 import React, { memo } from 'react';
 import { InlineMath, BlockMath } from 'react-katex';
 import 'katex/dist/katex.min.css';
+import { cleanLaTeX } from '@/utils/latexUtils';
 
 // Clean common AI LaTeX mistakes before rendering
 function sanitizeLatex(latex) {
-  return latex
-    .replace(/,\s*(?=[^{}]*\})/g, '') // remove commas inside math
-    .replace(/\\text\s*\{([^}]*)\}/g, '\\text{$1}') // normalize \text{}
-    .trim();
+  return cleanLaTeX(latex);
 }
 
 // Render a single math segment
@@ -28,7 +26,6 @@ function MathRenderer({ text, className = '' }) {
 
   // Split on $$...$$ (block) and $...$ (inline)
   const parts = [];
-  let remaining = text;
   const pattern = /(\$\$[\s\S]+?\$\$|\$[^$\n]+?\$)/g;
   let lastIndex = 0;
   let match;

@@ -10,6 +10,7 @@
 import { base44 } from '@/api/base44Client';
 import { QuestionIntegritySystem } from '@/components/validation/QuestionIntegritySystem';
 import { GenerationValidator } from '@/components/validation/GenerationValidator';
+import { preprocessQuestion } from '@/utils/questionPreprocessor';
 
 export class SafeQuestionGenerator {
   
@@ -70,13 +71,18 @@ export class SafeQuestionGenerator {
 
       try {
         // Generate single question
-        const question = await this.generateSingle({
+        let question = await this.generateSingle({
           subject_id,
           unit,
           skill,
           difficulty,
           timeoutMs: 8000 // 8s per question
         });
+        
+        // Clean LaTeX before storing
+        if (question) {
+          question = preprocessQuestion(question);
+        }
         
         if (question) {
           validQuestions.push(question);

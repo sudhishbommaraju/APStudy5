@@ -419,19 +419,30 @@ MANDATORY REQUIREMENTS:
 - Question MUST test deep conceptual understanding and application, NOT simple recall
 - All 4 answer choices MUST be highly plausible with sophisticated distractors
 - Wrong answers should reflect common AP-level student misconceptions
-- Use proper notation (LaTeX for math/science: $x^2$, $\\frac{a}{b}$, $\\int$, $\\sum$, etc.)
+
+LATEX MATH FORMATTING (CRITICAL):
+- ALL equations MUST use valid LaTeX with proper backslashes: \\frac, \\sin, \\cos, \\sqrt, \\theta, \\pi, \\times, \\div, \\sum, \\int
+- ALWAYS include backslashes. Never use: rac, sin, cos, theta, pi - these are WRONG
+- Wrap complete equations in $$ $$ for display math (centered, block-level)
+- Wrap inline variables/expressions in $ $ for inline math
+- Example correct: $$ h = \\frac{v_0^2 \\sin^2(\\theta)}{2g} $$ or inline $ \\frac{1}{2} $
+- Example WRONG: "rac{1}{2}" or "\\theta" without delimiters
+- Explanation must use LaTeX for all mathematical expressions
+- Check: every backslash is present, every equation is wrapped properly
+
+OTHER REQUIREMENTS:
 - Explanation must be comprehensive with complete College Board-level reasoning
 - Match the exact style and rigor of actual AP exams for this subject
 
 Return JSON:
 {
   "question_text": "Rigorous College Board-level question",
-  "choice_a": "Sophisticated plausible option",
-  "choice_b": "Sophisticated plausible option", 
-  "choice_c": "Sophisticated plausible option",
-  "choice_d": "Sophisticated plausible option",
+  "choice_a": "Sophisticated plausible option with proper LaTeX if math",
+  "choice_b": "Sophisticated plausible option with proper LaTeX if math", 
+  "choice_c": "Sophisticated plausible option with proper LaTeX if math",
+  "choice_d": "Sophisticated plausible option with proper LaTeX if math",
   "correct_answer": "A" or "B" or "C" or "D",
-  "explanation": "Complete AP-level explanation with step-by-step reasoning",
+  "explanation": "Complete AP-level explanation with proper LaTeX for all math",
   "hint": "Strategic hint appropriate for AP-level students"
 }`;
 }
