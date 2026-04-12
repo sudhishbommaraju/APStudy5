@@ -14,7 +14,6 @@ import NotesSidebar from '@/components/studyhub/NotesSidebar';
 import CourseManager from '@/components/studyhub/CourseManager';
 import APPracticeQuestion from '@/components/practice/APPracticeQuestion';
 import APFlashcardGenerator from '@/components/flashcards/APFlashcardGenerator';
-import NotionImporter from '@/components/studyhub/NotionImporter';
 import { AP_SUBJECTS, getSubjectCategories, getSubjectsByCategory } from '@/components/studyhub/AP_SUBJECTS';
 import { calculateNextReviewDate } from '@/utils/spacedRepetitionUtils';
 import { updateUserStreak } from '@/utils/streakUtils';
@@ -470,11 +469,6 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
             {/* Course Manager */}
             <div className="mb-10">
               <CourseManager courses={courses} onCoursesUpdated={loadCourses} userEmail={userEmail} />
-            </div>
-
-            {/* Notion Importer */}
-            <div className="mb-10">
-              <NotionImporter onImportComplete={() => loadSubjectNotes(selectedSubject)} />
             </div>
 
             {/* Create Note Options */}
