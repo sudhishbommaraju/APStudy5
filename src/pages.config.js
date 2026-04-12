@@ -85,8 +85,6 @@ import Generate from './pages/Generate';
 import GroupDetail from './pages/GroupDetail';
 import Home from './pages/Home';
 import MistakeReplay from './pages/MistakeReplay';
-import NotionSetupGuide from './pages/NotionSetupGuide';
-import NotionSync from './pages/NotionSync';
 import Onboarding from './pages/Onboarding';
 import Pricing from './pages/Pricing';
 import Profile from './pages/Profile';
@@ -152,8 +150,6 @@ export const PAGES = {
     "GroupDetail": GroupDetail,
     "Home": Home,
     "MistakeReplay": MistakeReplay,
-    "NotionSetupGuide": NotionSetupGuide,
-    "NotionSync": NotionSync,
     "Onboarding": Onboarding,
     "Pricing": Pricing,
     "Profile": Profile,
