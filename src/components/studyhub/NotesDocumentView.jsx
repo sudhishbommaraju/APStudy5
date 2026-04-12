@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import MathRenderer from '@/components/ui/MathRenderer';
 import { base44 } from '@/api/base44Client';
+import { exportNoteToPDF } from '@/utils/pdfExporter';
 import {
   Edit3, Check, Highlighter, Download, Brain, X,
   ChevronDown, ChevronUp, BookOpen, Loader2, Maximize2, Minimize2, Network
@@ -51,24 +52,7 @@ function applyHighlights(text, highlights) {
 }
 
 function downloadNote(note) {
-  const nd = note.notes_data || {};
-  const lines = [
-    `# ${note.title}`, '',
-    '## Summary',
-    ...(Array.isArray(nd.summary) ? nd.summary.map(b => `- ${b}`) : [nd.summary || '']),
-    '',
-    ...(nd.sections || []).flatMap(s => [
-      `## ${s.title}`,
-      ...(s.bullets || s.content || []).map(b => `- ${b}`), ''
-    ]),
-    '## Key Terms',
-    ...(nd.keyTerms || []).map(k => typeof k === 'string' ? `- ${k}` : `- **${k.term}**: ${k.definition}`),
-  ];
-  const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `${note.title}.md`; a.click();
-  URL.revokeObjectURL(url);
+  exportNoteToPDF(note);
 }
 
 export default function NotesDocumentView({ note, onUpdated, onCreatePractice }) {
@@ -152,7 +136,7 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice })
         </button>
       )}
 
-      <button onClick={() => downloadNote(note)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2A2A2A] text-gray-500 dark:text-[#8A8A8A]" title="Download">
+      <button onClick={() => downloadNote(note)} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-[#2A2A2A] text-gray-500 dark:text-[#8A8A8A]" title="Download as PDF">
         <Download className="w-4 h-4" />
       </button>
 
