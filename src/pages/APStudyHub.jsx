@@ -32,6 +32,7 @@ export default function APStudyHub() {
   const [quizQuestions, setQuizQuestions] = useState([]);
   const [quizIndex, setQuizIndex] = useState(0);
   const [quizScore, setQuizScore] = useState(0);
+  const [quizResponses, setQuizResponses] = useState([]);
   const [generatingQuiz, setGeneratingQuiz] = useState(false);
   const [generatingPractice, setGeneratingPractice] = useState(false);
 
@@ -129,6 +130,7 @@ Return exactly 10 questions. Each must have: question, 4 options (A-D), correct 
       setQuizQuestions(mapped);
       setQuizIndex(0);
       setQuizScore(0);
+      setQuizResponses([]);
       setStep(5);
     } catch (e) {
       // stay on notes
@@ -193,6 +195,7 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
       setQuizQuestions(mapped);
       setQuizIndex(0);
       setQuizScore(0);
+      setQuizResponses([]);
       setStep(5);
     } catch (e) {
       setStep(3);
@@ -202,6 +205,7 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
 
   const handleQuizNext = (wasCorrect) => {
     if (wasCorrect) setQuizScore(s => s + 1);
+    setQuizResponses(prev => [...prev, wasCorrect]);
     setQuizIndex(i => i + 1);
   };
 
@@ -218,9 +222,33 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
     setSelectedNote(prev => ({ ...prev, total_practice_attempts: newTotal, correct_practice_attempts: newCorrect, mastery_percentage: newMastery }));
   };
 
-  const handleQuizComplete = (wasCorrect) => {
-    setQuizScore(s => s + (wasCorrect ? 1 : 0));
-    updateNoteMastery(quizScore + (wasCorrect ? 1 : 0), quizQuestions.length);
+  const handleQuizComplete = async (wasCorrect) => {
+    const finalScore = quizScore + (wasCorrect ? 1 : 0);
+    const finalResponses = [...quizResponses, wasCorrect];
+    setQuizScore(finalScore);
+    updateNoteMastery(finalScore, quizQuestions.length);
+    
+    // Create Attempt records for score analyzer
+    try {
+      const user = await base44.auth.me();
+      const attempts = finalResponses.map((isCorrect, idx) => ({
+        question_id: quizQuestions[idx]?.id || '',
+        subject_id: selectedSubject?.id || '',
+        unit_id: selectedNote?.unit_id || '',
+        skill_id: selectedSubject?.id || '',
+        unit_name: selectedNote?.title || '',
+        skill_name: selectedNote?.title || '',
+        difficulty: quizQuestions[idx]?.difficulty || 'medium',
+        selected_answer: isCorrect ? quizQuestions[idx]?.correct_answer : (idx % 4 === 0 ? 'A' : idx % 4 === 1 ? 'B' : idx % 4 === 2 ? 'C' : 'D'),
+        correct_answer: quizQuestions[idx]?.correct_answer || 'A',
+        is_correct: isCorrect,
+        mode: 'practice',
+      }));
+      if (attempts.length > 0) await base44.entities.Attempt.bulkCreate(attempts);
+    } catch (e) {
+      console.error('Failed to create attempts:', e);
+    }
+    
     setStep(6);
   };
 
@@ -291,7 +319,7 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
             <div className="text-5xl font-bold text-blue-500 mb-2">{pct}%</div>
             <p className="text-gray-500 mb-8">{quizScore} / {quizQuestions.length} correct</p>
             <div className="flex gap-3 justify-center">
-              <Button variant="outline" onClick={() => { setQuizIndex(0); setQuizScore(0); setStep(5); }}>
+              <Button variant="outline" onClick={() => { setQuizIndex(0); setQuizScore(0); setQuizResponses([]); setStep(5); }}>
                 <RotateCcw className="w-4 h-4 mr-2" /> Retake
               </Button>
               <Button className="bg-blue-500 hover:bg-blue-600" onClick={() => setStep(3)}>
