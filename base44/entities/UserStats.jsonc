@@ -1,0 +1,38 @@
+{
+  "name": "UserStats",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "User email (unique per user)"
+    },
+    "xp": {
+      "type": "number",
+      "default": 0,
+      "description": "Total XP earned"
+    },
+    "level": {
+      "type": "number",
+      "default": 1,
+      "description": "Current level (derived from XP)"
+    },
+    "questions_answered": {
+      "type": "number",
+      "default": 0,
+      "description": "Total questions answered"
+    },
+    "correct_answers": {
+      "type": "number",
+      "default": 0,
+      "description": "Total correct answers"
+    },
+    "streak": {
+      "type": "number",
+      "default": 0,
+      "description": "Current correct answer streak"
+    }
+  },
+  "required": [
+    "user_email"
+  ]
+}

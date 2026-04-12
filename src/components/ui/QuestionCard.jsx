@@ -7,6 +7,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { base44 } from '@/api/base44Client';
+import { awardXP } from '@/hooks/useProgression';
 import QuestionIntegrityGuard from '@/components/validation/QuestionIntegrityGuard';
 
 export default function QuestionCard({ 
@@ -48,10 +49,18 @@ export default function QuestionCard({
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!localSelected) return;
     setSubmitted(true);
+    const correct = localSelected === question.correct_answer;
     onAnswer(localSelected);
+    // Award XP in background
+    try {
+      const user = await base44.auth.me();
+      await awardXP(correct ? 'correct_mcq' : 'wrong_mcq', user.email);
+    } catch (e) {
+      // silent fail — don't block UX
+    }
   };
 
   const toggleEliminate = (key, e) => {

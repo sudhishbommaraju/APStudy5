@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { getUserStats } from '@/hooks/useProgression';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
@@ -18,13 +19,14 @@ export default function Dashboard() {
   const [selectedApSubject, setSelectedApSubject] = useState(() => localStorage.getItem('proofly_ap_subject') || null);
   const [user, setUser] = useState(null);
   const [totalXp, setTotalXp] = useState(0);
-  const [points, setPoints] = useState(0);
+  const [streak, setStreak] = useState(0);
 
   useEffect(() => {
-    base44.auth.me().then(u => {
+    base44.auth.me().then(async u => {
       setUser(u);
-      setTotalXp(u?.total_xp || 0);
-      setPoints(u?.points || 0);
+      const stats = await getUserStats(u.email);
+      setTotalXp(stats.xp || 0);
+      setStreak(stats.streak || 0);
     }).catch(() => {});
   }, []);
 
@@ -132,7 +134,7 @@ export default function Dashboard() {
               user={user}
             />
 
-            <XPBar theme={theme} totalXp={totalXp} points={points} />
+            <XPBar theme={theme} totalXp={totalXp} streak={streak} />
 
             <KPIRow theme={theme} kpis={current.kpis} />
 

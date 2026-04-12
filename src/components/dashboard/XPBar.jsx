@@ -1,30 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Star, Zap, ShoppingBag } from 'lucide-react';
+import { Zap, Flame, ShoppingBag } from 'lucide-react';
 
-// XP needed to reach next level (scales up)
-export function xpForLevel(level) {
-  return Math.floor(100 * Math.pow(1.3, level - 1));
+// Level formula: floor(sqrt(xp / 50)) + 1
+export function calcLevel(xp) {
+  return Math.floor(Math.sqrt((xp || 0) / 50)) + 1;
 }
 
-// Total XP needed from scratch to reach a level
-export function totalXpForLevel(level) {
-  let total = 0;
-  for (let i = 1; i < level; i++) total += xpForLevel(i);
-  return total;
+export function xpForLevel(level) {
+  return Math.pow(level - 1, 2) * 50;
+}
+
+export function xpForNextLevel(level) {
+  return Math.pow(level, 2) * 50;
 }
 
 export function getLevelFromXP(totalXp) {
-  let level = 1;
-  let xpUsed = 0;
-  while (true) {
-    const needed = xpForLevel(level);
-    if (xpUsed + needed > totalXp) break;
-    xpUsed += needed;
-    level++;
-    if (level >= 100) break;
-  }
-  return { level, xpIntoLevel: totalXp - xpUsed, xpNeeded: xpForLevel(level) };
+  const level = calcLevel(totalXp);
+  const xpCurrentLevel = xpForLevel(level);
+  const xpNext = xpForNextLevel(level);
+  return { level, xpIntoLevel: totalXp - xpCurrentLevel, xpNeeded: xpNext - xpCurrentLevel };
 }
 
 const LEVEL_BADGES = [
@@ -42,7 +37,7 @@ export function getBadge(level) {
   return badge;
 }
 
-export default function XPBar({ theme, totalXp = 0, points = 0 }) {
+export default function XPBar({ theme, totalXp = 0, streak = 0 }) {
   const navigate = useNavigate();
   const { level, xpIntoLevel, xpNeeded } = getLevelFromXP(totalXp);
   const badge = getBadge(level);
@@ -96,13 +91,13 @@ export default function XPBar({ theme, totalXp = 0, points = 0 }) {
 
       {/* Points + store */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-            <Zap size={14} color="#f59e0b" />
-            <span style={{ fontSize: 16, fontWeight: 700, color: theme.text }}>{points.toLocaleString()}</span>
-          </div>
-          <span style={{ fontSize: 11, color: theme.textMuted }}>Points</span>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+          <Flame size={14} color="#f59e0b" />
+          <span style={{ fontSize: 16, fontWeight: 700, color: theme.text }}>{streak}</span>
         </div>
+        <span style={{ fontSize: 11, color: theme.textMuted }}>Streak</span>
+      </div>
         <button onClick={() => navigate('/Store')} style={{
           display: 'flex', alignItems: 'center', gap: 6,
           padding: '7px 14px', borderRadius: 10, border: 'none',
