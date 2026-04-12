@@ -27,12 +27,16 @@ function getConfig(subjectId) {
 
 // ── Step 1: Subject Selection ──────────────────────────────
 function SubjectSelector({ onStart }) {
+  const navigate = useNavigate();
   const [selected, setSelected] = useState(null);
   const categories = [...new Set(AP_SUBJECTS.map(s => s.category))];
 
   return (
     <div className="min-h-screen bg-[#f8fafc] py-10 px-6">
       <div className="max-w-4xl mx-auto">
+        <button onClick={() => navigate('/Dashboard')} className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors mb-6 text-sm font-medium">
+          <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+        </button>
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-1">AP Full-Length Practice Test</h1>
           <p className="text-gray-500 text-sm">Select a subject to begin a timed, full-length AP exam simulation</p>
