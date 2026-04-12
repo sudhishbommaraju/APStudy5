@@ -47,42 +47,42 @@ export default function CookieConsentBanner() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6">
-      <div className="max-w-4xl mx-auto bg-[#171717] border border-neutral-700 rounded-2xl shadow-2xl p-6">
+      <div className="max-w-4xl mx-auto bg-white border border-blue-100 rounded-2xl shadow-2xl p-6">
         <div className="flex items-start gap-4">
-          <Cookie className="w-5 h-5 text-[#D6B98C] shrink-0 mt-0.5" />
+          <Cookie className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h3 className="text-white font-medium mb-1">Cookie Preferences</h3>
-            <p className="text-neutral-400 text-sm leading-relaxed">
+            <h3 className="text-gray-900 font-medium mb-1">Cookie Preferences</h3>
+            <p className="text-gray-500 text-sm leading-relaxed">
               We use cookies to keep you logged in and to understand how you use Proofly.{' '}
-              <span className="text-neutral-300">Essential cookies</span> are always on.{' '}
+              <span className="text-gray-700">Essential cookies</span> are always on.{' '}
               You can choose whether to allow analytics and preference cookies.
             </p>
 
             {/* Expandable details */}
             <button
               onClick={() => setExpanded(!expanded)}
-              className="flex items-center gap-1 text-xs text-neutral-500 hover:text-neutral-300 mt-2 transition-colors"
+              className="flex items-center gap-1 text-xs text-gray-400 hover:text-blue-600 mt-2 transition-colors"
             >
               {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
               Manage preferences
             </button>
 
             {expanded && (
-              <div className="mt-4 space-y-3 border-t border-neutral-800 pt-4">
+              <div className="mt-4 space-y-3 border-t border-blue-100 pt-4">
                 {/* Essential — always on */}
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-white font-medium">Essential Cookies</p>
-                    <p className="text-xs text-neutral-500">Login sessions, security tokens. Required.</p>
+                    <p className="text-sm text-gray-900 font-medium">Essential Cookies</p>
+                    <p className="text-xs text-gray-400">Login sessions, security tokens. Required.</p>
                   </div>
-                  <div className="text-xs text-neutral-500 bg-neutral-800 px-2 py-1 rounded">Always On</div>
+                  <div className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">Always On</div>
                 </div>
 
                 {/* Analytics */}
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-white font-medium">Analytics Cookies</p>
-                    <p className="text-xs text-neutral-500">Helps us understand how the platform is used.</p>
+                    <p className="text-sm text-gray-900 font-medium">Analytics Cookies</p>
+                    <p className="text-xs text-gray-400">Helps us understand how the platform is used.</p>
                   </div>
                   <button
                     onClick={() => setPrefs(p => ({ ...p, analytics: !p.analytics }))}
@@ -95,8 +95,8 @@ export default function CookieConsentBanner() {
                 {/* Preferences */}
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-white font-medium">Preference Cookies</p>
-                    <p className="text-xs text-neutral-500">Remembers your settings and choices.</p>
+                    <p className="text-sm text-gray-900 font-medium">Preference Cookies</p>
+                    <p className="text-xs text-gray-400">Remembers your settings and choices.</p>
                   </div>
                   <button
                     onClick={() => setPrefs(p => ({ ...p, preferences: !p.preferences }))}
@@ -111,15 +111,15 @@ export default function CookieConsentBanner() {
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-2 shrink-0">
-            <Button size="sm" variant="outline" onClick={rejectNonEssential} className="text-xs border-neutral-700 text-neutral-300">
+            <Button size="sm" variant="outline" onClick={rejectNonEssential} className="text-xs border-blue-200 text-gray-600 hover:bg-blue-50">
               Reject Optional
             </Button>
             {expanded && (
-              <Button size="sm" variant="outline" onClick={saveCustom} className="text-xs border-neutral-700 text-neutral-300">
+              <Button size="sm" variant="outline" onClick={saveCustom} className="text-xs border-blue-200 text-gray-600 hover:bg-blue-50">
                 Save Choices
               </Button>
             )}
-            <Button size="sm" onClick={acceptAll} className="text-xs bg-[#D6B98C] text-black hover:bg-[#C9A96A]">
+            <Button size="sm" onClick={acceptAll} className="text-xs bg-blue-600 text-white hover:bg-blue-700">
               Accept All
             </Button>
           </div>
