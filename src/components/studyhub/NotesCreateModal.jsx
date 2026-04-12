@@ -6,15 +6,20 @@ import APSubjectSelector from './APSubjectSelector';
 import { generateNotesPipeline } from './NotesGenerationPipeline';
 
 const STEP_LABELS = {
-  generating: 'Seeding content…',
-  normalizing: 'Cleaning content…',
-  chunking: 'Segmenting…',
+  generating: 'Generating…',
+  normalizing: 'Preparing content…',
   extracting: 'Extracting topics…',
-  expanding: 'Expanding topics…',
-  assembling: 'Assembling notes…',
+  expanding: 'Structuring notes…',
+  assembling: 'Finalizing notes…',
   uploading: 'Uploading file…',
   extracting_text: 'Extracting text…',
   fetching: 'Fetching video…',
+};
+
+const STEP_PCT = {
+  generating: 10, normalizing: 20, extracting: 40,
+  expanding: 65, assembling: 85, uploading: 15,
+  extracting_text: 30, fetching: 20,
 };
 
 export default function NotesCreateModal({ defaultType, subjectOverride, onClose, onCreated }) {
@@ -185,11 +190,15 @@ export default function NotesCreateModal({ defaultType, subjectOverride, onClose
           {/* Progress */}
           {isLoading && (
             <div>
-              <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
+              <div className="flex items-center justify-between text-xs text-gray-500 mb-1.5">
                 <span>{STEP_LABELS[step] || 'Processing…'}</span>
+                <span className="text-gray-400">{STEP_PCT[step] || 50}%</span>
               </div>
               <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                <div className="h-full bg-blue-400 rounded-full animate-pulse w-2/3" />
+                <div
+                  className="h-full bg-blue-500 rounded-full transition-all duration-500"
+                  style={{ width: `${STEP_PCT[step] || 50}%` }}
+                />
               </div>
             </div>
           )}
