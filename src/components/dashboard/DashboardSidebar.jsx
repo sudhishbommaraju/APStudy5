@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, BookOpen, ClipboardList, Brain,
   FileText, Layers, Headphones, GraduationCap,
-  BarChart2, Sparkles, Settings, LogOut, Sun, Moon, ShoppingBag
+  BarChart2, Sparkles, Settings, LogOut, ShoppingBag
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
@@ -75,8 +75,8 @@ function NavItem({ icon: Icon, label, isActive, theme, onClick }) {
         width: '100%', display: 'flex', alignItems: 'center', gap: 10,
         padding: '8px 12px', borderRadius: 8,
         background: isActive
-          ? theme.isDark ? 'rgba(59,130,246,0.14)' : 'rgba(37,99,235,0.09)'
-          : hovered ? theme.isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'
+          ? 'rgba(37,99,235,0.09)'
+          : hovered ? 'rgba(0,0,0,0.04)'
           : 'transparent',
         border: 'none',
         borderLeft: isActive ? `3px solid ${theme.accent}` : '3px solid transparent',
