@@ -12,6 +12,7 @@ import ModuleGrid from '@/components/dashboard/ModuleGrid';
 import AIChat from '@/components/dashboard/AIChat';
 import XPBar from '@/components/dashboard/XPBar';
 import PSATScoreCard from '@/components/dashboard/PSATScoreCard';
+import APSubjectScoreAnalyzer from '@/components/dashboard/APSubjectScoreAnalyzer';
 
 export default function Dashboard() {
   const [isDark, setIsDark] = useState(() => localStorage.getItem('proofly_theme') === 'dark');
@@ -185,6 +186,10 @@ export default function Dashboard() {
               <div style={{ marginBottom: 20 }}>
                 <PSATScoreCard theme={theme} psatScore={psatScore} onUpdate={setPsatScore} />
               </div>
+            )}
+
+            {activeTab === 'AP' && (
+              <APSubjectScoreAnalyzer theme={theme} attempts={attempts} />
             )}
 
             <KPIRow theme={theme} kpis={current.kpis} />
