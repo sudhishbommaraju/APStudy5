@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -77,62 +76,62 @@ export default function Settings() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-neutral-400" />
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black py-16">
+    <div className="min-h-screen bg-gray-50 py-16">
       <div className="max-w-4xl mx-auto px-6">
         <button
-          onClick={() => navigate(createPageUrl('Dashboard'))}
-          className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors mb-12"
+          onClick={() => navigate('/Dashboard')}
+          className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors mb-12 font-medium"
         >
           <ArrowLeft className="w-5 h-5" />
           Back to Dashboard
         </button>
 
         <div className="mb-8">
-          <h1 className="text-4xl font-light text-white mb-2">Settings</h1>
-          <p className="text-neutral-400">Manage your profile and preferences</p>
+          <h1 className="text-4xl font-light text-gray-900 mb-2">Settings</h1>
+          <p className="text-gray-500">Manage your profile and preferences</p>
         </div>
 
         <div className="space-y-6">
           {/* Profile Section */}
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
+          <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
               <User className="w-6 h-6 text-blue-500" />
-              <h2 className="text-2xl font-light text-white">Profile</h2>
+              <h2 className="text-2xl font-light text-gray-900">Profile</h2>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-2">Email</label>
-                <Input value={user?.email || ''} disabled className="bg-neutral-800 border-neutral-700 text-neutral-400" />
+                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <Input value={user?.email || ''} disabled className="bg-gray-50 border-gray-200 text-gray-500" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-2">Full Name</label>
-                <Input value={user?.full_name || ''} disabled className="bg-neutral-800 border-neutral-700 text-neutral-400" />
+                <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                <Input value={user?.full_name || ''} disabled className="bg-gray-50 border-gray-200 text-gray-500" />
               </div>
             </div>
           </div>
 
           {/* Notion Integration */}
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
+          <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
               <Database className="w-6 h-6 text-blue-500" />
-              <h2 className="text-2xl font-light text-white">Notion Integration</h2>
+              <h2 className="text-2xl font-light text-gray-900">Notion Integration</h2>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-2">Practice Page URL</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Practice Page URL</label>
                 <div className="flex gap-2">
                   <Input
                     placeholder="https://notion.so/your-practice-page"
                     value={settings.notion_practice_page}
                     onChange={(e) => setSettings({ ...settings, notion_practice_page: e.target.value })}
-                    className="bg-neutral-800 border-neutral-700 text-white"
+                    className="bg-white border-gray-300 text-gray-900"
                   />
                   {settings.notion_practice_page && (
                     <Button variant="outline" size="icon" onClick={() => handleUnlinkNotion('notion_practice_page')}>
@@ -142,13 +141,13 @@ export default function Settings() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-2">Full Test Page URL</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Full Test Page URL</label>
                 <div className="flex gap-2">
                   <Input
                     placeholder="https://notion.so/your-fulltest-page"
                     value={settings.notion_fulltest_page}
                     onChange={(e) => setSettings({ ...settings, notion_fulltest_page: e.target.value })}
-                    className="bg-neutral-800 border-neutral-700 text-white"
+                    className="bg-white border-gray-300 text-gray-900"
                   />
                   {settings.notion_fulltest_page && (
                     <Button variant="outline" size="icon" onClick={() => handleUnlinkNotion('notion_fulltest_page')}>
@@ -158,13 +157,13 @@ export default function Settings() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-2">Progress Tracking Page URL</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Progress Tracking Page URL</label>
                 <div className="flex gap-2">
                   <Input
                     placeholder="https://notion.so/your-progress-page"
                     value={settings.notion_progress_page}
                     onChange={(e) => setSettings({ ...settings, notion_progress_page: e.target.value })}
-                    className="bg-neutral-800 border-neutral-700 text-white"
+                    className="bg-white border-gray-300 text-gray-900"
                   />
                   {settings.notion_progress_page && (
                     <Button variant="outline" size="icon" onClick={() => handleUnlinkNotion('notion_progress_page')}>
@@ -177,30 +176,23 @@ export default function Settings() {
           </div>
 
           {/* Notifications */}
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
+          <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
               <Bell className="w-6 h-6 text-blue-500" />
-              <h2 className="text-2xl font-light text-white">Notifications</h2>
+              <h2 className="text-2xl font-light text-gray-900">Notifications</h2>
             </div>
             <div className="space-y-4">
               {Object.entries(settings.notification_preferences).map(([key, value]) => (
                 <div key={key} className="flex items-center justify-between">
-                  <label className="text-sm text-neutral-300 capitalize">{key.replace(/_/g, ' ')}</label>
+                  <label className="text-sm text-gray-700 capitalize">{key.replace(/_/g, ' ')}</label>
                   <button
                     onClick={() => setSettings({
                       ...settings,
-                      notification_preferences: {
-                        ...settings.notification_preferences,
-                        [key]: !value
-                      }
+                      notification_preferences: { ...settings.notification_preferences, [key]: !value }
                     })}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      value ? 'bg-blue-600' : 'bg-neutral-700'
-                    }`}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${value ? 'bg-blue-600' : 'bg-gray-200'}`}
                   >
-                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      value ? 'translate-x-6' : 'translate-x-1'
-                    }`} />
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${value ? 'translate-x-6' : 'translate-x-1'}`} />
                   </button>
                 </div>
               ))}
@@ -208,14 +200,14 @@ export default function Settings() {
           </div>
 
           {/* Dashboard Layout */}
-          <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-8">
+          <div className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
               <Layout className="w-6 h-6 text-blue-500" />
-              <h2 className="text-2xl font-light text-white">Dashboard Layout</h2>
+              <h2 className="text-2xl font-light text-gray-900">Dashboard Layout</h2>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-neutral-300 mb-2">Default Tab</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Default Tab</label>
                 <Select
                   value={settings.dashboard_layout.default_tab}
                   onValueChange={(val) => setSettings({
@@ -223,7 +215,7 @@ export default function Settings() {
                     dashboard_layout: { ...settings.dashboard_layout, default_tab: val }
                   })}
                 >
-                  <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
+                  <SelectTrigger className="bg-white border-gray-300 text-gray-900">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -235,19 +227,15 @@ export default function Settings() {
               </div>
               {Object.entries(settings.dashboard_layout).filter(([key]) => key !== 'default_tab').map(([key, value]) => (
                 <div key={key} className="flex items-center justify-between">
-                  <label className="text-sm text-neutral-300 capitalize">{key.replace(/_/g, ' ')}</label>
+                  <label className="text-sm text-gray-700 capitalize">{key.replace(/_/g, ' ')}</label>
                   <button
                     onClick={() => setSettings({
                       ...settings,
                       dashboard_layout: { ...settings.dashboard_layout, [key]: !value }
                     })}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      value ? 'bg-blue-600' : 'bg-neutral-700'
-                    }`}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${value ? 'bg-blue-600' : 'bg-gray-200'}`}
                   >
-                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      value ? 'translate-x-6' : 'translate-x-1'
-                    }`} />
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${value ? 'translate-x-6' : 'translate-x-1'}`} />
                   </button>
                 </div>
               ))}
@@ -265,15 +253,9 @@ export default function Settings() {
             size="lg"
           >
             {saving ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Saving...
-              </>
+              <><Loader2 className="w-5 h-5 mr-2 animate-spin" />Saving...</>
             ) : (
-              <>
-                <Save className="w-5 h-5 mr-2" />
-                Save Settings
-              </>
+              <><Save className="w-5 h-5 mr-2" />Save Settings</>
             )}
           </Button>
         </div>
