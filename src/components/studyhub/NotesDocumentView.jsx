@@ -188,7 +188,7 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice })
   // The actual notes content
   const NotesContent = ({ fs }) => (
     <div
-      className="flex-1 overflow-auto bg-white dark:bg-[#0C0C0C]"
+      className="flex-1 overflow-auto bg-white"
       onMouseUp={handleMouseUp}
       style={{ cursor: highlightMode ? 'crosshair' : 'default', userSelect: highlightMode ? 'text' : 'auto' }}
     >
@@ -303,7 +303,7 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice })
 
       {/* Fullscreen */}
       {fullscreen && (
-        <div className="fixed inset-0 bg-white dark:bg-[#0C0C0C] z-50 flex flex-col">
+        <div className="fixed inset-0 bg-white z-50 flex flex-col">
           <Toolbar isFullscreen={true} />
           <NotesContent fs={true} />
         </div>
