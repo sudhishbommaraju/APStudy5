@@ -10,13 +10,16 @@ export default function Layout({ children, currentPageName }) {
   
   useEffect(() => {
     base44.auth.isAuthenticated().then(setIsLoggedIn);
+    document.documentElement.classList.remove('dark');
   }, []);
 
   // SYSTEM RESET - Clear all cached state on mount
   React.useEffect(() => {
     console.log('[RESET] Clearing cached state...');
     localStorage.removeItem('dashboard_active_tab');
+    localStorage.removeItem('proofly_theme');
     sessionStorage.clear();
+    document.documentElement.classList.remove('dark');
     
     // ENV CHECK
     console.log('[ENV CHECK]', {
@@ -75,7 +78,7 @@ export default function Layout({ children, currentPageName }) {
   const isMarketingPage = marketingPages.includes(currentPageName);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0C0C0C]">
+    <div className="min-h-screen flex flex-col bg-white">
       {isMarketingPage && <MarketingNavbar />}
       <main className="flex-1">
         {children}

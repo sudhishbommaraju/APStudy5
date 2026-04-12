@@ -15,7 +15,6 @@ import PSATScoreCard from '@/components/dashboard/PSATScoreCard';
 import APSubjectScoreAnalyzer from '@/components/dashboard/APSubjectScoreAnalyzer';
 
 export default function Dashboard() {
-  const [isDark, setIsDark] = useState(() => localStorage.getItem('proofly_theme') === 'dark');
   const [activeTab, setActiveTab] = useState(() => localStorage.getItem('dashboard_active_tab') || 'SAT');
   const [activeNav, setActiveNav] = useState('overview');
   const [selectedApSubject, setSelectedApSubject] = useState(() => localStorage.getItem('proofly_ap_subject') || null);
@@ -43,10 +42,6 @@ export default function Dashboard() {
     localStorage.setItem('dashboard_active_tab', activeTab);
   }, [activeTab]);
 
-  useEffect(() => {
-    localStorage.setItem('proofly_theme', isDark ? 'dark' : 'light');
-  }, [isDark]);
-
   const handleSelectApSubject = (id) => {
     setSelectedApSubject(id);
     if (id) localStorage.setItem('proofly_ap_subject', id);
@@ -54,14 +49,13 @@ export default function Dashboard() {
   };
 
   const theme = {
-    isDark,
-    bg: isDark ? '#0b0f14' : '#f8fafc',
-    card: isDark ? '#111827' : '#ffffff',
-    text: isDark ? '#e5e7eb' : '#0f172a',
-    textMuted: isDark ? '#6b7280' : '#64748b',
-    accent: isDark ? '#3b82f6' : '#2563eb',
-    border: isDark ? '#1f2937' : '#e2e8f0',
-    sidebar: isDark ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.5)',
+    bg: '#f8fafc',
+    card: '#ffffff',
+    text: '#0f172a',
+    textMuted: '#64748b',
+    accent: '#2563eb',
+    border: '#e2e8f0',
+    sidebar: 'rgba(255,255,255,0.5)',
   };
 
   // Compute real stats from attempts
@@ -163,8 +157,6 @@ export default function Dashboard() {
           activeNav={activeNav}
           setActiveNav={setActiveNav}
           user={user}
-          isDark={isDark}
-          onToggleTheme={() => setIsDark(p => !p)}
           selectedApSubject={selectedApSubject}
           onSelectApSubject={handleSelectApSubject}
           activeTab={activeTab}

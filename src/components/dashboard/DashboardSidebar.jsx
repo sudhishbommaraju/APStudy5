@@ -93,7 +93,7 @@ function NavItem({ icon: Icon, label, isActive, theme, onClick }) {
   );
 }
 
-export default function DashboardSidebar({ theme, activeNav, setActiveNav, user, isDark, onToggleTheme, activeTab = 'SAT' }) {
+export default function DashboardSidebar({ theme, activeNav, setActiveNav, user, activeTab = 'SAT' }) {
   const navigate = useNavigate();
   const sections = NAV_BY_EXAM[activeTab] || NAV_BY_EXAM.SAT;
 
@@ -166,15 +166,6 @@ export default function DashboardSidebar({ theme, activeNav, setActiveNav, user,
 
       {/* Bottom: account */}
       <div style={{ borderTop: `1px solid ${theme.border}`, padding: '8px 12px' }}>
-        {/* Theme toggle */}
-        <NavItem
-          icon={isDark ? Sun : Moon}
-          label={isDark ? 'Light mode' : 'Dark mode'}
-          isActive={false}
-          theme={theme}
-          onClick={onToggleTheme}
-        />
-
         {/* Settings */}
         <NavItem
           icon={Settings}
@@ -198,7 +189,7 @@ export default function DashboardSidebar({ theme, activeNav, setActiveNav, user,
           <div style={{
             display: 'flex', alignItems: 'center', gap: 10,
             padding: '10px 12px', borderRadius: 10, marginTop: 6,
-            background: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)',
+            background: 'rgba(0,0,0,0.03)',
           }}>
             <div style={{
               width: 32, height: 32, borderRadius: '50%',
