@@ -13,6 +13,7 @@ import AIChat from '@/components/dashboard/AIChat';
 import XPBar from '@/components/dashboard/XPBar';
 import PSATScoreCard from '@/components/dashboard/PSATScoreCard';
 import APSubjectScoreAnalyzer from '@/components/dashboard/APSubjectScoreAnalyzer';
+import ReviewDueNotes from '@/components/dashboard/ReviewDueNotes';
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState(() => localStorage.getItem('dashboard_active_tab') || 'SAT');
@@ -177,6 +178,12 @@ export default function Dashboard() {
             {activeTab === 'SAT' && (
               <div style={{ marginBottom: 20 }}>
                 <PSATScoreCard theme={theme} psatScore={psatScore} onUpdate={setPsatScore} />
+              </div>
+            )}
+
+            {activeTab === 'AP' && (
+              <div style={{ marginBottom: 20 }}>
+                <ReviewDueNotes />
               </div>
             )}
 

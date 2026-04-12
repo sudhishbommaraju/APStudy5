@@ -82,6 +82,11 @@
       "type": "number",
       "default": 0,
       "description": "Number of correct practice attempts"
+    },
+    "next_review_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Next scheduled review date (YYYY-MM-DD) based on SRS algorithm"
     }
   },
   "required": [

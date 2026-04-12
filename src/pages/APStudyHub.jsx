@@ -17,6 +17,7 @@ import CourseManager from '@/components/studyhub/CourseManager';
 import APPracticeQuestion from '@/components/practice/APPracticeQuestion';
 import NotionImporter from '@/components/studyhub/NotionImporter';
 import { AP_SUBJECTS, getSubjectCategories, getSubjectsByCategory } from '@/components/studyhub/AP_SUBJECTS';
+import { calculateNextReviewDate } from '@/utils/spacedRepetitionUtils';
 
 // Group subjects by category
 const CATEGORIES = getSubjectCategories();
@@ -256,12 +257,14 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
     const newTotal = (selectedNote.total_practice_attempts || 0) + total;
     const newCorrect = (selectedNote.correct_practice_attempts || 0) + correct;
     const newMastery = Math.min(100, Math.round((newCorrect / newTotal) * 100));
+    const nextReview = calculateNextReviewDate(newMastery);
     await base44.entities.StudyNote.update(selectedNote.id, {
       total_practice_attempts: newTotal,
       correct_practice_attempts: newCorrect,
       mastery_percentage: newMastery,
+      next_review_date: nextReview,
     });
-    setSelectedNote(prev => ({ ...prev, total_practice_attempts: newTotal, correct_practice_attempts: newCorrect, mastery_percentage: newMastery }));
+    setSelectedNote(prev => ({ ...prev, total_practice_attempts: newTotal, correct_practice_attempts: newCorrect, mastery_percentage: newMastery, next_review_date: nextReview }));
   };
 
   const handleQuizComplete = async (wasCorrect) => {
