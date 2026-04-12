@@ -8,7 +8,7 @@ import { recordAnswer } from '@/components/generation/AdaptivePracticeEngine';
 import QuestionVisual from '@/components/practice/QuestionVisual';
 import { InlineMath, BlockMath } from 'react-katex';
 
-// Render text with $$ ... $$ LaTeX blocks
+// Render text with $$ ... $$ LaTeX blocks and better spacing
 function LatexText({ text }) {
   if (!text) return null;
   const parts = String(text).split(/(\$\$[^$]+\$\$)/g);
@@ -22,6 +22,37 @@ function LatexText({ text }) {
         return <span key={i}>{part}</span>;
       })}
     </>
+  );
+}
+
+// Enhanced explanation rendering with better spacing and LaTeX
+function ExplanationContent({ text }) {
+  if (!text) return <p className="text-gray-600">No explanation available.</p>;
+  
+  // Split by common section headers or blank lines
+  const sections = String(text)
+    .split(/(^|\n)(Step\s*\d+:|Key.*?:|Note:|Concept:|Formula:|\*\*[^*]+\*\*:?)/gim)
+    .filter(s => s && s.trim());
+  
+  return (
+    <div className="space-y-5">
+      {sections.map((section, i) => {
+        const isHeader = /^(Step|Key|Note|Concept|Formula|\*\*)/i.test(section);
+        return (
+          <div key={i}>
+            {isHeader ? (
+              <h4 className="text-sm font-semibold text-gray-900 mb-2">
+                {section.replace(/\*\*|:|^\n/g, '').trim()}
+              </h4>
+            ) : (
+              <div className="text-gray-800 leading-relaxed text-sm space-y-2">
+                <LatexText text={section.trim()} />
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
@@ -299,11 +330,9 @@ export default function APPracticeQuestion({ question, questionIndex, totalQuest
                   Generating explanation…
                 </div>
               ) : (
-                <p className="text-gray-800 leading-relaxed">
-                  <LatexText text={explanation || 'No explanation available.'} />
-                </p>
+               <ExplanationContent text={explanation} />
               )}
-            </motion.div>
+              </motion.div>
           )}
         </AnimatePresence>
       </div>
