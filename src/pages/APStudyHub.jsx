@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import {
   ArrowLeft, ChevronRight, Sparkles, Upload, Youtube, BookOpen,
   Loader2, Trash2, Plus, Brain, CheckCircle, XCircle, RotateCcw
@@ -34,10 +32,6 @@ export default function APStudyHub() {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [loadingCourses, setLoadingCourses] = useState(false);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { distance: 8 }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-  );
   const [showCreate, setShowCreate] = useState(false);
 
   useEffect(() => {
