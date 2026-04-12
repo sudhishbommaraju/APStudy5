@@ -13,6 +13,7 @@ import NotesCreateModal from '@/components/studyhub/NotesCreateModal';
 import NotesSidebar from '@/components/studyhub/NotesSidebar';
 import CourseManager from '@/components/studyhub/CourseManager';
 import APPracticeQuestion from '@/components/practice/APPracticeQuestion';
+import APFlashcardGenerator from '@/components/flashcards/APFlashcardGenerator';
 import NotionImporter from '@/components/studyhub/NotionImporter';
 import { AP_SUBJECTS, getSubjectCategories, getSubjectsByCategory } from '@/components/studyhub/AP_SUBJECTS';
 import { calculateNextReviewDate } from '@/utils/spacedRepetitionUtils';
@@ -421,6 +422,14 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
               note={selectedNote}
               onCreatePractice={handleCreatePractice}
               onCreateFlashcards={() => {}}
+            />
+          </div>
+
+          {/* Flashcard Generator */}
+          <div className="mt-6 max-w-lg">
+            <APFlashcardGenerator
+              note={selectedNote}
+              onComplete={() => loadSubjectNotes(selectedSubject)}
             />
           </div>
 
