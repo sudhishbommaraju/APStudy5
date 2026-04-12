@@ -1,51 +1,41 @@
 import { base44 } from '@/api/base44Client';
 
+// In-memory cache: subject+context → notes
 const notesCache = new Map();
 
 function cacheKey(context, text) {
-  return context + '::' + text.slice(0, 150);
+  return context + '::' + text.slice(0, 100);
 }
 
-function prepareInput(text, maxChars = 2500) {
-  const lines = text.split('\n');
+// Trim and deduplicate input to ~3000 chars for fast processing
+function prepareInput(text, maxChars = 3000) {
   const seen = new Set();
-  const cleaned = lines
+  return text
+    .split('\n')
     .map(l => l
       .replace(/\[\d+:\d+(?::\d+)?\]/g, '')
       .replace(/\b(um|uh|like|you know|basically|literally|gonna|wanna|so basically|right so)\b/gi, '')
       .trim()
     )
-    .filter(l => l.length > 15 && !seen.has(l) && seen.add(l));
-  return cleaned.join(' ').replace(/\s+/g, ' ').trim().slice(0, maxChars);
+    .filter(l => l.length > 15 && !seen.has(l) && seen.add(l))
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, maxChars);
 }
 
-const EXTRACT_PROMPT = (context, input) =>
-  'You are an AP curriculum expert specializing in the 2025-2026 College Board AP frameworks. ' +
-  'From the text below, identify the 5-6 most important topics aligned with the 2026 AP curriculum and write a 3-bullet summary.\n\n' +
-  'Context: ' + context + '\n' +
-  'Text: """\n' + input + '\n"""\n\n' +
-  'Topics must align with official 2025-2026 AP course frameworks (Big Ideas, Enduring Understandings, Essential Knowledge). Be specific, not vague.';
+const MATH_RULES =
+  'MATH FORMATTING: All math must use valid LaTeX. Wrap inline math in $...$, block equations in $$...$$. ' +
+  'Units must use \\text{}, e.g. $9.8 \\text{ m/s}^2$. Use \\frac{}{} for fractions. No commas inside math expressions.';
 
-const NOTES_PROMPT = (context, topicList, input) =>
-  'You are an AP master tutor writing structured study notes strictly aligned with the 2025-2026 College Board AP curriculum frameworks. Use ONLY bullet points, no paragraphs.\n\n' +
-  'Context: ' + context + '\n' +
-  'Key Topics: ' + topicList + '\n' +
-  'Source: """\n' + input + '\n"""\n\n' +
-  'Rules:\n' +
-  '- sections: one section per topic, 4-6 bullets each (max 2 lines per bullet)\n' +
-  '- keyTerms: 6-10 terms with 1-sentence definitions aligned to 2026 AP vocabulary\n' +
-  '- All bullets must reflect 2025-2026 AP exam expectations (Big Ideas, Science Practices, Historical Thinking Skills, etc.)\n' +
-  '- Include any formulas, graphical models, or quantitative frameworks required by the 2026 framework\n' +
-  '- NO filler, NO vague statements - every bullet must be exam-relevant\n' +
-  '- MATH FORMATTING: All math must use valid LaTeX. Wrap inline math in $...$, block equations in $$...$$\n' +
-  '- Units must use \\text{}, e.g. $9.8 \\text{ m/s}^2$\n' +
-  '- Use \\frac{}{} for fractions, ^ for exponents, _ for subscripts\n' +
-  '- No commas inside math expressions\n' +
-  '- Example: $$ v = \\frac{d}{t} $$';
-
-async function extractTopicsAndSummary(input, context) {
-  return await base44.integrations.Core.InvokeLLM({
-    prompt: EXTRACT_PROMPT(context, input),
+// Stage 1: fast topic + summary extraction
+async function extractTopics(input, context) {
+  return base44.integrations.Core.InvokeLLM({
+    prompt:
+      'You are an AP curriculum expert. From the text below, identify 5-6 key topics aligned with the 2025-2026 AP framework and write a 3-bullet summary.\n\n' +
+      'Context: ' + context + '\n' +
+      'Text: """\n' + input + '\n"""\n\n' +
+      'Topics must align with official AP Big Ideas and Essential Knowledge. Be specific.',
     model: 'gemini_3_flash',
     response_json_schema: {
       type: 'object',
@@ -58,10 +48,19 @@ async function extractTopicsAndSummary(input, context) {
   });
 }
 
-async function generateStructuredNotes(topics, input, context) {
-  const topicList = topics.join(', ');
-  return await base44.integrations.Core.InvokeLLM({
-    prompt: NOTES_PROMPT(context, topicList, input),
+// Stage 2a: structured notes from topics
+async function generateNotes(topics, input, context) {
+  return base44.integrations.Core.InvokeLLM({
+    prompt:
+      'You are an AP master tutor writing structured study notes aligned with the 2025-2026 AP curriculum. Bullet points only.\n\n' +
+      'Context: ' + context + '\n' +
+      'Topics: ' + topics.join(', ') + '\n' +
+      'Source: """\n' + input + '\n"""\n\n' +
+      'Rules:\n' +
+      '- 4-6 bullets per section, max 2 lines each\n' +
+      '- Every bullet must be AP exam-relevant\n' +
+      '- ' + MATH_RULES + '\n' +
+      '- Include formulas and graphical models required by the 2026 framework',
     model: 'gemini_3_flash',
     response_json_schema: {
       type: 'object',
@@ -104,13 +103,15 @@ export async function generateNotesPipeline(rawText, context, onProgress = () =>
   const input = prepareInput(rawText);
   if (input.length < 80) throw new Error('Text is too short to generate notes from.');
 
+  // Stage 1: extract topics fast
   onProgress('extracting');
-  const { topics = [], summary = [], title = context } = await extractTopicsAndSummary(input, context);
+  const { topics = [], summary = [], title = context } = await extractTopics(input, context);
   if (!topics.length) throw new Error('Could not identify topics. Try a different source.');
 
+  // Stage 2: generate notes (single parallel-friendly call)
   onProgress('expanding');
+  const structured = await generateNotes(topics, input, context);
   onProgress('assembling');
-  const structured = await generateStructuredNotes(topics, input, context);
 
   const notes = {
     title,
