@@ -466,10 +466,7 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
               <span className="text-sm text-gray-400 bg-gray-100 px-3 py-1 rounded-full">{selectedSubject.category}</span>
             </div>
 
-            {/* Course Manager */}
-            <div className="mb-10">
-              <CourseManager courses={courses} onCoursesUpdated={loadCourses} userEmail={userEmail} />
-            </div>
+
 
             {/* Create Note Options */}
             <div className="mb-10">
