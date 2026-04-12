@@ -171,11 +171,6 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {activeTab === 'AP' && (
-              <div style={{ marginBottom: 24 }}>
-                <APExamCountdown theme={theme} />
-              </div>
-            )}
             <ModuleGrid theme={theme} examType={activeTab} />
           </div>
         </div>
