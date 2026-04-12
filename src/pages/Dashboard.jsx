@@ -20,13 +20,18 @@ export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [totalXp, setTotalXp] = useState(0);
   const [streak, setStreak] = useState(0);
+  const [attempts, setAttempts] = useState([]);
 
   useEffect(() => {
     base44.auth.me().then(async u => {
       setUser(u);
-      const stats = await getUserStats(u.email);
+      const [stats, userAttempts] = await Promise.all([
+        getUserStats(u.email),
+        base44.entities.Attempt.filter({ created_by: u.email }, '-created_date', 500),
+      ]);
       setTotalXp(stats.xp || 0);
       setStreak(stats.streak || 0);
+      setAttempts(userAttempts || []);
     }).catch(() => {});
   }, []);
 
@@ -55,51 +60,79 @@ export default function Dashboard() {
     sidebar: isDark ? 'rgba(0,0,0,0.35)' : 'rgba(255,255,255,0.5)',
   };
 
+  // Compute real stats from attempts
+  const computeStats = (examType) => {
+    const subjectFilter = examType === 'AP'
+      ? (a) => !['sat', 'act'].includes((a.subject_id || '').toLowerCase())
+      : (a) => (a.subject_id || '').toLowerCase().startsWith(examType.toLowerCase());
+    const filtered = attempts.filter(subjectFilter);
+    const total = filtered.length;
+    const correct = filtered.filter(a => a.is_correct).length;
+    const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+    // Score estimates
+    let scoreEst = '—';
+    if (examType === 'SAT' && total > 0) {
+      scoreEst = Math.round(400 + (accuracy / 100) * 1200).toString();
+    } else if (examType === 'ACT' && total > 0) {
+      scoreEst = Math.round(1 + (accuracy / 100) * 35).toString();
+    } else if (examType === 'AP' && total > 0) {
+      scoreEst = (accuracy >= 90 ? 5 : accuracy >= 75 ? 4 : accuracy >= 60 ? 3 : accuracy >= 45 ? 2 : 1).toString();
+    }
+
+    // Weekly chart data (last 6 weeks of questions answered)
+    const now = Date.now();
+    const chartData = Array.from({ length: 6 }, (_, i) => {
+      const weekStart = now - (5 - i) * 7 * 86400000;
+      const weekEnd = weekStart + 7 * 86400000;
+      const weekAttempts = filtered.filter(a => {
+        const t = new Date(a.created_date).getTime();
+        return t >= weekStart && t < weekEnd;
+      });
+      const wTotal = weekAttempts.length;
+      const wCorrect = weekAttempts.filter(x => x.is_correct).length;
+      const wAcc = wTotal > 0 ? Math.round((wCorrect / wTotal) * 100) : 0;
+      let score = 0;
+      if (examType === 'SAT') score = Math.round(400 + (wAcc / 100) * 1200);
+      else if (examType === 'ACT') score = Math.round(1 + (wAcc / 100) * 35);
+      else score = wAcc;
+      return { label: `Wk ${i + 1}`, score: wTotal > 0 ? score : 0 };
+    });
+
+    return { accuracy, scoreEst, total, correct, chartData };
+  };
+
+  const buildKpis = (examType) => {
+    const { accuracy, scoreEst } = computeStats(examType);
+    const label = examType === 'AP' ? 'Avg Score Est.' : 'Score Estimate';
+    return [
+      { label, value: scoreEst, trend: '', icon: 'chart' },
+      { label: 'Accuracy', value: accuracy > 0 ? `${accuracy}%` : '—', trend: '', icon: 'target' },
+      { label: 'Day Streak', value: String(streak), trend: '', icon: 'flame' },
+    ];
+  };
+
   const examData = {
     SAT: {
-      kpis: [
-        { label: 'Score Estimate', value: '1320', trend: '+12', icon: 'chart' },
-        { label: 'Accuracy', value: '78%', trend: '+5%', icon: 'target' },
-        { label: 'Day Streak', value: '7', trend: '+2', icon: 'flame' },
-      ],
-      chartData: [
-        { label: 'Wk 1', score: 1180 }, { label: 'Wk 2', score: 1220 },
-        { label: 'Wk 3', score: 1255 }, { label: 'Wk 4', score: 1280 },
-        { label: 'Wk 5', score: 1305 }, { label: 'Wk 6', score: 1320 },
-      ],
+      kpis: buildKpis('SAT'),
+      chartData: computeStats('SAT').chartData,
       chartTitle: 'SAT Score Trajectory',
       practiceLabel: 'Continue SAT Practice',
-      practiceSubtext: 'You\'re 80 points from your goal of 1400',
+      practiceSubtext: 'Answer more questions to improve your score estimate',
     },
     ACT: {
-      kpis: [
-        { label: 'Score Estimate', value: '28', trend: '+3', icon: 'chart' },
-        { label: 'Accuracy', value: '72%', trend: '+8%', icon: 'target' },
-        { label: 'Day Streak', value: '7', trend: '+2', icon: 'flame' },
-      ],
-      chartData: [
-        { label: 'Wk 1', score: 23 }, { label: 'Wk 2', score: 24 },
-        { label: 'Wk 3', score: 25 }, { label: 'Wk 4', score: 26 },
-        { label: 'Wk 5', score: 27 }, { label: 'Wk 6', score: 28 },
-      ],
+      kpis: buildKpis('ACT'),
+      chartData: computeStats('ACT').chartData,
       chartTitle: 'ACT Score Trajectory',
       practiceLabel: 'Continue ACT Practice',
-      practiceSubtext: 'You\'re 5 points from your goal of 33',
+      practiceSubtext: 'Answer more questions to improve your score estimate',
     },
     AP: {
-      kpis: [
-        { label: 'Avg Score Est.', value: '4.1', trend: '+0.4', icon: 'chart' },
-        { label: 'Mastery', value: '68%', trend: '+11%', icon: 'target' },
-        { label: 'Day Streak', value: '7', trend: '+2', icon: 'flame' },
-      ],
-      chartData: [
-        { label: 'Wk 1', score: 42 }, { label: 'Wk 2', score: 50 },
-        { label: 'Wk 3', score: 58 }, { label: 'Wk 4', score: 63 },
-        { label: 'Wk 5', score: 67 }, { label: 'Wk 6', score: 68 },
-      ],
+      kpis: buildKpis('AP'),
+      chartData: computeStats('AP').chartData,
       chartTitle: 'AP Mastery Trajectory',
       practiceLabel: 'Continue AP Practice',
-      practiceSubtext: 'Focus on your weak units to reach 80% mastery',
+      practiceSubtext: 'Answer more questions to improve your mastery',
     },
   };
 
