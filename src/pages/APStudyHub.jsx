@@ -12,6 +12,7 @@ import NotesDocumentView from '@/components/studyhub/NotesDocumentView';
 import NotesCreateModal from '@/components/studyhub/NotesCreateModal';
 import NotesSidebar from '@/components/studyhub/NotesSidebar';
 import APPracticeQuestion from '@/components/practice/APPracticeQuestion';
+import NotionImporter from '@/components/studyhub/NotionImporter';
 import { AP_SUBJECTS, getSubjectCategories, getSubjectsByCategory } from '@/components/studyhub/AP_SUBJECTS';
 
 // Group subjects by category
@@ -347,6 +348,11 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
             <div className="flex items-center gap-4 mb-8">
               <h1 className="text-3xl font-bold text-gray-900">{selectedSubject.subject}</h1>
               <span className="text-sm text-gray-400 bg-gray-100 px-3 py-1 rounded-full">{selectedSubject.category}</span>
+            </div>
+
+            {/* Notion Importer */}
+            <div className="mb-10">
+              <NotionImporter onImportComplete={() => loadSubjectNotes(selectedSubject)} />
             </div>
 
             {/* Create Note Options */}
