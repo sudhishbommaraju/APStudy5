@@ -63,6 +63,21 @@
       },
       "default": [],
       "description": "IDs of related practice questions"
+    },
+    "mastery_percentage": {
+      "type": "number",
+      "default": 0,
+      "description": "User mastery level (0-100) based on practice performance"
+    },
+    "total_practice_attempts": {
+      "type": "number",
+      "default": 0,
+      "description": "Total number of practice attempts on this note"
+    },
+    "correct_practice_attempts": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of correct practice attempts"
     }
   },
   "required": [

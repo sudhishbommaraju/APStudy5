@@ -205,8 +205,22 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
     setQuizIndex(i => i + 1);
   };
 
+  const updateNoteMastery = async (correct, total) => {
+    if (!selectedNote) return;
+    const newTotal = (selectedNote.total_practice_attempts || 0) + total;
+    const newCorrect = (selectedNote.correct_practice_attempts || 0) + correct;
+    const newMastery = Math.min(100, Math.round((newCorrect / newTotal) * 100));
+    await base44.entities.StudyNote.update(selectedNote.id, {
+      total_practice_attempts: newTotal,
+      correct_practice_attempts: newCorrect,
+      mastery_percentage: newMastery,
+    });
+    setSelectedNote(prev => ({ ...prev, total_practice_attempts: newTotal, correct_practice_attempts: newCorrect, mastery_percentage: newMastery }));
+  };
+
   const handleQuizComplete = (wasCorrect) => {
     setQuizScore(s => s + (wasCorrect ? 1 : 0));
+    updateNoteMastery(quizScore + (wasCorrect ? 1 : 0), quizQuestions.length);
     setStep(6);
   };
 
@@ -243,7 +257,12 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
                 <p className="text-xs font-semibold text-blue-500 uppercase tracking-widest mb-1">Notes Quiz</p>
                 <h2 className="text-lg font-bold text-gray-900">{selectedNote?.title}</h2>
               </div>
-              <span className="text-sm text-gray-400">{quizIndex + 1} / {quizQuestions.length}</span>
+              <div className="text-right">
+                <div className="text-sm text-gray-400">{quizIndex + 1} / {quizQuestions.length}</div>
+                {selectedNote?.mastery_percentage > 0 && (
+                  <div className="text-xs text-blue-500 font-semibold">Mastery: {selectedNote.mastery_percentage}%</div>
+                )}
+              </div>
             </div>
             <APPracticeQuestion
               question={quizQuestions[quizIndex]}
@@ -421,6 +440,14 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
                         {' · '}
                         {new Date(note.created_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </p>
+                      {note.mastery_percentage > 0 && (
+                        <div className="mt-2 flex items-center gap-2">
+                          <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                            <div className="h-full bg-blue-500 transition-all" style={{ width: `${note.mastery_percentage}%` }} />
+                          </div>
+                          <span className="text-xs font-semibold text-blue-600">{note.mastery_percentage}%</span>
+                        </div>
+                      )}
                       {note.notes_data?.sections?.length > 0 && (
                         <p className="text-xs text-blue-400 mt-2">{note.notes_data.sections.length} sections</p>
                       )}
