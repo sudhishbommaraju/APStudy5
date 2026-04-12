@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import MathRenderer from '@/components/ui/MathRenderer';
 import { base44 } from '@/api/base44Client';
 import {
   Edit3, Check, Highlighter, Download, Brain, X,
@@ -25,7 +26,7 @@ function detectVisual(title, bullets = []) {
 }
 
 function applyHighlights(text, highlights) {
-  if (!highlights?.length || !text) return <span>{text}</span>;
+  if (!highlights?.length || !text) return <MathRenderer text={String(text)} />;
   let parts = [{ text: String(text), highlighted: false }];
   highlights.forEach(({ phrase, color }) => {
     parts = parts.flatMap(p => {
@@ -43,7 +44,7 @@ function applyHighlights(text, highlights) {
     <span>
       {parts.map((p, i) => p.highlighted
         ? <mark key={i} style={{ backgroundColor: p.color, borderRadius: 2, padding: '0 2px' }}>{p.text}</mark>
-        : <span key={i}>{p.text}</span>)}
+        : <MathRenderer key={i} text={p.text} />)}
     </span>
   );
 }

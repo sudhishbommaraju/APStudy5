@@ -36,7 +36,12 @@ const NOTES_PROMPT = (context, topicList, input) =>
   '- keyTerms: 6-10 terms with 1-sentence definitions aligned to 2026 AP vocabulary\n' +
   '- All bullets must reflect 2025-2026 AP exam expectations (Big Ideas, Science Practices, Historical Thinking Skills, etc.)\n' +
   '- Include any formulas, graphical models, or quantitative frameworks required by the 2026 framework\n' +
-  '- NO filler, NO vague statements - every bullet must be exam-relevant';
+  '- NO filler, NO vague statements - every bullet must be exam-relevant\n' +
+  '- MATH FORMATTING: All math must use valid LaTeX. Wrap inline math in $...$, block equations in $$...$$\n' +
+  '- Units must use \\text{}, e.g. $9.8 \\text{ m/s}^2$\n' +
+  '- Use \\frac{}{} for fractions, ^ for exponents, _ for subscripts\n' +
+  '- No commas inside math expressions\n' +
+  '- Example: $$ v = \\frac{d}{t} $$';
 
 async function extractTopicsAndSummary(input, context) {
   return await base44.integrations.Core.InvokeLLM({
