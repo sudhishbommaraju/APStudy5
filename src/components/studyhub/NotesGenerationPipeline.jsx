@@ -24,12 +24,12 @@ function prepareInput(text, maxChars = 2500) {
 // CALL 1 (fast): extract topics + generate quick summary in one shot
 async function extractTopicsAndSummary(input, context) {
   return await base44.integrations.Core.InvokeLLM({
-    prompt: `You are an AP curriculum expert. From the text below, identify the 5-6 most important topics and write a 3-bullet summary.
+    prompt: `You are an AP curriculum expert specializing in the 2025-2026 College Board AP frameworks. From the text below, identify the 5-6 most important topics aligned with the 2026 AP curriculum and write a 3-bullet summary.
 
 Context: ${context}
 Text: """${input}"""
 
-Be concise. Topics should be specific AP-level concepts, not vague headings.`,
+Topics must align with official 2025-2026 AP course frameworks (Big Ideas, Enduring Understandings, Essential Knowledge). Be specific, not vague.`,
     model: 'gemini_3_flash',
     response_json_schema: {
       type: 'object',
@@ -46,7 +46,7 @@ Be concise. Topics should be specific AP-level concepts, not vague headings.`,
 async function generateStructuredNotes(topics, summary, input, context) {
   const topicList = topics.join(', ');
   return await base44.integrations.Core.InvokeLLM({
-    prompt: `You are an AP tutor writing structured study notes. Use ONLY bullet points — no paragraphs.
+    prompt: `You are an AP master tutor writing structured study notes strictly aligned with the 2025-2026 College Board AP curriculum frameworks. Use ONLY bullet points — no paragraphs.
 
 Context: ${context}
 Key Topics: ${topicList}
@@ -54,9 +54,10 @@ Source: """${input}"""
 
 Rules:
 - sections: one section per topic, 4-6 bullets each (max 2 lines per bullet)
-- keyTerms: 6-10 terms with 1-sentence definitions
-- All bullets must be factual, specific, AP-exam relevant
-- NO filler, NO vague statements`,
+- keyTerms: 6-10 terms with 1-sentence definitions aligned to 2026 AP vocabulary
+- All bullets must reflect 2025-2026 AP exam expectations (Big Ideas, Science Practices, Historical Thinking Skills, etc.)
+- Include any formulas, graphical models, or quantitative frameworks required by the 2026 framework
+- NO filler, NO vague statements — every bullet must be exam-relevant`,
     model: 'gemini_3_flash',
     response_json_schema: {
       type: 'object',
@@ -104,11 +105,7 @@ export async function generateNotesPipeline(rawText, context, onProgress = () =>
   const { topics = [], summary = [], title = context } = await extractTopicsAndSummary(input, context);
   if (!topics.length) throw new Error('Could not identify topics. Try a different source.');
 
-  // Progressive: emit partial notes with just title + summary so UI can start rendering
   onProgress('expanding');
-  const partial = { title, summary, sections: [], keyTerms: [] };
-  // Allow callers to receive partial data
-  if (typeof onProgress === 'function') onProgress('expanding', partial);
 
   // CALL 2: Full structured notes (main, ~5-8s)
   onProgress('assembling');
