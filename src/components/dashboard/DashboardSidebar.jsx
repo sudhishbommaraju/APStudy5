@@ -1,84 +1,112 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart2, BookOpen, ClipboardList, Layers, Calendar, Settings, LayoutDashboard, Sun, Moon, Flame, Map, ShoppingBag, Sparkles, Clock, FileText, Headphones, GraduationCap } from 'lucide-react';
-
-const AP_EXAM_DATES_2026 = [
-  { subject: 'AP Human Geography', date: '2026-05-05', id: 'human_geo' },
-  { subject: 'AP Chemistry', date: '2026-05-05', id: 'chemistry' },
-  { subject: 'AP Psychology', date: '2026-05-06', id: 'psychology' },
-  { subject: 'AP US History', date: '2026-05-07', id: 'us_history' },
-  { subject: 'AP Calc AB', date: '2026-05-11', id: 'calc_ab' },
-  { subject: 'AP Calc BC', date: '2026-05-11', id: 'calc_bc' },
-  { subject: 'AP Physics 1', date: '2026-05-12', id: 'physics_1' },
-  { subject: 'AP Statistics', date: '2026-05-13', id: 'statistics' },
-  { subject: 'AP Biology', date: '2026-05-14', id: 'biology' },
-  { subject: 'AP World History', date: '2026-05-14', id: 'world_history' },
-  { subject: 'AP English Lang', date: '2026-05-15', id: 'english_lang' },
-  { subject: 'AP US Gov', date: '2026-05-18', id: 'us_gov' },
-  { subject: 'AP Macroeconomics', date: '2026-05-19', id: 'macro' },
-  { subject: 'AP Physics C', date: '2026-05-19', id: 'physics_c_mech' },
-  { subject: 'AP English Lit', date: '2026-05-20', id: 'english_lit' },
-];
+import {
+  LayoutDashboard, BookOpen, ClipboardList, Brain,
+  FileText, Layers, Headphones, GraduationCap,
+  BarChart2, Sparkles, Settings, LogOut, Sun, Moon, ShoppingBag
+} from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 
 const NAV_BY_EXAM = {
-  SAT: [
-    { id: 'overview',   label: 'Overview',     icon: LayoutDashboard, route: null },
-    { id: 'practice',   label: 'SAT Practice',  icon: BookOpen,        route: '/SATPractice' },
-    { id: 'exams',      label: 'Full Test',     icon: ClipboardList,   route: '/SATFullTest' },
-    { id: 'studyplan',  label: 'Study Plan',    icon: Sparkles,        route: '/study-plan-generator?type=SAT' },
-    { id: 'analytics',  label: 'Analytics',     icon: BarChart2,       route: '/analytics-dashboard' },
-    { id: 'flashcards', label: 'Flashcards',    icon: Layers,          route: '/Flashcards' },
-    { id: 'audio',      label: 'Audio Lessons', icon: Headphones,      route: '/audio-lessons' },
-    { id: 'store',      label: 'Store',         icon: ShoppingBag,     route: '/Store' },
-    { id: 'settings',   label: 'Settings',      icon: Settings,        route: '/Settings' },
-  ],
-  ACT: [
-    { id: 'overview',   label: 'Overview',      icon: LayoutDashboard, route: null },
-    { id: 'practice',   label: 'ACT Practice',  icon: BookOpen,        route: '/ACTPractice' },
-    { id: 'exams',      label: 'Full Test',      icon: ClipboardList,   route: '/ACTFullTest' },
-    { id: 'studyplan',  label: 'Study Plan',     icon: Sparkles,        route: '/study-plan-generator?type=ACT' },
-    { id: 'analytics',  label: 'Analytics',      icon: BarChart2,       route: '/analytics-dashboard' },
-    { id: 'flashcards', label: 'Flashcards',     icon: Layers,          route: '/Flashcards' },
-    { id: 'audio',      label: 'Audio Lessons',  icon: Headphones,      route: '/audio-lessons' },
-    { id: 'store',      label: 'Store',          icon: ShoppingBag,     route: '/Store' },
-    { id: 'settings',   label: 'Settings',       icon: Settings,        route: '/Settings' },
-  ],
-  AP: [
-    { id: 'overview',   label: 'Overview',       icon: LayoutDashboard, route: null },
-    { id: 'practice',   label: 'AP Practice',    icon: BookOpen,        route: '/APPractice' },
-    { id: 'exams',      label: 'AP Full Test',   icon: ClipboardList,   route: '/APFullTest' },
-    { id: 'frq',        label: 'FRQ Simulator',  icon: FileText,        route: '/APFRQSimulator' },
-    { id: 'studyhub',   label: 'AP Study Hub',   icon: GraduationCap,   route: '/ap-study-hub' },
-    { id: 'studyplan',  label: 'Study Plan',     icon: Sparkles,        route: '/study-plan-generator?type=AP' },
-    { id: 'analytics',  label: 'Analytics',      icon: BarChart2,       route: '/analytics-dashboard' },
-    { id: 'flashcards', label: 'Flashcards',     icon: Layers,          route: '/Flashcards' },
-    { id: 'audio',      label: 'Audio Lessons',  icon: Headphones,      route: '/audio-lessons' },
-    { id: 'store',      label: 'Store',          icon: ShoppingBag,     route: '/Store' },
-    { id: 'settings',   label: 'Settings',       icon: Settings,        route: '/Settings' },
-  ],
+  SAT: {
+    study: [
+      { id: 'practice',   label: 'Practice',      icon: BookOpen,      route: '/SATPractice' },
+      { id: 'exams',      label: 'Full Test',      icon: ClipboardList, route: '/SATFullTest' },
+    ],
+    learn: [
+      { id: 'flashcards', label: 'Flashcards',     icon: Layers,        route: '/Flashcards' },
+      { id: 'audio',      label: 'Audio Lessons',  icon: Headphones,    route: '/audio-lessons' },
+    ],
+    performance: [
+      { id: 'analytics',  label: 'Analytics',      icon: BarChart2,     route: '/analytics-dashboard' },
+      { id: 'studyplan',  label: 'Study Plan',     icon: Sparkles,      route: '/study-plan-generator?type=SAT' },
+    ],
+  },
+  ACT: {
+    study: [
+      { id: 'practice',   label: 'Practice',       icon: BookOpen,      route: '/ACTPractice' },
+      { id: 'exams',      label: 'Full Test',       icon: ClipboardList, route: '/ACTFullTest' },
+    ],
+    learn: [
+      { id: 'flashcards', label: 'Flashcards',      icon: Layers,        route: '/Flashcards' },
+      { id: 'audio',      label: 'Audio Lessons',   icon: Headphones,    route: '/audio-lessons' },
+    ],
+    performance: [
+      { id: 'analytics',  label: 'Analytics',       icon: BarChart2,     route: '/analytics-dashboard' },
+      { id: 'studyplan',  label: 'Study Plan',      icon: Sparkles,      route: '/study-plan-generator?type=ACT' },
+    ],
+  },
+  AP: {
+    study: [
+      { id: 'practice',   label: 'Practice',        icon: BookOpen,      route: '/APPractice' },
+      { id: 'exams',      label: 'Full Test',        icon: ClipboardList, route: '/APFullTest' },
+      { id: 'recall',     label: 'Active Recall',    icon: Brain,         route: '/ap-study-hub' },
+    ],
+    learn: [
+      { id: 'studyhub',   label: 'Notes',            icon: GraduationCap, route: '/ap-study-hub' },
+      { id: 'flashcards', label: 'Flashcards',       icon: Layers,        route: '/Flashcards' },
+      { id: 'audio',      label: 'Audio Lessons',    icon: Headphones,    route: '/audio-lessons' },
+    ],
+    performance: [
+      { id: 'analytics',  label: 'Analytics',        icon: BarChart2,     route: '/analytics-dashboard' },
+      { id: 'studyplan',  label: 'Study Plan',       icon: Sparkles,      route: '/study-plan-generator?type=AP' },
+    ],
+  },
 };
 
-export default function DashboardSidebar({ theme, activeNav, setActiveNav, user, isDark, onToggleTheme, selectedApSubject, onSelectApSubject, activeTab = 'SAT' }) {
-  const NAV_ITEMS = NAV_BY_EXAM[activeTab] || NAV_BY_EXAM.SAT;
+function SectionLabel({ label, theme }) {
+  return (
+    <p style={{
+      fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
+      textTransform: 'uppercase', color: theme.textMuted,
+      padding: '12px 12px 4px', margin: 0,
+    }}>{label}</p>
+  );
+}
+
+function NavItem({ icon: Icon, label, isActive, theme, onClick }) {
+  const [hovered, setHovered] = React.useState(false);
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+        padding: '8px 12px', borderRadius: 8,
+        background: isActive
+          ? theme.isDark ? 'rgba(59,130,246,0.14)' : 'rgba(37,99,235,0.09)'
+          : hovered ? theme.isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'
+          : 'transparent',
+        border: 'none',
+        borderLeft: isActive ? `3px solid ${theme.accent}` : '3px solid transparent',
+        cursor: 'pointer',
+        color: isActive ? theme.accent : theme.textMuted,
+        fontSize: 13, fontWeight: isActive ? 600 : 500,
+        transition: 'all 150ms ease',
+        textAlign: 'left',
+      }}
+    >
+      <Icon size={15} />
+      {label}
+    </button>
+  );
+}
+
+export default function DashboardSidebar({ theme, activeNav, setActiveNav, user, isDark, onToggleTheme, activeTab = 'SAT' }) {
   const navigate = useNavigate();
-  const [showCountdown, setShowCountdown] = useState(false);
-
-  const getDaysUntil = (dateStr) => {
-    const diff = new Date(dateStr) - new Date();
-    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
-  };
-
-  const selectedExam = selectedApSubject
-    ? AP_EXAM_DATES_2026.find(e => e.id === selectedApSubject)
-    : null;
-  const daysUntil = selectedExam ? getDaysUntil(selectedExam.date) : null;
+  const sections = NAV_BY_EXAM[activeTab] || NAV_BY_EXAM.SAT;
 
   const handleNav = (item) => {
     setActiveNav(item.id);
-    if (item.route) {
-      navigate(item.route);
-    }
+    if (item.route) navigate(item.route);
   };
+
+  const handleLogout = () => {
+    base44.auth.logout('/');
+  };
+
+  const initials = (user?.full_name || user?.email || 'U')[0].toUpperCase();
 
   return (
     <div style={{
@@ -88,118 +116,88 @@ export default function DashboardSidebar({ theme, activeNav, setActiveNav, user,
       WebkitBackdropFilter: 'blur(20px)',
       borderRight: `1px solid ${theme.border}`,
       display: 'flex', flexDirection: 'column',
-      padding: '20px 12px',
       transition: 'background 200ms ease',
     }}>
       {/* Logo */}
-      <div style={{ padding: '8px 12px 24px', borderBottom: `1px solid ${theme.border}`, marginBottom: 8 }}>
+      <div style={{ padding: '20px 16px 16px', borderBottom: `1px solid ${theme.border}` }}>
         <span style={{ fontWeight: 800, fontSize: 18, color: theme.text, letterSpacing: '-0.02em' }}>Proofly</span>
       </div>
 
-      {/* Nav items */}
-      <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {NAV_ITEMS.map(item => {
-          const Icon = item.icon;
-          const isActive = activeNav === item.id;
-          return (
-            <NavItem
-              key={item.id}
-              icon={Icon}
-              label={item.label}
-              isActive={isActive}
-              theme={theme}
-              onClick={() => handleNav(item)}
-            />
-          );
-        })}
-      </nav>
-
-      {/* AP Countdown */}
-      <div style={{ borderTop: `1px solid ${theme.border}`, paddingTop: 12, marginTop: 8 }}>
-        <button
-          onClick={() => setShowCountdown(p => !p)}
-          style={{
-            width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            padding: '8px 12px', borderRadius: 10, border: 'none',
-            background: isDark ? 'rgba(59,130,246,0.08)' : 'rgba(37,99,235,0.06)',
-            cursor: 'pointer', marginBottom: 6,
-          }}
-        >
-          <span style={{ fontSize: 12, fontWeight: 600, color: theme.accent, display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Clock size={12} /> AP Exam Countdown
-          </span>
-          <span style={{ fontSize: 10, color: theme.textMuted }}>{showCountdown ? '▲' : '▼'}</span>
-        </button>
-
-        {showCountdown && (
-          <div style={{ marginBottom: 8, maxHeight: 200, overflowY: 'auto' }}>
-            {AP_EXAM_DATES_2026.map(exam => {
-              const days = getDaysUntil(exam.date);
-              const isSelected = selectedApSubject === exam.id;
-              return (
-                <button
-                  key={exam.id}
-                  onClick={() => onSelectApSubject && onSelectApSubject(isSelected ? null : exam.id)}
-                  style={{
-                    width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '5px 12px', borderRadius: 8, border: 'none', cursor: 'pointer',
-                    background: isSelected ? (isDark ? 'rgba(59,130,246,0.15)' : 'rgba(37,99,235,0.08)') : 'transparent',
-                    marginBottom: 2,
-                  }}
-                >
-                  <span style={{ fontSize: 11, color: theme.textMuted, textAlign: 'left', flex: 1 }}>{exam.subject}</span>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: days <= 14 ? '#ef4444' : days <= 30 ? '#f59e0b' : theme.accent, flexShrink: 0, marginLeft: 4 }}>{days}d</span>
-                </button>
-              );
-            })}
-          </div>
-        )}
-
-        {selectedExam && daysUntil !== null && (
-          <div style={{
-            padding: '8px 12px', borderRadius: 10, marginBottom: 8,
-            background: isDark ? 'rgba(59,130,246,0.12)' : 'rgba(37,99,235,0.08)',
-            border: `1px solid ${isDark ? 'rgba(59,130,246,0.2)' : 'rgba(37,99,235,0.15)'}`,
-          }}>
-            <p style={{ fontSize: 10, fontWeight: 600, color: theme.accent, margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Selected Exam</p>
-            <p style={{ fontSize: 12, fontWeight: 700, color: theme.text, margin: '2px 0 0' }}>{selectedExam.subject}</p>
-            <p style={{ fontSize: 20, fontWeight: 800, color: daysUntil <= 14 ? '#ef4444' : theme.accent, margin: '2px 0 0', lineHeight: 1 }}>{daysUntil} <span style={{ fontSize: 11, fontWeight: 500 }}>days left</span></p>
-          </div>
-        )}
+      {/* Overview */}
+      <div style={{ padding: '8px 12px 0' }}>
+        <NavItem
+          icon={LayoutDashboard}
+          label="Overview"
+          isActive={activeNav === 'overview'}
+          theme={theme}
+          onClick={() => setActiveNav('overview')}
+        />
       </div>
 
-      {/* Bottom */}
-      <div style={{ borderTop: `1px solid ${theme.border}`, paddingTop: 12 }}>
-        {/* Streak indicator */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 8,
-          padding: '8px 12px', borderRadius: 10, marginBottom: 8,
-          background: isDark ? 'rgba(249,115,22,0.08)' : 'rgba(249,115,22,0.06)',
-        }}>
-          <Flame size={14} color="#f97316" />
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#f97316' }}>7-day streak</span>
+      {/* Scrollable nav */}
+      <nav style={{ flex: 1, overflowY: 'auto', padding: '0 0 8px' }}>
+        <SectionLabel label="Study" theme={theme} />
+        <div style={{ padding: '0 12px' }}>
+          {sections.study.map(item => (
+            <NavItem key={item.id} icon={item.icon} label={item.label}
+              isActive={activeNav === item.id} theme={theme}
+              onClick={() => handleNav(item)} />
+          ))}
         </div>
 
-        {/* Theme toggle */}
-        <button onClick={onToggleTheme} style={{
-          width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-          padding: '9px 12px', borderRadius: 10, border: 'none',
-          background: 'transparent', cursor: 'pointer',
-          color: theme.textMuted, fontSize: 13, fontWeight: 500,
-          transition: 'background 200ms',
-        }}
-          onMouseEnter={e => e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'}
-          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-        >
-          {isDark ? <Sun size={15} /> : <Moon size={15} />}
-          {isDark ? 'Light mode' : 'Dark mode'}
-        </button>
+        <SectionLabel label="Learn" theme={theme} />
+        <div style={{ padding: '0 12px' }}>
+          {sections.learn.map(item => (
+            <NavItem key={item.id} icon={item.icon} label={item.label}
+              isActive={activeNav === item.id} theme={theme}
+              onClick={() => handleNav(item)} />
+          ))}
+        </div>
 
-        {/* User mini card */}
+        <SectionLabel label="Performance" theme={theme} />
+        <div style={{ padding: '0 12px' }}>
+          {sections.performance.map(item => (
+            <NavItem key={item.id} icon={item.icon} label={item.label}
+              isActive={activeNav === item.id} theme={theme}
+              onClick={() => handleNav(item)} />
+          ))}
+        </div>
+      </nav>
+
+      {/* Bottom: account */}
+      <div style={{ borderTop: `1px solid ${theme.border}`, padding: '8px 12px' }}>
+        {/* Theme toggle */}
+        <NavItem
+          icon={isDark ? Sun : Moon}
+          label={isDark ? 'Light mode' : 'Dark mode'}
+          isActive={false}
+          theme={theme}
+          onClick={onToggleTheme}
+        />
+
+        {/* Settings */}
+        <NavItem
+          icon={Settings}
+          label="Profile Settings"
+          isActive={activeNav === 'settings'}
+          theme={theme}
+          onClick={() => { setActiveNav('settings'); navigate('/Settings'); }}
+        />
+
+        {/* Logout */}
+        <NavItem
+          icon={LogOut}
+          label="Log Out"
+          isActive={false}
+          theme={{ ...theme, accent: '#ef4444', textMuted: '#ef4444' }}
+          onClick={handleLogout}
+        />
+
+        {/* User card */}
         {user && (
           <div style={{
             display: 'flex', alignItems: 'center', gap: 10,
-            padding: '10px 12px', borderRadius: 10, marginTop: 4,
+            padding: '10px 12px', borderRadius: 10, marginTop: 6,
             background: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)',
           }}>
             <div style={{
@@ -207,7 +205,7 @@ export default function DashboardSidebar({ theme, activeNav, setActiveNav, user,
               background: theme.accent, display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: 13, fontWeight: 700, color: '#fff', flexShrink: 0,
             }}>
-              {(user.full_name || user.email || 'U')[0].toUpperCase()}
+              {initials}
             </div>
             <div style={{ overflow: 'hidden' }}>
               <p style={{ fontSize: 13, fontWeight: 600, color: theme.text, margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -221,36 +219,5 @@ export default function DashboardSidebar({ theme, activeNav, setActiveNav, user,
         )}
       </div>
     </div>
-  );
-}
-
-function NavItem({ icon: Icon, label, isActive, theme, onClick }) {
-  const [hovered, setHovered] = React.useState(false);
-  const active = isActive || hovered;
-
-  return (
-    <button
-      onClick={onClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-        padding: '9px 12px', borderRadius: 10,
-        background: isActive
-          ? theme.isDark ? 'rgba(59,130,246,0.12)' : 'rgba(37,99,235,0.08)'
-          : hovered ? theme.isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'
-          : 'transparent',
-        border: 'none',
-        borderLeft: isActive ? `3px solid ${theme.accent}` : '3px solid transparent',
-        cursor: 'pointer',
-        color: isActive ? theme.accent : theme.textMuted,
-        fontSize: 13, fontWeight: isActive ? 600 : 500,
-        transition: 'all 200ms ease',
-        textAlign: 'left',
-      }}
-    >
-      <Icon size={16} />
-      {label}
-    </button>
   );
 }

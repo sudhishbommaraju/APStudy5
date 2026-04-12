@@ -4,6 +4,7 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import KPIRow from '@/components/dashboard/KPIRow';
+import APExamCountdown from '@/components/dashboard/APExamCountdown';
 import ScoreChart from '@/components/dashboard/ScoreChart';
 import ContinuePractice from '@/components/dashboard/ContinuePractice';
 import ModuleGrid from '@/components/dashboard/ModuleGrid';
@@ -170,6 +171,11 @@ export default function Dashboard() {
               </div>
             </div>
 
+            {activeTab === 'AP' && (
+              <div style={{ marginBottom: 24 }}>
+                <APExamCountdown theme={theme} />
+              </div>
+            )}
             <ModuleGrid theme={theme} examType={activeTab} />
           </div>
         </div>
