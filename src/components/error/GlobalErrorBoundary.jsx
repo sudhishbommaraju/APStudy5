@@ -40,7 +40,7 @@ class GlobalErrorBoundary extends React.Component {
               The app encountered an unexpected error. Your progress has been saved.
             </p>
             
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {import.meta.env.DEV && this.state.error && (
               <div className="mb-6 p-4 bg-slate-900 rounded-lg text-left">
                 <p className="text-xs text-red-400 font-mono break-all">
                   {this.state.error.toString()}

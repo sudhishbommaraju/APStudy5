@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Loader2, ArrowRight, ChevronLeft, Sparkles, BookOpen, Link as LinkIcon } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import QuestionCard from '@/components/ui/QuestionCard';
 import SubjectUnitSelector from '@/components/study/SubjectUnitSelector';

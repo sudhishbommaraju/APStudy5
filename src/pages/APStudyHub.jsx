@@ -10,6 +10,7 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import DashboardNavbar from '@/components/layout/DashboardNavbar';
 import NotesDocumentView from '@/components/studyhub/NotesDocumentView';
 import NotesCreateModal from '@/components/studyhub/NotesCreateModal';
+import NotesSidebar from '@/components/studyhub/NotesSidebar';
 import APPracticeQuestion from '@/components/practice/APPracticeQuestion';
 import { AP_SUBJECTS, getSubjectCategories, getSubjectsByCategory } from '@/components/studyhub/AP_SUBJECTS';
 
@@ -299,11 +300,18 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
             <span className="text-sm font-semibold text-gray-900 truncate max-w-xs">{selectedNote.title}</span>
           </div>
 
-          <div className="flex-1 overflow-hidden">
-            <NotesDocumentView
+          <div className="flex flex-1 overflow-hidden">
+            <div className="flex-1 overflow-hidden">
+              <NotesDocumentView
+                note={selectedNote}
+                onUpdated={() => loadSubjectNotes(selectedSubject)}
+                onCreatePractice={handleCreatePractice}
+              />
+            </div>
+            <NotesSidebar
               note={selectedNote}
-              onUpdated={() => loadSubjectNotes(selectedSubject)}
               onCreatePractice={handleCreatePractice}
+              onCreateFlashcards={() => {}}
             />
           </div>
 

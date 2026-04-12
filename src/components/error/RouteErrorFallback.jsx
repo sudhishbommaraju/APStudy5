@@ -43,7 +43,7 @@ export default function RouteErrorFallback({ error, resetErrorBoundary }) {
           </Button>
         </div>
         
-        {process.env.NODE_ENV === 'development' && error?.stack && (
+        {import.meta.env.DEV && error?.stack && (
           <details className="mt-6 text-left">
             <summary className="text-xs text-slate-400 cursor-pointer mb-2">Error Details</summary>
             <pre className="text-xs bg-slate-900 p-4 rounded-lg overflow-auto text-slate-300">

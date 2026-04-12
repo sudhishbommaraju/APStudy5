@@ -58,7 +58,7 @@ export default function QuestionIntegrityGuard({ question, children, onRegenerat
             </Button>
           )}
           
-          {process.env.NODE_ENV === 'development' && (
+          {import.meta.env.DEV && (
             <div className="mt-6 text-left bg-white rounded-lg p-4 text-xs font-mono text-slate-700 border border-rose-200">
               <div className="font-bold mb-2 text-rose-800">🔍 Validation Report:</div>
               <div className="mb-3">

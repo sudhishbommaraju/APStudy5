@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Loader2, ArrowRight, BookOpen, Lock } from 'lucide-react';
+import { Loader2, ArrowRight, BookOpen, Lock, Download } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 import QuestionCard from '@/components/ui/QuestionCard';
 import { motion, AnimatePresence } from 'framer-motion';
