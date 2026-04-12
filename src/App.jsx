@@ -18,6 +18,7 @@ import Store from './pages/Store';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import AudioLessons from './pages/AudioLessons';
 import APStudyHub from './pages/APStudyHub';
+import BulkNotesGenerator from './pages/BulkNotesGenerator';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -75,6 +76,11 @@ const AuthenticatedApp = () => {
       <Route path="/ap-study-hub" element={
         <LayoutWrapper currentPageName="APStudyHub">
           <APStudyHub />
+        </LayoutWrapper>
+      } />
+      <Route path="/bulk-notes-generator" element={
+        <LayoutWrapper currentPageName="BulkNotesGenerator">
+          <BulkNotesGenerator />
         </LayoutWrapper>
       } />
       <Route path="/audio-lessons" element={
