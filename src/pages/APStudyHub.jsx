@@ -245,8 +245,28 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
         mode: 'practice',
       }));
       if (attempts.length > 0) await base44.entities.Attempt.bulkCreate(attempts);
+      
+      // Award XP and coins
+      const xpReward = finalScore * 2;
+      const coinReward = finalScore * 5 + 10;
+      
+      const userStats = await base44.entities.UserStats.filter({ user_email: user.email }, '-created_date', 1).then(r => r[0]);
+      if (userStats) {
+        await base44.entities.UserStats.update(userStats.id, {
+          xp: (userStats.xp || 0) + xpReward
+        });
+      } else {
+        await base44.entities.UserStats.create({
+          user_email: user.email,
+          xp: xpReward
+        });
+      }
+      
+      await base44.auth.updateMe({
+        credits: (user.credits || 0) + coinReward
+      });
     } catch (e) {
-      console.error('Failed to create attempts:', e);
+      console.error('Failed to create attempts or award rewards:', e);
     }
     
     setStep(6);
