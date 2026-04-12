@@ -16,6 +16,7 @@ import APPracticeQuestion from '@/components/practice/APPracticeQuestion';
 import NotionImporter from '@/components/studyhub/NotionImporter';
 import { AP_SUBJECTS, getSubjectCategories, getSubjectsByCategory } from '@/components/studyhub/AP_SUBJECTS';
 import { calculateNextReviewDate } from '@/utils/spacedRepetitionUtils';
+import { updateUserStreak } from '@/utils/streakUtils';
 
 // Group subjects by category
 const CATEGORIES = getSubjectCategories();
@@ -270,6 +271,7 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
     // Create Attempt records for score analyzer
     try {
       const user = await base44.auth.me();
+      await updateUserStreak(user.email);
       const attempts = finalResponses.map((isCorrect, idx) => ({
         question_id: quizQuestions[idx]?.id || '',
         subject_id: selectedSubject?.id || '',
@@ -305,7 +307,7 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
         credits: (user.credits || 0) + coinReward
       });
     } catch (e) {
-      console.error('Failed to create attempts or award rewards:', e);
+      console.error('Failed to update progress:', e);
     }
     
     setStep(6);

@@ -171,6 +171,7 @@ export default function Dashboard() {
               activeTab={activeTab}
               setActiveTab={setActiveTab}
               user={user}
+              streak={streak}
             />
 
             <XPBar theme={theme} totalXp={totalXp} streak={streak} />

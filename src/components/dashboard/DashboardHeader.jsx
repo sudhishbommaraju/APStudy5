@@ -1,7 +1,8 @@
 import React from 'react';
 import { Bell } from 'lucide-react';
+import StreakBadge from './StreakBadge';
 
-export default function DashboardHeader({ theme, activeTab, setActiveTab, user }) {
+export default function DashboardHeader({ theme, activeTab, setActiveTab, user, streak = 0 }) {
   return (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -32,6 +33,7 @@ export default function DashboardHeader({ theme, activeTab, setActiveTab, user }
 
       {/* Right side */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <StreakBadge streak={streak} />
         <button style={{
           width: 36, height: 36, borderRadius: 10, border: `1px solid ${theme.border}`,
           background: theme.card, cursor: 'pointer',
