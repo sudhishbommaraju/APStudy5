@@ -215,21 +215,28 @@ export default function Dashboard() {
                 boxShadow: theme.isDark ? '0 0 0 1px #1f2937' : '0 1px 3px rgba(0,0,0,0.06)',
               }}>
                 <p style={{ fontSize: 13, fontWeight: 600, color: theme.textMuted, marginBottom: 16, textTransform: 'uppercase', letterSpacing: '0.06em' }}>This Week</p>
-                {[
-                  { label: 'Questions Answered', value: '142' },
-                  { label: 'Study Sessions', value: '6' },
-                  { label: 'Avg Session Length', value: '38 min' },
-                  { label: 'Correct Rate', value: '78%' },
-                ].map((s, i) => (
-                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: i < 3 ? `1px solid ${theme.border}` : 'none' }}>
-                    <span style={{ fontSize: 13, color: theme.textMuted }}>{s.label}</span>
-                    <span style={{ fontSize: 14, fontWeight: 600, color: theme.text }}>{s.value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+                {(() => {
+                   const weekStart = Date.now() - 7 * 86400000;
+                   const weekAttempts = attempts.filter(a => new Date(a.created_date).getTime() >= weekStart);
+                   const qAnswered = weekAttempts.length;
+                   const correctRate = qAnswered > 0 ? Math.round((weekAttempts.filter(a => a.is_correct).length / qAnswered) * 100) : 0;
+                   const stats = [
+                     { label: 'Questions Answered', value: qAnswered },
+                     { label: 'Study Sessions', value: 0 },
+                     { label: 'Avg Session Length', value: '—' },
+                     { label: 'Correct Rate', value: qAnswered > 0 ? `${correctRate}%` : '0%' },
+                   ];
+                   return stats.map((s, i) => (
+                     <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: i < 3 ? `1px solid ${theme.border}` : 'none' }}>
+                       <span style={{ fontSize: 13, color: theme.textMuted }}>{s.label}</span>
+                       <span style={{ fontSize: 14, fontWeight: 600, color: theme.text }}>{s.value}</span>
+                     </div>
+                   ));
+                 })()}
+                </div>
+                </div>
 
-            <ModuleGrid theme={theme} examType={activeTab} />
+                <ModuleGrid theme={theme} examType={activeTab} />
           </div>
         </div>
         <AIChat theme={theme} />
