@@ -11,6 +11,7 @@ import ContinuePractice from '@/components/dashboard/ContinuePractice';
 import ModuleGrid from '@/components/dashboard/ModuleGrid';
 import AIChat from '@/components/dashboard/AIChat';
 import XPBar from '@/components/dashboard/XPBar';
+import PSATScoreCard from '@/components/dashboard/PSATScoreCard';
 
 export default function Dashboard() {
   const [isDark, setIsDark] = useState(() => localStorage.getItem('proofly_theme') === 'dark');
@@ -21,6 +22,7 @@ export default function Dashboard() {
   const [totalXp, setTotalXp] = useState(0);
   const [streak, setStreak] = useState(0);
   const [attempts, setAttempts] = useState([]);
+  const [psatScore, setPsatScore] = useState(null);
 
   useEffect(() => {
     base44.auth.me().then(async u => {
@@ -32,6 +34,7 @@ export default function Dashboard() {
       setTotalXp(stats.xp || 0);
       setStreak(stats.streak || 0);
       setAttempts(userAttempts || []);
+      setPsatScore(u.psat_score || null);
     }).catch(() => {});
   }, []);
 
@@ -72,8 +75,17 @@ export default function Dashboard() {
 
     // Score estimates
     let scoreEst = '—';
-    if (examType === 'SAT' && total > 0) {
-      scoreEst = Math.round(400 + (accuracy / 100) * 1200).toString();
+    if (examType === 'SAT') {
+      // Blend PSAT baseline with practice performance
+      const psatBase = psatScore ? Math.min(1600, Math.round(psatScore * 1.03 + 20)) : null;
+      if (total > 0) {
+        const practiceEst = Math.round(400 + (accuracy / 100) * 1200);
+        scoreEst = psatBase
+          ? Math.round(psatBase * 0.4 + practiceEst * 0.6).toString()
+          : practiceEst.toString();
+      } else if (psatBase) {
+        scoreEst = psatBase.toString();
+      }
     } else if (examType === 'ACT' && total > 0) {
       scoreEst = Math.round(1 + (accuracy / 100) * 35).toString();
     } else if (examType === 'AP' && total > 0) {
@@ -168,6 +180,12 @@ export default function Dashboard() {
             />
 
             <XPBar theme={theme} totalXp={totalXp} streak={streak} />
+
+            {activeTab === 'SAT' && (
+              <div style={{ marginBottom: 20 }}>
+                <PSATScoreCard theme={theme} psatScore={psatScore} onUpdate={setPsatScore} />
+              </div>
+            )}
 
             <KPIRow theme={theme} kpis={current.kpis} />
 

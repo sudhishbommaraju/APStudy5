@@ -1,0 +1,75 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "user"
+      ],
+      "default": "user"
+    },
+    "notion_practice_page": {
+      "type": "string",
+      "description": "Linked Notion page for AP Practice"
+    },
+    "notion_fulltest_page": {
+      "type": "string",
+      "description": "Linked Notion page for AP Full Tests"
+    },
+    "notion_progress_page": {
+      "type": "string",
+      "description": "Linked Notion page for Progress Tracking"
+    },
+    "notification_preferences": {
+      "type": "object",
+      "default": {
+        "email_reminders": true,
+        "practice_suggestions": true,
+        "progress_updates": true,
+        "weekly_reports": true
+      }
+    },
+    "dashboard_layout": {
+      "type": "object",
+      "default": {
+        "default_tab": "SAT",
+        "show_stats": true,
+        "show_streak": true,
+        "show_recommendations": true
+      }
+    },
+    "grade_level": {
+      "type": "string",
+      "description": "Student's current grade level"
+    },
+    "goals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "age_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "COPPA compliance: user confirmed they are 13 or older"
+    },
+    "account_status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "deactivated",
+        "deleted"
+      ],
+      "default": "active",
+      "description": "Account lifecycle status"
+    },
+    "psat_score": {
+      "type": "number",
+      "description": "User's PSAT score (320-1520) used as SAT score baseline"
+    }
+  },
+  "required": []
+}
