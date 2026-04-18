@@ -84,6 +84,7 @@ import Flashcards from './pages/Flashcards';
 import Generate from './pages/Generate';
 import GroupDetail from './pages/GroupDetail';
 import Home from './pages/Home';
+import ImprovementEngine from './pages/ImprovementEngine';
 import MistakeReplay from './pages/MistakeReplay';
 import Onboarding from './pages/Onboarding';
 import Pricing from './pages/Pricing';
@@ -149,6 +150,7 @@ export const PAGES = {
     "Generate": Generate,
     "GroupDetail": GroupDetail,
     "Home": Home,
+    "ImprovementEngine": ImprovementEngine,
     "MistakeReplay": MistakeReplay,
     "Onboarding": Onboarding,
     "Pricing": Pricing,

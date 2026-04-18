@@ -4,10 +4,62 @@ export const AP_SUBJECTS = [
     id: 'ap_precalculus',
     category: 'Math & CS',
     units: [
-      { name: 'Polynomial and Rational Functions', topics: ['Polynomial functions', 'Rational functions', 'Zeros and factors', 'End behavior'] },
-      { name: 'Exponential and Logarithmic Functions', topics: ['Exponential growth/decay', 'Logarithmic functions', 'Properties of logs'] },
-      { name: 'Trigonometric and Polar Functions', topics: ['Trig functions', 'Unit circle', 'Polar coordinates', 'Graphs of trig functions'] },
-      { name: 'Functions Involving Parameters, Vectors, and Matrices', topics: ['Parametric equations', 'Vectors', 'Matrices'] },
+      {
+        name: 'Unit 1: Polynomial and Rational Functions',
+        topics: [
+          'Change in Tandem', 'Rates of Change', 'Polynomial Functions and Rates of Change',
+          'Polynomial Functions and Complex Zeros', 'Polynomial Functions and End Behavior',
+          'Polynomial Functions and Zeros', 'Rational Functions and End Behavior',
+          'Rational Functions and Zeros', 'Rational Functions and Vertical Asymptotes',
+          'Rational Functions and Holes', 'Equivalent Representations of Polynomial and Rational Expressions',
+          'Transformations of Functions', 'Function Model Selection and Assumption Articulation',
+          'Function Model Construction and Application',
+        ]
+      },
+      {
+        name: 'Unit 2: Exponential and Logarithmic Functions',
+        topics: [
+          'Arithmetic and Geometric Sequences', 'Geometric Series',
+          'Exponential Functions', 'Exponential Function Manipulation',
+          'Exponential Function Context and Data Modeling',
+          'Competing Function Model Validation',
+          'Composition of Functions', 'Inverse Functions',
+          'Logarithmic Expressions', 'Logarithmic Functions',
+          'Logarithmic Function Manipulation',
+          'Exponential and Logarithmic Equations and Inequalities',
+          'Exponential Function Context and Data Modeling (advanced)',
+          'Semi-log Plots',
+        ]
+      },
+      {
+        name: 'Unit 3: Trigonometric and Polar Functions',
+        topics: [
+          'Periodic Phenomena', 'Sine, Cosine, and Tangent',
+          'Sine and Cosine Function Values', 'Sine and Cosine Function Graphs',
+          'Sinusoidal Functions', 'Sinusoidal Function Transformations',
+          'Sinusoidal Function Context and Data Modeling',
+          'The Tangent Function', 'Inverse Trigonometric Functions',
+          'Trigonometric Equations and Inequalities',
+          'The Secant, Cosecant, and Cotangent Functions',
+          'Equivalent Representations of Trigonometric Functions',
+          'Trigonometry and Polar Coordinates',
+          'Polar Function Graphs', 'Rates of Change in Polar Functions',
+        ]
+      },
+      {
+        name: 'Unit 4: Functions Involving Parameters, Vectors, and Matrices',
+        topics: [
+          'Parametric Functions', 'Parametric Functions Modeling Planar Motion',
+          'Parametric Functions and Rates of Change',
+          'Implicitly Defined Functions',
+          'Conic Sections',
+          'Vectors', 'Vector-Valued Functions',
+          'Matrix Representations of Systems of Equations',
+          'The Inverse and Determinant of a Matrix',
+          'Linear Transformations and Matrices',
+          'Matrices as Functions', 'Matrices Modeling Contexts',
+        ]
+      },
     ]
   },
   {

@@ -19,6 +19,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import AudioLessons from './pages/AudioLessons';
 import APStudyHub from './pages/APStudyHub';
 import BulkNotesGenerator from './pages/BulkNotesGenerator';
+import ImprovementEngine from './pages/ImprovementEngine';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -96,6 +97,11 @@ const AuthenticatedApp = () => {
       <Route path="/study-plan-generator" element={
         <LayoutWrapper currentPageName="StudyPlanGenerator">
           <StudyPlanGenerator />
+        </LayoutWrapper>
+      } />
+      <Route path="/improvement-engine" element={
+        <LayoutWrapper currentPageName="ImprovementEngine">
+          <ImprovementEngine />
         </LayoutWrapper>
       } />
       <Route path="*" element={<PageNotFound />} />

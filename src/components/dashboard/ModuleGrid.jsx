@@ -25,7 +25,7 @@ const MODULES = {
     { label: 'FRQ Simulator', icon: ClipboardList, color: '#8b5cf6', route: 'APFRQSimulator' },
     { label: 'AI Notes', icon: FileText, color: '#10b981', route: 'APCreate' },
     { label: 'Flashcards', icon: Layers, color: '#f59e0b', route: 'Flashcards' },
-    { label: 'Weak Areas', icon: AlertTriangle, color: '#ef4444', route: 'APPractice' },
+    { label: 'Improvement Engine', icon: AlertTriangle, color: '#ef4444', route: 'ImprovementEngine' },
     { label: 'Study Plan', icon: Calendar, color: '#06b6d4', route: 'StudyPlans' },
   ],
 };

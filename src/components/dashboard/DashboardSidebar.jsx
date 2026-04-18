@@ -48,8 +48,9 @@ const NAV_BY_EXAM = {
       { id: 'audio',      label: 'Audio Lessons',    icon: Headphones,    route: '/audio-lessons' },
     ],
     performance: [
-      { id: 'analytics',  label: 'Analytics',        icon: BarChart2,     route: '/analytics-dashboard' },
-      { id: 'studyplan',  label: 'Study Plan',       icon: Sparkles,      route: '/study-plan-generator?type=AP' },
+      { id: 'analytics',       label: 'Analytics',          icon: BarChart2,     route: '/analytics-dashboard' },
+      { id: 'studyplan',       label: 'Study Plan',         icon: Sparkles,      route: '/study-plan-generator?type=AP' },
+      { id: 'improvement',     label: 'Improvement Engine', icon: Brain,         route: '/improvement-engine' },
     ],
   },
 };
