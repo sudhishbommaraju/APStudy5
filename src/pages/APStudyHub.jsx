@@ -316,7 +316,7 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
       <ProtectedRoute>
         <div className="min-h-screen bg-[#0C0C0C] flex items-center justify-center">
           <div className="text-center">
-            <Loader2 className="w-8 h-8 text-[#4B9E6B] animate-spin mx-auto mb-4" />
+            <Loader2 className="w-8 h-8 text-[#7BAE7F] animate-spin mx-auto mb-4" />
             <h2 className="text-lg font-semibold text-[#E0E0E0] mb-1">Building Your Quiz</h2>
             <p className="text-[#666] text-sm">Analyzing notes and generating AP-style questions…</p>
           </div>
@@ -336,13 +336,13 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
             </button>
             <div className="mb-6 flex items-center justify-between">
               <div>
-                <p className="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-[#5B7FA6] mb-1">Notes Quiz</p>
+                <p className="text-[0.625rem] font-bold uppercase tracking-[0.2em] text-[#7BAE7F] mb-1">Notes Quiz</p>
                 <h2 className="text-lg font-semibold text-[#E0E0E0]">{selectedNote?.title}</h2>
               </div>
               <div className="text-right">
                 <div className="text-xs text-[#666]">{quizIndex + 1} / {quizQuestions.length}</div>
                 {selectedNote?.mastery_percentage > 0 && (
-                  <div className="text-xs text-[#4B9E6B] font-semibold">Mastery: {selectedNote.mastery_percentage}%</div>
+                  <div className="text-xs text-[#7BAE7F] font-semibold">Mastery: {selectedNote.mastery_percentage}%</div>
                 )}
               </div>
             </div>
@@ -369,7 +369,7 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
             <div className="text-4xl mb-5">{pct >= 80 ? '🎉' : pct >= 60 ? '👍' : '📚'}</div>
             <h2 className="text-xl font-bold text-[#F0EDE8] mb-1">Quiz Complete</h2>
             <p className="text-[#666] text-sm mb-7">{selectedNote?.title}</p>
-            <div className={`text-5xl font-bold mb-1 ${pct >= 80 ? 'text-[#4B9E6B]' : pct >= 60 ? 'text-[#D4A800]' : 'text-[#E05252]'}`}>{pct}%</div>
+            <div className={`text-5xl font-bold mb-1 ${pct >= 80 ? 'text-[#7BAE7F]' : pct >= 60 ? 'text-[#C9A05A]' : 'text-[#C0534A]'}`}>{pct}%</div>
             <p className="text-[#555] text-sm mb-8">{quizScore} / {quizQuestions.length} correct</p>
             <div className="flex gap-3 justify-center">
               <button
@@ -380,7 +380,8 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
               </button>
               <button
                 onClick={() => setStep(3)}
-                className="flex items-center gap-2 px-4 py-2 bg-[#1A3A2A] border border-[#2A5A3A] text-[#4B9E6B] rounded-xl text-sm font-semibold hover:bg-[#1E4A30] transition-colors"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-colors"
+                style={{ background: 'rgba(123,174,127,0.12)', border: '1px solid rgba(123,174,127,0.25)', color: '#7BAE7F' }}
               >
                 Back to Notes
               </button>
@@ -417,7 +418,7 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
           {generatingPractice && (
             <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center">
               <div className="bg-[#111] border border-[#2A2A2A] rounded-2xl p-10 text-center shadow-2xl">
-                <Loader2 className="w-10 h-10 text-[#4B9E6B] animate-spin mx-auto mb-4" />
+                <Loader2 className="w-10 h-10 text-[#7BAE7F] animate-spin mx-auto mb-4" />
                 <h3 className="font-semibold text-[#E0E0E0] mb-1">Generating Practice</h3>
                 <p className="text-sm text-[#666]">Creating AP-style questions from your notes…</p>
               </div>
@@ -512,9 +513,9 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
                       {note.mastery_percentage > 0 && (
                         <div className="mt-3 flex items-center gap-2">
                           <div className="flex-1 h-0.5 bg-[#1E1E1E] rounded-full overflow-hidden">
-                            <div className="h-full bg-[#4B9E6B] transition-all" style={{ width: `${note.mastery_percentage}%` }} />
+                            <div className="h-full bg-[#7BAE7F] transition-all" style={{ width: `${note.mastery_percentage}%` }} />
                           </div>
-                          <span className="text-xs font-semibold text-[#4B9E6B]">{note.mastery_percentage}%</span>
+                          <span className="text-xs font-semibold text-[#7BAE7F]">{note.mastery_percentage}%</span>
                         </div>
                       )}
                       {note.notes_data?.sections?.length > 0 && (

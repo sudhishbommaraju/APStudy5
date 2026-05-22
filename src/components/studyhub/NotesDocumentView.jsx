@@ -44,34 +44,34 @@ function DocumentContent({ note, editMode, editedSections, onBulletChange, onSav
 
       {/* Note title */}
       <header className="mb-12">
-        <p className="text-[0.7rem] font-bold uppercase tracking-[0.2em] text-[#666] mb-3">Study Notes</p>
-        <h1 className="text-[2.4rem] md:text-[3rem] font-bold text-[#F0EDE8] leading-tight tracking-tight mb-4">
+        <p className="text-[0.625rem] font-bold uppercase tracking-[0.2em] text-[#7A7A7A] mb-3">Study Notes</p>
+        <h1 className="text-[2rem] md:text-[2.6rem] font-bold text-[#F0EDE8] leading-tight tracking-tight mb-4">
           {note.title}
         </h1>
         <div className="flex items-center gap-3 flex-wrap">
           {note.subject_id && (
-            <span className="text-[0.72rem] font-semibold uppercase tracking-wider text-[#888] bg-[#1A1A1A] border border-[#2A2A2A] rounded-full px-3 py-1">
+            <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-[#7A7A7A] rounded-full px-3 py-1" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>
               {note.subject_id.replace(/_/g, ' ')}
             </span>
           )}
           {note.source_type && (
-            <span className="text-[0.72rem] text-[#666]">
+            <span className="text-[0.72rem] text-[#555]">
               {note.source_type === 'youtube' ? '📺 YouTube' : note.source_type === 'upload' ? '📄 Upload' : '✦ AI Generated'}
             </span>
           )}
         </div>
-        <div className="mt-8 h-px bg-gradient-to-r from-[#2A2A2A] via-[#3A3A3A] to-transparent" />
+        <div className="mt-8 h-px" style={{ background: 'linear-gradient(to right, rgba(255,255,255,0.08), rgba(255,255,255,0.03), transparent)' }} />
       </header>
 
       {/* Overview / Summary */}
       {summaryBullets.length > 0 && (
         <section className="mb-10">
-          <p className="text-[0.7rem] font-bold uppercase tracking-[0.18em] text-[#5B7FA6] mb-4">Overview</p>
-          <div className="space-y-0">
+          <p className="text-[0.625rem] font-bold uppercase tracking-[0.18em] text-[#7A7A7A] mb-4">Overview</p>
+          <div>
             {summaryBullets.map((b, i) => (
-              <div key={i} className="flex items-start gap-3 py-2.5 border-b border-[#181818] last:border-0">
-                <span className="text-[#5B7FA6] text-xs mt-[5px] shrink-0">→</span>
-                <p className="text-[0.9375rem] text-[#B8B2AA] leading-[1.75]"><RichText text={b} /></p>
+              <div key={i} className="flex items-start gap-3 py-2.5 border-b border-[rgba(255,255,255,0.04)] last:border-0">
+                <span className="text-[#7BAE7F] text-xs mt-[6px] shrink-0">→</span>
+                <p className="text-[0.9375rem] text-[#B8B2AA] leading-[1.8]"><RichText text={b} /></p>
               </div>
             ))}
           </div>
@@ -114,7 +114,7 @@ function DocumentContent({ note, editMode, editedSections, onBulletChange, onSav
         <>
           <Divider />
           <section>
-            <p className="text-[0.7rem] font-bold uppercase tracking-[0.18em] text-[#888] mb-5">Key Terms</p>
+            <p className="text-[0.625rem] font-bold uppercase tracking-[0.18em] text-[#7A7A7A] mb-5">Key Terms</p>
             <div>
               {keyTerms.map((k, i) => {
                 const term = typeof k === 'string' ? k : k.term;
@@ -139,7 +139,8 @@ function DocumentContent({ note, editMode, editedSections, onBulletChange, onSav
           <button
             onClick={onSave}
             disabled={saving}
-            className="flex items-center gap-2 px-6 py-2.5 bg-[#1A3A2A] border border-[#2A5A3A] text-[#5BC87A] rounded-full text-sm font-semibold hover:bg-[#1E4A30] transition-colors"
+            className="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold transition-colors"
+            style={{ background: 'rgba(123,174,127,0.15)', border: '1px solid rgba(123,174,127,0.3)', color: '#7BAE7F' }}
           >
             {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
             {saving ? 'Saving…' : 'Save Changes'}
