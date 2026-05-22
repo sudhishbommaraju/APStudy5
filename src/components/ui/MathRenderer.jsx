@@ -1,52 +1,68 @@
 import React, { memo } from 'react';
 import { InlineMath, BlockMath } from 'react-katex';
 import 'katex/dist/katex.min.css';
-import { cleanLaTeX } from '@/utils/latexUtils';
 
-// Clean common AI LaTeX mistakes before rendering
-function sanitizeLatex(latex) {
-  return cleanLaTeX(latex);
+/**
+ * Minimal LaTeX cleaner — only fixes what's strictly necessary.
+ * Do NOT touch backslashes or restructure expressions.
+ */
+function sanitize(latex) {
+  if (!latex || typeof latex !== 'string') return '';
+  return latex
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    // Remove surrounding whitespace
+    .trim();
 }
 
-// Render a single math segment
 function MathSegment({ src, block }) {
-  const clean = sanitizeLatex(src);
+  const clean = sanitize(src);
   try {
-    return block
-      ? <BlockMath math={clean} />
-      : <InlineMath math={clean} />;
+    if (block) return <BlockMath math={clean} />;
+    return <InlineMath math={clean} />;
   } catch {
-    return <span className="text-red-400 font-mono text-xs">{src}</span>;
+    // Silent fallback — show as clean text, not red error
+    return <span className="font-mono text-sm opacity-70">{clean}</span>;
   }
 }
 
-// Split text into math and non-math segments and render
+/**
+ * MathRenderer — parses $...$ inline and $$...$$ block math from text strings.
+ * Handles mixed text + math gracefully.
+ */
 function MathRenderer({ text, className = '' }) {
   if (!text) return null;
+  const str = String(text);
 
-  // Split on $$...$$ (block) and $...$ (inline)
+  // Fast path: no dollar signs at all
+  if (!str.includes('$')) {
+    return <span className={className}>{str}</span>;
+  }
+
   const parts = [];
+  // Match $$....$$ first (block), then $...$ (inline)
   const pattern = /(\$\$[\s\S]+?\$\$|\$[^$\n]+?\$)/g;
   let lastIndex = 0;
   let match;
 
-  pattern.lastIndex = 0;
-  while ((match = pattern.exec(text)) !== null) {
+  while ((match = pattern.exec(str)) !== null) {
     if (match.index > lastIndex) {
-      parts.push({ type: 'text', content: text.slice(lastIndex, match.index) });
+      parts.push({ type: 'text', content: str.slice(lastIndex, match.index) });
     }
     const raw = match[0];
     const isBlock = raw.startsWith('$$');
-    const inner = isBlock ? raw.slice(2, -2) : raw.slice(1, -1);
+    const inner = isBlock ? raw.slice(2, -2).trim() : raw.slice(1, -1).trim();
     parts.push({ type: isBlock ? 'block' : 'inline', content: inner });
     lastIndex = match.index + raw.length;
   }
-  if (lastIndex < text.length) {
-    parts.push({ type: 'text', content: text.slice(lastIndex) });
+  if (lastIndex < str.length) {
+    parts.push({ type: 'text', content: str.slice(lastIndex) });
   }
 
+  // Only plain text found
   if (parts.length === 1 && parts[0].type === 'text') {
-    return <span className={className}>{text}</span>;
+    return <span className={className}>{str}</span>;
   }
 
   return (
@@ -55,7 +71,7 @@ function MathRenderer({ text, className = '' }) {
         if (part.type === 'text') return <span key={i}>{part.content}</span>;
         if (part.type === 'block') {
           return (
-            <span key={i} className="block my-3 text-center overflow-x-auto">
+            <span key={i} className="block my-4 overflow-x-auto text-center">
               <MathSegment src={part.content} block={true} />
             </span>
           );
