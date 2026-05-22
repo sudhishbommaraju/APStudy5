@@ -5,12 +5,9 @@ import {
   ArrowLeft, ChevronRight, Sparkles, Upload, Youtube, BookOpen,
   Loader2, Trash2, Plus, Brain, CheckCircle, XCircle, RotateCcw
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import DashboardNavbar from '@/components/layout/DashboardNavbar';
 import NotesDocumentView from '@/components/studyhub/NotesDocumentView';
 import NotesCreateModal from '@/components/studyhub/NotesCreateModal';
-import NotesSidebar from '@/components/studyhub/NotesSidebar';
 import CourseManager from '@/components/studyhub/CourseManager';
 import APPracticeQuestion from '@/components/practice/APPracticeQuestion';
 
@@ -317,14 +314,11 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
   if (step === 4) {
     return (
       <ProtectedRoute>
-        <DashboardNavbar />
-        <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center">
+        <div className="min-h-screen bg-[#0C0C0C] flex items-center justify-center">
           <div className="text-center">
-            <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-            </div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Building Your Quiz</h2>
-            <p className="text-gray-500 text-sm">Analyzing your notes and generating AP-style questions…</p>
+            <Loader2 className="w-8 h-8 text-[#4B9E6B] animate-spin mx-auto mb-4" />
+            <h2 className="text-lg font-semibold text-[#E0E0E0] mb-1">Building Your Quiz</h2>
+            <p className="text-[#666] text-sm">Analyzing notes and generating AP-style questions…</p>
           </div>
         </div>
       </ProtectedRoute>
@@ -335,21 +329,20 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
   if (step === 5 && quizQuestions.length > 0) {
     return (
       <ProtectedRoute>
-        <DashboardNavbar />
-        <div className="min-h-screen bg-[#f8fafc] p-6">
-          <div className="max-w-5xl mx-auto">
-            <button onClick={() => setStep(3)} className="flex items-center gap-2 text-gray-500 hover:text-gray-700 mb-6 text-sm">
-              <ArrowLeft className="w-4 h-4" /> Back to notes
+        <div className="min-h-screen bg-[#0C0C0C] p-6">
+          <div className="max-w-3xl mx-auto">
+            <button onClick={() => setStep(3)} className="flex items-center gap-1.5 text-xs text-[#666] hover:text-[#AAA] mb-8 transition-colors">
+              <ArrowLeft className="w-3.5 h-3.5" /> Back to notes
             </button>
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-6 flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold text-blue-500 uppercase tracking-widest mb-1">Notes Quiz</p>
-                <h2 className="text-lg font-bold text-gray-900">{selectedNote?.title}</h2>
+                <p className="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-[#5B7FA6] mb-1">Notes Quiz</p>
+                <h2 className="text-lg font-semibold text-[#E0E0E0]">{selectedNote?.title}</h2>
               </div>
               <div className="text-right">
-                <div className="text-sm text-gray-400">{quizIndex + 1} / {quizQuestions.length}</div>
+                <div className="text-xs text-[#666]">{quizIndex + 1} / {quizQuestions.length}</div>
                 {selectedNote?.mastery_percentage > 0 && (
-                  <div className="text-xs text-blue-500 font-semibold">Mastery: {selectedNote.mastery_percentage}%</div>
+                  <div className="text-xs text-[#4B9E6B] font-semibold">Mastery: {selectedNote.mastery_percentage}%</div>
                 )}
               </div>
             </div>
@@ -371,21 +364,26 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
     const pct = Math.round((quizScore / quizQuestions.length) * 100);
     return (
       <ProtectedRoute>
-        <DashboardNavbar />
-        <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-6">
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-10 text-center max-w-md w-full">
-            <div className="text-5xl mb-4">{pct >= 80 ? '🎉' : pct >= 60 ? '👍' : '📚'}</div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-1">Quiz Complete!</h2>
-            <p className="text-gray-500 text-sm mb-6">{selectedNote?.title}</p>
-            <div className="text-5xl font-bold text-blue-500 mb-2">{pct}%</div>
-            <p className="text-gray-500 mb-8">{quizScore} / {quizQuestions.length} correct</p>
+        <div className="min-h-screen bg-[#0C0C0C] flex items-center justify-center p-6">
+          <div className="bg-[#111] border border-[#1E1E1E] rounded-2xl p-10 text-center max-w-sm w-full">
+            <div className="text-4xl mb-5">{pct >= 80 ? '🎉' : pct >= 60 ? '👍' : '📚'}</div>
+            <h2 className="text-xl font-bold text-[#F0EDE8] mb-1">Quiz Complete</h2>
+            <p className="text-[#666] text-sm mb-7">{selectedNote?.title}</p>
+            <div className={`text-5xl font-bold mb-1 ${pct >= 80 ? 'text-[#4B9E6B]' : pct >= 60 ? 'text-[#D4A800]' : 'text-[#E05252]'}`}>{pct}%</div>
+            <p className="text-[#555] text-sm mb-8">{quizScore} / {quizQuestions.length} correct</p>
             <div className="flex gap-3 justify-center">
-              <Button variant="outline" onClick={() => { setQuizIndex(0); setQuizScore(0); setQuizResponses([]); setStep(5); }}>
-                <RotateCcw className="w-4 h-4 mr-2" /> Retake
-              </Button>
-              <Button className="bg-blue-500 hover:bg-blue-600" onClick={() => setStep(3)}>
+              <button
+                onClick={() => { setQuizIndex(0); setQuizScore(0); setQuizResponses([]); setStep(5); }}
+                className="flex items-center gap-2 px-4 py-2 border border-[#2A2A2A] text-[#888] hover:text-[#CCC] hover:border-[#444] rounded-xl text-sm transition-colors"
+              >
+                <RotateCcw className="w-3.5 h-3.5" /> Retake
+              </button>
+              <button
+                onClick={() => setStep(3)}
+                className="flex items-center gap-2 px-4 py-2 bg-[#1A3A2A] border border-[#2A5A3A] text-[#4B9E6B] rounded-xl text-sm font-semibold hover:bg-[#1E4A30] transition-colors"
+              >
                 Back to Notes
-              </Button>
+              </button>
             </div>
           </div>
         </div>
@@ -397,41 +395,31 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
   if (step === 3 && selectedNote) {
     return (
       <ProtectedRoute>
-        <DashboardNavbar />
-        <div className="flex flex-col h-[calc(100vh-64px)]">
-          {/* Top bar */}
-          <div className="flex items-center gap-3 px-6 py-3 bg-[#f8fafc] border-b border-gray-200 shrink-0">
-            <button onClick={() => setStep(2)} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700">
-              <ArrowLeft className="w-4 h-4" />
-              <span>{selectedSubject?.subject}</span>
+        <div className="flex flex-col h-screen bg-[#0C0C0C]">
+          {/* Minimal breadcrumb bar */}
+          <div className="flex items-center gap-2 px-5 py-2.5 border-b border-[#1A1A1A] bg-[#0C0C0C] shrink-0">
+            <button onClick={() => setStep(2)} className="flex items-center gap-1.5 text-xs text-[#666] hover:text-[#AAA] transition-colors">
+              <ArrowLeft className="w-3.5 h-3.5" />
+              {selectedSubject?.subject}
             </button>
-            <ChevronRight className="w-3.5 h-3.5 text-gray-300" />
-            <span className="text-sm font-semibold text-gray-900 truncate max-w-xs">{selectedNote.title}</span>
+            <ChevronRight className="w-3 h-3 text-[#333]" />
+            <span className="text-xs text-[#888] truncate max-w-[300px]">{selectedNote.title}</span>
           </div>
 
-          <div className="flex flex-1 overflow-hidden">
-            <div className="flex-1 overflow-hidden">
-              <NotesDocumentView
-                note={selectedNote}
-                onUpdated={() => loadSubjectNotes(selectedSubject)}
-                onCreatePractice={handleCreatePractice}
-              />
-            </div>
-            <NotesSidebar
+          <div className="flex-1 overflow-hidden">
+            <NotesDocumentView
               note={selectedNote}
+              onUpdated={() => loadSubjectNotes(selectedSubject)}
               onCreatePractice={handleCreatePractice}
-              onGenerateDeck={() => {}}
-              onCreateFlashcards={() => {}}
-              existingDeck={null}
             />
           </div>
 
           {generatingPractice && (
-            <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
-              <div className="bg-white rounded-2xl p-8 text-center shadow-2xl">
-                <Loader2 className="w-10 h-10 text-green-500 animate-spin mx-auto mb-3" />
-                <h3 className="font-bold text-gray-900 mb-1">Generating Practice</h3>
-                <p className="text-sm text-gray-500">Creating AP-style questions from your notes…</p>
+            <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center">
+              <div className="bg-[#111] border border-[#2A2A2A] rounded-2xl p-10 text-center shadow-2xl">
+                <Loader2 className="w-10 h-10 text-[#4B9E6B] animate-spin mx-auto mb-4" />
+                <h3 className="font-semibold text-[#E0E0E0] mb-1">Generating Practice</h3>
+                <p className="text-sm text-[#666]">Creating AP-style questions from your notes…</p>
               </div>
             </div>
           )}
@@ -444,43 +432,38 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
   if (step === 2 && selectedSubject) {
     return (
       <ProtectedRoute>
-        <DashboardNavbar />
-        <div className="min-h-screen bg-[#f8fafc]">
-          <div className="max-w-5xl mx-auto px-6 py-10">
+        <div className="min-h-screen bg-[#0C0C0C]">
+          <div className="max-w-4xl mx-auto px-6 py-10">
 
             {/* Breadcrumb */}
-            <div className="flex items-center gap-2 text-sm text-gray-400 mb-8">
-              <button onClick={() => setStep(1)} className="hover:text-gray-600">AP Study Hub</button>
+            <div className="flex items-center gap-2 text-xs text-[#555] mb-10">
+              <button onClick={() => setStep(1)} className="hover:text-[#AAA] transition-colors">AP Study Hub</button>
               <ChevronRight className="w-3 h-3" />
-              <span className="text-gray-700 font-medium">{selectedSubject.subject}</span>
+              <span className="text-[#AAA]">{selectedSubject.subject}</span>
             </div>
 
-            <div className="flex items-center gap-4 mb-8">
-              <h1 className="text-3xl font-bold text-gray-900">{selectedSubject.subject}</h1>
-              <span className="text-sm text-gray-400 bg-gray-100 px-3 py-1 rounded-full">{selectedSubject.category}</span>
+            <div className="mb-10">
+              <h1 className="text-[2rem] font-bold text-[#F0EDE8] mb-2">{selectedSubject.subject}</h1>
+              <span className="text-xs text-[#666] bg-[#1A1A1A] border border-[#2A2A2A] px-3 py-1 rounded-full">{selectedSubject.category}</span>
             </div>
-
-
 
             {/* Create Note Options */}
             <div className="mb-10">
-              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Create New Notes</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <p className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-[#555] mb-4">Create Notes</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {[
-                  { type: 'ai', icon: Sparkles, label: 'AI Generate', desc: 'Auto-generate structured AP notes', color: 'border-blue-200 hover:border-blue-400 hover:bg-blue-50', iconColor: 'text-blue-500', iconBg: 'bg-blue-100' },
-                  { type: 'upload', icon: Upload, label: 'Upload Document', desc: 'From PDF, Word, or text file', color: 'border-purple-200 hover:border-purple-400 hover:bg-purple-50', iconColor: 'text-purple-500', iconBg: 'bg-purple-100' },
-                  { type: 'youtube', icon: Youtube, label: 'From YouTube', desc: 'Extract notes from a video', color: 'border-red-200 hover:border-red-400 hover:bg-red-50', iconColor: 'text-red-500', iconBg: 'bg-red-100' },
-                ].map(({ type, icon: Icon, label, desc, color, iconColor, iconBg }) => (
+                  { type: 'ai', icon: Sparkles, label: 'AI Generate', desc: 'Structured AP notes from curriculum' },
+                  { type: 'upload', icon: Upload, label: 'Upload Document', desc: 'From PDF, Word, or text file' },
+                  { type: 'youtube', icon: Youtube, label: 'From YouTube', desc: 'Extract notes from a video' },
+                ].map(({ type, icon: Icon, label, desc }) => (
                   <button
                     key={type}
                     onClick={() => { setCreateType(type); setShowCreate(true); }}
-                    className={`bg-white border rounded-2xl p-5 text-left transition-all group ${color}`}
+                    className="bg-[#111] border border-[#1E1E1E] hover:border-[#3A3A3A] rounded-xl p-4 text-left transition-all group"
                   >
-                    <div className={`w-10 h-10 ${iconBg} rounded-xl flex items-center justify-center mb-3`}>
-                      <Icon className={`w-5 h-5 ${iconColor}`} />
-                    </div>
-                    <p className="font-semibold text-gray-800 text-sm mb-1">{label}</p>
-                    <p className="text-xs text-gray-400">{desc}</p>
+                    <Icon className="w-4 h-4 text-[#666] group-hover:text-[#AAA] mb-3 transition-colors" />
+                    <p className="font-semibold text-[#C0BAB2] text-sm mb-1">{label}</p>
+                    <p className="text-xs text-[#555]">{desc}</p>
                   </button>
                 ))}
               </div>
@@ -489,55 +472,53 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
             {/* Existing Notes */}
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Your Notes</h2>
+                <p className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-[#555]">Your Notes</p>
                 {subjectNotes.length > 0 && (
-                  <span className="text-xs text-gray-400">{subjectNotes.length} note{subjectNotes.length !== 1 ? 's' : ''}</span>
+                  <span className="text-xs text-[#555]">{subjectNotes.length} note{subjectNotes.length !== 1 ? 's' : ''}</span>
                 )}
               </div>
 
               {loadingNotes ? (
-                <div className="flex justify-center py-10"><Loader2 className="w-6 h-6 text-gray-300 animate-spin" /></div>
+                <div className="flex justify-center py-12"><Loader2 className="w-5 h-5 text-[#444] animate-spin" /></div>
               ) : subjectNotes.length === 0 ? (
-                <div className="bg-white border border-dashed border-gray-200 rounded-2xl p-10 text-center">
-                  <BookOpen className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-                  <p className="text-gray-500 font-medium mb-1">No notes yet for this subject</p>
-                  <p className="text-xs text-gray-400">Create your first note set using the options above</p>
+                <div className="border border-dashed border-[#1E1E1E] rounded-xl p-12 text-center">
+                  <BookOpen className="w-8 h-8 text-[#333] mx-auto mb-3" />
+                  <p className="text-[#555] text-sm font-medium mb-1">No notes yet</p>
+                  <p className="text-xs text-[#444]">Create your first note set above</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {subjectNotes.map(note => (
                     <button
                       key={note.id}
                       onClick={() => handleViewNote(note)}
-                      className="bg-white border border-gray-200 rounded-2xl p-5 text-left hover:border-blue-400 hover:shadow-sm transition-all group relative"
+                      className="bg-[#111] border border-[#1E1E1E] hover:border-[#3A3A3A] rounded-xl p-4 text-left transition-all group relative"
                     >
                       <div className="flex items-start justify-between mb-3">
-                        <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                          <BookOpen className="w-4 h-4 text-blue-500" />
-                        </div>
+                        <BookOpen className="w-4 h-4 text-[#555]" />
                         <button
                           onClick={e => handleDeleteNote(note.id, e)}
-                          className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-50 rounded-lg text-gray-300 hover:text-red-400 transition-all"
+                          className="opacity-0 group-hover:opacity-100 p-1 rounded-lg text-[#444] hover:text-[#E05252] transition-all"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
-                      <p className="font-semibold text-gray-800 text-sm leading-tight mb-1 line-clamp-2">{note.title}</p>
-                      <p className="text-xs text-gray-400">
-                        {note.source_type === 'youtube' ? '📺 YouTube' : note.source_type === 'upload' ? '📄 Upload' : '✨ AI Generated'}
-                        {' · '}
+                      <p className="font-semibold text-[#C0BAB2] text-sm leading-snug mb-1.5 line-clamp-2">{note.title}</p>
+                      <p className="text-xs text-[#555]">
+                        {note.source_type === 'youtube' ? '📺' : note.source_type === 'upload' ? '📄' : '✦'}
+                        {' '}
                         {new Date(note.created_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </p>
                       {note.mastery_percentage > 0 && (
-                        <div className="mt-2 flex items-center gap-2">
-                          <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                            <div className="h-full bg-blue-500 transition-all" style={{ width: `${note.mastery_percentage}%` }} />
+                        <div className="mt-3 flex items-center gap-2">
+                          <div className="flex-1 h-0.5 bg-[#1E1E1E] rounded-full overflow-hidden">
+                            <div className="h-full bg-[#4B9E6B] transition-all" style={{ width: `${note.mastery_percentage}%` }} />
                           </div>
-                          <span className="text-xs font-semibold text-blue-600">{note.mastery_percentage}%</span>
+                          <span className="text-xs font-semibold text-[#4B9E6B]">{note.mastery_percentage}%</span>
                         </div>
                       )}
                       {note.notes_data?.sections?.length > 0 && (
-                        <p className="text-xs text-blue-400 mt-2">{note.notes_data.sections.length} sections</p>
+                        <p className="text-xs text-[#444] mt-1.5">{note.notes_data.sections.length} sections</p>
                       )}
                     </button>
                   ))}
@@ -562,43 +543,40 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
   // ── Step 1: Subject Grid ──
   return (
     <ProtectedRoute>
-      <DashboardNavbar />
-      <div className="min-h-screen bg-[#f8fafc]">
-        <div className="max-w-5xl mx-auto px-6 py-10">
+      <div className="min-h-screen bg-[#0C0C0C]">
+        <div className="max-w-4xl mx-auto px-6 py-10">
 
-          <div className="flex items-center gap-2 text-sm text-gray-400 mb-8">
-            <button onClick={() => navigate('/Dashboard')} className="hover:text-gray-600">Dashboard</button>
+          <div className="flex items-center gap-2 text-xs text-[#555] mb-10">
+            <button onClick={() => navigate('/Dashboard')} className="hover:text-[#AAA] transition-colors">Dashboard</button>
             <ChevronRight className="w-3 h-3" />
-            <span className="text-gray-700 font-medium">AP Study Hub</span>
+            <span className="text-[#888]">AP Study Hub</span>
           </div>
 
-          <div className="mb-10">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">AP Study Hub</h1>
-            <p className="text-gray-500">Select a subject to generate and review structured AP notes</p>
+          <div className="mb-12">
+            <h1 className="text-[2.2rem] font-bold text-[#F0EDE8] mb-2">AP Study Hub</h1>
+            <p className="text-[#666] text-sm">Select a subject to generate and review structured notes</p>
           </div>
 
           {CATEGORIES.map(category => {
             const subjects = getSubjectsByCategory(category);
             return (
               <div key={category} className="mb-10">
-                <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">{category}</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                <p className="text-[0.65rem] font-bold uppercase tracking-[0.18em] text-[#555] mb-3">{category}</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
                   {subjects.map(subject => (
                     <button
                       key={subject.id}
                       onClick={() => handleSelectSubject(subject)}
-                      className="bg-white border border-gray-200 rounded-xl p-4 text-left hover:border-blue-400 hover:shadow-sm transition-all group"
+                      className="bg-[#111] border border-[#1E1E1E] hover:border-[#3A3A3A] rounded-xl p-4 text-left transition-all group"
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                          <BookOpen className="w-4 h-4 text-blue-400 group-hover:text-blue-600" />
-                        </div>
-                        <ChevronRight className="w-3.5 h-3.5 text-gray-200 group-hover:text-blue-400 transition-colors" />
+                      <div className="flex items-center justify-between mb-2.5">
+                        <BookOpen className="w-3.5 h-3.5 text-[#555] group-hover:text-[#888] transition-colors" />
+                        <ChevronRight className="w-3 h-3 text-[#333] group-hover:text-[#666] transition-colors" />
                       </div>
-                      <p className="text-sm font-semibold text-gray-800 group-hover:text-blue-700 leading-tight">
+                      <p className="text-[0.8rem] font-semibold text-[#C0BAB2] group-hover:text-[#E0DDD8] leading-snug transition-colors">
                         {subject.subject}
                       </p>
-                      <p className="text-xs text-gray-400 mt-1">{subject.units?.length || 0} units</p>
+                      <p className="text-xs text-[#444] mt-1">{subject.units?.length || 0} units</p>
                     </button>
                   ))}
                 </div>
