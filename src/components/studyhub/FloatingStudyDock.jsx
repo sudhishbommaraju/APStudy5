@@ -1,90 +1,114 @@
 import React, { useState } from 'react';
-import { Brain, Layers, Mic, RotateCcw, X, BookOpen } from 'lucide-react';
+import { Brain, Layers, RotateCcw, Mic, X, BookOpen } from 'lucide-react';
 
-const ACTIONS = [
-  { id: 'practice',   label: 'Practice',      icon: Brain,     accent: true  },
-  { id: 'flashcards', label: 'Flashcards',     icon: Layers,    accent: false },
-  { id: 'recall',     label: 'Active Recall',  icon: RotateCcw, accent: false },
-  { id: 'audio',      label: 'Audio',          icon: Mic,       accent: false },
+const TOOLS = [
+  { id: 'practice',   label: 'Practice',  icon: Brain,     accent: true  },
+  { id: 'flashcards', label: 'Flashcards', icon: Layers,    accent: false },
+  { id: 'recall',     label: 'Recall',     icon: RotateCcw, accent: false },
+  { id: 'audio',      label: 'Audio',      icon: Mic,       accent: false },
 ];
 
 export default function FloatingStudyDock({ onPractice, onFlashcards, onRecall, onAudio, generatingPractice = false }) {
-  const [expanded, setExpanded] = useState(false);
-
+  const [open, setOpen] = useState(false);
   const handlers = { practice: onPractice, flashcards: onFlashcards, recall: onRecall, audio: onAudio };
 
   return (
-    <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-2 select-none">
-
-      {/* Expanded action tray */}
-      {expanded && (
-        <div
-          className="flex items-center gap-1 rounded-2xl px-3 py-2 shadow-2xl"
-          style={{
-            background: '#131313',
-            border: '1px solid rgba(255,255,255,0.09)',
-            boxShadow: '0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)',
-          }}
-        >
-          {ACTIONS.map(({ id, label, icon: Icon, accent }) => (
-            <button
+    <div style={{
+      position: 'fixed',
+      bottom: '1.5rem',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      zIndex: 40,
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '0.5rem',
+      userSelect: 'none',
+    }}>
+      {/* Expanded tool tray */}
+      {open && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: '0.25rem',
+          padding: '0.4rem 0.5rem',
+          borderRadius: '100px',
+          background: '#161616',
+          border: '1px solid rgba(255,255,255,0.09)',
+          boxShadow: '0 8px 40px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04)',
+        }}>
+          {TOOLS.map(({ id, label, icon: Icon, accent }) => (
+            <ToolBtn
               key={id}
-              onClick={() => { handlers[id]?.(); setExpanded(false); }}
+              label={label}
+              icon={Icon}
+              accent={accent}
               disabled={id === 'practice' && generatingPractice}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl transition-all group disabled:opacity-40"
-              style={{
-                background: 'transparent',
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-            >
-              <Icon
-                className="w-3.5 h-3.5 shrink-0 transition-colors"
-                style={{ color: accent ? '#7BAE7F' : '#6A6A6A' }}
-              />
-              <span
-                className="text-[0.78rem] font-medium whitespace-nowrap transition-colors"
-                style={{ color: accent ? '#A8D4AC' : '#888' }}
-              >
-                {label}
-              </span>
-            </button>
+              onClick={() => { handlers[id]?.(); setOpen(false); }}
+            />
           ))}
-          <div className="w-px h-4 mx-1" style={{ background: 'rgba(255,255,255,0.07)' }} />
+          <div style={{ width: '1px', height: '18px', background: 'rgba(255,255,255,0.07)', margin: '0 0.25rem' }} />
           <button
-            onClick={() => setExpanded(false)}
-            className="p-1.5 rounded-lg transition-colors"
-            style={{ color: '#555' }}
+            onClick={() => setOpen(false)}
+            style={{
+              padding: '0.35rem', borderRadius: '50%',
+              background: 'transparent', border: 'none',
+              color: '#555', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}
             onMouseEnter={e => e.currentTarget.style.color = '#999'}
             onMouseLeave={e => e.currentTarget.style.color = '#555'}
           >
-            <X className="w-3 h-3" />
+            <X style={{ width: '12px', height: '12px' }} />
           </button>
         </div>
       )}
 
       {/* Toggle pill */}
       <button
-        onClick={() => setExpanded(p => !p)}
-        className="flex items-center gap-2 px-4 py-2 rounded-full text-[0.78rem] font-medium transition-all"
+        onClick={() => setOpen(p => !p)}
         style={{
-          background: expanded ? '#1A1A1A' : '#131313',
-          border: expanded ? '1px solid rgba(255,255,255,0.11)' : '1px solid rgba(255,255,255,0.07)',
-          color: expanded ? '#C8C3BB' : '#888',
-          boxShadow: '0 4px 24px rgba(0,0,0,0.5)',
+          display: 'flex', alignItems: 'center', gap: '0.5rem',
+          padding: '0.5rem 1.125rem',
+          borderRadius: '100px',
+          background: '#161616',
+          border: `1px solid ${open ? 'rgba(255,255,255,0.11)' : 'rgba(255,255,255,0.07)'}`,
+          color: open ? '#C8C3BB' : '#7A7A7A',
+          fontSize: '0.78rem', fontWeight: 500,
+          cursor: 'pointer',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.6)',
+          transition: 'all 0.12s',
         }}
-        onMouseEnter={e => { if (!expanded) e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)'; }}
-        onMouseLeave={e => { if (!expanded) e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; }}
+        onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.14)'}
+        onMouseLeave={e => e.currentTarget.style.borderColor = open ? 'rgba(255,255,255,0.11)' : 'rgba(255,255,255,0.07)'}
       >
-        <BookOpen className="w-3.5 h-3.5" style={{ color: '#7BAE7F' }} />
-        <span>Study Tools</span>
-        <span
-          className="text-[0.65rem] transition-transform inline-block"
-          style={{ transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)', color: '#555' }}
-        >
-          ▲
-        </span>
+        <BookOpen style={{ width: '13px', height: '13px', color: '#7BAE7F' }} />
+        Study Tools
+        <span style={{ fontSize: '0.6rem', color: '#444', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s', display: 'inline-block' }}>▲</span>
       </button>
     </div>
+  );
+}
+
+function ToolBtn({ label, icon: Icon, accent, disabled, onClick }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        display: 'flex', alignItems: 'center', gap: '0.4rem',
+        padding: '0.4rem 0.75rem', borderRadius: '100px',
+        background: hover ? 'rgba(255,255,255,0.05)' : 'transparent',
+        border: 'none', cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.4 : 1,
+        transition: 'background 0.1s',
+      }}
+    >
+      <Icon style={{ width: '13px', height: '13px', color: accent ? '#7BAE7F' : '#666' }} />
+      <span style={{ fontSize: '0.775rem', fontWeight: 500, color: accent ? '#A8D4AC' : '#888', whiteSpace: 'nowrap' }}>
+        {label}
+      </span>
+    </button>
   );
 }

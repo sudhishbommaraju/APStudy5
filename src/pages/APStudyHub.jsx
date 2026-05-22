@@ -396,20 +396,22 @@ Return exactly 10 questions. Each must have a question, 4 answer options (A-D), 
   if (step === 3 && selectedNote) {
     return (
       <ProtectedRoute>
-        <div className="flex flex-col h-screen bg-[#0C0C0C]">
-          {/* Minimal breadcrumb bar */}
-          <div className="flex items-center gap-2 px-5 py-2.5 border-b border-[#1A1A1A] bg-[#0C0C0C] shrink-0">
-            <button onClick={() => setStep(2)} className="flex items-center gap-1.5 text-xs text-[#666] hover:text-[#AAA] transition-colors">
-              <ArrowLeft className="w-3.5 h-3.5" />
+        <div className="flex flex-col h-screen" style={{ background: '#1C1C1C' }}>
+          {/* Back nav */}
+          <div style={{ display: 'flex', alignItems: 'center', padding: '0.5rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.05)', background: '#1C1C1C', flexShrink: 0 }}>
+            <button onClick={() => setStep(2)} style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: '#555', background: 'transparent', border: 'none', cursor: 'pointer' }}
+              onMouseEnter={e => e.currentTarget.style.color = '#AAA'}
+              onMouseLeave={e => e.currentTarget.style.color = '#555'}
+            >
+              <ArrowLeft style={{ width: '12px', height: '12px' }} />
               {selectedSubject?.subject}
             </button>
-            <ChevronRight className="w-3 h-3 text-[#333]" />
-            <span className="text-xs text-[#888] truncate max-w-[300px]">{selectedNote.title}</span>
           </div>
 
           <div className="flex-1 overflow-hidden">
             <NotesDocumentView
               note={selectedNote}
+              subjectName={selectedSubject?.subject}
               onUpdated={() => loadSubjectNotes(selectedSubject)}
               onCreatePractice={handleCreatePractice}
             />

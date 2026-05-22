@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { exportNoteToPDF } from '@/utils/pdfExporter';
-import { Download, Edit3, Check, Loader2, X, Maximize2, Minimize2, Clock, BookOpen } from 'lucide-react';
+import {
+  Download, Edit3, Check, Loader2, X, Maximize2, Minimize2,
+  ChevronLeft, ChevronRight
+} from 'lucide-react';
 import ActiveRecallMode from './ActiveRecallMode';
 import GenerateDeckModal from '../flashcards/GenerateDeckModal';
 import APFlashcardReviewer from '../flashcards/APFlashcardReviewer';
 import FloatingStudyDock from './FloatingStudyDock';
 import NoteBody from './NoteBody';
 
-// ── Scroll progress bar ───────────────────────────────────────────────────────
+// ── Thin scroll progress line at very top ────────────────────────────────────
 function ScrollProgress({ scrollEl }) {
   const [pct, setPct] = useState(0);
   useEffect(() => {
@@ -21,73 +24,103 @@ function ScrollProgress({ scrollEl }) {
     el.addEventListener('scroll', onScroll, { passive: true });
     return () => el.removeEventListener('scroll', onScroll);
   }, [scrollEl]);
+
   return (
-    <div className="h-[2px] w-full" style={{ background: 'rgba(255,255,255,0.04)' }}>
-      <div
-        className="h-full transition-all duration-100"
-        style={{ width: `${pct}%`, background: '#7BAE7F' }}
-      />
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, height: '2px', background: 'transparent' }}>
+      <div style={{ height: '100%', width: `${pct}%`, background: '#7BAE7F', transition: 'width 0.1s linear' }} />
     </div>
   );
 }
 
-// ── Minimal top bar ───────────────────────────────────────────────────────────
-function NoteTopBar({ note, editMode, setEditMode, onDownload, fullscreen, setFullscreen, scrollEl }) {
+// ── Minimal top chrome ────────────────────────────────────────────────────────
+function NoteChrome({ note, subjectName, editMode, setEditMode, onDownload, fullscreen, setFullscreen }) {
   return (
-    <div className="shrink-0" style={{ background: '#0D1012', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-      <div className="flex items-center justify-between px-5 py-3">
-        <p className="text-[0.78rem] truncate max-w-[280px]" style={{ color: '#6A7070' }} title={note.title}>
+    <div style={{
+      position: 'sticky',
+      top: 0,
+      zIndex: 50,
+      background: 'rgba(28,28,28,0.92)',
+      backdropFilter: 'blur(12px)',
+      borderBottom: '1px solid rgba(255,255,255,0.06)',
+      padding: '0 1.5rem',
+      height: '44px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      flexShrink: 0,
+    }}>
+      {/* Breadcrumb */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', minWidth: 0 }}>
+        {subjectName && (
+          <>
+            <span style={{ fontSize: '0.72rem', color: '#555' }}>{subjectName}</span>
+            <ChevronRight style={{ width: '10px', height: '10px', color: '#333', flexShrink: 0 }} />
+          </>
+        )}
+        <span style={{
+          fontSize: '0.72rem',
+          color: '#888',
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          maxWidth: '320px',
+        }}>
           {note.title}
-        </p>
-        <div className="flex items-center gap-1">
-          {editMode ? (
-            <button
-              onClick={() => setEditMode(false)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[0.72rem] transition-colors"
-              style={{ color: '#888' }}
-            >
-              <X className="w-3 h-3" /> Cancel
-            </button>
-          ) : (
-            <button
-              onClick={() => setEditMode(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[0.72rem] transition-colors"
-              style={{ color: '#666' }}
-              onMouseEnter={e => e.currentTarget.style.color = '#AAA'}
-              onMouseLeave={e => e.currentTarget.style.color = '#666'}
-            >
-              <Edit3 className="w-3 h-3" /> Edit
-            </button>
-          )}
-          <button
-            onClick={onDownload}
-            className="p-2 rounded-lg transition-colors"
-            style={{ color: '#555' }}
-            title="Export PDF"
-            onMouseEnter={e => e.currentTarget.style.color = '#AAA'}
-            onMouseLeave={e => e.currentTarget.style.color = '#555'}
-          >
-            <Download className="w-3.5 h-3.5" />
-          </button>
-          <button
-            onClick={() => setFullscreen(p => !p)}
-            className="p-2 rounded-lg transition-colors"
-            style={{ color: '#555' }}
-            title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
-            onMouseEnter={e => e.currentTarget.style.color = '#AAA'}
-            onMouseLeave={e => e.currentTarget.style.color = '#555'}
-          >
-            {fullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
-          </button>
-        </div>
+        </span>
       </div>
-      <ScrollProgress scrollEl={scrollEl} />
+
+      {/* Actions */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0 }}>
+        {editMode ? (
+          <button
+            onClick={() => setEditMode(false)}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', padding: '0.3rem 0.6rem', borderRadius: '6px', fontSize: '0.72rem', color: '#777', background: 'transparent', border: 'none', cursor: 'pointer' }}
+          >
+            <X style={{ width: '11px', height: '11px' }} /> Cancel
+          </button>
+        ) : (
+          <ChromeBtn onClick={() => setEditMode(true)} title="Edit">
+            <Edit3 style={{ width: '13px', height: '13px' }} />
+          </ChromeBtn>
+        )}
+        <ChromeBtn onClick={onDownload} title="Export PDF">
+          <Download style={{ width: '13px', height: '13px' }} />
+        </ChromeBtn>
+        <ChromeBtn onClick={() => setFullscreen(p => !p)} title={fullscreen ? 'Exit fullscreen' : 'Fullscreen'}>
+          {fullscreen ? <Minimize2 style={{ width: '13px', height: '13px' }} /> : <Maximize2 style={{ width: '13px', height: '13px' }} />}
+        </ChromeBtn>
+      </div>
     </div>
+  );
+}
+
+function ChromeBtn({ onClick, title, children }) {
+  const [hover, setHover] = useState(false);
+  return (
+    <button
+      onClick={onClick}
+      title={title}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        padding: '0.375rem',
+        borderRadius: '6px',
+        background: hover ? 'rgba(255,255,255,0.06)' : 'transparent',
+        border: 'none',
+        color: hover ? '#AAA' : '#555',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        transition: 'all 0.12s',
+      }}
+    >
+      {children}
+    </button>
   );
 }
 
 // ── Main export ───────────────────────────────────────────────────────────────
-export default function NotesDocumentView({ note, onUpdated, onCreatePractice, existingDeck }) {
+export default function NotesDocumentView({ note, subjectName, onUpdated, onCreatePractice, existingDeck }) {
   const nd = note.notes_data || {};
   const sections = nd.sections || [];
 
@@ -122,29 +155,41 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice, e
   };
 
   const Inner = ({ fs }) => (
-    <div
-      className={`flex flex-col ${fs ? 'fixed inset-0 z-50' : 'h-full'}`}
-      style={{ background: '#0B0D0E' }}
-    >
-      <NoteTopBar
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      background: '#1C1C1C',
+      ...(fs ? { position: 'fixed', inset: 0, zIndex: 50 } : { height: '100%' }),
+    }}>
+      <ScrollProgress scrollEl={scrollRef} />
+      <NoteChrome
         note={note}
+        subjectName={subjectName}
         editMode={editMode}
         setEditMode={setEditMode}
         onDownload={() => exportNoteToPDF(note)}
         fullscreen={fs}
         setFullscreen={setFullscreen}
-        scrollEl={scrollRef}
       />
-      <div ref={scrollRef} className="flex-1 overflow-y-auto">
-        <NoteBody
-          note={note}
-          editMode={editMode}
-          editedSections={editedSections}
-          onBulletChange={handleBulletChange}
-          onSave={handleSave}
-          saving={saving}
-        />
+
+      {/* Two-col layout: left nav rail + content */}
+      <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', display: 'flex' }}>
+        {/* Left navigation rail */}
+        <SectionRail sections={sections} scrollEl={scrollRef} />
+
+        {/* Main content column */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <NoteBody
+            note={note}
+            editMode={editMode}
+            editedSections={editedSections}
+            onBulletChange={handleBulletChange}
+            onSave={handleSave}
+            saving={saving}
+          />
+        </div>
       </div>
+
       <FloatingStudyDock
         onPractice={onCreatePractice}
         onFlashcards={() => setShowGenerateDeck(true)}
@@ -161,7 +206,6 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice, e
       {showRecall && (
         <ActiveRecallMode note={note} onClose={() => setShowRecall(false)} />
       )}
-
       {showGenerateDeck && (
         <GenerateDeckModal
           note={note}
@@ -173,34 +217,84 @@ export default function NotesDocumentView({ note, onUpdated, onCreatePractice, e
           }}
         />
       )}
-
       {showStudyDeck && currentDeck && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div
-            className="rounded-2xl shadow-2xl w-full max-w-2xl h-[80vh] overflow-hidden flex flex-col"
-            style={{ background: '#111416', border: '1px solid rgba(255,255,255,0.08)' }}
-          >
-            <div
-              className="flex items-center justify-between px-6 py-4 shrink-0"
-              style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
-            >
-              <h2 className="text-sm font-semibold" style={{ color: '#E0DDD8' }}>{currentDeck.name}</h2>
-              <button
-                onClick={() => setShowStudyDeck(false)}
-                className="p-1.5 rounded-lg transition-colors"
-                style={{ color: '#666' }}
-                onMouseEnter={e => e.currentTarget.style.color = '#AAA'}
-                onMouseLeave={e => e.currentTarget.style.color = '#666'}
-              >
-                <X className="w-4 h-4" />
-              </button>
+        <div style={{
+          position: 'fixed', inset: 0,
+          background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)',
+          zIndex: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem',
+        }}>
+          <div style={{
+            background: '#111416', border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: '16px', width: '100%', maxWidth: '680px', height: '80vh',
+            overflow: 'hidden', display: 'flex', flexDirection: 'column',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <h2 style={{ fontSize: '0.875rem', fontWeight: 600, color: '#E0DDD8' }}>{currentDeck.name}</h2>
+              <ChromeBtn onClick={() => setShowStudyDeck(false)} title="Close">
+                <X style={{ width: '14px', height: '14px' }} />
+              </ChromeBtn>
             </div>
-            <div className="flex-1 overflow-auto">
+            <div style={{ flex: 1, overflow: 'auto' }}>
               <APFlashcardReviewer deckId={currentDeck.id} />
             </div>
           </div>
         </div>
       )}
     </>
+  );
+}
+
+// ── Left section navigation rail ─────────────────────────────────────────────
+function SectionRail({ sections }) {
+  const [active, setActive] = useState(0);
+
+  if (!sections || sections.length === 0) return null;
+
+  return (
+    <div style={{
+      width: '200px',
+      flexShrink: 0,
+      borderRight: '1px solid rgba(255,255,255,0.05)',
+      padding: '2rem 0',
+      position: 'sticky',
+      top: '44px',
+      height: 'calc(100vh - 44px)',
+      overflowY: 'auto',
+      display: 'none', // hidden on mobile, shown on md+
+    }}
+      className="hidden md:block"
+    >
+      <p style={{ fontSize: '0.58rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.18em', color: '#444', padding: '0 1.25rem', marginBottom: '1rem' }}>
+        Contents
+      </p>
+      {sections.map((sec, i) => (
+        <button
+          key={i}
+          onClick={() => {
+            setActive(i);
+            const el = document.getElementById(`note-section-${i}`);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }}
+          style={{
+            display: 'block',
+            width: '100%',
+            textAlign: 'left',
+            padding: '0.45rem 1.25rem',
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '0.76rem',
+            lineHeight: 1.4,
+            color: active === i ? '#7BAE7F' : '#555',
+            borderLeft: active === i ? '2px solid #7BAE7F' : '2px solid transparent',
+            transition: 'all 0.12s',
+          }}
+          onMouseEnter={e => { if (active !== i) e.currentTarget.style.color = '#888'; }}
+          onMouseLeave={e => { if (active !== i) e.currentTarget.style.color = '#555'; }}
+        >
+          {sec.title}
+        </button>
+      ))}
+    </div>
   );
 }
