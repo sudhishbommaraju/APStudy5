@@ -1,12 +1,23 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
     content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
+  darkMode: ["class"],
   theme: {
   	extend: {
+  		fontFamily: {
+  			sans: ['"Plus Jakarta Sans"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+  			display: ['"Plus Jakarta Sans"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+  			serif: ['"Instrument Serif"', 'Georgia', 'serif'],
+  		},
   		borderRadius: {
+  			xl: 'calc(var(--radius) + 4px)',
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
+  		},
+  		boxShadow: {
+  			brand: '0 18px 50px -16px rgba(124, 58, 237, 0.45)',
+  			soft: '0 8px 30px -14px rgba(76, 29, 149, 0.20)',
   		},
   		colors: {
   			background: 'hsl(var(--background))',

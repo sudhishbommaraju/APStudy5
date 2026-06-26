@@ -1,6 +1,11 @@
 #env
 .env
 .env.*
+!.env.example
+
+# Proofly backend local data + uploads
+server/data
+server/uploads
 
 # Logs
 logs
@@ -28,3 +33,5 @@ dist-ssr
 *.sw?
 
 .env
+# Tooling
+.claude/

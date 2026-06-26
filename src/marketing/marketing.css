@@ -1,0 +1,139 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Barlow:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ============================================================
+   Proofly marketing site — cinematic, dark navy, video-backed.
+   Scoped under .marketing-root so it never affects the app theme.
+   ============================================================ */
+.marketing-root {
+  --m-bg: 201 100% 13%;
+  --m-fg: 0 0% 100%;
+  --m-muted: 240 4% 66%;
+  --font-display: 'Instrument Serif', serif;
+  --font-body: 'Inter', sans-serif;
+
+  background-color: hsl(var(--m-bg));
+  color: hsl(var(--m-fg));
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.marketing-root .font-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+}
+
+.marketing-root ::selection {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* ---- Liquid glass ---- */
+.liquid-glass {
+  background: rgba(255, 255, 255, 0.01);
+  background-blend-mode: luminosity;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: none;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+.liquid-glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.4px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.45) 0%,
+    rgba(255, 255, 255, 0.15) 20%,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0) 60%,
+    rgba(255, 255, 255, 0.15) 80%,
+    rgba(255, 255, 255, 0.45) 100%
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+.liquid-glass-strong {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+/* ---- Animations ---- */
+@keyframes fade-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-rise {
+  animation: fade-rise 0.8s ease-out both;
+}
+.animate-fade-rise-delay {
+  animation: fade-rise 0.8s ease-out 0.2s both;
+}
+.animate-fade-rise-delay-2 {
+  animation: fade-rise 0.8s ease-out 0.4s both;
+}
+.animate-fade-rise-delay-3 {
+  animation: fade-rise 0.8s ease-out 0.6s both;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-marquee {
+  animation: marquee 40s linear infinite;
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+/* Soft scrim so text stays readable over the video */
+.video-scrim {
+  background: linear-gradient(
+    180deg,
+    hsla(201, 100%, 13%, 0.55) 0%,
+    hsla(201, 100%, 13%, 0.35) 35%,
+    hsla(201, 100%, 13%, 0.65) 100%
+  );
+}
+
+/* Keep browser autofill from painting glass inputs with a light box.
+   Forces a dark navy fill + white text so fields stay readable. */
+.marketing-root input:-webkit-autofill,
+.marketing-root input:-webkit-autofill:hover,
+.marketing-root input:-webkit-autofill:focus,
+.marketing-root input:-webkit-autofill:active {
+  -webkit-text-fill-color: #ffffff !important;
+  -webkit-box-shadow: 0 0 0 1000px rgba(7, 26, 40, 0.92) inset !important;
+  caret-color: #ffffff;
+  border-radius: 0;
+  transition: background-color 9999s ease-in-out 0s;
+}

@@ -20,6 +20,13 @@ import AudioLessons from './pages/AudioLessons';
 import APStudyHub from './pages/APStudyHub';
 import BulkNotesGenerator from './pages/BulkNotesGenerator';
 import ImprovementEngine from './pages/ImprovementEngine';
+import Landing from './marketing/Landing';
+import Features from './marketing/Features';
+import AboutPage from './marketing/About';
+import ContactPage from './marketing/Contact';
+import SignIn from './marketing/SignIn';
+import Welcome from './pages/Welcome';
+import StudySubject from './pages/StudySubject';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -51,7 +58,14 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
+      <Route path="/" element={<Landing />} />
+      <Route path="/features" element={<Features />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/contact" element={<ContactPage />} />
+      <Route path="/signin" element={<SignIn />} />
+      <Route path="/login" element={<SignIn />} />
+      <Route path="/welcome" element={<Welcome />} />
+      <Route path="/study/:subjectId" element={<StudySubject />} />
       {Object.entries(Pages).map(([path, Page]) => (
         <Route
           key={path}

@@ -62,12 +62,14 @@ import APUpload from './pages/APUpload';
 import APYoutube from './pages/APYoutube';
 import About from './pages/About';
 import AdminHealth from './pages/AdminHealth';
-import AdminUsers from './pages/AdminUsers';
-import Analytics from './pages/Analytics';
+import AdminUsers from './pages/UsersAdmin';
+import Analytics from './pages/AnalyticsHub';
 import CourseBuilder from './pages/CourseBuilder';
 import Courses from './pages/Courses';
+import Create from './pages/Create';
 import CreateNotes from './pages/CreateNotes';
 import Dashboard from './pages/Dashboard';
+import Focus from './pages/Focus';
 import Demo from './pages/Demo';
 import Diagnostic from './pages/Diagnostic';
 import Engine from './pages/Engine';
@@ -80,7 +82,9 @@ import EnginePracticeBuilder from './pages/EnginePracticeBuilder';
 import EnginePracticeSession from './pages/EnginePracticeSession';
 import EngineResults from './pages/EngineResults';
 import EngineTimedQuiz from './pages/EngineTimedQuiz';
-import Flashcards from './pages/Flashcards';
+import Flashcards from './pages/FlashcardsHub';
+import Notes from './pages/Notes';
+import Practice from './pages/Practice';
 import Generate from './pages/Generate';
 import GroupDetail from './pages/GroupDetail';
 import Home from './pages/Home';
@@ -100,7 +104,7 @@ import SeedData from './pages/SeedData';
 import SeedTaxonomy from './pages/SeedTaxonomy';
 import Settings from './pages/Settings';
 import StudyGroups from './pages/StudyGroups';
-import StudyPlans from './pages/StudyPlans';
+import StudyPlans from './pages/StudyPlanHub';
 import Tier from './pages/Tier';
 import Upload from './pages/Upload';
 import ValidationDashboard from './pages/ValidationDashboard';
@@ -132,8 +136,10 @@ export const PAGES = {
     "Analytics": Analytics,
     "CourseBuilder": CourseBuilder,
     "Courses": Courses,
+    "Create": Create,
     "CreateNotes": CreateNotes,
     "Dashboard": Dashboard,
+    "Focus": Focus,
     "Demo": Demo,
     "Diagnostic": Diagnostic,
     "Engine": Engine,
@@ -147,6 +153,8 @@ export const PAGES = {
     "EngineResults": EngineResults,
     "EngineTimedQuiz": EngineTimedQuiz,
     "Flashcards": Flashcards,
+    "Notes": Notes,
+    "Practice": Practice,
     "Generate": Generate,
     "GroupDetail": GroupDetail,
     "Home": Home,
