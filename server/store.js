@@ -9,7 +9,11 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.join(__dirname, 'data');
 
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+try {
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+} catch {
+  /* read-only fs (e.g. Vercel) — store falls back to in-memory only */
+}
 
 // Simple per-entity in-memory cache + lazy file persistence.
 const cache = new Map();
@@ -38,7 +42,11 @@ function load(entity) {
 
 function persist(entity) {
   const rows = cache.get(entity) || [];
-  fs.writeFileSync(fileFor(entity), JSON.stringify(rows, null, 2));
+  try {
+    fs.writeFileSync(fileFor(entity), JSON.stringify(rows, null, 2));
+  } catch {
+    /* read-only fs — keep in-memory only */
+  }
 }
 
 function uid() {

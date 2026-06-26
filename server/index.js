@@ -14,8 +14,13 @@ import { invokeLLM, hasKey } from './llm.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 8787;
-const UPLOAD_DIR = path.join(__dirname, 'uploads');
-if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+// On Vercel the project FS is read-only; only /tmp is writable.
+const UPLOAD_DIR = process.env.VERCEL ? '/tmp/uploads' : path.join(__dirname, 'uploads');
+try {
+  if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+} catch {
+  /* read-only fs */
+}
 
 const app = express();
 app.use(express.json({ limit: '25mb' }));
@@ -52,6 +57,44 @@ function verifyPassword(pw, stored) {
 function newToken() {
   return crypto.randomBytes(24).toString('hex');
 }
+
+// ---- Stateless signed sessions (work on serverless without a database) ----
+// Token format: v1.<base64url(payload)>.<hmac>. The user identity lives in the
+// signed payload, so no server-side session store is needed.
+const SESSION_SECRET = process.env.SESSION_SECRET || 'proofly-local-dev-secret-change-me';
+function signSession(claims) {
+  const payload = { ...claims, exp: Date.now() + 30 * 24 * 60 * 60 * 1000 };
+  const body = Buffer.from(JSON.stringify(payload)).toString('base64url');
+  const sig = crypto.createHmac('sha256', SESSION_SECRET).update(body).digest('base64url');
+  return `v1.${body}.${sig}`;
+}
+function verifySession(token) {
+  if (!token || !token.startsWith('v1.')) return null;
+  const [, body, sig] = token.split('.');
+  if (!body || !sig) return null;
+  const expected = crypto.createHmac('sha256', SESSION_SECRET).update(body).digest('base64url');
+  if (sig.length !== expected.length || !crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) {
+    return null;
+  }
+  try {
+    const payload = JSON.parse(Buffer.from(body, 'base64url').toString());
+    if (payload.exp && Date.now() > payload.exp) return null;
+    return payload;
+  } catch {
+    return null;
+  }
+}
+function claimsFor(user) {
+  return {
+    id: user.id,
+    email: user.email,
+    full_name: user.full_name,
+    role: user.role || 'user',
+    tier: user.tier || 'free',
+    onboarding_completed: true,
+  };
+}
+
 function publicUser(u) {
   if (!u) return null;
   const { password_hash, ...rest } = u;
@@ -63,6 +106,10 @@ function tokenFromReq(req) {
 function userFromReq(req) {
   const t = tokenFromReq(req);
   if (!t) return null;
+  // Stateless signed session (used by all auth; survives serverless).
+  const claims = verifySession(t);
+  if (claims) return claims;
+  // Fallback: legacy server-side session lookup (local only).
   const sess = store.read('AuthSession', t);
   if (!sess) return null;
   return store.read('AuthUser', sess.user_id) || null;
@@ -90,8 +137,7 @@ app.post('/api/auth/register', (req, res) => {
     credits: 100,
     onboarding_completed: true,
   });
-  const token = newToken();
-  store.create('AuthSession', { id: token, user_id: user.id });
+  const token = signSession(claimsFor(user));
   console.log(`[AUTH] registered ${mail} (${store.list('AuthUser').length} users total)`);
   res.json({ token, user: publicUser(user) });
 });
@@ -103,8 +149,7 @@ app.post('/api/auth/login', (req, res) => {
   if (!user || !verifyPassword(password || '', user.password_hash)) {
     return res.status(401).json({ error: 'Incorrect email or password.' });
   }
-  const token = newToken();
-  store.create('AuthSession', { id: token, user_id: user.id });
+  const token = signSession(claimsFor(user));
   res.json({ token, user: publicUser(user) });
 });
 
@@ -141,8 +186,7 @@ app.post('/api/auth/google', async (req, res) => {
       });
       console.log(`[AUTH] google sign-up ${mail} (${store.list('AuthUser').length} users total)`);
     }
-    const token = newToken();
-    store.create('AuthSession', { id: token, user_id: user.id });
+    const token = signSession(claimsFor(user));
     res.json({ token, user: publicUser(user) });
   } catch (e) {
     res.status(401).json({ error: 'Could not verify your Google sign-in. Please try again.' });
@@ -361,12 +405,18 @@ app.post('/api/youtube/transcript', async (req, res) => {
 
 app.get('/api/health', (req, res) => res.json({ ok: true, hasKey: hasKey() }));
 
-app.listen(PORT, () => {
-  const provider = process.env.OPENAI_API_KEY
-    ? 'OpenAI'
-    : process.env.ANTHROPIC_API_KEY
-    ? 'Anthropic'
-    : null;
-  console.log(`\n  Proofly backend → http://localhost:${PORT}`);
-  console.log(`  AI: ${provider ? `LIVE (${provider} key found)` : 'DEMO MODE (no API key)'}\n`);
-});
+// Local dev: run a real server. On Vercel the app is imported by the
+// serverless function (api/[...path].js) instead of listening on a port.
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    const provider = process.env.OPENAI_API_KEY
+      ? 'OpenAI'
+      : process.env.ANTHROPIC_API_KEY
+      ? 'Anthropic'
+      : null;
+    console.log(`\n  Proofly backend → http://localhost:${PORT}`);
+    console.log(`  AI: ${provider ? `LIVE (${provider} key found)` : 'DEMO MODE (no API key)'}\n`);
+  });
+}
+
+export default app;
