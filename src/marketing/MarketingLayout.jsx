@@ -103,8 +103,8 @@ function Footer() {
               Proofly<sup className="text-xs">®</sup>
             </p>
             <p className="mt-3 text-sm leading-relaxed text-white/55">
-              Turn anything — a PDF, a lecture, a video — into AP-ready notes, flashcards, and
-              practice. Built for deep focus and inspired work.
+              Turn any PDF, lecture, or video into AP-ready notes, flashcards, and practice. Built
+              for deep focus and inspired work.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-x-16 gap-y-8 sm:grid-cols-3">

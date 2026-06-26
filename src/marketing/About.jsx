@@ -6,7 +6,7 @@ import { Reveal, AnimatedCounter, TiltCard, SERIF } from './MarketingBits';
 
 const VALUES = [
   { icon: Focus, title: 'Focus over noise', desc: 'Studying is hard enough. Our interfaces are calm, quiet, and free of clutter so your attention stays on the work.' },
-  { icon: Sparkles, title: 'Substance over hype', desc: 'Accurate, curriculum-aligned material in real LaTeX — not flashy filler. If it is wrong, it does not ship.' },
+  { icon: Sparkles, title: 'Substance over hype', desc: 'Accurate, curriculum-aligned material in real LaTeX, not flashy filler. If it is wrong, it does not ship.' },
   { icon: Compass, title: 'Guidance, not shortcuts', desc: 'Proofly helps you understand, not skip. Explanations, spaced repetition, and analytics build real mastery.' },
   { icon: HeartHandshake, title: 'For every student', desc: 'From the first AP to the fifth, Proofly meets you where you are and grows with you.' },
 ];
@@ -28,15 +28,19 @@ export default function About() {
       <section className="relative z-10 px-6 py-14">
         <Reveal className="mx-auto max-w-3xl">
           <p className="text-xl leading-relaxed text-white/75 sm:text-2xl" style={{ fontFamily: "'Inter', sans-serif" }}>
-            Proofly began with a simple frustration: students drown in material — textbooks, slides,
-            lecture videos — but have no fast way to turn it into something they can actually study.
-            So we built one. Drop in anything, and Proofly hands back notes, flashcards, and practice
-            that are accurate, beautiful, and ready in seconds.
+            Proofly started with my own story. As a teenager, I was playing a sport I loved while
+            trying to keep up with hard classes. Practice ran late, the work piled up, and my grades
+            tanked. It felt like I had to choose between the game and the classroom. Then I figured
+            out how to actually study, the kind of focused, efficient studying that turns a mountain
+            of material into something you can learn fast. My grades came back, and I realized other
+            students needed the exact same thing.
           </p>
           <p className="mt-6 text-base leading-relaxed text-white/55">
-            We're designing tools for deep thinkers, bold creators, and quiet rebels. Amid the
-            chaos of cramming, we build the calm — a place where focus is the default and mastery is
-            the point.
+            I built Proofly for students like me, especially student athletes who are stretched thin
+            and still trying to stay on top of their AP classes and their grades. Drop in your
+            material and Proofly hands back notes, flashcards, and practice that are accurate, clear,
+            and ready in minutes. Less time drowning in pages, more time learning, so you can keep
+            your grades up and still chase everything else you love.
           </p>
         </Reveal>
       </section>
