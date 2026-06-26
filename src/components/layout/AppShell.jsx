@@ -40,40 +40,12 @@ function useFolders() {
   return folders;
 }
 
-const NAV = [
-  { section: 'Study' },
-  { label: 'Dashboard', to: '/Dashboard', icon: LayoutDashboard },
-  { label: 'Create', to: '/Create', icon: Sparkles, accent: true },
-  { label: 'Practice', to: '/Practice', icon: Dumbbell },
-  { label: 'Flashcards', to: '/Flashcards', icon: Layers },
-  { label: 'Notes', to: '/Notes', icon: NotebookPen },
-  { section: 'Focus' },
-  { label: 'Pomodoro', to: '/Focus', icon: Timer },
-  { section: 'Performance' },
-  { label: 'Analytics', to: '/Analytics', icon: BarChart3 },
-  { label: 'Study Plan', to: '/StudyPlans', icon: CalendarRange },
-];
+const NAV = [{ label: 'Dashboard', to: '/Dashboard', icon: LayoutDashboard }];
 
 function NavItems({ pathname, onNavigate }) {
-  const { user } = useAuth();
-  const folders = useFolders();
-  const items =
-    user?.role === 'admin'
-      ? [...NAV, { section: 'Admin' }, { label: 'Users', to: '/AdminUsers', icon: Users }]
-      : NAV;
   return (
-    <nav className="flex flex-col gap-1 px-3">
-      {items.map((item, i) => {
-        if (item.section) {
-          return (
-            <p
-              key={`s-${i}`}
-              className="px-3 pb-1 pt-5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70 first:pt-1"
-            >
-              {item.section}
-            </p>
-          );
-        }
+    <nav className="flex flex-col gap-1 px-3 pt-2">
+      {NAV.map((item) => {
         const Icon = item.icon;
         const active = pathname.toLowerCase() === item.to.toLowerCase();
         return (
@@ -85,62 +57,19 @@ function NavItems({ pathname, onNavigate }) {
               'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all',
               active
                 ? 'bg-brand-gradient text-white shadow-brand'
-                : item.accent
-                ? 'text-primary hover:bg-secondary'
                 : 'text-foreground/70 hover:bg-secondary hover:text-foreground',
             ].join(' ')}
           >
             <Icon
               className={[
                 'h-[18px] w-[18px] transition-transform group-hover:scale-110',
-                active ? 'text-white' : item.accent ? 'text-primary' : 'text-muted-foreground',
+                active ? 'text-white' : 'text-muted-foreground',
               ].join(' ')}
             />
             {item.label}
-            {item.accent && !active && (
-              <span className="ml-auto rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
-                AI
-              </span>
-            )}
           </Link>
         );
       })}
-
-      {/* Library — folders / notebooks */}
-      <div className="flex items-center justify-between px-3 pb-1 pt-5">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-          Library
-        </p>
-        <Link
-          to="/Dashboard?newFolder=1"
-          onClick={onNavigate}
-          title="New folder"
-          className="grid h-6 w-6 place-items-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground"
-        >
-          <FolderPlus className="h-4 w-4" />
-        </Link>
-      </div>
-      {folders.length === 0 ? (
-        <Link
-          to="/Dashboard?newFolder=1"
-          onClick={onNavigate}
-          className="mx-1 flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-muted-foreground hover:bg-secondary hover:text-foreground"
-        >
-          <FolderPlus className="h-[18px] w-[18px]" /> New folder
-        </Link>
-      ) : (
-        folders.map((f) => (
-          <Link
-            key={f.id}
-            to={`/Dashboard?folder=${f.id}`}
-            onClick={onNavigate}
-            className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-foreground/70 transition-all hover:bg-secondary hover:text-foreground"
-          >
-            <Folder className="h-[18px] w-[18px] shrink-0" style={{ color: f.color || '#3b82f6' }} />
-            <span className="truncate">{f.name}</span>
-          </Link>
-        ))
-      )}
     </nav>
   );
 }
