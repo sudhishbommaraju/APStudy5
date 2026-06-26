@@ -13,6 +13,7 @@ import {
   Check,
   RotateCw,
   AlertCircle,
+  Image as ImageIcon,
 } from 'lucide-react';
 import AppShell from '@/components/layout/AppShell';
 import { base44, fetchYoutubeTranscript } from '@/api/base44Client';
@@ -56,6 +57,25 @@ const OUTPUT_SCHEMA = {
   },
 };
 
+// Replace {{IMAGE: prompt :: caption}} placeholders with generated images.
+async function embedImages(md) {
+  const re = /\{\{IMAGE:\s*([\s\S]*?)\s*::\s*([\s\S]*?)\}\}/g;
+  const matches = [...md.matchAll(re)].slice(0, 2);
+  let out = md;
+  for (const m of matches) {
+    const [full, imgPrompt, caption] = m;
+    try {
+      const { url } = await base44.integrations.Core.GenerateImage({ prompt: imgPrompt.trim() });
+      out = url
+        ? out.replace(full, `\n\n![${caption.trim().replace(/[[\]]/g, '')}](${url})\n\n`)
+        : out.replace(full, '');
+    } catch {
+      out = out.replace(full, '');
+    }
+  }
+  return out.replace(/\{\{IMAGE:[\s\S]*?\}\}/g, '');
+}
+
 function Toggle({ active, onClick, icon: Icon, label, desc }) {
   return (
     <button
@@ -97,7 +117,7 @@ export default function Create() {
   const [text, setText] = useState('');
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [file, setFile] = useState(null);
-  const [want, setWant] = useState({ notes: true, flashcards: true, practice: true });
+  const [want, setWant] = useState({ notes: true, flashcards: true, practice: true, images: true });
 
   const [busy, setBusy] = useState(false);
   const [stage, setStage] = useState('');
@@ -153,8 +173,11 @@ export default function Create() {
         ``,
         `Requested: ${wanted.join(', ')}.`,
         want.notes
-          ? `- notes: comprehensive, well-structured Markdown study notes (headings, bullet points, bold key terms). Render ALL math/science notation in LaTeX with $...$ (inline) and $$...$$ (display).`
+          ? `- notes: comprehensive, well-structured Markdown study notes. Use ## headings (with a relevant emoji at the start of each heading), bullet points, **bold** key terms, and Markdown tables to compare/contrast concepts. Render ALL math/science notation in LaTeX with $...$ (inline) and $$...$$ (display).`
           : `- notes: return an empty string.`,
+        want.notes && want.images
+          ? `  In the notes, where a labeled diagram would genuinely aid understanding, insert AT MOST 2 image placeholders, each on its OWN line, in this EXACT format: {{IMAGE: <a SPECIFIC, detailed description of exactly what the diagram should show, including the key parts/labels to draw> :: <short caption>}}. Be concrete and subject-specific (e.g. "a labeled cross-section of a prokaryotic cell showing the cell wall, plasma membrane, cytoplasm, nucleoid, ribosomes, and flagellum"), NOT generic. Only for genuinely visual concepts (structures, cycles, processes) — never for plain text or equations.`
+          : ``,
         want.flashcards
           ? `- flashcards: 10-15 high-yield Q/A flashcards. Use LaTeX for any math.`
           : `- flashcards: return an empty array.`,
@@ -173,10 +196,20 @@ export default function Create() {
         response_json_schema: OUTPUT_SCHEMA,
       });
 
+      let notesText = data?.notes || '';
+      if (notesText) {
+        if (want.images && /\{\{IMAGE:/.test(notesText)) {
+          setStage('Drawing diagrams…');
+          notesText = await embedImages(notesText);
+        } else {
+          notesText = notesText.replace(/\{\{IMAGE:[\s\S]*?\}\}/g, '');
+        }
+      }
+
       const normalized = {
         title: data?.title || `${subject.subject} — Study Set`,
         summary: data?.summary || '',
-        notes: data?.notes || '',
+        notes: notesText,
         flashcards: Array.isArray(data?.flashcards) ? data.flashcards : [],
         practice: Array.isArray(data?.practice) ? data.practice : [],
         demo: typeof data === 'object' && JSON.stringify(data).includes('DEMO MODE'),
@@ -446,6 +479,7 @@ export default function Create() {
 
           <div className="space-y-2.5">
             <Toggle active={want.notes} onClick={() => toggleWant('notes')} icon={NotebookPen} label="Notes" desc="Structured notes in LaTeX" />
+            <Toggle active={want.images} onClick={() => toggleWant('images')} icon={ImageIcon} label="AI diagrams" desc="Illustrations inside your notes" />
             <Toggle active={want.flashcards} onClick={() => toggleWant('flashcards')} icon={Layers} label="Flashcards" desc="High-yield Q/A cards" />
             <Toggle active={want.practice} onClick={() => toggleWant('practice')} icon={Dumbbell} label="Practice" desc="MCQs with explanations" />
           </div>

@@ -199,8 +199,12 @@ const Core = {
       body: JSON.stringify({ file_url }),
     });
   },
-  async GenerateImage() {
-    return { url: '' }; // not supported in standalone build
+  async GenerateImage({ prompt } = {}) {
+    const data = await jsonFetch(`${API}/image/generate`, {
+      method: 'POST',
+      body: JSON.stringify({ prompt }),
+    });
+    return { url: data.url || '' };
   },
   async SendEmail() {
     return { ok: true }; // no-op in standalone build

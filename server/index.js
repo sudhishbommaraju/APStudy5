@@ -233,6 +233,52 @@ app.post('/api/llm/invoke', async (req, res) => {
   }
 });
 
+// ---- AI image generation (OpenAI Images) ----
+async function tryImageModel(key, model, fullPrompt) {
+  const r = await fetch('https://api.openai.com/v1/images/generations', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
+    body: JSON.stringify({ model, prompt: fullPrompt, n: 1, size: '1024x1024' }),
+  });
+  if (!r.ok) {
+    const t = await r.text();
+    const err = new Error(t.slice(0, 300));
+    err.status = r.status;
+    throw err;
+  }
+  const data = await r.json();
+  const item = data.data?.[0];
+  if (item?.b64_json) return Buffer.from(item.b64_json, 'base64');
+  if (item?.url) return Buffer.from(await (await fetch(item.url)).arrayBuffer());
+  throw new Error('no image returned');
+}
+
+app.post('/api/image/generate', async (req, res) => {
+  const { prompt } = req.body || {};
+  const key = process.env.OPENAI_API_KEY;
+  if (!key) return res.status(400).json({ error: 'Image generation needs an OpenAI API key.' });
+  if (!prompt) return res.status(400).json({ error: 'prompt required' });
+  const fullPrompt =
+    'A clear, accurate, labeled scientific diagram in a clean flat-vector style on a ' +
+    'plain white background. No borders, no decorative clip-art, no graduation caps. ' +
+    'Accurately depict this specific subject: ' +
+    String(prompt).slice(0, 800);
+  const candidates = [process.env.IMAGE_MODEL, 'gpt-image-1', 'dall-e-3', 'dall-e-2'].filter(Boolean);
+  let lastErr;
+  for (const model of candidates) {
+    try {
+      const buf = await tryImageModel(key, model, fullPrompt);
+      const name = `img_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.png`;
+      fs.writeFileSync(path.join(UPLOAD_DIR, name), buf);
+      return res.json({ url: `/uploads/${name}`, model });
+    } catch (e) {
+      lastErr = e;
+      console.error(`[IMAGE] ${model} failed:`, e.message.replace(/\s+/g, ' ').slice(0, 160));
+    }
+  }
+  res.status(500).json({ error: 'Image generation failed.', detail: lastErr?.message?.slice(0, 200) });
+});
+
 // ---- File upload + extraction ----
 const upload = multer({
   storage: multer.diskStorage({

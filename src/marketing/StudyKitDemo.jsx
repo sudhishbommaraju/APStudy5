@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, Youtube, Type, NotebookPen, Layers, Dumbbell, Check, ArrowRight } from 'lucide-react';
+import { FileText, Youtube, Type, NotebookPen, Layers, Dumbbell, Check, ArrowRight, Image as ImageIcon } from 'lucide-react';
 import { InlineMath, BlockMath } from 'react-katex';
 import 'katex/dist/katex.min.css';
 
@@ -19,19 +19,50 @@ const OUTPUTS = [
 function NotesPreview() {
   return (
     <div className="space-y-3 text-left">
-      <p className="text-lg text-white" style={{ fontFamily: "'Instrument Serif', serif" }}>
-        Newton's Second Law
-      </p>
+      <p className="flex items-center gap-2 text-lg font-semibold text-white">📘 Newton's Second Law</p>
       <p className="text-sm leading-relaxed text-white/70">
-        The net force on an object equals its mass times acceleration:
+        The net force on an object equals its mass times its acceleration:
       </p>
-      <div className="rounded-xl bg-white/5 px-4 py-3 text-white">
+      <div className="rounded-xl bg-white/5 px-4 py-3 text-center text-white">
         <BlockMath math={'\\vec{F}_{net} = m\\vec{a}'} />
       </div>
-      <ul className="space-y-1.5 text-sm text-white/70">
-        <li>• Acceleration scales as <InlineMath math={'a = \\frac{F}{m}'} /></li>
-        <li>• Measured in newtons, <InlineMath math={'1\\,\\text{N} = 1\\,\\frac{kg\\cdot m}{s^2}'} /></li>
-      </ul>
+
+      {/* AI-generated diagram */}
+      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+        <svg viewBox="0 0 240 96" className="mx-auto h-24 w-full">
+          <rect x="78" y="34" width="52" height="42" rx="7" fill="#3b82f6" fillOpacity="0.85" />
+          <text x="104" y="61" fontSize="15" fill="#fff" textAnchor="middle">m</text>
+          <line x1="130" y1="55" x2="206" y2="55" stroke="#60a5fa" strokeWidth="3" />
+          <polygon points="206,55 195,49 195,61" fill="#60a5fa" />
+          <text x="172" y="46" fontSize="12" fill="#93c5fd" textAnchor="middle">F</text>
+          <line x1="104" y1="80" x2="104" y2="92" stroke="#22d3ee" strokeWidth="2" />
+          <polygon points="104,92 99,84 109,84" fill="#22d3ee" />
+          <text x="120" y="90" fontSize="11" fill="#67e8f9" textAnchor="middle">a</text>
+        </svg>
+        <p className="mt-1 flex items-center justify-center gap-1 text-[11px] text-white/40">
+          <ImageIcon className="h-3 w-3" /> AI diagram · free-body diagram
+        </p>
+      </div>
+
+      {/* comparison table */}
+      <table className="w-full overflow-hidden rounded-lg text-left text-xs">
+        <thead>
+          <tr className="bg-white/[0.06] text-white/60">
+            <th className="px-3 py-2 font-medium">Change</th>
+            <th className="px-3 py-2 font-medium">Effect on $a$</th>
+          </tr>
+        </thead>
+        <tbody className="text-white/80">
+          <tr className="border-t border-white/10">
+            <td className="px-3 py-2">Force doubles</td>
+            <td className="px-3 py-2">doubles</td>
+          </tr>
+          <tr className="border-t border-white/10">
+            <td className="px-3 py-2">Mass doubles</td>
+            <td className="px-3 py-2">halves</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
 }

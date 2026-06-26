@@ -39,8 +39,21 @@ export default function NotesRenderer({ content }) {
           blockquote: ({ node, ...p }) => (
             <blockquote className="my-4 border-l-4 border-primary/40 bg-secondary/40 py-2 pl-4 italic text-foreground/80" {...p} />
           ),
+          img: ({ node, alt, ...p }) => (
+            <span className="my-5 block">
+              <img
+                {...p}
+                alt={alt || ''}
+                loading="lazy"
+                className="mx-auto block max-h-[26rem] w-full rounded-2xl border border-border bg-secondary/30 object-contain"
+              />
+              {alt ? (
+                <span className="mt-2 block text-center text-xs text-muted-foreground">{alt}</span>
+              ) : null}
+            </span>
+          ),
           table: ({ node, ...p }) => (
-            <div className="my-4 overflow-x-auto">
+            <div className="my-4 overflow-x-auto rounded-xl border border-border">
               <table className="w-full border-collapse text-sm" {...p} />
             </div>
           ),
