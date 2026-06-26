@@ -109,9 +109,19 @@ export default function SignIn() {
     return () => ctx.revert();
   }, [mode]);
 
-  // Real Google Sign-In (active when VITE_GOOGLE_CLIENT_ID is set).
-  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  // Real Google Sign-In. Client ID can come from the build-time Vite env OR
+  // (more reliably in production) from the backend at runtime via /api/config.
+  const [clientId, setClientId] = useState(import.meta.env.VITE_GOOGLE_CLIENT_ID || '');
   const googleDivRef = useRef(null);
+  useEffect(() => {
+    if (clientId) return;
+    fetch('/api/config')
+      .then((r) => r.json())
+      .then((d) => {
+        if (d && d.googleClientId) setClientId(d.googleClientId);
+      })
+      .catch(() => {});
+  }, [clientId]);
   useEffect(() => {
     if (!clientId) return;
     let cancelled = false;

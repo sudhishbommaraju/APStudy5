@@ -405,6 +405,15 @@ app.post('/api/youtube/transcript', async (req, res) => {
 
 app.get('/api/health', (req, res) => res.json({ ok: true, hasKey: hasKey() }));
 
+// Runtime public config so the frontend gets the Google Client ID without
+// depending on build-time Vite env inlining (works even if the build missed it).
+app.get('/api/config', (req, res) => {
+  res.json({
+    googleClientId: process.env.VITE_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || '',
+    aiEnabled: hasKey(),
+  });
+});
+
 // Local dev: run a real server. On Vercel the app is imported by the
 // serverless function (api/[...path].js) instead of listening on a port.
 if (!process.env.VERCEL) {
