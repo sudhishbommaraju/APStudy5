@@ -9,7 +9,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { store } from './store.js';
+import { store, usingDatabase } from './store.js';
 import { invokeLLM, hasKey } from './llm.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -112,13 +112,7 @@ function tokenFromReq(req) {
 function userFromReq(req) {
   const t = tokenFromReq(req);
   if (!t) return null;
-  // Stateless signed session (used by all auth; survives serverless).
-  const claims = verifySession(t);
-  if (claims) return claims;
-  // Fallback: legacy server-side session lookup (local only).
-  const sess = store.read('AuthSession', t);
-  if (!sess) return null;
-  return store.read('AuthUser', sess.user_id) || null;
+  return verifySession(t); // stateless claims (or null)
 }
 
 app.get('/api/auth/me', (req, res) => {
@@ -126,37 +120,44 @@ app.get('/api/auth/me', (req, res) => {
   res.json(u ? publicUser(u) : GUEST);
 });
 
-app.post('/api/auth/register', (req, res) => {
-  const { name, email, password } = req.body || {};
-  const mail = String(email || '').trim().toLowerCase();
-  if (!mail || !password) return res.status(400).json({ error: 'Email and password are required.' });
-  if (store.filter('AuthUser', { email: mail }).length) {
-    return res.status(409).json({ error: 'An account with this email already exists. Try signing in.' });
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    const { name, email, password } = req.body || {};
+    const mail = String(email || '').trim().toLowerCase();
+    if (!mail || !password) return res.status(400).json({ error: 'Email and password are required.' });
+    if ((await store.filter('AuthUser', { email: mail })).length) {
+      return res.status(409).json({ error: 'An account with this email already exists. Try signing in.' });
+    }
+    const isFirst = (await store.list('AuthUser')).length === 0;
+    const user = await store.create('AuthUser', {
+      email: mail,
+      full_name: (name && name.trim()) || mail.split('@')[0],
+      password_hash: hashPassword(password),
+      role: isFirst ? 'admin' : 'user',
+      tier: isFirst ? 'pro' : 'free',
+      credits: 100,
+      onboarding_completed: true,
+    });
+    res.json({ token: signSession(claimsFor(user)), user: publicUser(user) });
+  } catch (e) {
+    console.error('[AUTH] register error:', e.message);
+    res.status(500).json({ error: 'Could not create your account. Please try again.' });
   }
-  const isFirst = store.list('AuthUser').length === 0;
-  const user = store.create('AuthUser', {
-    email: mail,
-    full_name: (name && name.trim()) || mail.split('@')[0],
-    password_hash: hashPassword(password),
-    role: isFirst ? 'admin' : 'user',
-    tier: isFirst ? 'pro' : 'free',
-    credits: 100,
-    onboarding_completed: true,
-  });
-  const token = signSession(claimsFor(user));
-  console.log(`[AUTH] registered ${mail} (${store.list('AuthUser').length} users total)`);
-  res.json({ token, user: publicUser(user) });
 });
 
-app.post('/api/auth/login', (req, res) => {
-  const { email, password } = req.body || {};
-  const mail = String(email || '').trim().toLowerCase();
-  const user = store.filter('AuthUser', { email: mail })[0];
-  if (!user || !verifyPassword(password || '', user.password_hash)) {
-    return res.status(401).json({ error: 'Incorrect email or password.' });
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body || {};
+    const mail = String(email || '').trim().toLowerCase();
+    const user = (await store.filter('AuthUser', { email: mail }))[0];
+    if (!user || !verifyPassword(password || '', user.password_hash)) {
+      return res.status(401).json({ error: 'Incorrect email or password.' });
+    }
+    res.json({ token: signSession(claimsFor(user)), user: publicUser(user) });
+  } catch (e) {
+    console.error('[AUTH] login error:', e.message);
+    res.status(500).json({ error: 'Sign-in failed. Please try again.' });
   }
-  const token = signSession(claimsFor(user));
-  res.json({ token, user: publicUser(user) });
 });
 
 // Sign in with Google: verify the ID token with Google, then find-or-create
@@ -177,10 +178,10 @@ app.post('/api/auth/google', async (req, res) => {
     }
     if (!p.email) return res.status(401).json({ error: 'Google did not return an email.' });
     const mail = String(p.email).toLowerCase();
-    let user = store.filter('AuthUser', { email: mail })[0];
+    let user = (await store.filter('AuthUser', { email: mail }))[0];
     if (!user) {
-      const isFirst = store.list('AuthUser').length === 0;
-      user = store.create('AuthUser', {
+      const isFirst = (await store.list('AuthUser')).length === 0;
+      user = await store.create('AuthUser', {
         email: mail,
         full_name: p.name || mail.split('@')[0],
         avatar: p.picture || '',
@@ -190,35 +191,34 @@ app.post('/api/auth/google', async (req, res) => {
         credits: 100,
         onboarding_completed: true,
       });
-      console.log(`[AUTH] google sign-up ${mail} (${store.list('AuthUser').length} users total)`);
     }
-    const token = signSession(claimsFor(user));
-    res.json({ token, user: publicUser(user) });
+    res.json({ token: signSession(claimsFor(user)), user: publicUser(user) });
   } catch (e) {
     res.status(401).json({ error: 'Could not verify your Google sign-in. Please try again.' });
   }
 });
 
-app.post('/api/auth/update', (req, res) => {
+app.post('/api/auth/update', async (req, res) => {
   const u = userFromReq(req);
   if (u) {
-    const updated = store.update('AuthUser', u.id, req.body || {});
-    return res.json(publicUser(updated));
+    const updated = await store.update('AuthUser', u.id, req.body || {});
+    return res.json(publicUser(updated) || { ...u, ...(req.body || {}) });
   }
   res.json({ ...GUEST, ...(req.body || {}) });
 });
 
-app.post('/api/auth/logout', (req, res) => {
-  const t = tokenFromReq(req);
-  if (t) store.remove('AuthSession', t);
-  res.json({ ok: true });
-});
+app.post('/api/auth/logout', (req, res) => res.json({ ok: true }));
 
 app.get('/api/auth/is-authenticated', (req, res) => res.json({ authenticated: !!userFromReq(req) }));
 
 // Admin: list every registered user (never exposes password hashes).
-app.get('/api/auth/users', (req, res) => {
-  res.json(store.list('AuthUser', { sort: '-created_date' }).map(publicUser));
+app.get('/api/auth/users', async (req, res) => {
+  try {
+    const rows = await store.list('AuthUser', { sort: '-created_date' });
+    res.json(rows.map(publicUser));
+  } catch {
+    res.json([]);
+  }
 });
 
 // base44 AuthContext probes this on boot; keep it happy.
@@ -227,48 +227,62 @@ app.get('/api/apps/public/prod/public-settings/by-id/:id', (req, res) => {
 });
 
 // ---- Entity CRUD ----
-app.get('/api/entities/:entity', (req, res) => {
-  const { entity } = req.params;
-  const { _sort, _limit, ...query } = req.query;
-  // Coerce stringified query values (numbers/booleans) where obvious.
-  const coerced = {};
-  for (const [k, v] of Object.entries(query)) {
-    if (v === 'true') coerced[k] = true;
-    else if (v === 'false') coerced[k] = false;
-    else if (v !== '' && !isNaN(Number(v))) coerced[k] = Number(v);
-    else coerced[k] = v;
+app.get('/api/entities/:entity', async (req, res) => {
+  try {
+    const { entity } = req.params;
+    const { _sort, _limit, ...query } = req.query;
+    const coerced = {};
+    for (const [k, v] of Object.entries(query)) {
+      if (v === 'true') coerced[k] = true;
+      else if (v === 'false') coerced[k] = false;
+      else if (v !== '' && !isNaN(Number(v))) coerced[k] = Number(v);
+      else coerced[k] = v;
+    }
+    const opts = { sort: _sort, limit: _limit ? Number(_limit) : undefined };
+    const rows = Object.keys(coerced).length
+      ? await store.filter(entity, coerced, opts)
+      : await store.list(entity, opts);
+    res.json(rows);
+  } catch (e) {
+    console.error('[ENTITY] list error:', e.message);
+    res.status(500).json({ error: 'database error' });
   }
-  const opts = { sort: _sort, limit: _limit ? Number(_limit) : undefined };
-  const rows = Object.keys(coerced).length
-    ? store.filter(entity, coerced, opts)
-    : store.list(entity, opts);
-  res.json(rows);
 });
 
-app.post('/api/entities/:entity', (req, res) => {
-  const rec = store.create(req.params.entity, req.body || {}, userFromReq(req)?.email || 'local@proofly.app');
-  res.json(rec);
+app.post('/api/entities/:entity', async (req, res) => {
+  try {
+    const rec = await store.create(req.params.entity, req.body || {}, userFromReq(req)?.email || 'local@proofly.app');
+    res.json(rec);
+  } catch (e) {
+    console.error('[ENTITY] create error:', e.message);
+    res.status(500).json({ error: 'database error' });
+  }
 });
 
-app.post('/api/entities/:entity/bulk', (req, res) => {
-  const items = Array.isArray(req.body) ? req.body : req.body?.items || [];
-  res.json(store.bulkCreate(req.params.entity, items, userFromReq(req)?.email || 'local@proofly.app'));
+app.post('/api/entities/:entity/bulk', async (req, res) => {
+  try {
+    const items = Array.isArray(req.body) ? req.body : req.body?.items || [];
+    res.json(await store.bulkCreate(req.params.entity, items, userFromReq(req)?.email || 'local@proofly.app'));
+  } catch (e) {
+    console.error('[ENTITY] bulk error:', e.message);
+    res.status(500).json({ error: 'database error' });
+  }
 });
 
-app.get('/api/entities/:entity/:id', (req, res) => {
-  const rec = store.read(req.params.entity, req.params.id);
+app.get('/api/entities/:entity/:id', async (req, res) => {
+  const rec = await store.read(req.params.entity, req.params.id);
   if (!rec) return res.status(404).json({ error: 'not found' });
   res.json(rec);
 });
 
-app.put('/api/entities/:entity/:id', (req, res) => {
-  const rec = store.update(req.params.entity, req.params.id, req.body || {});
+app.put('/api/entities/:entity/:id', async (req, res) => {
+  const rec = await store.update(req.params.entity, req.params.id, req.body || {});
   if (!rec) return res.status(404).json({ error: 'not found' });
   res.json(rec);
 });
 
-app.delete('/api/entities/:entity/:id', (req, res) => {
-  const ok = store.remove(req.params.entity, req.params.id);
+app.delete('/api/entities/:entity/:id', async (req, res) => {
+  const ok = await store.remove(req.params.entity, req.params.id);
   res.json({ ok });
 });
 
@@ -409,7 +423,7 @@ app.post('/api/youtube/transcript', async (req, res) => {
   }
 });
 
-app.get('/api/health', (req, res) => res.json({ ok: true, hasKey: hasKey() }));
+app.get('/api/health', (req, res) => res.json({ ok: true, hasKey: hasKey(), db: usingDatabase }));
 
 // Runtime public config so the frontend gets the Google Client ID without
 // depending on build-time Vite env inlining (works even if the build missed it).
@@ -417,6 +431,7 @@ app.get('/api/config', (req, res) => {
   res.json({
     googleClientId: GOOGLE_CLIENT_ID,
     aiEnabled: hasKey(),
+    db: usingDatabase,
   });
 });
 
