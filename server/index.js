@@ -62,6 +62,12 @@ function newToken() {
 // Token format: v1.<base64url(payload)>.<hmac>. The user identity lives in the
 // signed payload, so no server-side session store is needed.
 const SESSION_SECRET = process.env.SESSION_SECRET || 'proofly-local-dev-secret-change-me';
+// OAuth Client IDs are public (they ship in the browser), so a hardcoded
+// fallback is safe and means Google sign-in works without any env var.
+const GOOGLE_CLIENT_ID =
+  process.env.VITE_GOOGLE_CLIENT_ID ||
+  process.env.GOOGLE_CLIENT_ID ||
+  '858820743774-j3brlssh79e22lhhkrjltubl285un15l.apps.googleusercontent.com';
 function signSession(claims) {
   const payload = { ...claims, exp: Date.now() + 30 * 24 * 60 * 60 * 1000 };
   const body = Buffer.from(JSON.stringify(payload)).toString('base64url');
@@ -158,7 +164,7 @@ app.post('/api/auth/login', (req, res) => {
 app.post('/api/auth/google', async (req, res) => {
   const { credential } = req.body || {};
   if (!credential) return res.status(400).json({ error: 'Missing Google credential.' });
-  const clientId = process.env.VITE_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || '';
+  const clientId = GOOGLE_CLIENT_ID;
   try {
     const resp = await fetch(
       `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`
@@ -409,7 +415,7 @@ app.get('/api/health', (req, res) => res.json({ ok: true, hasKey: hasKey() }));
 // depending on build-time Vite env inlining (works even if the build missed it).
 app.get('/api/config', (req, res) => {
   res.json({
-    googleClientId: process.env.VITE_GOOGLE_CLIENT_ID || process.env.GOOGLE_CLIENT_ID || '',
+    googleClientId: GOOGLE_CLIENT_ID,
     aiEnabled: hasKey(),
   });
 });
