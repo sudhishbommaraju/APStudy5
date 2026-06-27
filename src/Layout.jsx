@@ -10,22 +10,6 @@ export default function Layout({ children, currentPageName }) {
   
   useEffect(() => {
     base44.auth.isAuthenticated().then(setIsLoggedIn);
-    document.documentElement.classList.remove('dark');
-  }, []);
-
-  // SYSTEM RESET - Clear all cached state on mount
-  React.useEffect(() => {
-    console.log('[RESET] Clearing cached state...');
-    localStorage.removeItem('dashboard_active_tab');
-    localStorage.removeItem('proofly_theme');
-    sessionStorage.clear();
-    document.documentElement.classList.remove('dark');
-    
-    // ENV CHECK
-    console.log('[ENV CHECK]', {
-      BASE_URL: window.location.origin,
-      APP_INITIALIZED: true
-    });
   }, []);
 
   // Pages that don't need the layout wrapper at all

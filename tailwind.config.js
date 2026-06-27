@@ -5,8 +5,8 @@ module.exports = {
   theme: {
   	extend: {
   		fontFamily: {
-  			sans: ['"Plus Jakarta Sans"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-  			display: ['"Plus Jakarta Sans"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+  			sans: ['Satoshi', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+  			display: ['Satoshi', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
   			serif: ['"Instrument Serif"', 'Georgia', 'serif'],
   		},
   		borderRadius: {

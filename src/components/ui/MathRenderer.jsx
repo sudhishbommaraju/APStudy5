@@ -12,36 +12,70 @@ function sanitize(latex) {
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
-    // Remove surrounding whitespace
     .trim();
+}
+
+// Models don't always use $-delimiters. Normalize the other common LaTeX
+// delimiters to $/$$ so the parser below can find the math:
+//   \( ... \)  ->  $ ... $    (inline)
+//   \[ ... \]  ->  $$ ... $$  (display)
+// Using function replacements avoids `$`-in-replacement-string quirks.
+function normalizeDelims(s) {
+  return s
+    .replace(/\\\[/g, () => '$$')
+    .replace(/\\\]/g, () => '$$')
+    .replace(/\\\(/g, () => '$')
+    .replace(/\\\)/g, () => '$');
+}
+
+function FallbackText({ children }) {
+  return <span className="font-mono text-[0.95em] opacity-80">{children}</span>;
 }
 
 function MathSegment({ src, block }) {
   const clean = sanitize(src);
   try {
-    if (block) return <BlockMath math={clean} />;
-    return <InlineMath math={clean} />;
+    // renderError keeps a bad expression from printing KaTeX's red error markup.
+    const renderError = () => <FallbackText>{clean}</FallbackText>;
+    if (block) return <BlockMath math={clean} renderError={renderError} />;
+    return <InlineMath math={clean} renderError={renderError} />;
   } catch {
-    // Silent fallback — show as clean text, not red error
-    return <span className="font-mono text-sm opacity-70">{clean}</span>;
+    return <FallbackText>{clean}</FallbackText>;
   }
 }
 
+// A whole string that is a single bare expression the model forgot to wrap —
+// e.g. an MCQ option like "\frac{1}{2}", "\frac{\sqrt{3}}{2}", "x^2", "\infty".
+// Must be a single token (no inner whitespace) so we never feed a full
+// sentence to KaTeX.
+function isBareExpression(s) {
+  const t = s.trim();
+  if (!t || /\s/.test(t)) return false;
+  return /\\[a-zA-Z]+/.test(t) || /[\^_]\{?[A-Za-z0-9]/.test(t);
+}
+
 /**
- * MathRenderer — parses $...$ inline and $$...$$ block math from text strings.
- * Handles mixed text + math gracefully.
+ * MathRenderer — renders mixed text + LaTeX. Accepts $...$ / $$...$$ as well as
+ * \( ... \) / \[ ... \] delimiters, and renders a lone bare expression as math.
  */
 function MathRenderer({ text, className = '' }) {
   if (!text) return null;
-  const str = String(text);
+  const str = normalizeDelims(String(text));
 
-  // Fast path: no dollar signs at all
+  // No $-delimited math: either a bare expression, or plain prose.
   if (!str.includes('$')) {
+    if (isBareExpression(str)) {
+      return (
+        <span className={className}>
+          <MathSegment src={str} block={false} />
+        </span>
+      );
+    }
     return <span className={className}>{str}</span>;
   }
 
   const parts = [];
-  // Match $$....$$ first (block), then $...$ (inline)
+  // $$....$$ (block) first, then $...$ (inline).
   const pattern = /(\$\$[\s\S]+?\$\$|\$[^$\n]+?\$)/g;
   let lastIndex = 0;
   let match;
@@ -53,14 +87,14 @@ function MathRenderer({ text, className = '' }) {
     const raw = match[0];
     const isBlock = raw.startsWith('$$');
     const inner = isBlock ? raw.slice(2, -2).trim() : raw.slice(1, -1).trim();
-    parts.push({ type: isBlock ? 'block' : 'inline', content: inner });
+    // An empty pair (e.g. "$$" from a stray delimiter) — drop it.
+    if (inner) parts.push({ type: isBlock ? 'block' : 'inline', content: inner });
     lastIndex = match.index + raw.length;
   }
   if (lastIndex < str.length) {
     parts.push({ type: 'text', content: str.slice(lastIndex) });
   }
 
-  // Only plain text found
   if (parts.length === 1 && parts[0].type === 'text') {
     return <span className={className}>{str}</span>;
   }
