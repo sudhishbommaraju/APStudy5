@@ -444,26 +444,49 @@ async function fetchTranscriptDirect(id) {
   return texts.join(' ').replace(/\s+/g, ' ').trim();
 }
 
+// Transcript via Supadata (https://supadata.ai). Works from datacenter IPs
+// (Vercel) and Whisper-generates one when a video has no captions. Set
+// SUPADATA_API_KEY in the environment to enable it.
+async function fetchTranscriptSupadata(url) {
+  const key = process.env.SUPADATA_API_KEY;
+  if (!key) return '';
+  const api = `https://api.supadata.ai/v1/transcript?text=true&lang=en&url=${encodeURIComponent(url)}`;
+  const resp = await fetch(api, { headers: { 'x-api-key': key } });
+  if (!resp.ok) throw new Error(`supadata ${resp.status}`);
+  const data = await resp.json();
+  if (typeof data.content === 'string') return data.content.trim();
+  if (Array.isArray(data.content)) return data.content.map((c) => c.text || '').join(' ').trim();
+  return '';
+}
+
 app.post('/api/youtube/transcript', async (req, res) => {
   const { url } = req.body || {};
   const id = youtubeId(url);
   if (!id) return res.status(400).json({ error: 'invalid YouTube URL' });
 
   let transcript = '';
-  // 1) the library (works great from residential IPs)
+  // 0) Supadata API — most reliable from servers (set SUPADATA_API_KEY).
   try {
-    const { YoutubeTranscript } = await import('youtube-transcript');
-    let items;
-    try {
-      items = await YoutubeTranscript.fetchTranscript(id, { lang: 'en' });
-    } catch {
-      items = await YoutubeTranscript.fetchTranscript(id);
-    }
-    transcript = (items || []).map((i) => i.text).join(' ');
+    transcript = await fetchTranscriptSupadata(url);
   } catch (e) {
-    console.error('[YOUTUBE] lib failed:', e.message);
+    console.error('[YOUTUBE] supadata failed:', e.message);
   }
-  // 2) direct fallback
+  // 1) the library (works great from residential IPs)
+  if (!transcript || !transcript.trim()) {
+    try {
+      const { YoutubeTranscript } = await import('youtube-transcript');
+      let items;
+      try {
+        items = await YoutubeTranscript.fetchTranscript(id, { lang: 'en' });
+      } catch {
+        items = await YoutubeTranscript.fetchTranscript(id);
+      }
+      transcript = (items || []).map((i) => i.text).join(' ');
+    } catch (e) {
+      console.error('[YOUTUBE] lib failed:', e.message);
+    }
+  }
+  // 2) direct watch-page fallback
   if (!transcript || !transcript.trim()) {
     try {
       transcript = await fetchTranscriptDirect(id);
