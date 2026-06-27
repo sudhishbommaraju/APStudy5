@@ -19,7 +19,6 @@ import {
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import Shell from '@/components/layout/Shell';
-import { LogoMark } from '@/components/ui/Logo';
 
 /* ---------------- helpers ---------------- */
 const WEIGHT = { note: 12, attempt: 2, card: 1 };
@@ -213,7 +212,6 @@ export default function Dashboard() {
   const lastNote = data.notes[0];
   const todays = data.notes.filter((n) => relTime(n.created_date) === 'Today');
   const earlier = data.notes.filter((n) => relTime(n.created_date) !== 'Today');
-  const isEmpty = !data.loading && data.notes.length === 0 && !stats.hasData;
 
   const STAT_CARDS = [
     { icon: Activity, tint: 'blue', label: 'Study sessions', value: String(stats.sessions) },
@@ -244,33 +242,7 @@ export default function Dashboard() {
 
   return (
     <Shell lead={lead} actions={actions}>
-      {isEmpty ? (
-        <div className="empty">
-          <div className="empty__mark">
-            <LogoMark size={40} />
-          </div>
-          <div className="empty__title">Let's make your first study set.</div>
-          <p className="empty__sub">
-            Drop in a PDF, paste your notes, or add a YouTube link. Proofly turns it into notes, flashcards, and
-            practice in seconds.
-          </p>
-          <div className="empty__cards">
-            {CREATE.slice(0, 3).map((c) => (
-              <Link key={c.key} to={c.to} className="empty__card">
-                <span className="empty__card-ic">
-                  <c.icon />
-                </span>
-                <div>
-                  <div className="empty__card-title">{c.title}</div>
-                  <div className="empty__card-sub">{c.sub}</div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <>
-          {/* Create */}
+      {/* Create */}
           <section className="section">
             <div className="section__head">
               <div>
@@ -392,8 +364,6 @@ export default function Dashboard() {
               )}
             </section>
           )}
-        </>
-      )}
     </Shell>
   );
 }
