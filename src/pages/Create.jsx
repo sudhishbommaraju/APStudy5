@@ -5,6 +5,7 @@ import {
   Youtube,
   FileText,
   Sparkles,
+  Wand2,
   Loader2,
   NotebookPen,
   Layers,
@@ -24,10 +25,14 @@ import { SubjectPicker, UnitPicker } from '@/components/studyhub/SubjectPicker';
 import { markdownToLatex, downloadText } from '@/utils/texExport';
 
 const SOURCE_TABS = [
+  { key: 'topic', label: 'Topic', icon: Wand2 },
   { key: 'upload', label: 'Upload', icon: Upload },
   { key: 'youtube', label: 'YouTube', icon: Youtube },
   { key: 'text', label: 'Paste text', icon: FileText },
 ];
+
+// Dashboard "create" cards link with ?source=… — map those to a tab.
+const SOURCE_PARAM_TO_TAB = { topic: 'topic', file: 'upload', upload: 'upload', youtube: 'youtube', text: 'text' };
 
 const OUTPUT_SCHEMA = {
   type: 'object',
@@ -111,9 +116,12 @@ function Toggle({ active, onClick, icon: Icon, label, desc }) {
 
 export default function Create() {
   const [params] = useSearchParams();
-  const [tab, setTab] = useState(params.get('tab') || 'upload');
+  const [tab, setTab] = useState(
+    params.get('tab') || SOURCE_PARAM_TO_TAB[params.get('source')] || 'topic'
+  );
   const [subjectId, setSubjectId] = useState(params.get('subject') || AP_SUBJECTS[0].id);
   const [unit, setUnit] = useState(params.get('unit') || '');
+  const [topic, setTopic] = useState('');
   const [text, setText] = useState('');
   const [youtubeUrl, setYoutubeUrl] = useState('');
   const [file, setFile] = useState(null);
@@ -161,15 +169,21 @@ export default function Create() {
     setResult(null);
     setBusy(true);
     try {
-      const source = await getSourceText();
+      const fromTopic = tab === 'topic';
+      const source = fromTopic ? '' : await getSourceText();
       const trimmed = source.slice(0, 12000);
       const wanted = Object.entries(want).filter(([, v]) => v).map(([k]) => k);
       if (wanted.length === 0) throw new Error('Pick at least one thing to generate.');
 
       setStage('Generating with AI…');
-      const prompt = [
-        `You are creating AP study materials for "${subject.subject}"${unit ? `, focused on "${unit}"` : ''}.`,
-        `From the SOURCE MATERIAL below, produce the requested study artifacts.`,
+      const lines = [
+        fromTopic
+          ? `You are an expert AP teacher. Using your own expert knowledge (no source document is provided), create AP study materials for "${subject.subject}"${
+              unit ? `, unit "${unit}"` : ''
+            }${topic.trim() ? `, focused specifically on: "${topic.trim()}"` : ''}.`
+          : `You are creating AP study materials for "${subject.subject}"${
+              unit ? `, focused on "${unit}"` : ''
+            }. From the SOURCE MATERIAL below, produce the requested study artifacts.`,
         ``,
         `Requested: ${wanted.join(', ')}.`,
         want.notes
@@ -186,10 +200,9 @@ export default function Create() {
           : `- practice: return an empty array.`,
         ``,
         `Also include a short "title" and one-sentence "summary".`,
-        ``,
-        `SOURCE MATERIAL:`,
-        trimmed,
-      ].join('\n');
+      ];
+      if (!fromTopic) lines.push('', 'SOURCE MATERIAL:', trimmed);
+      const prompt = lines.join('\n');
 
       const data = await base44.integrations.Core.InvokeLLM({
         prompt,
@@ -382,12 +395,12 @@ export default function Create() {
 
   // ---------- BUILDER VIEW ----------
   return (
-    <AppShell title="Create a study set" subtitle="Upload, paste, or link — get notes, flashcards, and practice.">
+    <AppShell title="Create a study set" subtitle="Pick a topic, upload, paste, or link — get notes, flashcards, and practice.">
       <div className="grid gap-6 lg:grid-cols-5">
         {/* Left: source */}
         <div className="space-y-5 lg:col-span-3">
           <div className="card-elevated p-2">
-            <div className="grid grid-cols-3 gap-1.5">
+            <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
               {SOURCE_TABS.map((t) => {
                 const Icon = t.icon;
                 return (
@@ -407,6 +420,22 @@ export default function Create() {
           </div>
 
           <div className="card-elevated p-5">
+            {tab === 'topic' && (
+              <div>
+                <label className="text-sm font-semibold text-foreground">What should it cover?</label>
+                <textarea
+                  value={topic}
+                  onChange={(e) => setTopic(e.target.value)}
+                  rows={6}
+                  placeholder={`e.g. "Limits and continuity", "causes of the French Revolution", or leave blank for a full ${subject.subject} overview`}
+                  className="mt-2 w-full resize-none rounded-xl border border-border bg-card p-3 text-sm outline-none focus:border-primary"
+                />
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Proofly writes the notes, flashcards, and practice from scratch with AI — no upload needed.
+                </p>
+              </div>
+            )}
+
             {tab === 'upload' && (
               <div
                 onClick={() => fileInputRef.current?.click()}

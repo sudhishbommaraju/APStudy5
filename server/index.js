@@ -401,11 +401,57 @@ function youtubeId(url) {
   return m ? m[1] : null;
 }
 
-app.post('/api/youtube/transcript', async (req, res) => {
+const YT_HEADERS = {
+  'User-Agent':
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0 Safari/537.36',
+  'Accept-Language': 'en-US,en;q=0.9',
+  // CONSENT cookie skips the EU consent interstitial that otherwise hides the page.
+  Cookie: 'CONSENT=YES+cb',
+};
+
+function decodeXmlText(s) {
+  return s
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)));
+}
+
+// Fallback that fetches the watch page directly and pulls the timedtext track.
+// More resilient than the library when YouTube changes its internals, though
+// datacenter IPs (e.g. Vercel) can still be blocked by YouTube.
+async function fetchTranscriptDirect(id) {
+  const page = await fetch(`https://www.youtube.com/watch?v=${id}&hl=en`, { headers: YT_HEADERS }).then((r) =>
+    r.text()
+  );
+  const m = page.match(/"captionTracks":(\[.*?\])/);
+  if (!m) return '';
+  let tracks;
   try {
-    const { url } = req.body || {};
-    const id = youtubeId(url);
-    if (!id) return res.status(400).json({ error: 'invalid YouTube URL' });
+    tracks = JSON.parse(m[1].replace(/\\u0026/g, '&'));
+  } catch {
+    return '';
+  }
+  if (!tracks.length) return '';
+  const track = tracks.find((t) => (t.languageCode || '').startsWith('en')) || tracks[0];
+  if (!track?.baseUrl) return '';
+  const xml = await fetch(track.baseUrl.replace(/\\u0026/g, '&'), { headers: YT_HEADERS }).then((r) => r.text());
+  const texts = [...xml.matchAll(/<text[^>]*>([\s\S]*?)<\/text>/g)].map((x) => decodeXmlText(x[1]));
+  return texts.join(' ').replace(/\s+/g, ' ').trim();
+}
+
+app.post('/api/youtube/transcript', async (req, res) => {
+  const { url } = req.body || {};
+  const id = youtubeId(url);
+  if (!id) return res.status(400).json({ error: 'invalid YouTube URL' });
+
+  let transcript = '';
+  // 1) the library (works great from residential IPs)
+  try {
     const { YoutubeTranscript } = await import('youtube-transcript');
     let items;
     try {
@@ -413,14 +459,27 @@ app.post('/api/youtube/transcript', async (req, res) => {
     } catch {
       items = await YoutubeTranscript.fetchTranscript(id);
     }
-    const transcript = items.map((i) => i.text).join(' ');
-    res.json({ status: 'success', videoId: id, transcript });
-  } catch (err) {
-    console.error('[YOUTUBE] error:', err.message);
-    res
-      .status(500)
-      .json({ status: 'error', error: 'Could not fetch transcript (captions may be disabled).' });
+    transcript = (items || []).map((i) => i.text).join(' ');
+  } catch (e) {
+    console.error('[YOUTUBE] lib failed:', e.message);
   }
+  // 2) direct fallback
+  if (!transcript || !transcript.trim()) {
+    try {
+      transcript = await fetchTranscriptDirect(id);
+    } catch (e) {
+      console.error('[YOUTUBE] direct failed:', e.message);
+    }
+  }
+
+  if (transcript && transcript.trim()) {
+    return res.json({ status: 'success', videoId: id, transcript });
+  }
+  return res.status(502).json({
+    status: 'error',
+    error:
+      'Could not fetch the transcript. The video may have captions disabled, or YouTube is blocking our server. Try a different video, or paste the text.',
+  });
 });
 
 app.get('/api/health', (req, res) => res.json({ ok: true, hasKey: hasKey(), db: usingDatabase }));
